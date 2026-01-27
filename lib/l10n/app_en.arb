@@ -1,0 +1,419 @@
+{
+    "language": "English",
+    "@language":{
+      "description": "The current Language"
+    },
+    "helloWorld": "Hello World!",
+    "@helloWorld": {
+      "description": "A programmer greeting"
+    },
+
+    "apNameText": "Travel",
+    "@apNameText": {
+      "description": "Travel"
+    },
+
+    "introductionOneText" : "Organize anything with anyone anywhere.",
+    "@introductionOneText": {
+      "description": "introductionOneText"
+    },
+
+    "introductionTwoText" : "Enhanced in-app communication.",
+    "@introductionTwoText": {
+      "description": "introductionTwoText"
+    },
+
+    "introductionThreeText" : "Stay in the know - even on the go.",
+    "@introductionThreeText": {
+      "description": "introductionThreeText"
+    },
+
+    "nextText" : "Next",
+    "@nextText": {
+      "description": "nextText"
+    },
+
+    "skipText" : "Skip",
+    "@skipText": {
+      "description": "skipText"
+    },
+
+    "signUpText" : "Sign up",
+    "@signUpText": {
+      "description": "signUpText"
+    },
+
+    "loginText" : "Login",
+    "@loginText": {
+      "description": "loginText"
+    },
+ 
+    "alreadyHaveAnAccountText" : "Already have an account?",
+    "@alreadyHaveAnAccountText": {
+      "description": "alreadyHaveAnAccountText"
+    },
+
+    "welcomeText" : "Welcome",
+    "@welcomeText": {
+      "description": "welcomeText"
+    },
+
+    "userNameText" : "Username",
+    "@userNameText": {
+      "description": "userNameText"
+    },
+
+    "passwordText" : "Password",
+    "@passwordText": {
+      "description": "passwordText"
+    },
+
+    "rememberMeText" : "Remember me",
+    "@rememberMeText": {
+      "description": "rememberMeText"
+    },
+
+    "doNotHaveAccountText" : "Don't have account?",
+    "@doNotHaveAccountText": {
+      "description": "doNotHaveAccountText"
+    },
+
+    "emailText" : "Email",
+    "@emailText": {
+      "description": "emailText"
+    },
+
+    "countryText" : "Country",
+    "@countryText": {
+      "description": "countryText"
+    },
+ 
+    "birthdayText" : "Birthday",
+    "@birthdayText": {
+      "description": "birthdayText"
+    },
+
+    "iAgreeToAllTermsText" : "I agree to all terms",
+    "@iAgreeToAllTermsText": {
+      "description": "iAgreeToAllTermsText"
+    },
+ 
+
+    "fullNameText" : "Full name",
+    "@fullNameText": {
+      "description": "fullNameText"
+    },
+
+    "emailAddressText" : "Email Address",
+    "@emailAddressText": {
+      "description": "emailAddressText"
+    },
+
+    "emailOrUsernameText" : "Email / UserName",
+    "@emailOrUsernameText": {
+      "description": "emailOrUsernameText"
+    },
+
+    "iAgreeToReceiveNewslettersText" : "I agree to receive newsletters",
+    "@iAgreeToReceiveNewslettersText": {
+      "description": "iAgreeToReceiveNewslettersText"
+    },
+
+    "subscribeText" : "Subscribe",
+    "@subscribeText": {
+      "description": "subscribeText"
+    },
+
+    "categoryText" : "Category",
+    "@categoryText": {
+      "description": "categoryText"
+    },
+
+    "homeText" : "Home",
+    "@homeText": {
+      "description": "homeText"
+    },
+
+    "searchText" : "Search",
+    "@searchText": {
+      "description": "searchText"
+    },
+
+    "profileText" : "Profile",
+    "@profileText": {
+      "description": "profileText"
+    },
+
+    "readMoreText" : "Read More...",
+    "@readMoreText": {
+      "description": "readMoreText"
+    },
+
+    "readLessText" : "Read Less",
+    "@readLessText": {
+      "description": "readLessText"
+    },
+
+    "searchForText" : "Search for...",
+    "@searchForText": {
+      "description": "searchForText"
+    },
+
+    "settingsText" : "Settings",
+    "@settingsText": {
+      "description": "settingsText"
+    },
+
+    "logoutText" : "Logout",
+    "@logoutText": {
+      "description": "logoutText"
+    },
+
+    "termsText" : "Terms",
+    "@termsText": {
+      "description": "termsText"
+    },
+
+    "menuText" : "Menu",
+    "@menuText": {
+      "description": "menuText"
+    },
+
+    "myAccountText" : "My account",
+    "@myAccountText": {
+      "description": "myAccountText"
+    },
+
+    "notificationText" : "Notification",
+    "@notificationText": {
+      "description": "notificationText"
+    },
+
+    "languageText" : "Language",
+    "@languageText": {
+      "description": "languageText"
+    },
+
+    "faqText" : "FAQ",
+    "@faqText": {
+      "description": "faqText"
+    },
+
+    "privacyPolicyText" : "Privacy Policy",
+    "@privacyPolicyText": {
+      "description": "privacyPolicyText"
+    },
+
+    "termsConditionsText" : "Terms & Conditions",
+    "@termsConditionsText": {
+      "description": "termsConditionsText"
+    },
+
+    "contactUsText" : "Contact Us",
+    "@contactUsText": {
+      "description": "contactUsText"
+    },
+ 
+    "noNotificationFoundText" : "No notification found",
+    "@noNotificationFoundText": {
+      "description": "noNotificationFoundText"
+    },
+
+    "notificationSubTitleText" : "We did not found any notification",
+    "@notificationSubTitleText": {
+      "description": "notificationSubTitleText"
+    },
+
+    "notificationSubTitle2Text" : "Lets start exploring",
+    "@notificationSubTitle2Text": {
+      "description": "notificationSubTitle2Text"
+    },
+    
+    "newText" : "NEW",
+    "@newText": {
+      "description": "newText"
+    },
+
+    "companyName" : "Company Name",
+    "@companyName": {
+      "description": "companyName"
+    },
+
+    "pinCode" : "PIN Code",
+    "@pinCode": {
+      "description": "pinCode"
+    },
+
+    "forgetPw" : "Forgot Password ?",
+    "@forgetPw": {
+      "description": "forgetPw"
+    },
+
+    "click" : "Click",
+    "@click": {
+      "description": "click"
+    },
+
+    "epfnumber" : "EPF Number",
+    "@epfnumber": {
+      "description": "epfnumber"
+    },
+
+    "viewMore" : "View More",
+    "@viewMore": {
+      "description": "viewMore"
+    },
+
+    "checkIn" : "Check In",
+    "@checkIn": {
+      "description": "checkIn"
+    },
+
+    "checkOut" : "Check Out",
+    "@checkOut": {
+      "description": "checkOut"
+    },
+
+    "leaveText" : "My Leaves",
+    "@leaveText": {
+      "description": "leaveText"
+    },
+
+    "attendanceText" : "My Attendance",
+    "@attendanceText": {
+      "description": "attendanceText"
+    },
+ 
+    "continueText" : "Continue",
+    "@continueText": {
+      "description": "continueText"
+    },
+
+    "leaveRequest" : "Leave Request",
+    "@leaveRequest": {
+      "description": "leaveRequest"
+    },
+
+    "submit" : "Submit",
+    "@submit": {
+      "description": "submit"
+    },
+
+    "apply" : "Apply",
+    "@apply": {
+      "description": "apply"
+    },
+   
+    "rosterText" : "My Roster",
+    "@rosterText": {
+      "description": "rosterText"
+    },
+
+    "emailValidation" : "Please enter email address",
+    "@emailValidation": {
+      "description": "emailValidation"
+    },
+
+    "tenantValidation" : "Please enter company name",
+    "@tenantValidation": {
+      "description": "tenantValidation"
+    },
+
+    "epfValidation" : "Please enter epf number",
+    "@epfValidation": {
+      "description": "epfValidation"
+    },
+
+    "pinCodeValidation" : "Please enter pin code",
+    "@pinCodeValidation": {
+      "description": "pinCodeValidation"
+    },
+
+
+    "january" : "January",
+    "@january": {
+      "description": "January"
+    },
+ 
+    "february" : "February",
+    "@february": {
+      "description": "February"
+    },
+
+    "march" : "March",
+    "@march": {
+      "description": "March"
+    },
+ 
+    "april" : "April",
+    "@april": {
+      "description": "April"
+    },
+ 
+    "may" : "May",
+    "@may": {
+      "description": "May"
+    },
+ 
+    "june" : "June",
+    "@june": {
+      "description": "June"
+    },
+
+    "july" : "July",
+    "@july": {
+      "description": "July"
+    },
+
+    "august" : "August",
+    "@august": {
+      "description": "August"
+    },
+ 
+    "september" : "September",
+    "@september": {
+      "description": "September"
+    },
+  
+    "october" : "October",
+    "@october": {
+      "description": "October"
+    },
+
+    "november" : "November",
+    "@november": {
+      "description": "November"
+    },
+ 
+    "december" : "December",
+    "@december": {
+      "description": "December"
+    },    
+
+    "leaveApprove" : "Leave Approve",
+    "@leaveApprove": {
+      "description": "Leave Approve"
+    },    
+    
+    "leaveReject" : "Leave Reject",
+    "@leaveReject": {
+      "description": "Leave Reject"
+    },
+
+    "salarySlips" : "Salary Slips",
+    "@salarySlips": {
+      "description": "Salary Slips"
+    },
+
+    "allowanceDeductions" : "Allowance / Deductions",
+    "@allowanceDeductions": {
+      "description": "Allowance / Deductions"
+    },
+
+    "debtLoans" : "Debt / Loans",
+    "@debtLoans": {
+      "description": "Debt / Loans"
+    }
+    
+
+}

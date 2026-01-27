@@ -1,0 +1,168 @@
+{
+    "language": "සිංහල",
+    
+    "helloWorld": "හෙලෝ !",
+    
+    "apNameText": "Travel",
+    
+    "introductionOneText" : "Plan your trips safely by browsing places through a safety parameter.",
+    
+    "introductionTwoText" : "Connect with a community of registered travelers  and know their experiences.",
+    
+    "introductionThreeText" : "Have a safety at WorldTour",
+    
+    "nextText" : "Next",
+    
+    "skipText" : "මඟ හරින්න", 
+
+    "signUpText" : "Sign up",
+    
+    "loginText" : "ලොග් වන්න",
+    
+    "alreadyHaveAnAccountText" : "Already have an account?",
+    
+    "welcomeText" : "ආයුබෝවන්",
+    
+    "userNameText" : "Username",
+
+    "emailOrUsernameText" : "Email / UserName",
+    
+    "passwordText" : "Password",
+    
+    "rememberMeText" : "Remember me",
+    
+    "doNotHaveAccountText" : "Don't have account?",
+    
+    "emailText" : "Email",
+    
+    "countryText" : "Country",
+    
+    "birthdayText" : "Birthday",
+    
+    "iAgreeToAllTermsText" : "I agree to all terms",
+    
+    "fullNameText" : "Full name",
+    
+    "emailAddressText" : "ඊමේල් ලිපිනය",
+    
+    "iAgreeToReceiveNewslettersText" : "I agree to receive newsletters",
+    
+    "subscribeText" : "Subscribe",
+    
+    "categoryText" : "Category",
+    
+    "homeText" : "Home",
+    
+    "searchText" : "Search",
+    
+    "profileText" : "Profile",
+    
+    "readMoreText" : "Read More...",
+    
+    "readLessText" : "Read Less",
+    
+    "searchForText" : "Search for...",
+    
+    "settingsText" : "Settings",
+    
+    "logoutText" : "Logout",
+    
+    "termsText" : "Terms",
+    
+    "menuText" : "Menu",
+    
+    "myAccountText" : "මගේ ගිණුම",
+    
+    "notificationText" : "දැනුම්දීම",
+    
+    "languageText" : "භාෂාව",
+    
+    "faqText" : "නිති අසන පැණ",
+    
+    "privacyPolicyText" : "රහස්යතා ප්රතිපත්තිය",
+    
+    "termsConditionsText" : "කොන්දේසි පෙළ",
+    
+    "contactUsText" : "අපව අමතන්න",
+    
+    "noNotificationFoundText" : "දැනුම්දීමක් හමු නොවීය",
+    
+    "notificationSubTitleText" : "අපි කිසිදු දැනුම්දීමක් සොයා ගත්තේ නැත",
+    
+    "notificationSubTitle2Text" : "Lets start exploring",
+    
+    "newText" : "නවතම",
+    
+    "companyName" : "ආයතනයේ නම",
+    
+    "pinCode" : "PIN කේතය",
+    
+    "forgetPw" : "මුරපදය අමතක වුණා ද ?",
+    
+    "click" : "Click",
+    
+    "epfnumber" : "EPF අංකය",
+    
+    "viewMore" : "View More",
+    
+    "checkIn" : "Check In",
+    
+    "checkOut" : "Check Out",
+    
+    "leaveText" : "මගේ නිවාඩු",
+    
+    "attendanceText" : "මගේ පැමිණීම",
+    
+    "continueText" : "ඉදිරියට",
+    
+    "leaveRequest" : "නිවාඩු ඉල්ලීම",
+    
+    "submit" : "ඉදිරිපත් කරන්න",
+    
+    "apply" : "අයදුම් කරන්න",
+    
+    "rosterText" : "මගේ ලැයිස්තුව",
+    
+    "emailValidation" : "කරුණාකර ඊමේල් ලිපිනය හෝ EPF අංකය ඇතුළු කරන්න",
+    
+    "tenantValidation" : "කරුණාකර සමාගමේ නම ඇතුළත් කරන්න",
+    
+    "epfValidation" : "කරුණාකර epf අංකය ඇතුලත් කරන්න",
+    
+    "pinCodeValidation" : "කරුණාකර PIN කේතය ඇතුළු කරන්න",
+
+    "january":"ජනවාරි",
+    
+    "february" :"පෙබරවාරි",
+
+    "march" : "මාර්තු",
+
+    "april" : "අප්‍රේල්",
+
+    "may" : "මැයි",
+
+    "june" : "ජූනි",
+
+    "july" : "ජුලි",
+
+    "august" : "අගෝස්තු",
+
+    "september" : "සැප්තැම්බර්",
+
+    "october" : "ඔක්තෝම්බර්",
+
+    "november" : "නොවැම්බර්",
+
+    "december" : "දෙසැම්බර්",
+
+    "leaveApprove" : "නිවාඩු අනුමත කිරීම",
+
+    "leaveReject" : "නිවාඩු ප්‍රතික්ෂේප කිරීම",
+
+    "salarySlips" : "වැටුප් පත්‍රිකා",
+
+    "allowanceDeductions" : "දීමනා / අඩු කිරීම්",
+
+    "debtLoans" : "ණය / අත මාරු"
+       
+}

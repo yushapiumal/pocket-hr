@@ -1,0 +1,168 @@
+{
+    "language": "தமிழ்",
+    "helloWorld": "வணக்கம் !",
+    
+    "apNameText": "Travel",
+    
+    "introductionOneText" : "Plan your trips safely by browsing places through a safety parameter.",
+    
+    "introductionTwoText" : "Connect with a community of registered travelers  and know their experiences.",
+    
+    "introductionThreeText" : "Have a safety at WorldTour",
+    
+    "nextText" : "Next",
+    
+    "skipText" : "தவிர்க்கவும்", 
+
+    "signUpText" : "Sign up",
+    
+    "loginText" : "உள்நுழைய",
+    
+    "alreadyHaveAnAccountText" : "Already have an account?",
+
+    "emailOrUsernameText" : "Email / UserName",
+    
+    "welcomeText" : "வரவேற்பு",
+    
+    "userNameText" : "Username",
+    
+    "passwordText" : "Password",
+    
+    "rememberMeText" : "Remember me",
+    
+    "doNotHaveAccountText" : "Don't have account?",
+    
+    "emailText" : "Email",
+    
+    "countryText" : "Country",
+    
+    "birthdayText" : "Birthday",
+    
+    "iAgreeToAllTermsText" : "I agree to all terms",
+    
+    "fullNameText" : "Full name",
+    
+    "emailAddressText" : "மின்னஞ்சல் முகவரி",
+    
+    "iAgreeToReceiveNewslettersText" : "I agree to receive newsletters",
+    
+    "subscribeText" : "Subscribe",
+    
+    "categoryText" : "Category",
+    
+    "homeText" : "Home",
+    
+    "searchText" : "Search",
+    
+    "profileText" : "Profile",
+    
+    "readMoreText" : "Read More...",
+    
+    "readLessText" : "Read Less",
+    
+    "searchForText" : "Search for...",
+    
+    "settingsText" : "Settings",
+    
+    "logoutText" : "Logout",
+    
+    "termsText" : "Terms",
+    
+    "menuText" : "Menu",
+    
+    "myAccountText" : "My account",
+    
+    "notificationText" : "Notification",
+    
+    "languageText" : "Language",
+    
+    "faqText" : "FAQ",
+    
+    "privacyPolicyText" : "தனியுரிமைக் கொள்கை",
+    
+    "termsConditionsText" : "விதிமுறைகளும் நிபந்தனைகளும்",
+    
+    "contactUsText" : "Contact Us",
+    
+    "noNotificationFoundText" : "No notification found",
+    
+    "notificationSubTitleText" : "We did not found any notification",
+    
+    "notificationSubTitle2Text" : "Lets start exploring",
+    
+    "newText" : "NEW",
+    
+    "companyName" : "நிறுவனத்தின் பெயர்",
+    
+    "pinCode" : "PIN குறியீடு",
+    
+    "forgetPw" : "Forgot Password ?",
+    
+    "click" : "Click",
+    
+    "epfnumber" : "EPF எண்",
+    
+    "viewMore" : "View More",
+    
+    "checkIn" : "Check In",
+    
+    "checkOut" : "Check Out",
+    
+    "leaveText" : "My Leaves",
+    
+    "attendanceText" : "My Attendance",
+    
+    "continueText" : "Continue",
+    
+    "leaveRequest" : "Leave Request",
+    
+    "submit" : "Submit",
+    
+    "apply" : "Apply",
+    
+    "rosterText" : "My Roster",
+    
+    "emailValidation" : "Please enter email address",
+    
+    "tenantValidation" : "Please enter company name",
+    
+    "epfValidation" : "Please enter epf number",
+    
+    "pinCodeValidation" : "Please enter pin code",
+
+    "january":"ஜனவரி",
+    
+    "february" :"பிப்ரவரி",
+
+    "march" : "அணிவகுப்பு",
+
+    "april" : "ஏப்ரல்",
+
+    "may" : "கூடும்",
+
+    "june" : "ஜூன்",
+
+    "july" : "ஜூலை",
+
+    "august" : "ஆகஸ்ட்",
+
+    "september" : "செப்டம்பர்",
+
+    "october" : "அக்டோபர்",
+
+    "november" : "நவம்பர்",
+
+    "december" : "டிசம்பர்",
+
+    "leaveApprove" : "Leave Approve",
+    
+    "leaveReject" : "Leave Reject",
+
+    "salarySlips" : "Salary Slips",
+
+    "allowanceDeductions" : "Allowance / Deductions",
+
+    "debtLoans" : "Debt / Loans"
+
+       
+}
