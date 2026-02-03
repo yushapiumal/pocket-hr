@@ -105,11 +105,20 @@ class _MobileHomeState extends State<MobileHome>
   }
 
   checkinCheckout(type) async {
-    // storage.setItem('checking', !storage.getItem('checking'));
-    // changeBTN();
+
     DateTime getCurrentTimestamp = DateTime.now();
     String date = controller.formatISOTime(getCurrentTimestamp);
-    await apiService.checkInCheckout(date, type);
+    final lat = (latitude != null) ? latitude.toString() : null;
+    final lng = (longitude != null) ? longitude.toString() : null;
+    final addr = (address != null) ? address.toString() : null;
+
+    await apiService.checkInCheckout(
+      date,
+      type,
+      latitude: lat,
+      longitude: lng,
+      address: addr,
+    );
   }
 
   changeBTN() {
@@ -143,12 +152,8 @@ class _MobileHomeState extends State<MobileHome>
     bool serviceEnabled;
 
     LocationPermission permission;
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
       await Geolocator.openLocationSettings();
       return Future.error('Location services are disabled.');
     }
@@ -570,6 +575,8 @@ class _MobileHomeState extends State<MobileHome>
       ),
     );
   }
+
+
 
   List<Meeting> _getDataSource() {
     final List<Meeting> meetings = <Meeting>[];

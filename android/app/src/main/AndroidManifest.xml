@@ -34,6 +34,17 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Deep link: handle SSO redirect URI (example: humanmahajana://callback) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Matches: humanmahajana://callback/mahajana/pocket-hr/callback -->
+                <data
+                    android:scheme="humanmahajana"
+                    android:host="callback"
+                    android:pathPrefix="/mahajana/pocket-hr/callback" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

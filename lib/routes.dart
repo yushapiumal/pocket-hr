@@ -1,3 +1,4 @@
+import 'package:cn_pocket_hr/Screens/allowancesDeductions/allowance.dart';
 import 'package:flutter/widgets.dart';
 import 'package:cn_pocket_hr/Screens/attendance/attendanceScreen.dart';
 import 'package:cn_pocket_hr/Screens/home/HomeScreen.dart';
@@ -10,6 +11,7 @@ import 'package:cn_pocket_hr/Screens/profile/ProfileScreen.dart';
 import 'package:cn_pocket_hr/Screens/salarySlips/SalarySlips.dart'; 
 import 'package:cn_pocket_hr/Screens/splashScreen/HRIntroduction.dart';
 import 'package:cn_pocket_hr/Screens/splashScreen/Splashscreen.dart';
+import 'package:cn_pocket_hr/Screens/debtsAndLoans/DebtsAndLoansScreen.dart';
 
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => SplashScreen(),
@@ -23,4 +25,9 @@ final Map<String, WidgetBuilder> routes = {
   HRLeaveRequest.routeName: (context) => HRLeaveRequest(),
   HRNotifications.routeName: (context) => HRNotifications(),
   HRSalarySlips.routeName: (context) => HRSalarySlips(),
+  HRAllowancesDeductions.routeName: (context) => HRAllowancesDeductions(),
+  HRDebtsAndLoans.routeName: (context) => HRDebtsAndLoans(),
+
+
+
 };

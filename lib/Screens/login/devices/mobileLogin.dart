@@ -13,7 +13,7 @@ import 'package:cn_pocket_hr/helper/HRStrings.dart';
 import 'package:cn_pocket_hr/helper/customBlurHash.dart';
 import 'package:cn_pocket_hr/provider/locale_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:cn_pocket_hr/model/hr/MeModel.dart';
+import 'package:cn_pocket_hr/services/sso_service.dart';
 
 class MobileLogin extends StatefulWidget {
   const MobileLogin({Key? key}) : super(key: key);
@@ -35,11 +35,32 @@ class _MobileLoginState extends State<MobileLogin> {
   bool buttonDisable = false;
   final LocalStorage storage = LocalStorage('pocketHR');
   APIService apiService = APIService();
+  final SsoService _ssoService = SsoService();
+
+  bool _autoRedirecting = true;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    _autoLoginIfPossible();
+  }
+
+  Future<void> _autoLoginIfPossible() async {
+    try {
+      await storage.ready;
+      final token = storage.getItem('access_token')?.toString();
+      if (token != null && token.trim().isNotEmpty) {
+        if (!mounted) return;
+        Navigator.of(context).pushReplacementNamed(HRMain.routeName);
+        return;
+      }
+    } catch (_) {
+      // ignore
+    }
+    if (mounted) {
+      setState(() => _autoRedirecting = false);
+    }
   }
 
   @override
@@ -137,7 +158,6 @@ class _MobileLoginState extends State<MobileLogin> {
 
   Widget langPicker() {
     final provider = Provider.of<LocaleProvider>(context);
-    final locale = provider.locale ?? Locale('en');
     return Container(
       margin: EdgeInsets.only(
         top: 20.0,
@@ -259,7 +279,7 @@ class _MobileLoginState extends State<MobileLogin> {
       storage.setItem('company', company.text);
       storage.setItem('email', email.text);
       storage.setItem('password', password.text);
-      var login1 = await apiService.login(email.text, password.text);
+      final login1 = await apiService.login(email.text, password.text);
 
       if (login1 == null) {
         apiService.showToast('Login failed, please Try again');
@@ -268,82 +288,80 @@ class _MobileLoginState extends State<MobileLogin> {
           buttonDisable = false;
         });
       } else {
+        // store tokens if API provides them (so next app open can skip login)
+        try {
+          final result = (login1 is Map) ? (login1['result'] ?? login1) : null;
+          final access = (result is Map ? (result['access_token'] ?? result['accessToken']) : null)?.toString();
+          final refresh = (result is Map ? (result['refresh_token'] ?? result['refreshToken']) : null)?.toString();
+          if (access != null && access.isNotEmpty) storage.setItem('access_token', access);
+          if (refresh != null && refresh.isNotEmpty) storage.setItem('refresh_token', refresh);
+        } catch (_) {}
+
         setState(() {
           isLoading = false;
           buttonDisable = false;
         });
-        Navigator.pushNamed(context, HRMain.routeName);
-
-        // if (login1['result']['pin'] != null) {
-        //   storage.setItem('pin', login1['result']['pin'].toString());
-
-        //   var login2 = await apiService.login(
-        //       storage.getItem('email'), storage.getItem('pin'));
-
-        //   if (login2 == null) {
-        //     apiService.showToast('Login failed, please Try again');
-        //     setState(() {
-        //       isLoading = false;
-        //       buttonDisable = false;
-        //     });
-        //   } else {
-        //     if (login2['status']) {
-        //       setState(() {
-        //         isLoading = false;
-        //         buttonDisable = false;
-        //       });
-        //       Navigator.pushNamed(context, HRMain.routeName);
-        //     } else {
-        //       setState(() {
-        //         isLoading = false;
-        //         buttonDisable = false;
-        //       });
-        //       _showMyDialog(login2['message'].toString(), false);
-        //     }
-        //   }
-        // } else {
-        //   setState(() {
-        //     isLoading = false;
-        //     buttonDisable = false;
-        //   });
-        // }
+        Navigator.pushReplacementNamed(context, HRMain.routeName);
       }
     }
   }
 
-  Future<void> _showMyDialog(text, access) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Login Pin Code'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: [
-                Text(text),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                // email.clear();
-                // password.clear();
-                access
-                    ? Navigator.pushNamed(context, HRMain.routeName)
-                    : Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _ssoLogin() async {
+    debugPrint('[SSO][UI] SSO Login tapped');
+
+    setState(() {
+      isLoading = true;
+      buttonDisable = true;
+    });
+
+    try {
+      final tenantName = company.text.trim();
+      debugPrint('[SSO][UI] tenant="$tenantName"');
+
+      if (tenantName.isEmpty) {
+        debugPrint('[SSO][UI][ERROR] tenant is empty');
+        setState(() {
+          _validateCompany = true;
+          isLoading = false;
+          buttonDisable = false;
+        });
+        return;
+      }
+
+      final result = await _ssoService.signIn(tenant: tenantName);
+
+      debugPrint('[SSO][UI] received tokens: access=${result.accessToken.length} chars, refresh=${result.refreshToken.length} chars');
+
+      storage.setItem('access_token', result.accessToken);
+      storage.setItem('refresh_token', result.refreshToken);
+      debugPrint('[SSO][UI] tokens stored to LocalStorage');
+
+      setState(() {
+        isLoading = false;
+        buttonDisable = false;
+      });
+
+      debugPrint('[SSO][UI] navigate to HRMain');
+      Navigator.pushNamed(context, HRMain.routeName);
+    } catch (e, st) {
+      debugPrint('[SSO][UI][ERROR] $e');
+      debugPrint(st.toString());
+      apiService.showToast(e.toString());
+      setState(() {
+        isLoading = false;
+        buttonDisable = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_autoRedirecting) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
     double point = 2.5;
     if (_keyboardVisible) {
@@ -414,43 +432,67 @@ class _MobileLoginState extends State<MobileLogin> {
                               ),
                             )
                           : Text(""),
-                      GestureDetector(
-                        onTap: () {
-                          buttonDisable ? null : submit();
-                        },
-                        child: Align(
-                          alignment: Alignment.topRight,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 2.5,
-                            decoration: DesignConfig.boxDecorationButtonColor(
-                                HRColors.blueColor, HRColors.blueColor, 25),
-                            alignment: AlignmentDirectional.center,
-                            margin: EdgeInsets.only(
-                                left: 30.0,
-                                top: MediaQuery.of(context).size.height / 99,
-                                right: 30.0),
-                            padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.loginText,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: HRColors.white,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width / 22,
-                                    fontWeight: FontWeight.normal,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  buttonDisable ? null : submit();
+                                },
+                                child: Container(
+                                  decoration:
+                                      DesignConfig.boxDecorationButtonColor(
+                                          HRColors.blueColor,
+                                          HRColors.blueColor,
+                                          25),
+                                  alignment: AlignmentDirectional.center,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 15.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(context)!
+                                            .loginText,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: HRColors.white,
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              24,
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                      SizedBox(width: 5),
+                                      Icon(Icons.arrow_forward,
+                                          color: HRColors.white),
+                                    ],
                                   ),
                                 ),
-                                SizedBox(width: 5),
-                                Icon(Icons.arrow_forward,
-                                    color: HRColors.white),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: buttonDisable ? null : _ssoLogin,
+                                style: OutlinedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  side: BorderSide(color: HRColors.blueColor),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                ),
+                                child: const Text('SSO Login'),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),

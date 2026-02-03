@@ -31,6 +31,9 @@ dependencies:
   flutter_localization: ^0.3.3
   syncfusion_flutter_calendar: ^31.1.19
   win32: ^5.5.0
+  flutter_secure_storage: ^10.0.0
+  url_launcher: ^6.3.2
+  app_links: ^6.4.1
 
 dev_dependencies:
   flutter_test:

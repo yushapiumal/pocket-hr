@@ -2,25 +2,6 @@ import 'dart:ui' show Color;
 import 'package:flutter/material.dart';
 
 class HRColors {
-  /*static const Color appcolor = Color(0xFFFFC700);
-  static const Color IconColor=Color(0xFFFF403B);
-  static const Color bgcolor = Color(0xFFF8F8F8);
-
-  static const Color txtgreycolor = Color(0xFFBDBDBD);
-
-  static const Color btnlightshadow = Color(0x1affffff);
-  static const Color btndarkshadow = Color(0x1a000000);
-
-  static const Color cardbggrey = Color(0xFFe6e6e6);
-  static const Color grey = Color(0xFF959695);
-  static const Color bglightgrey = Color(0xFFF0F0F0);
-  static const Color lightgrey = Color(0xFFEEEEEE);
-  static const Color red = Color(0xFFD32F2F);
-  static const Color yellow = Color(0xFFFDCC0D);
-  static const Color green = Color(0xff00d285);
-
-  static const Color chatbg = Color(0xffE1F4FD);
-  static const Color unreadnotification = Color(0xffe7f6fd);*/
 
   static const Color shift = Color.fromRGBO(67, 160, 71, 1);
   static const Color dutyOff = Color.fromRGBO(249, 168, 37, 1);

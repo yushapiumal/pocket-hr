@@ -1,0 +1,398 @@
+import 'package:flutter/material.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:cn_pocket_hr/api/apiService.dart';
+import 'package:cn_pocket_hr/model/hr/VariableModel.dart';
+
+class MobileAllowancesDeductionsScreen extends StatefulWidget {
+  @override
+  State<MobileAllowancesDeductionsScreen> createState() => _MobileAllowancesDeductionsScreenState();
+}
+
+class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeductionsScreen>
+    with SingleTickerProviderStateMixin {
+  final _api = APIService();
+  final _storage = LocalStorage('pocketHR');
+
+  late final TabController _tab;
+  bool _loading = true;
+  String? _error;
+  List<VariableItem> _items = [];
+  String _query = '';
+
+  // Spacing system (8pt grid + golden-ratio-ish steps)
+  static const double _g8 = 8;
+  static const double _g12 = 12;
+  static const double _g16 = 16;
+  static const double _g20 = 20;
+  static const double _g24 = 24;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = TabController(length: 3, vsync: this);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _tab.dispose();
+    super.dispose();
+  }
+
+  Future<String?> _resolveUserId() async {
+    await _storage.ready;
+    final uid = _storage.getItem('uid')?.toString();
+    if (uid != null && uid.isNotEmpty) return uid;
+
+    final jwtUid = await _api.ensureUidFromAccessToken();
+    if (jwtUid != null && jwtUid.isNotEmpty) return jwtUid;
+
+    final me = _storage.getItem('me_profile');
+    if (me is Map) {
+      final m = Map<String, dynamic>.from(me);
+      final dataAny = m['data'] ?? m['result'] ?? m['user'];
+      if (dataAny is Map) {
+        final data = Map<String, dynamic>.from(dataAny);
+        final id = (data['_id'] ?? data['id'] ?? data['user_id'] ?? data['sub'] ?? '').toString();
+        if (id.isNotEmpty) return id;
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final uid = await _resolveUserId();
+      if (uid == null || uid.isEmpty) throw Exception('Missing user id (uid).');
+
+      final raw = await _api.fetchVariablesForUser(uid);
+      final parsed = raw
+          .whereType<Map>()
+          .map((e) => VariableItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+
+      parsed.sort((a, b) => b.issuedDate.compareTo(a.issuedDate));
+
+      setState(() {
+        _items = parsed;
+        _loading = false;
+      });
+    } catch (e, st) {
+      debugPrint('[VAR][ERROR] $e');
+      debugPrint('$st');
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  String _money(num v) => v.toStringAsFixed(2);
+
+  String _dateFromUnixSeconds(int seconds) {
+    if (seconds <= 0) return '-';
+    final dt = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+    return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+  }
+
+  Widget _itemCard(VariableItem item) {
+    final isAllowance = item.type.toLowerCase() == 'allowance';
+    final amountColor = isAllowance ? Colors.green.shade800 : Colors.black87;
+    final sign = isAllowance ? '+' : '-';
+    final icon = isAllowance ? Icons.add_circle_outline : Icons.remove_circle_outline;
+    final iconColor = isAllowance ? Colors.green.shade700 : Colors.red.shade700;
+    final statusText = item.processed ? 'Processed' : 'Pending';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g8),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.black.withOpacity(0.06)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 6),
+            )
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: iconColor, size: 20),
+            ),
+            const SizedBox(width: _g12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.allowance,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: _g12),
+                      Text(
+                        '$sign${_money(item.amount)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: amountColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: _g8),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_month, size: 14, color: Colors.black54),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _dateFromUnixSeconds(item.issuedDate),
+                          style: const TextStyle(color: Colors.black54, fontSize: 11),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: (item.processed ? Colors.green : Colors.orange)
+                              .withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          statusText,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: item.processed
+                                ? Colors.green.shade800
+                                : Colors.orange.shade800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final allItems = _items;
+    final allowances = _items.where((e) => e.type.toLowerCase() == 'allowance').toList();
+    final deductions = _items.where((e) => e.type.toLowerCase() == 'deduction').toList();
+
+    List<VariableItem> filter(List<VariableItem> list) {
+      if (_query.isEmpty) return list;
+      final q = _query.toLowerCase();
+      return list.where((e) => e.allowance.toLowerCase().contains(q)).toList();
+    }
+
+    final filteredAll = filter(allItems);
+    final filteredAllowances = filter(allowances);
+    final filteredDeductions = filter(deductions);
+
+    Widget tabBody;
+    if (_loading) {
+      tabBody = const Center(child: CircularProgressIndicator());
+    } else if (_error != null) {
+      tabBody = Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_error!, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              ElevatedButton(onPressed: _load, child: const Text('Retry')),
+            ],
+          ),
+        ),
+      );
+    } else {
+      tabBody = TabBarView(
+        controller: _tab,
+        children: [
+          // All
+          RefreshIndicator(
+            onRefresh: _load,
+            child: filteredAll.isEmpty
+                ? ListView(
+                    children: const [
+                      SizedBox(height: 60),
+                      Center(child: Text('No records', style: TextStyle(color: Colors.black54))),
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.only(top: 10, bottom: 30),
+                    itemCount: filteredAll.length,
+                    itemBuilder: (_, i) => _itemCard(filteredAll[i]),
+                  ),
+          ),
+          RefreshIndicator(
+            onRefresh: _load,
+            child: filteredAllowances.isEmpty
+                ? ListView(
+                    children: [
+                      const SizedBox(height: 60),
+                      Center(
+                        child: Text('No allowances found',
+                            style: TextStyle(color: Colors.black54)),
+                      )
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.only(top: 10, bottom: 30),
+                    itemCount: filteredAllowances.length,
+                    itemBuilder: (_, i) => _itemCard(filteredAllowances[i]),
+                  ),
+          ),
+          RefreshIndicator(
+            onRefresh: _load,
+            child: filteredDeductions.isEmpty
+                ? ListView(
+                    children: [
+                      const SizedBox(height: 60),
+                      Center(
+                        child: Text('No deductions found',
+                            style: TextStyle(color: Colors.black54)),
+                      )
+                    ],
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.only(top: 10, bottom: 30),
+                    itemCount: filteredDeductions.length,
+                    itemBuilder: (_, i) => _itemCard(filteredDeductions[i]),
+                  ),
+          ),
+        ],
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 243, 244, 246),
+      appBar: null,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(_g12, _g16, _g12, _g8),
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () => Navigator.of(context).maybePop(),
+                    borderRadius: BorderRadius.circular(40),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: const Icon(Icons.navigate_before, color: Colors.black87),
+                    ),
+                  ),
+                  const SizedBox(width: _g12),
+                  const Expanded(
+                    child: Text(
+                      'Allowances & Deductions',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  // InkWell(
+                  //   onTap: _load,
+                  //   borderRadius: BorderRadius.circular(40),
+                  //   child: Container(
+                  //     width: 44,
+                  //     height: 44,
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.white,
+                  //       borderRadius: BorderRadius.circular(40),
+                  //       border: Border.all(color: Colors.black.withOpacity(0.06)),
+                  //     ),
+                  //     child: const Icon(Icons.refresh, color: Colors.black87),
+                  //   ),
+                  // ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: _g20),
+
+            // tabs
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: _g12),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.black.withOpacity(0.06)),
+                ),
+                child: TabBar(
+                  controller: _tab,
+                  dividerColor: Colors.transparent,
+                  indicatorColor: Colors.transparent,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorPadding: const EdgeInsets.all(6),
+                  indicator: BoxDecoration(
+                    color: Colors.black.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  labelColor: Colors.black87,
+                  unselectedLabelColor: Colors.black54,
+                  tabs: const [
+                    Tab(text: 'All'),
+                    Tab(text: 'Allowances'),
+                    Tab(text: 'Deductions'),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: _g24),
+            Expanded(child: tabBody),
+          ],
+        ),
+      ),
+    );
+  }
+}

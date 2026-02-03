@@ -1,0 +1,2279 @@
+{
+    "success": true,
+    "message": "Attendance records retrieved successfully",
+    "data": {
+        "records": [
+            {
+                "_id": "697ad5cc9f4df8241ab552ef",
+                "id": "697ad5cc9f4df8241ab552ef",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769653848,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769653848,
+                            "check_time": "2026-01-29 08:00:48",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769692049,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769692049,
+                            "check_time": "2026-01-29 18:37:29",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 38201,
+                "workedHours": "10h 36m",
+                "workedSeconds": 38201,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1769657804.9088,
+                "updatedAt": 1769841530,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769653848,
+                "lastCheckOut": 1769692049,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "6979735c9f4df8d94284085a",
+                "id": "6979735c9f4df8d94284085a",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769566384,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769566384,
+                            "check_time": "2026-01-28 07:43:04",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769606273,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769606273,
+                            "check_time": "2026-01-28 18:47:53",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 39889,
+                "workedHours": "11h 4m",
+                "workedSeconds": 39889,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 1
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1769567068.5214,
+                "updatedAt": 1769657672,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769566384,
+                "lastCheckOut": 1769606273,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "697854ca9f4df8962433dc13",
+                "id": "697854ca9f4df8962433dc13",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769480160,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769518800,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 38640,
+                "workedHours": "10h 44m",
+                "workedSeconds": 38640,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1769493706.9933,
+                "updatedAt": 1769915312,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769480160,
+                "lastCheckOut": 1769518800,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "6976d5fc9f4df8d96633dd12",
+                "id": "6976d5fc9f4df8d96633dd12",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769393101,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769393101,
+                            "check_time": "2026-01-26 07:35:01",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769426398,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769426398,
+                            "check_time": "2026-01-26 16:49:58",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 33297,
+                "workedHours": "9h 14m",
+                "workedSeconds": 33297,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1769395709.0023,
+                "updatedAt": 1769487216,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769393101,
+                "lastCheckOut": 1769426398,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "6974421d9f4df8302fe942ae",
+                "id": "6974421d9f4df8302fe942ae",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769221380,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769259600,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 38220,
+                "workedHours": "10h 37m",
+                "workedSeconds": 38220,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1769226781.926,
+                "updatedAt": 1769490564,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769221380,
+                "lastCheckOut": 1769259600,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "6973087b9f4df86d0ee94131",
+                "id": "6973087b9f4df86d0ee94131",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769134850,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769134850,
+                            "check_time": "2026-01-23 07:50:50",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769171736,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1769171736,
+                            "check_time": "2026-01-23 18:05:36",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 36886,
+                "workedHours": "10h 14m",
+                "workedSeconds": 36886,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1769146491.341,
+                "updatedAt": 1769226625,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769134850,
+                "lastCheckOut": 1769171736,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "697192359f4df81d3b368eeb",
+                "id": "697192359f4df81d3b368eeb",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1769049120,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1769086200,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 37080,
+                "workedHours": "10h 18m",
+                "workedSeconds": 37080,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1769050677.4017,
+                "updatedAt": 1769490546,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1769049120,
+                "lastCheckOut": 1769086200,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "697191209f4df8f42a368f3e",
+                "id": "697191209f4df8f42a368f3e",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768961941,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768961941,
+                            "check_time": "2026-01-21 07:49:01",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768999634,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768999634,
+                            "check_time": "2026-01-21 18:17:14",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 37693,
+                "workedHours": "10h 28m",
+                "workedSeconds": 37693,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1769050400.8123,
+                "updatedAt": 1769050531,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768961941,
+                "lastCheckOut": 1768999634,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696f4a089f4df8a018295e3e",
+                "id": "696f4a089f4df8a018295e3e",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768875437,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768875437,
+                            "check_time": "2026-01-20 07:47:17",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768912366,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768912366,
+                            "check_time": "2026-01-20 18:02:46",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 36929,
+                "workedHours": "10h 15m",
+                "workedSeconds": 36929,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768901128.4957,
+                "updatedAt": 1769050280,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768875437,
+                "lastCheckOut": 1768912366,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696dc5039f4df8c61a2958dc",
+                "id": "696dc5039f4df8c61a2958dc",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768789407,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768789407,
+                            "check_time": "2026-01-19 07:53:27",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768829157,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768829157,
+                            "check_time": "2026-01-19 18:55:57",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 39750,
+                "workedHours": "11h 2m",
+                "workedSeconds": 39750,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 1
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768801539.882,
+                "updatedAt": 1768901035,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768789407,
+                "lastCheckOut": 1768829157,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696dc2f99f4df8d814295bb0",
+                "id": "696dc2f99f4df8d814295bb0",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768615750,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768615750,
+                            "check_time": "2026-01-17 07:39:10",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768653621,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768653621,
+                            "check_time": "2026-01-17 18:10:21",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 37871,
+                "workedHours": "10h 31m",
+                "workedSeconds": 37871,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768801017.6687,
+                "updatedAt": 1768801149,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768615750,
+                "lastCheckOut": 1768653621,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696dc2009f4df8b70a2975fb",
+                "id": "696dc2009f4df8b70a2975fb",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768529581,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768529581,
+                            "check_time": "2026-01-16 07:43:01",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768567290,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768567290,
+                            "check_time": "2026-01-16 18:11:30",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 37709,
+                "workedHours": "10h 28m",
+                "workedSeconds": 37709,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768800768.0164,
+                "updatedAt": 1768800875,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768529581,
+                "lastCheckOut": 1768567290,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696dc0f59f4df8660e296242",
+                "id": "696dc0f59f4df8660e296242",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768443660,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768481700,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 38040,
+                "workedHours": "10h 34m",
+                "workedSeconds": 38040,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1768800501.0916,
+                "updatedAt": 1768806835,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768443660,
+                "lastCheckOut": 1768481700,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696dbfe79f4df8960c295eef",
+                "id": "696dbfe79f4df8960c295eef",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768357562,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768357562,
+                            "check_time": "2026-01-14 07:56:02",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768396940,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1768396940,
+                            "check_time": "2026-01-14 18:52:20",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 39378,
+                "workedHours": "10h 56m",
+                "workedSeconds": 39378,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768800231.355,
+                "updatedAt": 1768800371,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768357562,
+                "lastCheckOut": 1768396940,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696dbaf69f4df84e04295a76",
+                "id": "696dbaf69f4df84e04295a76",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767925191,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767925191,
+                            "check_time": "2026-01-09 07:49:51",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767960843,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767960843,
+                            "check_time": "2026-01-09 17:44:03",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 35652,
+                "workedHours": "9h 54m",
+                "workedSeconds": 35652,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768798966.0871,
+                "updatedAt": 1768799034,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767925191,
+                "lastCheckOut": 1767960843,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696db9b59f4df87d7d295b16",
+                "id": "696db9b59f4df87d7d295b16",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767838824,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767838824,
+                            "check_time": "2026-01-08 07:50:24",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767874996,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767874996,
+                            "check_time": "2026-01-08 17:53:16",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 36172,
+                "workedHours": "10h 2m",
+                "workedSeconds": 36172,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1768798645.0362,
+                "updatedAt": 1768798758,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767838824,
+                "lastCheckOut": 1767874996,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696729419f4df8b779296984",
+                "id": "696729419f4df8b779296984",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768270260,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768308600,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 38340,
+                "workedHours": "10h 39m",
+                "workedSeconds": 38340,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1768368449.4568,
+                "updatedAt": 1768377344,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768270260,
+                "lastCheckOut": 1768308600,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "696728689f4df88e08295865",
+                "id": "696728689f4df88e08295865",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1768184820,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1768222500,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 37680,
+                "workedHours": "10h 28m",
+                "workedSeconds": 37680,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1768368232.0755,
+                "updatedAt": 1768377355,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1768184820,
+                "lastCheckOut": 1768222500,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "69607c4b9f4df8de7779deb9",
+                "id": "69607c4b9f4df8de7779deb9",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767752677,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767752677,
+                            "check_time": "2026-01-07 07:54:37",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767789604,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767789604,
+                            "check_time": "2026-01-07 18:10:04",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 36927,
+                "workedHours": "10h 15m",
+                "workedSeconds": 36927,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1767930955.1396,
+                "updatedAt": 1767931084,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767752677,
+                "lastCheckOut": 1767789604,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "695c8db29f4df82e5ed85bb8",
+                "id": "695c8db29f4df82e5ed85bb8",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767665880,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767703800,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 37920,
+                "workedHours": "10h 32m",
+                "workedSeconds": 37920,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1767673266.746,
+                "updatedAt": 1767934386,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767665880,
+                "lastCheckOut": 1767703800,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "695c8ccb9f4df81859d86439",
+                "id": "695c8ccb9f4df81859d86439",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767579492,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767579492,
+                            "check_time": "2026-01-05 07:48:12",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767620957,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767620957,
+                            "check_time": "2026-01-05 19:19:17",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 41465,
+                "workedHours": "11h 31m",
+                "workedSeconds": 41465,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 1.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1767673035.6745,
+                "updatedAt": 1767673177,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767579492,
+                "lastCheckOut": 1767620957,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "695c8c369f4df8125bd85af7",
+                "id": "695c8c369f4df8125bd85af7",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767498300,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767510000,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 11700,
+                "workedHours": "3h 15m",
+                "workedSeconds": 11700,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 6.5
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1767672886.3082,
+                "updatedAt": 1767934372,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767498300,
+                "lastCheckOut": 1767510000,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "695c8ae29f4df85656d85b6b",
+                "id": "695c8ae29f4df85656d85b6b",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767406920,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767447300,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 40380,
+                "workedHours": "11h 13m",
+                "workedSeconds": 40380,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 1
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1767672546.099,
+                "updatedAt": 1767930644,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767406920,
+                "lastCheckOut": 1767447300,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "695731379f4df82a5337c50a",
+                "id": "695731379f4df82a5337c50a",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767320892,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767320892,
+                            "check_time": "2026-01-02 07:58:12",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767358842,
+                        "filename": null,
+                        "meta": {
+                            "sensor_id": "1",
+                            "user_id": "990367",
+                            "sensor_user_id": "3",
+                            "timestamp": 1767358842,
+                            "check_time": "2026-01-02 18:30:42",
+                            "sensor_pool": "gampola",
+                            "type": "AUTHENTICATION",
+                            "event_type": {
+                                "code": 4865
+                            },
+                            "user": {
+                                "user_id": "990367"
+                            },
+                            "api": "v2"
+                        }
+                    }
+                ],
+                "worked_hours": 37950,
+                "workedHours": "10h 32m",
+                "workedSeconds": 37950,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 0.5
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": false,
+                "createdBy": "biostar",
+                "editedBy": "biostar",
+                "createdAt": 1767321911.3243,
+                "updatedAt": 1767672408,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767320892,
+                "lastCheckOut": 1767358842,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            },
+            {
+                "_id": "695730109f4df8471e37c526",
+                "id": "695730109f4df8471e37c526",
+                "epf": 990367,
+                "user": "605b4f57277bf8660c7b256e",
+                "attendance": [
+                    {
+                        "type": "in",
+                        "time": 1767147120,
+                        "file": null
+                    },
+                    {
+                        "type": "out",
+                        "time": 1767205740,
+                        "file": null
+                    }
+                ],
+                "worked_hours": 58620,
+                "workedHours": "16h 17m",
+                "workedSeconds": 58620,
+                "rates": [
+                    {
+                        "code": "1_0_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "attendance_allowance",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_daily",
+                        "amount": 0
+                    },
+                    {
+                        "code": "1_5_ot_selected",
+                        "amount": 0
+                    },
+                    {
+                        "code": "dayoff_normal_ot",
+                        "amount": 6
+                    },
+                    {
+                        "code": "half_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_gampola",
+                        "amount": 0
+                    },
+                    {
+                        "code": "normal_ot_kandy",
+                        "amount": 0
+                    },
+                    {
+                        "code": "punctuality_incentive",
+                        "amount": 0
+                    }
+                ],
+                "manual_rates": [],
+                "locked": true,
+                "createdBy": "biostar",
+                "editedBy": "605b4f57277bf8660c7b256e",
+                "createdAt": 1767321616.1336,
+                "updatedAt": 1767323743,
+                "approvedLateIn": false,
+                "approvedEarlyOut": false,
+                "manuallyReviewed": false,
+                "firstCheckIn": 1767147120,
+                "lastCheckOut": 1767205740,
+                "totalCheckIns": 1,
+                "totalCheckOuts": 1
+            }
+        ],
+        "pagination": {
+            "page": 1,
+            "limit": 25,
+            "total": 25,
+            "totalPages": 1
+        }
+    },
+    "timestamp": "2026-02-02T06:51:38.079Z"
+}

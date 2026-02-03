@@ -1,29 +1,25 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:octo_image/octo_image.dart';
 import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
 import 'package:cn_pocket_hr/Screens/leave/devices/Card1.dart';
 import 'package:cn_pocket_hr/Screens/leave/devices/Slidable.dart';
 import 'package:cn_pocket_hr/Screens/leave/devices/Slide_action.dart';
-import 'package:cn_pocket_hr/Screens/leave/requestLeaveScreen.dart';
 import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/helper/DesignConfig.dart';
-import 'package:cn_pocket_hr/helper/GlassBox.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxCurve.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxFull.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
-import 'package:cn_pocket_hr/helper/HRStrings.dart';
-import 'package:cn_pocket_hr/model/FavouriteModel.dart';
 import 'package:cn_pocket_hr/model/hr/LeaveModel.dart';
 import 'package:cn_pocket_hr/model/hr/MeModel.dart';
+
+import 'package:cn_pocket_hr/Screens/leave/devices/mobileLeaveRequestPage.dart';
+// (Details screen removed)
 
 class MobileLeave extends StatefulWidget {
   MobileLeave({Key? key}) : super(key: key);
@@ -40,7 +36,7 @@ class MobileLeaveState extends State<MobileLeave>
   Future<List<MeSubsModel>>? otherLeaves;
   final LocalStorage storage = LocalStorage('pocketHR');
   List list = [];
-  Timer? _timer;
+  // Timer? _timer; // unused
   bool isLoading = false;
   APIService apiService = APIService();
   int _leaveListCount = 0;
@@ -48,12 +44,82 @@ class MobileLeaveState extends State<MobileLeave>
   bool isOthers = false;
   bool leaveManageForm = false;
   bool leaveApprove = true;
+
+  // History filter tabs
+  String _historyFilter = 'all'; // all|annual|casual|sick|unpaid
+
+  // Bottom-sheet wizard
+  // int _applyStep = 0; // 0=type, 1=mode+dates, 2=desc+confirm
+
+  static const Color _pageBg = Color.fromARGB(255, 243, 244, 246);
+
+  Widget _leaveBalanceChip({required String label, required String value, required Color bg, required Color fg}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: HRColors.black.withOpacity(0.06)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: fg)),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: HRColors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: fg)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _leaveBalanceSummary() {
+    // sample values (replace with API values later)
+    return Container(
+      margin: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: HRColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: HRColors.black.withOpacity(0.06)),
+        boxShadow: [
+          BoxShadow(color: HRColors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 6)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('My Leave Balance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: HRColors.darkFontColor)),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _leaveBalanceChip(label: 'Annual', value: '2/12', bg: const Color(0xFFFFF7E6), fg: HRColors.darkOrangeColor),
+                const SizedBox(width: 10),
+                _leaveBalanceChip(label: 'Casual', value: '1/7', bg: const Color(0xFFEFF6FF), fg: HRColors.blueColor),
+                const SizedBox(width: 10),
+                _leaveBalanceChip(label: 'Medical', value: '0/10', bg: const Color(0xFFEAF7EE), fg: HRColors.green),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    // getOthersLeaves();
-    getMyLeaves();
+    // Ensure profile (quotas / balances) is loaded, then load leaves
+    _initProfileAndLeaves();
     _animationController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 2000));
   }
@@ -62,6 +128,14 @@ class MobileLeaveState extends State<MobileLeave>
   void dispose() {
     _animationController!.dispose();
     super.dispose();
+  }
+
+  Future<void> _initProfileAndLeaves() async {
+    try {
+      await apiService.fetchMeProfileWithBearer();
+    } catch (_) {}
+    // Load leaves after profile fetch (ensures storage values exist)
+    getMyLeaves();
   }
 
   getMyLeaves() async {
@@ -226,279 +300,112 @@ class MobileLeaveState extends State<MobileLeave>
       extendBody: true,
       drawerScrimColor: Colors.transparent,
       drawer: DesignConfig.drawer(_scaffoldKey, context),
-      body: Container(
-        child: GlassBoxFull(
-          background:
-              'https://images.pexels.com/photos/1005417/pexels-photo-1005417.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
-            children: [
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+      backgroundColor: _pageBg,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        _scaffoldKey.currentState!.openDrawer();
-                      },
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 1.0, top: 26.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 47,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: SvgPicture.asset(
-                                    "assets/svg/drawer_icon.svg"),
-                              ),
-                            ),
+                      onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(color: Colors.black.withOpacity(0.06)),
+                        ),
+                        child: Center(
+                          child: SvgPicture.asset(
+                            "assets/svg/drawer_icon.svg",
+                            colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      AppLocalizations.of(context)!.leaveText,
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+                      child: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(color: Colors.black.withOpacity(0.06)),
+                        ),
+                        child: Center(
+                          child: SvgPicture.asset(
+                            "assets/svg/notifications_icon.svg",
+                            colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
                           ),
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, HRNotifications.routeName);
-                      },
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 10.0, top: 25.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 50,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/notifications_icon.svg")),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 10.4,
-                    // left: MediaQuery.of(context).size.width / 15.5,
-                  ),
-                  child: SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.leaveText,
-                          style: TextStyle(
-                              fontSize: 30,
-                              color: HRColors.black,
-                              fontWeight: FontWeight.normal),
-                          textAlign: TextAlign.left,
-                        ),
-                        // if (isOthers) othersLeaves(),
-                        othersLeaves(),
-                        Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: MediaQuery.of(context).size.height / 35),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                                  .getItem('leaveAnnual')
-                                                  .toString() +
-                                              '/' +
-                                              storage
-                                                  .getItem('annualQuota')
-                                                  .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Anual",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                                  .getItem('leaveCasual')
-                                                  .toString() +
-                                              '/' +
-                                              storage
-                                                  .getItem('casualQuota')
-                                                  .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Casual",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                                  .getItem('leaveMedical')
-                                                  .toString() +
-                                              '/' +
-                                              storage
-                                                  .getItem('medicalQuota')
-                                                  .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Medicle",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                              .getItem('leaveNopay')
-                                              .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Nopay",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          height: isOthers
-                              ? MediaQuery.of(context).size.width * .73
-                              : MediaQuery.of(context).size.height * .7,
+                const SizedBox(height: 10),
 
-                          // child: Expanded(
-                          child: SingleChildScrollView(
-                            physics: AlwaysScrollableScrollPhysics(),
-                            child: Column(
-                              children: [
-                                showLeave(),
-                                SizedBox(
-                                  height: isOthers ? 25 : 50,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                _leaveBalanceSummary(),
+
+                const SizedBox(height: 18),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                    TextButton(
+                      onPressed: () => getMyLeaves(),
+                      child: const Text('Refresh', style: TextStyle(color: Colors.black87)),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-              if (leaveManageForm) leaveCard(),
-            ],
+
+                // Leave history header
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const Text('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                //     TextButton(onPressed: () => getMyLeaves(), child: const Text('Refresh')),
+                //   ],
+                // ),
+
+                // History list
+                showLeave(),
+              ],
+            ),
           ),
         ),
       ),
       floatingActionButton: !leaveManageForm
           ? Padding(
               padding: const EdgeInsets.only(bottom: 90.0),
-              child: FloatingActionButton(
-                backgroundColor: HRColors.black,
-                elevation: 0.2,
-                child: Icon(Icons.add),
-                onPressed: () {
-                  Navigator.pushNamed(context, HRLeaveRequest.routeName);
+              child: _GradientPillButton(
+                label: 'LEAVE APPLY',
+               // icon: Icons.menu,
+                onTap: () async {
+                  setState(() => leaveManageForm = true);
+
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const MobileLeaveRequestPage(isEdit: false, initial: null),
+                    ),
+                  );
+
+                  if (mounted) {
+                    setState(() => leaveManageForm = false);
+                    getMyLeaves();
+                  }
                 },
               ),
             )
@@ -527,18 +434,14 @@ class MobileLeaveState extends State<MobileLeave>
 
   Widget showLeave() {
     return Container(
-      margin: EdgeInsets.only(
-          // left: MediaQuery.of(context).size.width / 90,
-          // right: MediaQuery.of(context).size.width / 50,
-          ),
+      margin: const EdgeInsets.only(),
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).size.height / 35,
       ),
-      child: Center(
-        child: OrientationBuilder(
-          builder: (context, orientation) =>
-              _buildList(context, Axis.horizontal),
-        ),
+      child: Column(
+        children: [
+          _buildList(context, Axis.horizontal),
+        ],
       ),
     );
   }
@@ -548,6 +451,25 @@ class MobileLeaveState extends State<MobileLeave>
       future: myLeaves,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          final all = snapshot.data ?? <MyLeavesModel>[];
+          List<MyLeavesModel> filtered = all;
+          if (_historyFilter != 'all') {
+            filtered = all.where((e) {
+              final t = e.leaveType.toString().toLowerCase();
+              if (_historyFilter == 'sick') return t.contains('medical') || t.contains('sick');
+              if (_historyFilter == 'unpaid') return t.contains('nopay') || t.contains('unpaid');
+              return t.contains(_historyFilter);
+            }).toList();
+          }
+          _leaveListCount = filtered.length;
+
+          if (_leaveListCount == 0) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(child: Text('No records')),
+            );
+          }
+
           return SlideAnimation(
             position: 4,
             itemCount: 8,
@@ -556,591 +478,67 @@ class MobileLeaveState extends State<MobileLeave>
             child: ListView.builder(
               padding: EdgeInsets.zero,
               shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: _leaveListCount,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                final Axis slidableDirection = Axis.horizontal;
-                const double DefaultPadding = 20.0;
-                return Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        apiService.showToast(snapshot.data![index].status);
-                      },
-                      child: Container(
-                        height: MediaQuery.of(context).size.height / 10,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromRGBO(66, 66, 66, 1)
-                                  .withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset:
-                                  Offset(1, 1), // changes position of shadow
-                            ),
-                          ],
-                        ),
-                        child: Slidable(
-                          key: Key(snapshot.data![index].leaveTitle),
-                          direction: direction,
-                          // slideToDismissDelegate: SlideToDismissDrawerDelegate(
-                          //   onWillDismiss: (_) {
-                          //     if (_ == SlideActionType.primary) {
-                          //       setState(() {
-                          //         leaveManageForm = true;
-                          //         leaveApprove = true;
-                          //       });
-                          //     } else {
-                          //       setState(() {
-                          //         leaveManageForm = true;
-                          //         leaveApprove = false;
-                          //       });
-                          //     }
-                          //     setLeaveValue(snapshot.data![index]);
-                          //     return true;
-                          //   },
-                          // ),
-                          delegate: SlidableBehindDelegate(),
-                          actionExtentRatio: 0.25,
-                          child: Container(
-                            height: MediaQuery.of(context).size.height / 10,
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            color: Colors.white,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration:
-                                      DesignConfig.boxDecorationButtonColor(
-                                          Color.fromARGB(255, 255, 254, 254)
-                                              .withOpacity(0.6),
-                                          Color.fromARGB(255, 184, 184, 184)
-                                              .withOpacity(0.7),
-                                          50),
-                                  child: getIcon(snapshot.data![index].status),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(9.0),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(width: 10),
-                                        Text(snapshot.data![index].leaveTitle),
-                                        SizedBox(height: 10),
-                                        Text(snapshot.data![index].leaveType),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'From : ${snapshot.data![index].fromDate}',
-                                          maxLines: 1,
-                                          softWrap: false,
-                                          // overflow: TextOverflow.fade,
-                                        ),
-                                        SizedBox(height: 10),
-                                        Text(
-                                          'To : ${snapshot.data![index].toDate}',
-                                          maxLines: 1,
-                                          softWrap: false,
-                                          // overflow: TextOverflow.fade,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          actions: [
-                            IconSlideAction(
-                              caption: 'Approve',
-                              color: Color.fromARGB(255, 15, 205, 25),
-                              icon: Icons.check,
-                              onTap: () {
-                                setState(() {
-                                  leaveManageForm = true;
-                                  leaveApprove = true;
-                                });
-                                setLeaveValue(snapshot.data![index]);
-                              },
-                            ),
-                          ],
-                          secondaryActions: [
-                            IconSlideAction(
-                              caption: 'Reject',
-                              color: Colors.red,
-                              icon: Icons.cancel,
-                              onTap: () {
-                                setState(() {
-                                  leaveManageForm = true;
-                                  leaveApprove = false;
-                                });
-                                setLeaveValue(snapshot.data![index]);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                  ],
-                );
-              },
+              itemBuilder: (_, i) => _leaveHistoryCard(filtered[i], direction),
             ),
           );
         }
-        return Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 90),
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-            ),
-          ),
+
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 90),
+          child: Center(child: CircularProgressIndicator()),
         );
       },
     );
   }
 
-  List<String> leaveTypeList = ["annual", "casual", "medical", "duty", "nopay"];
-  String? typeValue = "annual";
-  String fromText = "From";
-  DateTime fDate = DateTime.now();
-  String toText = "To";
-  DateTime tDate = DateTime.now();
-  bool halfDayToggle = false;
-  // String description = "";
-  TextEditingController description = TextEditingController();
-  String dummy = "Full Day Selected";
-  String? leave_typeValue = "full_day";
-
-  List<String> reasonList = [
-    "Duty Leave",
-    "Annual Vacation",
-    "Examination",
-    "Family Function",
-    "Urgent",
-    "Additional day"
-  ];
-  String? reasonListValue = "Duty Leave";
-  List<String> firstsecondList = ["First", "Second"];
-  String? firstsecondValue = "First";
-
-  setLeaveValue(value) {
-    setState(
-      () {
-        typeValue = value.type;
-        description.text = value.description;
-        fDate = DateTime.now();
-        fromText = DateFormat("yyyy-MM-dd").parse('2012-02-27').toString();
-        tDate = DateTime.now();
-        toText = DateFormat("yyyy-MM-dd").parse('2012-02-27').toString();
-        reasonListValue = value.leaveTitle;
-      },
-    );
+  void setLeaveValue(MyLeavesModel value) {
+    // kept for approve/reject flow (if used elsewhere)
   }
 
-  Future<void> selectFDate(BuildContext context) async {
-    var date = new DateTime.now();
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: fDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(date.year, date.month + 2, date.day),
-    );
-    if (pickedDate != null && pickedDate != fDate)
-      setState(
-        () {
-          fDate = pickedDate;
-          fromText = DateFormat("yyyy-MM-dd").format(pickedDate).toString();
-        },
-      );
-  }
-
-  Future<void> selectTDate(BuildContext context) async {
-    var date = new DateTime.now();
-    final DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: tDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(date.year, date.month + 2, date.day));
-    if (pickedDate != null && pickedDate != tDate)
-      setState(
-        () {
-          tDate = pickedDate;
-          toText = DateFormat("yyyy-MM-dd").format(pickedDate).toString();
-        },
-      );
-  }
-
-  Widget showFirstSecond() {
-    return Container(
-      margin: EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-      decoration: DesignConfig.boxDecorationButtonColor(
-        Colors.white.withOpacity(0.9),
-        Color.fromARGB(255, 213, 213, 213).withOpacity(0.8),
-        50,
-      ),
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-      child: DropdownButton<String>(
-        underline: Container(color: Colors.transparent, height: 2.0),
-        dropdownColor: HRColors.white,
-        hint: Text(
-          HRStrings.countryText,
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 18,
-            fontWeight: FontWeight.normal,
+  Widget _GradientPillButton({
+    required String label,
+   // required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    // Matches the provided UI: circular icon bubble + pill gradient
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.only(right: 18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(30),
+          gradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [HRColors.orangeColor, HRColors.orangeColor],
           ),
-        ),
-        value: firstsecondValue,
-        iconSize: 24,
-        elevation: 16,
-        iconDisabledColor: HRColors.grayColor,
-        iconEnabledColor: HRColors.grayColor,
-        isExpanded: true,
-        style: TextStyle(
-          color: Colors.black54,
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-        ),
-        onChanged: (String? newValue) {
-          showhidehalfday(newValue);
-        }, //leaveList
-        items: firstsecondList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.18),
+              blurRadius: 14,
+              offset: const Offset(0, 8),
             ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  void showhidehalfday(newValue) {
-    setState(() {
-      leave_typeValue = newValue;
-    });
-    if (leave_typeValue == "Half Day") {
-      setState(() {
-        halfDayToggle = !halfDayToggle;
-      });
-    } else {
-      setState(() {
-        halfDayToggle = false;
-      });
-    }
-  }
-
-  Widget showDetail() {
-    return Container(
-      margin: EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-      decoration: DesignConfig.boxDecorationButtonColor(
-        Colors.white.withOpacity(0.9),
-        Color.fromARGB(255, 213, 213, 213).withOpacity(0.8),
-        50,
-      ),
-      padding: const EdgeInsets.only(left: 20.0),
-      child: TextField(
-        controller: description,
-        maxLines: null,
-        minLines: 2,
-        style: TextStyle(color: HRColors.black),
-        cursorColor: HRColors.black,
-        decoration: InputDecoration(
-          hintText: "Description (optional)",
-          hintStyle: Theme.of(context).textTheme.titleSmall!.merge(
-                TextStyle(
-                  fontWeight: FontWeight.normal,
-                  fontSize: 18,
-                  color: Colors.black54,
-                ),
-              ),
-          border: InputBorder.none,
-        ),
-        keyboardType: TextInputType.multiline,
-      ),
-    );
-  }
-
-  Widget showSelectLeaveType() {
-    return Container(
-      margin: EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-      decoration: DesignConfig.boxDecorationButtonColor(
-        Colors.white.withOpacity(0.9),
-        Color.fromARGB(255, 213, 213, 213).withOpacity(0.8),
-        50,
-      ),
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-      child: DropdownButton<String>(
-        underline: Container(color: Colors.transparent, height: 2.0),
-        dropdownColor: HRColors.white,
-        hint: Text(HRStrings.countryText,
-            style: TextStyle(
-              color: HRColors.grayColor,
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-            )),
-        value: reasonListValue,
-        iconSize: 24,
-        elevation: 16,
-        iconDisabledColor: HRColors.grayColor,
-        iconEnabledColor: HRColors.grayColor,
-        isExpanded: true,
-        style: TextStyle(
-          color: Colors.black54,
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-        ),
-        onChanged: (String? newValue) {
-          setState(() {
-            reasonListValue = newValue;
-          });
-        },
-        items: reasonList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
-
-  Widget showType() {
-    return Container(
-      margin: EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-      decoration: DesignConfig.boxDecorationButtonColor(
-        Colors.white.withOpacity(0.9),
-        Color.fromARGB(255, 213, 213, 213).withOpacity(0.8),
-        50,
-      ),
-      padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-      child: DropdownButton<String>(
-        underline: Container(color: Colors.transparent, height: 2.0),
-        dropdownColor: HRColors.white,
-        hint: Text(HRStrings.countryText,
-            style: TextStyle(
-              color: HRColors.grayColor,
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-            )),
-        value: typeValue,
-        iconSize: 24,
-        elevation: 16,
-        iconDisabledColor: HRColors.grayColor,
-        iconEnabledColor: HRColors.grayColor,
-        isExpanded: true,
-        style: TextStyle(
-          color: Colors.black54,
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-        ),
-        onChanged: (String? newValue) {
-          setState(() {
-            typeValue = newValue;
-          });
-        },
-        items: leaveTypeList.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(
-              capitalize(value),
-              textAlign: TextAlign.right,
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget showFDate() {
-    return GestureDetector(
-      onTap: () {
-        selectFDate(context);
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-        decoration: DesignConfig.boxDecorationButtonColor(
-          Colors.white.withOpacity(0.9),
-          Color.fromARGB(255, 213, 213, 213).withOpacity(0.8),
-          50,
-        ),
-        padding: const EdgeInsets.only(
-            left: 20.0, right: 20.0, top: 12.0, bottom: 12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(fromText,
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 18)),
-            Icon(Icons.arrow_drop_down, color: HRColors.grayColor),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget showTDate() {
-    return GestureDetector(
-      onTap: () {
-        selectTDate(context);
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-        decoration: DesignConfig.boxDecorationButtonColor(
-          Colors.white.withOpacity(0.9),
-          Color.fromARGB(255, 213, 213, 213).withOpacity(0.8),
-          50,
-        ),
-        padding: const EdgeInsets.only(
-            left: 20.0, right: 20.0, top: 12.0, bottom: 12.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(toText,
-                style: TextStyle(
-                    color: Colors.black54,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 18)),
-            Icon(Icons.arrow_drop_down, color: HRColors.grayColor),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget leaveCard() {
-    return Container(
-      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height / 6),
-      height: MediaQuery.of(context).size.height,
-      child: GlassBoxCurve(
-        height: MediaQuery.of(context).size.height * .5,
-        width: MediaQuery.of(context).size.width,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    leaveManageForm = false;
-                    leaveApprove = true;
-                  });
-                },
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(5.0),
-                    margin: EdgeInsets.only(left: 1.0, top: 26.0),
-                    child: const GlassBox(
-                      redius: 40.0,
-                      width: 47,
-                      height: 50,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Icon(Icons.close),
-                        ),
-                      ),
-                    ),
-                  ),
+              const SizedBox(width: 15),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: HRColors.white,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
                 ),
               ),
-              Text(
-                leaveApprove
-                    ? AppLocalizations.of(context)!.leaveApprove.toUpperCase()
-                    : AppLocalizations.of(context)!.leaveReject.toUpperCase(),
-                style: TextStyle(
-                    fontSize: 25,
-                    color: HRColors.black,
-                    fontWeight: FontWeight.normal),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Text(
-                dummy,
-                style: TextStyle(fontSize: 18),
-              ),
-              if (halfDayToggle) showFirstSecond(),
-              if (leaveApprove) showType(),
-              if (leaveApprove) showFDate(),
-              if (leaveApprove) showTDate(),
-              if (leaveApprove) showSelectLeaveType(),
-              showDetail(),
-              SizedBox(width: 10.0),
-              GestureDetector(
-                onTap: () {},
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      decoration: DesignConfig.boxDecorationButtonColor(
-                          HRColors.blueColor, HRColors.blueColor, 25),
-                      alignment: AlignmentDirectional.center,
-                      margin: EdgeInsets.only(
-                          left: 30.0,
-                          top: MediaQuery.of(context).size.height / 40,
-                          right: 30.0,
-                          bottom: MediaQuery.of(context).size.height / 35),
-                      padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            HRStrings.submit,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: HRColors.white,
-                              fontSize: 25,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                        ],
-                      )),
-                ),
-              ),
-              Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom))
+              const SizedBox(width: 2),
+              const Icon(Icons.chevron_right, color: HRColors.white),
             ],
           ),
         ),
@@ -1148,7 +546,182 @@ class MobileLeaveState extends State<MobileLeave>
     );
   }
 
-  Future<void> navigationPage() async {
-    Navigator.pop(context);
+  Widget _historyStepsRow(String? status) {
+    final s = (status ?? '').toLowerCase();
+    int step = 0;
+    if (s == 'pending') step = 1;
+    if (s == 'approved' || s == 'rejected') step = 2;
+
+    final createColor = HRColors.black;
+    final reviewColor = HRColors.black;
+    final approvedColor = HRColors.green;
+    final rejectedColor = HRColors.red;
+    final endColor = s == 'rejected' ? rejectedColor : approvedColor;
+
+    Widget dot(bool active, Color color) {
+      return Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: active ? color : color.withOpacity(0.25),
+          shape: BoxShape.circle,
+        ),
+      );
+    }
+
+    Widget item(String label, bool active, Color color) {
+      return Row(
+        children: [
+          dot(active, color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: active ? color : HRColors.grayColor,
+            ),
+          ),
+        ],
+      );
+    }
+
+    final endLabel = s == 'rejected' ? 'Rejected' : 'Approved';
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        item('Create', true, createColor),
+        const SizedBox(width: 14),
+        item('Review', step >= 1, reviewColor),
+        const SizedBox(width: 14),
+        item(endLabel, step >= 2, endColor),
+      ],
+    );
+  }
+
+  Widget _leaveHistoryCard(MyLeavesModel model, Axis direction) {
+    final typeLabel = model.leaveType.toString();
+    final title = model.leaveTitle.toString();
+    final from = model.fromDate.toString();
+    final to = model.toDate.toString();
+
+    final status = model.status.toString().toLowerCase();
+    final bool isFinal = status == 'approved' || status == 'rejected';
+
+    IconData trailingIcon;
+    Color trailingBg;
+    Color trailingFg;
+    if (status == 'approved') {
+      trailingIcon = Icons.check_rounded;
+      trailingBg = HRColors.green.withOpacity(0.12);
+      trailingFg = HRColors.green;
+    } else if (status == 'rejected') {
+      trailingIcon = Icons.close_rounded;
+      trailingBg = HRColors.red.withOpacity(0.12);
+      trailingFg = HRColors.red;
+    } else {
+      trailingIcon = Icons.hourglass_bottom_rounded;
+      trailingBg = HRColors.lightOrangeColor;
+      trailingFg = HRColors.darkOrangeColor;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: HRColors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: HRColors.black.withOpacity(0.06)),
+          boxShadow: [
+            BoxShadow(color: HRColors.black.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 6)),
+          ],
+        ),
+        child: Slidable(
+          key: Key('${model.leaveTitle}-${model.fromDate}-${model.toDate}'),
+          direction: direction,
+          delegate: SlidableBehindDelegate(),
+          actionExtentRatio: 0.25,
+          actions: isFinal
+              ? const <Widget>[]
+              : [
+                  IconSlideAction(
+                    caption: 'Approve',
+                    color: const Color.fromARGB(255, 15, 205, 25),
+                    icon: Icons.check,
+                    onTap: () {
+                      setState(() {
+                        leaveManageForm = true;
+                        leaveApprove = true;
+                      });
+                      setLeaveValue(model);
+                    },
+                  ),
+                ],
+          secondaryActions: isFinal
+              ? const <Widget>[]
+              : [
+                  IconSlideAction(
+                    caption: 'Reject',
+                    color: HRColors.red,
+                    icon: Icons.cancel,
+                    onTap: () {
+                      setState(() {
+                        leaveManageForm = true;
+                        leaveApprove = false;
+                      });
+                      setLeaveValue(model);
+                    },
+                  ),
+                ],
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title.isNotEmpty ? title : 'Leave Request',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            (from.isNotEmpty && to.isNotEmpty) ? '$from  -  $to' : (from.isNotEmpty ? from : ''),
+                            style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            typeLabel,
+                            style: const TextStyle(fontSize: 12, color: Color(0xFFF59E0B), fontWeight: FontWeight.w800),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: trailingBg,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(trailingIcon, color: trailingFg),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                _historyStepsRow(model.status),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

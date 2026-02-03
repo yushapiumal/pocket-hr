@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'dart:ui';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +8,6 @@ import 'package:cn_pocket_hr/Screens/home/HomeScreen.dart';
 import 'package:cn_pocket_hr/Screens/leave/leaveScreen.dart';
 import 'package:cn_pocket_hr/Screens/profile/ProfileScreen.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
-import 'package:cn_pocket_hr/helper/HRStrings.dart';
 
 class HRMain extends StatefulWidget {
   static String routeName = "/main";
@@ -63,39 +62,31 @@ class _HRMainState extends State<HRMain> {
           backgroundColor: Colors.transparent,
           body: fragments[selectedIndex],
 
-          // 🔥 GLASS + BLUE NAVBAR
+          // Bubble-style bottom navigation (white pill)
           bottomNavigationBar: SafeArea(
             top: false,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 15,
-                  sigmaY: 15,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Container(
+                height: 68,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: const [
+                    BoxShadow(color: Color(0x24000000), blurRadius: 24, offset: Offset(0, 10)),
+                  ],
                 ),
-                child: Container(
-                  height: 86,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.blue.withOpacity(0.65),
-                        Colors.blueAccent.withOpacity(0.55),
+                child: Stack(
+                  children: [
+                    Row(
+                      children: [
+                        _navItem(Icons.home_outlined, 'Home', 0),
+                        _navItem(Icons.event_busy, 'Leave', 1),
+                        _navItem(Icons.event_rounded, 'Attendance', 2),
+                        _navItem(Icons.person_outline, 'Profile', 3),
                       ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      _navItem(Icons.home_outlined, 0),
-                      _navItem(Icons.event_busy, 1),
-                      _navItem(Icons.event_rounded, 2),
-                      _navItem(Icons.person_outline, 3),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -105,46 +96,58 @@ class _HRMainState extends State<HRMain> {
     );
   }
 
-  Widget _navItem(IconData icon, int index) {
+  Widget _navItem(IconData icon, String label, int index) {
     bool isSelected = selectedIndex == index;
 
     return Expanded(
       child: GestureDetector(
         onTap: () => updateTabSelection(index),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withOpacity(0.25)
-                    : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 26,
-                color: isSelected
-                    ? Colors.white
-                    : Colors.white70,
-              ),
+        child: SizedBox(
+          height: 68,
+          child: Padding(
+            // give extra vertical space only for the selected tab
+            padding: EdgeInsets.only(top: isSelected ? 10 : 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedScale(
+                  scale: isSelected ? 1.12 : 1.0,
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOut,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    transform: Matrix4.translationValues(0, isSelected ? -6.0 : 0.0, 0),
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: isSelected ? HRColors.lightOrangeColor : Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 22,
+                      color: isSelected ? HRColors.darkOrangeColor : Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 14,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? HRColors.darkOrangeColor : Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
-
-            const SizedBox(height: 4),
-
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              height: 4,
-              width: isSelected ? 18 : 6,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

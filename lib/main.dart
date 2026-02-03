@@ -7,7 +7,6 @@ import 'package:cn_pocket_hr/l10n/l10n.dart';
 import 'package:cn_pocket_hr/provider/locale_provider.dart';
 import 'package:cn_pocket_hr/routes.dart'; 
 
-import 'package:cn_pocket_hr/model/hr/MeModel.dart';
 import 'package:provider/provider.dart';
 // void main() => runApp(PocketHR());
 // 

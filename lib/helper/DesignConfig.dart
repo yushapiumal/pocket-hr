@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
-
-
+import 'package:cn_pocket_hr/Screens/allowancesDeductions/allowance.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,10 @@ import 'package:cn_pocket_hr/Screens/salarySlips/SalarySlips.dart';
 import 'package:cn_pocket_hr/helper/flutter_rating_bar.dart';
 import 'package:cn_pocket_hr/provider/locale_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:cn_pocket_hr/Screens/debtsAndLoans/DebtsAndLoansScreen.dart';
+import 'package:cn_pocket_hr/Screens/common/ComingSoonScreen.dart';
+
+
 
 class DesignConfig {
   static String getPngImagePath(String imageName) {
@@ -97,10 +100,9 @@ class DesignConfig {
       final provider = Provider.of<LocaleProvider>(context);
       final LocalStorage storage = LocalStorage('pocketHR');
 
-      final locale = provider.locale ?? Locale('en');
       return Container(
         margin: EdgeInsets.only(
-          top: 20.0,
+          top: 80.0,
           left: 8.0,
           right: 30.0,
         ),
@@ -109,10 +111,6 @@ class DesignConfig {
           children: [
             GestureDetector(
               child: ElevatedButton(
-                child: Text(
-                  'EN',
-                  style: TextStyle(color: Colors.black),
-                ),
                 onPressed: () {
                   provider.setLocale(Locale('en'));
                   storage.setItem('lang', 'en');
@@ -123,14 +121,14 @@ class DesignConfig {
                     borderRadius: BorderRadius.circular(20), // <-- Radius
                   ),
                 ),
+                child: Text(
+                  'EN',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ),
             GestureDetector(
               child: ElevatedButton(
-                child: Text(
-                  'සිං',
-                  style: TextStyle(color: Colors.black),
-                ),
                 onPressed: () {
                   provider.setLocale(Locale('si'));
                   storage.setItem('lang', 'si');
@@ -141,14 +139,14 @@ class DesignConfig {
                     borderRadius: BorderRadius.circular(20), // <-- Radius
                   ),
                 ),
+                child: Text(
+                  'සිං',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ),
             GestureDetector(
               child: ElevatedButton(
-                child: Text(
-                  'தமிழ்',
-                  style: TextStyle(color: Colors.black),
-                ),
                 onPressed: () {
                   provider.setLocale(Locale('ta'));
                   storage.setItem('lang', 'ta');
@@ -158,6 +156,10 @@ class DesignConfig {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20), // <-- Radius
                   ),
+                ),
+                child: Text(
+                  'தமிழ்',
+                  style: TextStyle(color: Colors.black),
                 ),
               ),
             ),
@@ -190,8 +192,8 @@ class DesignConfig {
                 child: Container(
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
-                    Colors.grey.withOpacity(0.0),
-                    Colors.white.withOpacity(0.2),
+                    Colors.grey.withOpacity(0.4),
+                    Colors.white.withOpacity(0.9),
                   ])),
                 ),
               ),
@@ -260,10 +262,11 @@ class DesignConfig {
                       onTap: () {
                         Navigator.pushNamed(context, HRSalarySlips.routeName);
                       },
+                      leading: const Icon(Icons.receipt_long, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.salarySlips,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,
@@ -272,11 +275,15 @@ class DesignConfig {
                     ListTile(
                       dense: true,
                       visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(
+                            context, HRAllowancesDeductions.routeName);
+                      },
+                      leading: const Icon(Icons.account_balance_wallet_outlined, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.allowanceDeductions,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,
@@ -285,11 +292,14 @@ class DesignConfig {
                     ListTile(
                       dense: true,
                       visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, HRDebtsAndLoans.routeName);
+                      },
+                      leading: const Icon(Icons.payments_outlined, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.debtLoans,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,
@@ -298,11 +308,18 @@ class DesignConfig {
                     ListTile(
                       dense: true,
                       visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ComingSoonScreen(title: 'FAQ'),
+                          ),
+                        );
+                      },
+                      leading: const Icon(Icons.help_outline, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.faqText,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,
@@ -311,11 +328,18 @@ class DesignConfig {
                     ListTile(
                       dense: true,
                       visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ComingSoonScreen(title: 'Privacy Policy'),
+                          ),
+                        );
+                      },
+                      leading: const Icon(Icons.privacy_tip_outlined, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.privacyPolicyText,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,
@@ -324,11 +348,18 @@ class DesignConfig {
                     ListTile(
                       dense: true,
                       visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ComingSoonScreen(title: 'Terms & Conditions'),
+                          ),
+                        );
+                      },
+                      leading: const Icon(Icons.gavel_outlined, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.termsConditionsText,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,
@@ -337,11 +368,18 @@ class DesignConfig {
                     ListTile(
                       dense: true,
                       visualDensity: VisualDensity(horizontal: 1, vertical: -4),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ComingSoonScreen(title: 'Contact Us'),
+                          ),
+                        );
+                      },
+                      leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
                       title: Text(
                         AppLocalizations.of(context)!.contactUsText,
                         style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 17,
                             color: HRColors.black,
                             fontWeight: FontWeight.normal),
                         textAlign: TextAlign.left,

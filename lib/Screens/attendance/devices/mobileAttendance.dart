@@ -1,158 +1,255 @@
 import 'dart:async';
-import 'package:cn_pocket_hr/l10n/app_localizations.dart';
-import 'package:expandable/expandable.dart';
-import 'package:intl/intl.dart';
-import 'package:dotted_line/dotted_line.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:expandable/expandable.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
-import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
+
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/helper/DesignConfig.dart';
-import 'package:cn_pocket_hr/helper/GlassBox.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxFull.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
-import 'package:cn_pocket_hr/helper/HRStrings.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:cn_pocket_hr/model/hr/AttendanceModel.dart';
-
+import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
+import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
 
 class MobileAttendance extends StatefulWidget {
-  MobileAttendance({Key? key}) : super(key: key);
+  const MobileAttendance({Key? key}) : super(key: key);
 
   @override
-  MobileAttendanceState createState() => MobileAttendanceState();
+  State<MobileAttendance> createState() => _MobileAttendanceState();
 }
 
-class MobileAttendanceState extends State<MobileAttendance>
+class _MobileAttendanceState extends State<MobileAttendance>
     with SingleTickerProviderStateMixin {
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  AnimationController? _animationController;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final LocalStorage storage = LocalStorage('pocketHR');
-  DateTime now = DateTime.now();
-  String currentM = "";
-  String lastM = "";
-  APIService apiService = APIService();
-  Future<List<AttendanceModel>>? myAttendance;
-  List list = [];
-  int _attendanceCount = 0;
-  Timer? _timer;
-  bool isLoading = false;
+  final APIService apiService = APIService();
+
+  late AnimationController _animationController;
+  Future<List<AttendanceModel>>? attendanceFuture;
+
+  String _tabType = 'cur';
+  String? _selectedPayroll; // format: M-YYYY (e.g., 1-2026)
+
+  String? _resolvedLocation;
+  String? _resolvedUser;
+
+  // Theme aligned with Allowances & Deductions screen
+  static const Color _pageBg = Color.fromARGB(255, 243, 244, 246);
+  static const double _g8 = 8;
+  static const double _g12 = 12;
+  static const double _g16 = 16;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    currentM = DateFormat('MMMM').format(now);
-    var prevMonth = new DateTime(now.year, now.month - 1, now.day);
-    lastM = DateFormat('MMMM').format(prevMonth);
-    getAttendance('cur');
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 2000));
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+    // Default: load current month once storage is ready
+    _initLoad();
   }
 
-  @override
-  void dispose() {
-    _animationController!.dispose();
-    super.dispose();
+  Future<void> _initLoad() async {
+    await storage.ready;
+    _loadAttendance('cur');
   }
 
-  callApi(type) async {
-    if (type == 0) {
-      getAttendance('cur');
-    } else {
-      getAttendance('prv');
-    }
-  }
-
-  getAttendance(type) async {
+  void _loadAttendance(String type) {
+    _tabType = type;
     setState(() {
-      isLoading = true;
-      final Future<List<AttendanceModel>> attendance =
-          apiService.getMyAttendance(type);
-      attendance.then((value) {
-        _attendanceCount = value.length;
-      });
-
-      myAttendance = attendance;
-
-      if ((_attendanceCount > 0)) {
-        setState(() {
-          myAttendance = attendance;
-          isLoading = false;
-        });
-      } else {
-        isLoading = false;
+      final payroll = type == 'cur'
+          ? storage.getItem('payroll_active_tag')?.toString()
+          : (_selectedPayroll ?? storage.getItem('payroll_past_tag')?.toString());
+      if (payroll == null || payroll.trim().isEmpty) {
+        attendanceFuture = Future.value(<AttendanceModel>[]);
+        return;
       }
+
+      attendanceFuture = apiService.getAttendanceForUserMonth(payroll: payroll).catchError((e, st) {
+        print('[UI] getAttendanceForUserMonth ERROR => $e');
+        print(st);
+        return <AttendanceModel>[];
+      });
     });
   }
 
-  Widget currentMonth() {
-    return FutureBuilder<List<AttendanceModel>>(
-      future: myAttendance,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return SlideAnimation(
-            position: 4,
-            itemCount: 8,
-            slideDirection: SlideDirection.fromLeft,
-            animationController: _animationController,
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              itemCount: _attendanceCount,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: [
-                    Container(
-                        margin: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * .1,
-                          right: MediaQuery.of(context).size.width * .1,
+  Future<void> _pickMonthAndLoad() async {
+    final picked = await _showMonthYearPicker();
+    if (picked == null) return;
+    final mm = picked.month.toString();
+    final yyyy = picked.year.toString();
+    _selectedPayroll = '$mm-$yyyy';
+    _loadAttendance('prv');
+  }
+
+  Future<DateTime?> _showMonthYearPicker() async {
+    final now = DateTime.now();
+    final initialTag = _selectedPayroll;
+
+    int selectedMonth = now.month;
+    int selectedYear = now.year;
+
+    if (initialTag != null && initialTag.contains('-')) {
+      final parts = initialTag.split('-');
+      if (parts.length == 2) {
+        final mm = int.tryParse(parts[0]);
+        final yy = int.tryParse(parts[1]);
+        if (mm != null && mm >= 1 && mm <= 12) selectedMonth = mm;
+        if (yy != null) selectedYear = yy;
+      }
+    }
+
+    const months = <String>[
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    final years = List<int>.generate(11, (i) => now.year - 10 + i);
+    final monthController = FixedExtentScrollController(initialItem: selectedMonth - 1);
+    final yearController = FixedExtentScrollController(
+      initialItem: years.indexOf(selectedYear).clamp(0, years.length - 1),
+    );
+
+    return showModalBottomSheet<DateTime>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return SafeArea(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: _g16, vertical: _g12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: const [BoxShadow(color: Color(0x24000000), blurRadius: 24)],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 34,
+                  height: 34,
+                  decoration: const BoxDecoration(color: HRColors.orangeColor, shape: BoxShape.circle),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: 180,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          height: 44,
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
-                        child: Divider(
-                          color: Color(0xff26707070),
-                          thickness: 2,
-                        )),
-                    Container(
-                      margin: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * .1,
-                          right: MediaQuery.of(context).size.width * .1),
-                      decoration: BoxDecoration(
-                        color: HRColors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          new BoxShadow(
-                            color: Color(0x14212121),
-                            blurRadius: 20.0,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: CupertinoPicker(
+                              scrollController: monthController,
+                              itemExtent: 40,
+                              magnification: 1.05,
+                              useMagnifier: true,
+                              selectionOverlay: const SizedBox.shrink(),
+                              onSelectedItemChanged: (i) => selectedMonth = i + 1,
+                              children: months
+                                  .map((m) => Center(
+                                        child: Text(
+                                          m,
+                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
+                          Expanded(
+                            child: CupertinoPicker(
+                              scrollController: yearController,
+                              itemExtent: 40,
+                              magnification: 1.05,
+                              useMagnifier: true,
+                              selectionOverlay: const SizedBox.shrink(),
+                              onSelectedItemChanged: (i) => selectedYear = years[i],
+                              children: years
+                                  .map((y) => Center(
+                                        child: Text(
+                                          y.toString(),
+                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
                           ),
                         ],
                       ),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          // useDetail(snapshot.data![index]),
-                          useDetail(snapshot
-                              .data![snapshot.data!.length - index - 1]),
-                        ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: HRColors.orangeColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      ),
+                      onPressed: () => Navigator.pop(ctx, DateTime(selectedYear, selectedMonth, 1)),
+                      child: const Text(
+                        'Confirm',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
                       ),
                     ),
-                  ],
-                );
-              },
-            ),
-          );
-        }
-        return Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 90),
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        side: BorderSide(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
             ),
           ),
         );
@@ -160,882 +257,459 @@ class MobileAttendanceState extends State<MobileAttendance>
     );
   }
 
-  daySplit(date, onlyDate) {
-    var day = date.split(' ');
+  String _selectedMonthLabel() {
+    if (_tabType == 'prv' && _selectedPayroll != null && _selectedPayroll!.isNotEmpty) {
+      return _selectedPayroll!;
+    }
+    return _payrollTag();
+  }
+
+
+  String _payrollTag() {
+    return (_tabType == 'cur' ? storage.getItem('payroll_active_tag') : storage.getItem('payroll_past_tag'))?.toString() ?? '';
+  }
+
+  String _daySplit(dynamic date, bool onlyDate) {
+    if (date == null) return '';
+    final s = date.toString();
+    if (!s.contains(' ')) return s;
+    final parts = s.split(' ');
     if (onlyDate) {
-      String x = day[1];
-      List<String> c = x.split("");
-      c.removeLast();
-      return c.join();
+      if (parts.length < 2) return parts[0];
+      final chars = parts[1].split('');
+      if (chars.isNotEmpty) chars.removeLast();
+      return chars.join();
     }
-    return day[0];
+    return parts[0];
   }
 
-  Widget useDetail(data) {
-    return ExpandableNotifier(
-      child: Padding(
-        padding: const EdgeInsets.all(0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(left: 20),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  daySplit(data.boilerPlate['day'], true),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 25,
-                                      color: Colors.red),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                    daySplit(data.boilerPlate['day'], false)
-                                        .toUpperCase(),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17,
-                                        color: Colors.black))
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: data.isOffday
-                                ? HRColors.dutyOff.withOpacity(0.30)
-                                : HRColors.shift.withOpacity(0.30),
-                            blurRadius: 8,
-                            spreadRadius: 6,
-                            offset: const Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+  int _toInt(dynamic v) {
+    if (v == null) return 0;
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v.toString()) ?? 0;
+  }
+
+  String _formatDurationSeconds(int seconds) {
+    final hrs = seconds ~/ 3600;
+    final mins = (seconds % 3600) ~/ 60;
+    return '${hrs}h ${mins}m';
+  }
+
+  // ===== dashboard widgets =====
+
+  Widget _topActions() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(_g16, _g8, _g16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => _scaffoldKey.currentState?.openDrawer(),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  "assets/svg/drawer_icon.svg",
+                  colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
                 ),
-                Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width / 20),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width / 3,
-                                child: Text(
-                                  data.boilerPlate['dow'] +
-                                      ' ' +
-                                      data.boilerPlate['day'],
-                                  style: TextStyle(
-                                      fontSize: 15, color: Color(0xff676767)),
-                                ),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width / 8,
-                                child: RichText(
-                                  textAlign: TextAlign.center,
-                                  text: TextSpan(
-                                    children: <TextSpan>[
-                                      data.isOffday
-                                          ? TextSpan(
-                                              text: "DayOff",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: HRColors.dutyOff,
-                                                  fontWeight: FontWeight.w600),
-                                            )
-                                          : TextSpan(
-                                              text: "Shift",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: HRColors.shift,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 45,
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 15,
-                                  child: Text(
-                                    "IN : ",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: HRColors.grayColor,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width / 5.5,
-                                  child: Text(
-                                    data.boilerPlate['in_time_only'] == null
-                                        ? ' - '
-                                        : data.boilerPlate['in_time_only'],
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: HRColors.black,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 10,
-                                  child: Text(
-                                    "OUT : ",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: HRColors.grayColor,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width / 5.5,
-                                  child: Text(
-                                    data.boilerPlate['out_time_only'] == null
-                                        ? ' - '
-                                        : data.boilerPlate['out_time_only'],
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: HRColors.black,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                              ]),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * .05,
-                  right: MediaQuery.of(context).size.width * .05,
-                  top: 5),
-              child: Divider(
-                color: Color(0xff26707070),
-                thickness: 2,
               ),
             ),
-            ScrollOnExpand(
-              scrollOnExpand: true,
-              scrollOnCollapse: false,
-              child: ExpandablePanel(
-                theme: ExpandableThemeData(
-                  headerAlignment: ExpandablePanelHeaderAlignment.center,
-                  tapBodyToCollapse: true,
+          ),
+
+          Text(
+            AppLocalizations.of(context)!.attendanceText,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+          ),
+
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  "assets/svg/notifications_icon.svg",
+                  colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
                 ),
-                header: Padding(
-                  padding: EdgeInsets.only(left: 10, top: 0),
-                  child: Text(
-                    "View Details",
-                  ),
-                ),
-                collapsed: SizedBox(),
-                expanded: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 10, left: 10),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(6)),
-                        ),
-                        child: Table(
-                          border: TableBorder.symmetric(
-                              inside:
-                                  BorderSide(width: 1, color: Colors.black)),
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          children: [
-                            TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[350],
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(6),
-                                      topRight: Radius.circular(6)),
-                                ),
-                                children: [
-                                  Text(
-                                    "WORKED",
-                                    textScaleFactor: 1,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "LATE",
-                                    textScaleFactor: 1,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "OVER",
-                                    textScaleFactor: 1,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ]),
-                            TableRow(children: [
-                              Text(
-                                data.boilerPlate['wrkd_hours_fmtd'] == null
-                                    ? " - "
-                                    : data.boilerPlate['wrkd_hours_fmtd']
-                                        .toString(),
-                                textScaleFactor: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                data.boilerPlate['late'] == null
-                                    ? " - "
-                                    : data.boilerPlate['late'].toString(),
-                                textScaleFactor: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                data.boilerPlate['over'] == null
-                                    ? " - "
-                                    : data.boilerPlate['over'].toString(),
-                                textScaleFactor: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                            ]),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                builder: (_, collapsed, expanded) {
-                  return Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                    child: Expandable(
-                      collapsed: collapsed,
-                      expanded: expanded,
-                      theme: const ExpandableThemeData(crossFadePoint: 0),
-                    ),
-                  );
-                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget useDetail2(data) {
-    return ExpandableNotifier(
-      child: Padding(
-        padding: const EdgeInsets.all(0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(left: 20),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  daySplit(data.boilerPlate['day'], true),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 25,
-                                      color: Colors.red),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                    daySplit(data.boilerPlate['day'], false)
-                                        .toUpperCase(),
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17,
-                                        color: Colors.black))
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: data.isOffday
-                                ? HRColors.dutyOff.withOpacity(0.30)
-                                : HRColors.shift.withOpacity(0.30),
-                            blurRadius: 8,
-                            spreadRadius: 6,
-                            offset: const Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+  Widget _monthTabs() {
+    final thisMonthLabel = storage.getItem('payroll_active_tag')?.toString() ?? 'This Month';
+    final pastMonthLabel = storage.getItem('payroll_past_tag')?.toString() ?? 'Past Month';
+
+    return Container(
+      margin: const EdgeInsets.only(top: _g12),
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.black.withOpacity(0.06)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => _loadAttendance('cur'),
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: _tabType == 'cur' ? Colors.black.withOpacity(0.06) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width / 20),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                width: MediaQuery.of(context).size.width / 3,
-                                child: Text(
-                                  data.boilerPlate['dow'] +
-                                      ' ' +
-                                      data.boilerPlate['day'],
-                                  style: TextStyle(
-                                      fontSize: 15, color: Color(0xff676767)),
-                                ),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width / 8,
-                                child: RichText(
-                                  textAlign: TextAlign.center,
-                                  text: TextSpan(
-                                    children: <TextSpan>[
-                                      data.isOffday
-                                          ? TextSpan(
-                                              text: "DayOff",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: HRColors.dutyOff,
-                                                  fontWeight: FontWeight.w600),
-                                            )
-                                          : TextSpan(
-                                              text: "Shift",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: HRColors.shift,
-                                                  fontWeight: FontWeight.w600),
-                                            ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height / 45,
-                          ),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 15,
-                                  child: Text(
-                                    "IN : ",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: HRColors.grayColor,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width / 5.5,
-                                  child: Text(
-                                    data.boilerPlate['in_time_only'] == null
-                                        ? ' - '
-                                        : data.boilerPlate['in_time_only'],
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: HRColors.black,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 10,
-                                  child: Text(
-                                    "OUT : ",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: HRColors.grayColor,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width / 5.5,
-                                  child: Text(
-                                    data.boilerPlate['out_time_only'] == null
-                                        ? ' - '
-                                        : data.boilerPlate['out_time_only'],
-                                    style: TextStyle(
-                                        fontSize: 15,
-                                        color: HRColors.black,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                              ]),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width * .05,
-                  right: MediaQuery.of(context).size.width * .05,
-                  top: 5),
-              child: Divider(
-                color: Color(0xff26707070),
-                thickness: 2,
-              ),
-            ),
-            ScrollOnExpand(
-              scrollOnExpand: true,
-              scrollOnCollapse: false,
-              child: ExpandablePanel(
-                theme: ExpandableThemeData(
-                  headerAlignment: ExpandablePanelHeaderAlignment.center,
-                  tapBodyToCollapse: true,
-                ),
-                header: Padding(
-                  padding: EdgeInsets.only(left: 10, top: 0),
+                child: Center(
                   child: Text(
-                    "View Details",
+                    thisMonthLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: _tabType == 'cur' ? Colors.black87 : Colors.black54,
+                    ),
                   ),
                 ),
-                collapsed: SizedBox(),
-                expanded: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 10, left: 10),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(6)),
-                        ),
-                        child: Table(
-                          border: TableBorder.symmetric(
-                              inside:
-                                  BorderSide(width: 1, color: Colors.black)),
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          children: [
-                            TableRow(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[350],
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(6),
-                                      topRight: Radius.circular(6)),
-                                ),
-                                children: [
-                                  Text(
-                                    "WORKED",
-                                    textScaleFactor: 1,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "LATE",
-                                    textScaleFactor: 1,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "OVER",
-                                    textScaleFactor: 1,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ]),
-                            TableRow(children: [
-                              Text(
-                                data.boilerPlate['wrkd_hours_fmtd'] == null
-                                    ? " - "
-                                    : data.boilerPlate['wrkd_hours_fmtd']
-                                        .toString(),
-                                textScaleFactor: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                data.boilerPlate['late'] == null
-                                    ? " - "
-                                    : data.boilerPlate['late'].toString(),
-                                textScaleFactor: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                data.boilerPlate['over'] == null
-                                    ? " - "
-                                    : data.boilerPlate['over'].toString(),
-                                textScaleFactor: 1,
-                                textAlign: TextAlign.center,
-                              ),
-                            ]),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                builder: (_, collapsed, expanded) {
-                  return Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                    child: Expandable(
-                      collapsed: collapsed,
-                      expanded: expanded,
-                      theme: const ExpandableThemeData(crossFadePoint: 0),
-                    ),
-                  );
-                },
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: InkWell(
+              onTap: _pickMonthAndLoad,
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: _tabType == 'prv' ? Colors.black.withOpacity(0.06) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Center(
+                  child: Text(
+                    _tabType == 'prv' && _selectedPayroll != null ? _selectedPayroll! : pastMonthLabel,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: _tabType == 'prv' ? Colors.black87 : Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget lastMonth() {
-    return FutureBuilder<List<AttendanceModel>>(
-      future: myAttendance,
+  Widget _shiftCard(List<AttendanceModel> items) {
+    // Use the latest record for quick stats.
+    final latest = items.isNotEmpty ? items.last : null;
+    final bp = latest?.boilerPlate ?? <String, dynamic>{};
+    final inTime = bp['in_time_only']?.toString() ?? '--:--';
+    final outTime = bp['out_time_only']?.toString() ?? '--:--';
+
+    // For the dashboard, show total worked hours for the loaded month.
+    int totalSeconds = 0;
+    for (final it in items) {
+      final b = it.boilerPlate;
+      totalSeconds += _toInt(b['workedSeconds'] ?? b['worked_seconds'] ?? b['worked_hours'] ?? 0);
+    }
+    final totalWorked = totalSeconds > 0
+        ? _formatDurationSeconds(totalSeconds)
+        : (bp['wrkd_hours_fmtd']?.toString() ?? '0h 0m');
+
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.black.withOpacity(0.06)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(20)),
+                child: const Text('GENERAL SHIFT', style: TextStyle(fontSize: 11, color: Color(0xFF2E7D32), fontWeight: FontWeight.w700)),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(_selectedMonthLabel(), style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _miniStat('Check In', inTime),
+              _miniStat('Check Out', outTime),
+              _miniStat('Working Hrs', totalWorked),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _miniStat(String label, String value) {
+    return Column(
+      children: [
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
+        const SizedBox(height: 4),
+        Text(label, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+      ],
+    );
+  }
+
+  Widget _monthSummary(List<AttendanceModel> items) {
+    // Simple client-side aggregation placeholder.
+    // You can replace these with backend computed values later.
+    final total = items.length;
+    final absents = 0;
+    final late = 0;
+    final present = (total - absents).clamp(0, total);
+
+    Widget tile(String label, String value, Color bg, Color fg) {
+      return Expanded(
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+          child: Column(
+            children: [
+              Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12)),
+              const SizedBox(height: 6),
+              Text(value, style: TextStyle(color: fg, fontWeight: FontWeight.w900, fontSize: 18)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Attendance for this Month', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(_selectedMonthLabel(), style: TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            tile('Present', present.toString(), const Color(0xFFEAF7EE), const Color(0xFF2E7D32)),
+            const SizedBox(width: 10),
+            tile('Absents', absents.toString().padLeft(2, '0'), const Color(0xFFFFEBEE), const Color(0xFFE53935)),
+            const SizedBox(width: 10),
+            tile('Late in', late.toString().padLeft(2, '0'), const Color(0xFFFFF7E6), const Color(0xFFF59E0B)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ===== list =====
+
+  Widget _attendanceList() {
+    return FutureBuilder<List<AttendanceModel>>( 
+      future: attendanceFuture,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return SlideAnimation(
-            position: 4,
-            itemCount: 8,
-            slideDirection: SlideDirection.fromLeft,
-            animationController: _animationController,
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              itemCount: _attendanceCount,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: [
-                    Container(
-                        margin: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * .1,
-                          right: MediaQuery.of(context).size.width * .1,
-                        ),
-                        child: Divider(
-                          color: Color(0xff26707070),
-                          thickness: 2,
-                        )),
-                    Container(
-                      margin: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * .1,
-                          right: MediaQuery.of(context).size.width * .1),
-                      decoration: BoxDecoration(
-                        color: HRColors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          new BoxShadow(
-                            color: Color(0x14212121),
-                            blurRadius: 20.0,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          // useDetail2(snapshot.data![index]),
-                          useDetail2(snapshot
-                              .data![snapshot.data!.length - index - 1]),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+        if (!snapshot.hasData) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(child: CircularProgressIndicator()),
           );
         }
-        return Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 90),
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-            ),
+
+        var data = snapshot.data!;
+
+        // Resolve header fallback values from the returned data.
+        if (data.isNotEmpty) {
+          final bp0 = data.first.boilerPlate;
+          final loc = bp0['location']?.toString();
+          if ((_resolvedLocation == null || _resolvedLocation!.isEmpty) && loc != null && loc.isNotEmpty) {
+            _resolvedLocation = loc;
+          }
+          // fallback user label
+          if (_resolvedUser == null || _resolvedUser!.isEmpty) {
+            final uid = storage.getItem('uid')?.toString() ?? '';
+            _resolvedUser = uid.isNotEmpty ? uid : null;
+          }
+        }
+
+        // Sort first date -> last date (ascending)
+        data = List<AttendanceModel>.from(data)
+          ..sort((a, b) {
+            final ta = _toInt(a.boilerPlate['firstCheckIn'] ?? a.boilerPlate['time'] ?? 0);
+            final tb = _toInt(b.boilerPlate['firstCheckIn'] ?? b.boilerPlate['time'] ?? 0);
+            return ta.compareTo(tb);
+          });
+
+        if (data.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(child: Text('No records')),
+          );
+        }
+
+        return SlideAnimation(
+          position: 4,
+          itemCount: 8,
+          slideDirection: SlideDirection.fromLeft,
+          animationController: _animationController,
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: data.length,
+            itemBuilder: (_, index) {
+              final record = data[index];
+              return _attendanceCard(record);
+            },
           ),
         );
       },
     );
   }
 
-  monthName(month) {
-    if (month == 'January') {
-      return AppLocalizations.of(context)!.january.toUpperCase();
-    }
-    if (month == 'February') {
-      return AppLocalizations.of(context)!.february.toUpperCase();
-    }
-    if (month == 'March') {
-      return AppLocalizations.of(context)!.march.toUpperCase();
-    }
-    if (month == 'April') {
-      return AppLocalizations.of(context)!.april.toUpperCase();
-    }
-    if (month == 'May') {
-      return AppLocalizations.of(context)!.may.toUpperCase();
-    }
-    if (month == 'June') {
-      return AppLocalizations.of(context)!.june.toUpperCase();
-    }
-    if (month == 'July') {
-      return AppLocalizations.of(context)!.july.toUpperCase();
-    }
-    if (month == 'August') {
-      return AppLocalizations.of(context)!.august.toUpperCase();
-    }
-    if (month == 'September') {
-      return AppLocalizations.of(context)!.september.toUpperCase();
-    }
-    if (month == 'October') {
-      return AppLocalizations.of(context)!.october.toUpperCase();
-    }
-    if (month == 'November') {
-      return AppLocalizations.of(context)!.november.toUpperCase();
-    }
-    if (month == 'December') {
-      return AppLocalizations.of(context)!.december.toUpperCase();
-    }
-  }
+  Widget _attendanceCard(AttendanceModel data) {
+    final bp = data.boilerPlate;
+    final String day = (bp['day'] ?? data.day).toString();
+    final String dow = (bp['dow'] ?? data.dow).toString();
+    final String inTime = bp['in_time_only']?.toString() ?? ' - ';
+    final String outTime = bp['out_time_only']?.toString() ?? ' - ';
+    final String wrkd = bp['wrkd_hours_fmtd']?.toString() ?? ' - ';
+    final String late = bp['late']?.toString() ?? ' - ';
+    final String over = bp['over']?.toString() ?? ' - ';
 
-  tabBar() {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.only(top: 30),
-      child: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.only(left: 30, right: 30),
-              decoration: DesignConfig.boxDecorationButtonColor(
-                  HRColors.white.withOpacity(0.7),
-                  HRColors.white.withOpacity(0.6),
-                  40),
-              child: TabBar(
-                onTap: (value) => callApi(value),
-                indicatorWeight: 0,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorPadding: EdgeInsets.all(10),
-                padding: EdgeInsets.all(8),
-                labelColor: HRColors.black,
-                unselectedLabelColor: Color(0xff8c989a),
-                labelStyle:
-                    TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: HRColors.intro1Sed1Color),
-                tabs: [
-                  // Tab(text: monthName(currentM)),
-                  // Tab(text: monthName(lastM)),
-                  Tab(text: storage.getItem('payroll_active_tag')),
-                  Tab(text: storage.getItem('payroll_past_tag')),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.01,
-            ),
-            Expanded(
-              child: TabBarView(children: [
-                SingleChildScrollView(child: currentMonth()),
-                SingleChildScrollView(child: lastMonth()),
-              ]),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * .12,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: HRColors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.black.withOpacity(0.06)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 6),
             )
           ],
         ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      extendBody: true,
-      drawerScrimColor: Colors.transparent,
-      drawer: DesignConfig.drawer(_scaffoldKey, context),
-      body: Container(
-        child: GlassBoxFull(
-          background:
-              'https://images.pexels.com/photos/113845/pexels-photo-113845.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
+        child: ExpandableNotifier(
+          child: Column(
             children: [
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _scaffoldKey.currentState!.openDrawer();
-                      },
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 1.0, top: 26.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 47,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/drawer_icon.svg")),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "$dow $day",
+                                style: const TextStyle(fontSize: 15, color: Color(0xff676767)),
+                              ),
+                              Text(
+                                data.isOffday ? "DayOff" : "Shift",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: data.isOffday ? HRColors.dutyOff : HRColors.shift,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                const Text("IN : "),
+                                Text(inTime, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                SizedBox(width: MediaQuery.of(context).size.width * 0.45),
+                                const Text("OUT : "),
+                                Text(outTime, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              ],
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, HRNotifications.routeName);
-                      },
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 10.0, top: 25.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 50,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/notifications_icon.svg")),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              const SizedBox(height: 6),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Divider(thickness: 1.5),
               ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height / 10.4,
-                      left: MediaQuery.of(context).size.width / 15.5),
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Center(
-                          child: Text(
-                            AppLocalizations.of(context)!.attendanceText,
-                            style: TextStyle(
-                                fontSize: 30,
-                                color: HRColors.black,
-                                fontWeight: FontWeight.normal),
-                            textAlign: TextAlign.left,
-                          ),
-                        )
-                      ],
-                    ),
+
+              ExpandablePanel(
+                header: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text("View Details"),
+                ),
+                collapsed: const SizedBox.shrink(),
+                expanded: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: Table(
+                    border: TableBorder.symmetric(inside: const BorderSide(width: 1)),
+                    children: [
+                      _tableRow("WORKED", "LATE", "OVER", header: true),
+                      _tableRow(wrkd, late, over),
+                    ],
                   ),
                 ),
               ),
-              Container(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 7.5),
-                child: tabBar(),
-              )
             ],
           ),
         ),
@@ -1043,7 +717,97 @@ class MobileAttendanceState extends State<MobileAttendance>
     );
   }
 
-  Future<void> navigationPage() async {
-    Navigator.pop(context);
+  TableRow _tableRow(String a, String b, String c, {bool header = false}) {
+    return TableRow(
+      decoration: header ? BoxDecoration(color: Colors.grey[350]) : null,
+      children: [
+        _cell(a, header),
+        _cell(b, header),
+        _cell(c, header),
+      ],
+    );
+  }
+
+  Widget _cell(String text, bool header) {
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: header ? FontWeight.bold : FontWeight.normal),
+      ),
+    );
+  }
+
+  // ===== screen =====
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: DesignConfig.drawer(_scaffoldKey, context),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _topActions(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    _monthTabs(),
+
+                    FutureBuilder<List<AttendanceModel>>(
+                      future: attendanceFuture,
+                      builder: (context, snap) {
+                        final list = snap.data ?? const <AttendanceModel>[];
+                        return Column(
+                          children: [
+                            _shiftCard(list),
+                            const SizedBox(height: 14),
+                            _monthSummary(list),
+                          ],
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+
+              // History / details
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.attendanceText,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                          ),
+                          TextButton(
+                            onPressed: () => _loadAttendance(_tabType),
+                            child: const Text('Refresh', style: TextStyle(color: Colors.black87)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _attendanceList(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: _pageBg,
+    );
   }
 }

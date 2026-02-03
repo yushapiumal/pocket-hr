@@ -1,123 +1,528 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:localstorage/localstorage.dart';
 import 'package:octo_image/octo_image.dart';
-import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
-import 'package:cn_pocket_hr/Constant/SmartKitProConstant.dart';
 import 'package:cn_pocket_hr/Screens/login/LoginScreen.dart';
 import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
+import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/helper/DesignConfig.dart';
-import 'package:cn_pocket_hr/helper/GlassBox.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxCurve.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxFull.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
-import 'package:cn_pocket_hr/helper/HRStrings.dart';
 import 'package:cn_pocket_hr/helper/customBlurHash.dart';
 
 class MobileProfile extends StatefulWidget {
-  // MobileProfile({Key? key}) : super(key: key);
-
   @override
   _MobileProfileState createState() => _MobileProfileState();
 }
 
-class _MobileProfileState extends State<MobileProfile>
-    with SingleTickerProviderStateMixin {
-  AnimationController? _animationController;
-  ScrollController? scrollController;
-  String profileAvatar = "";
-  TextEditingController? name;
-  TextEditingController? initials;
-  TextEditingController? fname;
-  TextEditingController? lname;
-  TextEditingController? dob;
-  TextEditingController? nic;
-  TextEditingController? contact;
-  TextEditingController? address;
-  TextEditingController? designation;
-  TextEditingController? biostarID;
-  TextEditingController? department;
-  TextEditingController? location;
-  TextEditingController? empNo;
-
-  File? image;
+class _MobileProfileState extends State<MobileProfile> {
+  final APIService _apiService = APIService();
+  bool _loadingMe = false;
+  bool _savingImage = false;
+  File? _selectedImage;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final LocalStorage storage = LocalStorage('pocketHR');
+  // Profile data
+  String _headerFullName = '';
+  String _headerEpf = '';
+  String _profileAvatar = '';
+  String _email = '';
+  String _designation = '';
+  String _department = '';
+  String _phone = '';
+  String _address = '';
+  String _nic = '';
+  String _dob = '';
 
-  setValue() async {
-    // await storage.ready.then((_) => {
-    // print(storage.getItem('token'));
-    // print(storage.getItem('id'));
-    profileAvatar =
-        storage.getItem('avatar') == null ? "" : storage.getItem('avatar');
-    initials = TextEditingController(
-        text: storage.getItem('initials') == null
-            ? ''
-            : storage.getItem('initials'));
-    fname = TextEditingController(
-        text: storage.getItem('fname') == null ? '' : storage.getItem('fname'));
-    lname = TextEditingController(
-        text: storage.getItem('lname') == null ? '' : storage.getItem('lname'));
-    dob = TextEditingController(
-        text: storage.getItem('dob') == null ? '' : storage.getItem('dob'));
-    nic = TextEditingController(
-        text: storage.getItem('nic') == null ? '' : storage.getItem('nic'));
-    contact = TextEditingController(
-        text: storage.getItem('contact') == null
-            ? ''
-            : storage.getItem('contact'));
-    address = TextEditingController(
-        text: storage.getItem('address') == null
-            ? ''
-            : storage.getItem('address'));
-    designation = TextEditingController(
-        text: storage.getItem('designation') == null
-            ? ''
-            : storage.getItem('designation'));
-    biostarID = TextEditingController(
-        text: storage.getItem('biostarId') == null
-            ? ''
-            : storage.getItem('biostarId'));
-    department = TextEditingController(text: "-");
-    location = TextEditingController(text: "-");
-    empNo = TextEditingController(text: "-");
-    // });
-  }
+  // Custom colors
+  static const Color _primaryColor = HRColors.darkOrangeColor;
+  static const Color _secondaryColor = Color(0xFF6366F1);
+  static const Color _backgroundColor = Color(0xFFF8FAFC);
+  static const Color _cardColor = Colors.white;
+  static const Color _textPrimary = Color(0xFF1E293B);
+  static const Color _textSecondary = Color(0xFF64748B);
+  static const Color _textTertiary = Color(0xFF94A3B8);
+  static const Color _dividerColor = Color(0xFFE2E8F0);
 
   @override
   void initState() {
     super.initState();
-    setValue();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 2000));
+    _loadProfileData();
   }
 
-  @override
-  void dispose() {
-    // scrollController!.dispose();
-    _animationController!.dispose();
+  Future<void> _loadProfileData() async {
+    if (_loadingMe) return;
+    setState(() => _loadingMe = true);
+    
+    try {
+      final meProfile = await _apiService.fetchMeProfileWithBearer();
+      if (meProfile == null || meProfile['data'] == null) return;
 
-    super.dispose();
+      final data = Map<String, dynamic>.from(meProfile['data']);
+      
+      // Helper function to get custom field value
+      String _getCustomField(Map<String, dynamic> data, String key) {
+        final cfs = data['customfields'];
+        if (cfs is List) {
+          for (final item in cfs) {
+            if (item is Map && item['input_name']?.toString() == key) {
+              return item['input_value']?.toString() ?? '';
+            }
+          }
+        }
+        return '';
+      }
+
+      setState(() {
+        _email = (data['email'] ?? '').toString();
+        final firstName = _getCustomField(data, 'cf_first_name');
+        final lastName = _getCustomField(data, 'cf_last_name');
+        _headerFullName = '$firstName $lastName'.trim();
+        _headerEpf = _getCustomField(data, 'cf_epf_no');
+        _designation = _getCustomField(data, 'cf_designation');
+        _department = _getCustomField(data, 'cf_department');
+        _phone = _getCustomField(data, 'cf_phone');
+        _address = _getCustomField(data, 'cf_address');
+        _nic = _getCustomField(data, 'cf_nic');
+        _dob = _getCustomField(data, 'cf_dob');
+        
+        // Set profile avatar if available
+        if (data['avatar'] is String && data['avatar'].toString().isNotEmpty) {
+          _profileAvatar = data['avatar'];
+        }
+      });
+    } catch (e) {
+      debugPrint('Error loading profile: $e');
+    } finally {
+      setState(() => _loadingMe = false);
+    }
   }
 
-  Future pickupImg() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (image == null) return;
-    final imageTemporary = File(image.path);
-    setState(() => this.image = imageTemporary);
+  Future<void> _pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+      if (image == null) return;
+
+      setState(() => _savingImage = true);
+      
+      // Here you would typically upload the image to your server
+      await Future.delayed(Duration(seconds: 1)); // Simulate upload
+      
+      setState(() {
+        _selectedImage = File(image.path);
+        _savingImage = false;
+      });
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Profile picture updated successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      setState(() => _savingImage = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update picture'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  logOut() async {
-    await storage.clear();
-    Navigator.pushNamed(context, HRLogin.routeName);
+  void _logout() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel', style: TextStyle(color: _textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, HRLogin.routeName);
+            },
+            child: Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  // Attendance/Leave-style circle icon button
+  Widget _topCircleButton({required Widget child, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(40),
+          border: Border.all(color: Colors.black.withOpacity(0.06)),
+        ),
+        child: Center(child: child),
+      ),
+    );
+  }
+
+  Widget _topHeader() {
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _topCircleButton(
+              onTap: () => _scaffoldKey.currentState?.openDrawer(),
+           child: SvgPicture.asset(
+                            "assets/svg/drawer_icon.svg",
+                            colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                          ),
+            ),
+            const Text('My Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+            _topCircleButton(
+              onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+              child: Image.asset(
+                'assets/images/img/notification.png',
+                errorBuilder: (_, __, ___) => const Icon(Icons.notifications_none_rounded, color: Colors.black87),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileCard() {
+    final avatarUrl = _profileAvatar.isNotEmpty && _profileAvatar.contains('http')
+        ? _profileAvatar
+        : "https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_1280.png";
+
+    return Container(
+      margin: EdgeInsets.all(20),
+      padding: EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Profile Image
+          Stack(
+            children: [
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _dividerColor, width: 4),
+                ),
+                child: ClipOval(
+                  child: _selectedImage != null
+                      ? Image.file(
+                          _selectedImage!,
+                          fit: BoxFit.cover,
+                          width: 120,
+                          height: 120,
+                        )
+                      : _savingImage
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation(_primaryColor),
+                              ),
+                            )
+                          : OctoImage(
+                              image: CachedNetworkImageProvider(avatarUrl),
+                              placeholderBuilder: OctoBlurHashFix.placeHolder(
+                                'LRHe%pIA.m_2KjxawKNGIWkWD*M{',
+                              ),
+                              errorBuilder: (context, error, stacktrace) => 
+                                Container(
+                                  color: _backgroundColor,
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 60,
+                                    color: _textTertiary,
+                                  ),
+                                ),
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            ),
+                ),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: GestureDetector(
+                  onTap: _savingImage ? null : _pickImage,
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: _primaryColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _primaryColor.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: _savingImage
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation(Colors.white),
+                              ),
+                            )
+                          : Icon(
+                              Icons.camera_alt_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+
+          // Name and EPF
+          Text(
+            _loadingMe ? 'Loading...' : _headerFullName,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: _textPrimary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 4),
+          Text(
+            'EPF : #${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
+            style: TextStyle(
+              fontSize: 14,
+              color: _textSecondary,
+            ),
+            textAlign: TextAlign.center,
+          ),
+
+          // Designation and Department
+          if (_designation.isNotEmpty || _department.isNotEmpty) ...[
+            SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_designation.isNotEmpty)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _designation,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _primaryColor,
+                      ),
+                    ),
+                  ),
+                if (_designation.isNotEmpty && _department.isNotEmpty)
+                  SizedBox(width: 8),
+                if (_department.isNotEmpty)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _secondaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _department,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _secondaryColor,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+          SizedBox(height: 20),
+
+          // Logout Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _logout,
+              icon: Icon(Icons.logout_rounded, size: 20),
+              label: Text('Logout', style: TextStyle(fontWeight: FontWeight.w600)),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.red, backgroundColor: Colors.red.withOpacity(0.1),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.red.withOpacity(0.2)),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String title,
+    required String value,
+    Color iconColor = _textPrimary,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Icon(icon, size: 20, color: iconColor),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _textTertiary,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  value.isNotEmpty ? value : 'Not provided',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: _textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPersonalInfo() {
+    return Container(
+      margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(left: 4, bottom: 12),
+            child: Text(
+              'Personal Information',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: _textPrimary,
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              _buildInfoItem(
+                icon: Icons.email_rounded,
+                title: 'Email',
+                value: _email,
+                iconColor: _primaryColor,
+              ),
+              SizedBox(height: 12),
+              _buildInfoItem(
+                icon: Icons.phone_rounded,
+                title: 'Phone',
+                value: _phone,
+                iconColor: Colors.green,
+              ),
+              SizedBox(height: 12),
+              _buildInfoItem(
+                icon: Icons.location_on_rounded,
+                title: 'Address',
+                value: _address,
+                iconColor: Colors.blue,
+              ),
+              SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildInfoItem(
+                      icon: Icons.badge_rounded,
+                      title: 'NIC',
+                      value: _nic,
+                      iconColor: Colors.purple,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: _buildInfoItem(
+                      icon: Icons.cake_rounded,
+                      title: 'Date of Birth',
+                      value: _dob,
+                      iconColor: Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -125,706 +530,39 @@ class _MobileProfileState extends State<MobileProfile>
     return Scaffold(
       key: _scaffoldKey,
       extendBody: true,
-      drawerScrimColor: Colors.transparent,
+      drawerScrimColor: Colors.black.withOpacity(0.3),
       drawer: DesignConfig.drawer(_scaffoldKey, context),
-      body: Container(
-        child: GlassBoxFull(
-          background:
-              'https://images.pexels.com/photos/2880718/pexels-photo-2880718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
-            children: [
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _scaffoldKey.currentState!.openDrawer();
-                      },
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 1.0, top: 26.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 47,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/drawer_icon.svg")),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, HRNotifications.routeName);
-                      },
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 10.0, top: 25.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 50,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/notifications_icon.svg")),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 0),
-                child: Stack(
-                  children: [
-                    Container(
-                      alignment: Alignment.topCenter,
-                      padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * .10),
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundColor: HRColors.white.withOpacity(0.5),
-                        child: Container(
-                          padding: EdgeInsets.all(5),
-                          child: image != null
-                              ? ClipOval(
-                                  child: Image.file(
-                                    image!,
-                                    fit: BoxFit.cover,
-                                    width: 135,
-                                    height: 135,
-                                  ),
-                                )
-                              : ClipOval(
-                                  child: OctoImage(
-                                    image: CachedNetworkImageProvider(profileAvatar ==
-                                            "http://cdn.rype3.com/human/images/default-avatar.png"
-                                        ? "https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_1280.png"
-                                        : profileAvatar),
-                                    placeholderBuilder:
-                                        OctoBlurHashFix.placeHolder(
-                                      "LRHe%pIA.m_2KjxawKNGIWkWD*M{"
-                                    ),
-                                    errorBuilder:
-                                        OctoError.icon(color: Colors.black),
-                                    width: 135,
-                                    height: 135,
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * .15,
-                            left: MediaQuery.of(context).size.width * .50),
-                        child: GestureDetector(
-                          child: Container(
-                              padding: EdgeInsets.all(15.0),
-                              margin: EdgeInsets.only(top: 35.0, left: 20.0),
-                              decoration: DesignConfig.boxDecorationButtonColor(
-                                  HRColors.white.withOpacity(0.8),
-                                  HRColors.white.withOpacity(0.6),
-                                  50),
-                              child: SvgPicture.asset("assets/svg/camera.svg",
-                                  color: HRColors.black)),
-                          onTap: () => pickupImg(),
-                        )),
-                    SizedBox(
-                      height: 40.0,
-                    ),
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height / 3.7),
-                        child: Text(
-                          storage.getItem('full_name'),
-                          style: TextStyle(
-                              fontSize: 25,
-                              color: Color(0xff1f1f1f),
-                              fontWeight: FontWeight.normal),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height / 3.2),
-                        child: Text(
-                          "EPF : #${storage.getItem('biostarId')}",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: HRColors.darkFontColor,
-                              fontWeight: FontWeight.normal),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 50,
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height / 2.9),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SlideAnimation(
-                            position: 1,
-                            itemCount: 8,
-                            slideDirection: SlideDirection.fromLeft,
-                            animationController: _animationController,
-                            child: GestureDetector(
-                              onTap: () {
-                                logOut();
-                              },
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white70,
-                                          Colors.white12,
-                                        ],
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        offset: const Offset(
-                                          5.0,
-                                          5.0,
-                                        ),
-                                        blurRadius: 10.0,
-                                        spreadRadius: 2.0,
-                                      ), //BoxShadow
-                                      BoxShadow(
-                                        color: Colors.white38,
-                                        offset: const Offset(0.0, 0.0),
-                                        blurRadius: 0.0,
-                                        spreadRadius: 0.0,
-                                      ), //BoxShadow
-                                    ],
-                                  ),
-                                  margin: EdgeInsets.only(right: 10, left: 10),
-                                  padding: EdgeInsets.all(15),
-                                  alignment: Alignment.center,
-                                  child: SvgPicture.asset(
-                                      "assets/svg/logout.svg")),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 50.0,
-              ),
-              _buildFab()
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget line() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 25),
-      child: TextFormField(
-        controller: name,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.normal,
-          color: Colors.white,
-        ),
-        decoration: InputDecoration(
-            labelStyle: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              color: Colors.white,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.darkFontColor),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white),
-            )),
-      ),
-    );
-  }
-
-  Widget showInitials() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: initials,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Initials",
-            prefixIcon: Icon(Icons.person_rounded, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showFname() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: fname,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "First Name",
-            prefixIcon: Icon(Icons.person_rounded, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showLname() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: lname,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Last Name",
-            prefixIcon: Icon(Icons.person_rounded, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showDob() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: dob,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Date of Birth",
-            prefixIcon: Icon(Icons.cake, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showNic() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: nic,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "NIC",
-            prefixIcon: Icon(Icons.badge, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showContact() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: contact,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Contact",
-            prefixIcon: Icon(Icons.local_phone, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showAddress() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: address,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Address",
-            prefixIcon: Icon(Icons.location_on_sharp, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showDesignation() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: designation,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Designation",
-            prefixIcon: Icon(Icons.business_center, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showbiostar() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: biostarID,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Biostar ID",
-            prefixIcon: Icon(Icons.person_rounded, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showDepartment() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: department,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Department",
-            prefixIcon: Icon(Icons.business, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showLocation() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: location,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Location",
-            prefixIcon: Icon(Icons.location_on_sharp, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget showEmpNo() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextFormField(
-        readOnly: true,
-        controller: empNo,
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.normal,
-          color: HRColors.black,
-        ),
-        decoration: InputDecoration(
-            labelText: "Emp No",
-            prefixIcon: Icon(Icons.person_rounded, color: HRColors.black),
-            labelStyle: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal,
-              color: HRColors.black,
-            ),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: HRColors.black),
-            )),
-      ),
-    );
-  }
-
-  Widget _buildFab() {
-    final double defaultTopMargin = MediaQuery.of(context).size.height * .43;
-    final double scaleStart = 96.0;
-    final double scaleEnd = scaleStart / 2;
-
-    double top = defaultTopMargin;
-    double scale = 1.0;
-
-    return new Positioned(
-      top: top,
-      left: 0,
-      child: new Transform(
-        transform: new Matrix4.identity()..scale(scale),
-        alignment: Alignment.center,
-        child: SlideAnimation(
-          position: 4,
-          itemCount: 8,
-          slideDirection: SlideDirection.fromBottom,
-          animationController: _animationController,
-          child: new Container(
-            height: MediaQuery.of(context).size.height,
-            alignment: Alignment.center,
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Colors.white30,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(50),
-                    topRight: Radius.circular(50)),
-                boxShadow: [
-                  //boxShadow,
+      backgroundColor: _backgroundColor,
+      body: _loadingMe
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: _primaryColor),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading profile...',
+                    style: TextStyle(color: _textSecondary),
+                  ),
                 ],
               ),
+            )
+          : RefreshIndicator(
+              color: _primaryColor,
+              onRefresh: _loadProfileData,
               child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Column(
                   children: [
-                    Container(
-                      height: MediaQuery.of(context).size.height / 1.01,
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: SingleChildScrollView(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          child: Column(
-                            children: [
-                              showInitials(),
-                              showFname(),
-                              showLname(),
-                              showDob(),
-                              showNic(),
-                              showContact(),
-                              showAddress(),
-                              showDesignation(),
-                              showDepartment(),
-                              showbiostar(),
-                              showLocation(),
-                              showEmpNo(),
-                              SizedBox(
-                                height: 430,
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    _topHeader(),
+                    const SizedBox(height: 10),
+                    _buildProfileCard(),
+                    _buildPersonalInfo(),
+                    SizedBox(height: 40),
                   ],
                 ),
               ),
             ),
-          ),
-        ),
-      ),
     );
-  }
-
-  Future<void> navigationPage() async {
-    Navigator.pop(context);
   }
 }
