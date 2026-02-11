@@ -612,8 +612,11 @@ class TabletAttendanceState extends State<TabletAttendance> {
     return Scaffold(
       key: _scaffoldKey,
       extendBody: true,
-      drawerScrimColor: Colors.transparent,
-      drawer: DesignConfig.drawer(_scaffoldKey, context),
+   drawer: Drawer(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: DesignConfig.drawerContent(_scaffoldKey, context),
+      ),
       body: Container(
         child: GlassBoxFull(
           background:

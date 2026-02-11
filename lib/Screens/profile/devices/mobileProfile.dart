@@ -40,8 +40,8 @@ class _MobileProfileState extends State<MobileProfile> {
   // Custom colors
   static const Color _primaryColor = HRColors.darkOrangeColor;
   static const Color _secondaryColor = Color(0xFF6366F1);
-  static const Color _backgroundColor = Color(0xFFF8FAFC);
-  static const Color _cardColor = Colors.white;
+  static const Color _backgroundColor = Colors.white;
+  static const Color _cardColor = Color.fromARGB(255, 248, 250, 252);
   static const Color _textPrimary = Color(0xFF1E293B);
   static const Color _textSecondary = Color(0xFF64748B);
   static const Color _textTertiary = Color(0xFF94A3B8);
@@ -193,7 +193,7 @@ class _MobileProfileState extends State<MobileProfile> {
                             colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
                           ),
             ),
-            const Text('My Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+            const Text('My Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87)),
             _topCircleButton(
               onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
               child: Image.asset(
@@ -218,9 +218,10 @@ class _MobileProfileState extends State<MobileProfile> {
       decoration: BoxDecoration(
         color: _cardColor,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
             offset: Offset(0, 8),
           ),
@@ -414,6 +415,7 @@ class _MobileProfileState extends State<MobileProfile> {
       decoration: BoxDecoration(
         color: _cardColor,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
       ),
       child: Row(
         children: [
@@ -442,7 +444,7 @@ class _MobileProfileState extends State<MobileProfile> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  value.isNotEmpty ? value : 'Not provided',
+                  value.isNotEmpty ? value : 'Not added',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -469,8 +471,8 @@ class _MobileProfileState extends State<MobileProfile> {
               'Personal Information',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: _textPrimary,
+                fontWeight: FontWeight.w800,
+                color: Colors.black87,
               ),
             ),
           ),
@@ -531,7 +533,11 @@ class _MobileProfileState extends State<MobileProfile> {
       key: _scaffoldKey,
       extendBody: true,
       drawerScrimColor: Colors.black.withOpacity(0.3),
-      drawer: DesignConfig.drawer(_scaffoldKey, context),
+      drawer: Drawer(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: DesignConfig.drawerContent(_scaffoldKey, context),
+      ),
       backgroundColor: _backgroundColor,
       body: _loadingMe
           ? Center(

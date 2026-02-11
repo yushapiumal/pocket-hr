@@ -51,7 +51,14 @@ class MobileLeaveState extends State<MobileLeave>
   // Bottom-sheet wizard
   // int _applyStep = 0; // 0=type, 1=mode+dates, 2=desc+confirm
 
-  static const Color _pageBg = Color.fromARGB(255, 243, 244, 246);
+  static const Color _pageBg = Colors.white;
+
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+
+  // Fonts (match Attendance screen; keep existing sizes)
+  static const FontWeight _wSemi = FontWeight.w600;
+  static const FontWeight _wBold = FontWeight.w700;
+  static const FontWeight _wBlack = FontWeight.w900;
 
   Widget _leaveBalanceChip({required String label, required String value, required Color bg, required Color fg}) {
     return Container(
@@ -64,7 +71,7 @@ class MobileLeaveState extends State<MobileLeave>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: fg)),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -72,7 +79,7 @@ class MobileLeaveState extends State<MobileLeave>
               color: HRColors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: fg)),
+            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
           ),
         ],
       ),
@@ -85,17 +92,17 @@ class MobileLeaveState extends State<MobileLeave>
       margin: const EdgeInsets.only(top: 14),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: HRColors.white,
+        color: _surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: HRColors.black.withOpacity(0.06)),
+        border: Border.all(color: HRColors.black.withOpacity(0.05)),
         boxShadow: [
-          BoxShadow(color: HRColors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 6)),
+          BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 6)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('My Leave Balance', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: HRColors.darkFontColor)),
+          const Text('My Leave Balance', style: TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -299,7 +306,11 @@ class MobileLeaveState extends State<MobileLeave>
       key: _scaffoldKey,
       extendBody: true,
       drawerScrimColor: Colors.transparent,
-      drawer: DesignConfig.drawer(_scaffoldKey, context),
+      drawer: Drawer(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: DesignConfig.drawerContent(_scaffoldKey, context),
+      ),
       backgroundColor: _pageBg,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -332,7 +343,7 @@ class MobileLeaveState extends State<MobileLeave>
                     ),
                     Text(
                       AppLocalizations.of(context)!.leaveText,
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                      style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
                     ),
                     GestureDetector(
                       onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
@@ -366,7 +377,7 @@ class MobileLeaveState extends State<MobileLeave>
                     const Text('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                     TextButton(
                       onPressed: () => getMyLeaves(),
-                      child: const Text('Refresh', style: TextStyle(color: Colors.black87)),
+                      child: const Text('Refresh', style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
                     ),
                   ],
                 ),
@@ -391,8 +402,8 @@ class MobileLeaveState extends State<MobileLeave>
           ? Padding(
               padding: const EdgeInsets.only(bottom: 90.0),
               child: _GradientPillButton(
-                label: 'LEAVE APPLY',
-               // icon: Icons.menu,
+                label: '',
+                // icon: Icons.menu,
                 onTap: () async {
                   setState(() => leaveManageForm = true);
 
@@ -436,7 +447,7 @@ class MobileLeaveState extends State<MobileLeave>
     return Container(
       margin: const EdgeInsets.only(),
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height / 35,
+        top: 8,
       ),
       child: Column(
         children: [
@@ -499,17 +510,19 @@ class MobileLeaveState extends State<MobileLeave>
 
   Widget _GradientPillButton({
     required String label,
-   // required IconData icon,
+    // required IconData icon,
     required VoidCallback onTap,
   }) {
     // Matches the provided UI: circular icon bubble + pill gradient
+    final iconOnly = label.trim().isEmpty;
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 52,
-        padding: const EdgeInsets.only(right: 18),
+        height: iconOnly ? 56 : 52,
+        width: iconOnly ? 56 : null,
+        padding: iconOnly ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
           gradient: const LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
@@ -523,24 +536,27 @@ class MobileLeaveState extends State<MobileLeave>
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 15),
-              Text(
-                label,
-                style: const TextStyle(
-                  color: HRColors.white,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.0,
+        child: Center(
+          child: iconOnly
+              ? const Icon(Icons.add_rounded, color: HRColors.white, size: 28)
+              : Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          color: HRColors.white,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(Icons.chevron_right, color: HRColors.white),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 2),
-              const Icon(Icons.chevron_right, color: HRColors.white),
-            ],
-          ),
         ),
       ),
     );
@@ -578,7 +594,7 @@ class MobileLeaveState extends State<MobileLeave>
             label,
             style: TextStyle(
               fontSize: 11,
-              fontWeight: FontWeight.w800,
+              fontWeight: _wBold,
               color: active ? color : HRColors.grayColor,
             ),
           ),
@@ -629,11 +645,11 @@ class MobileLeaveState extends State<MobileLeave>
       padding: const EdgeInsets.only(top: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: HRColors.white,
+          color: _surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: HRColors.black.withOpacity(0.06)),
+          border: Border.all(color: HRColors.black.withOpacity(0.05)),
           boxShadow: [
-            BoxShadow(color: HRColors.black.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 6)),
+            BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 6)),
           ],
         ),
         child: Slidable(
@@ -688,17 +704,17 @@ class MobileLeaveState extends State<MobileLeave>
                             title.isNotEmpty ? title : 'Leave Request',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black87),
+                            style: const TextStyle(fontWeight: _wBold, fontSize: 14, color: Colors.black87),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             (from.isNotEmpty && to.isNotEmpty) ? '$from  -  $to' : (from.isNotEmpty ? from : ''),
-                            style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w600),
+                            style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: _wSemi),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             typeLabel,
-                            style: const TextStyle(fontSize: 12, color: Color(0xFFF59E0B), fontWeight: FontWeight.w800),
+                            style: const TextStyle(fontSize: 12, color: Color(0xFFF59E0B), fontWeight: _wBold),
                           ),
                         ],
                       ),

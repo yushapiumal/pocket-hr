@@ -8,6 +8,8 @@ import 'package:cn_pocket_hr/Screens/home/HomeScreen.dart';
 import 'package:cn_pocket_hr/Screens/leave/leaveScreen.dart';
 import 'package:cn_pocket_hr/Screens/profile/ProfileScreen.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
+import 'package:cn_pocket_hr/helper/DesignConfig.dart';
+import 'package:cn_pocket_hr/helper/LiquidSideMenu.dart';
 
 class HRMain extends StatefulWidget {
   static String routeName = "/main";
@@ -21,6 +23,8 @@ class HRMain extends StatefulWidget {
 
 class _HRMainState extends State<HRMain> {
   int selectedIndex = 0;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late List<Widget> fragments;
 
@@ -57,36 +61,40 @@ class _HRMainState extends State<HRMain> {
           statusBarIconBrightness:
               Platform.isIOS ? Brightness.light : Brightness.dark,
         ),
-        child: Scaffold(
-          extendBody: true,
-          backgroundColor: Colors.transparent,
-          body: fragments[selectedIndex],
+        child: LiquidSideMenu(
+          menu: DesignConfig.drawerContent(_scaffoldKey, context),
+          child: Scaffold(
+            key: _scaffoldKey,
+            extendBody: true,
+            backgroundColor: Colors.transparent,
+            body: fragments[selectedIndex],
 
-          // Bubble-style bottom navigation (white pill)
-          bottomNavigationBar: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-              child: Container(
-                height: 68,
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: const [
-                    BoxShadow(color: Color(0x24000000), blurRadius: 24, offset: Offset(0, 10)),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Row(
-                      children: [
-                        _navItem(Icons.home_outlined, 'Home', 0),
-                        _navItem(Icons.event_busy, 'Leave', 1),
-                        _navItem(Icons.event_rounded, 'Attendance', 2),
-                        _navItem(Icons.person_outline, 'Profile', 3),
-                      ],
-                    ),
-                  ],
+            // Bubble-style bottom navigation (white pill)
+            bottomNavigationBar: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Container(
+                  height: 76,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: const [
+                      BoxShadow(color: Color(0x24000000), blurRadius: 24, offset: Offset(0, 10)),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Row(
+                        children: [
+                          _navItem(Icons.home_outlined, 'Home', 0),
+                          _navItem(Icons.event_busy, 'Leave', 1),
+                          _navItem(Icons.event_rounded, 'Attendance', 2),
+                          _navItem(Icons.person_outline, 'Profile', 3),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -103,7 +111,7 @@ class _HRMainState extends State<HRMain> {
       child: GestureDetector(
         onTap: () => updateTabSelection(index),
         child: SizedBox(
-          height: 68,
+          height: 76,
           child: Padding(
             // give extra vertical space only for the selected tab
             padding: EdgeInsets.only(top: isSelected ? 10 : 0),
@@ -117,7 +125,7 @@ class _HRMainState extends State<HRMain> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOut,
-                    transform: Matrix4.translationValues(0, isSelected ? -6.0 : 0.0, 0),
+                    transform: Matrix4.translationValues(0, isSelected ? -4.0 : 0.0, 0),
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(

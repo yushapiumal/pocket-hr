@@ -9,15 +9,15 @@ class ComingSoonScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 244, 246),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: HRColors.white,
-        surfaceTintColor: HRColors.white,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: HRColors.black),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.w900, color: HRColors.black),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: HRColors.black),
         ),
       ),
       body: Center(
@@ -25,11 +25,11 @@ class ComingSoonScreen extends StatelessWidget {
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: HRColors.white,
+            color: const Color.fromARGB(255, 248, 250, 252),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: HRColors.black.withOpacity(0.06)),
+            border: Border.all(color: HRColors.black.withOpacity(0.05)),
             boxShadow: [
-              BoxShadow(color: HRColors.black.withOpacity(0.06), blurRadius: 14, offset: const Offset(0, 8)),
+              BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 14, offset: const Offset(0, 8)),
             ],
           ),
           child: Column(

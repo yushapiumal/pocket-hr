@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cn_pocket_hr/Screens/login/LoginScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localstorage/localstorage.dart';
@@ -49,7 +50,7 @@ class _MobileSplashState extends State<MobileSplash>
   }
 
   startTime() async {
-    var _duration = Duration(milliseconds: 1000);
+    var _duration = Duration(milliseconds: 2000);
     return Timer(_duration, navigationPage);
   }
 
@@ -96,11 +97,11 @@ class _MobileSplashState extends State<MobileSplash>
         }
       } else {
         storage.clear();
-        Navigator.pushNamed(context, HRIntroduction.routeName);
+        Navigator.pushNamed(context, HRLogin.routeName);
       }
     } else {
       storage.clear();
-      Navigator.pushNamed(context, HRIntroduction.routeName);
+      Navigator.pushNamed(context, HRLogin.routeName);
     }
   }
 

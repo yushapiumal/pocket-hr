@@ -95,7 +95,7 @@ class DesignConfig {
     );
   }
 
-  static drawer(GlobalKey<ScaffoldState> _scaffoldKey, BuildContext context) {
+  static Widget drawerContent(GlobalKey<ScaffoldState> _scaffoldKey, BuildContext context) {
     Widget langPicker() {
       final provider = Provider.of<LocaleProvider>(context);
       final LocalStorage storage = LocalStorage('pocketHR');
@@ -172,7 +172,7 @@ class DesignConfig {
       width: 300,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: HRColors.white.withOpacity(0.4),
+        color: HRColors.white.withOpacity(0.9),
         boxShadow: [
           BoxShadow(
             color: HRColors.white.withOpacity(0.4),
@@ -228,8 +228,8 @@ class DesignConfig {
                               padding: EdgeInsets.all(10.0),
                               margin: EdgeInsets.only(left: 5.0),
                               decoration: DesignConfig.boxDecorationButtonColor(
-                                  HRColors.white.withOpacity(0.6),
-                                  HRColors.white.withOpacity(0.7),
+                                  HRColors.white.withOpacity(0.9),
+                                  HRColors.white.withOpacity(0.9),
                                   50),
                               child: Icon(Icons.close, color: HRColors.black),
                             ),

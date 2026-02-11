@@ -36,11 +36,26 @@ class _MobileAttendanceState extends State<MobileAttendance>
   String? _resolvedLocation;
   String? _resolvedUser;
 
-  // Theme aligned with Allowances & Deductions screen
-  static const Color _pageBg = Color.fromARGB(255, 243, 244, 246);
+  // Theme aligned with Leave screen
+  static const Color _pageBg = Colors.white;
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
   static const double _g8 = 8;
   static const double _g12 = 12;
   static const double _g16 = 16;
+
+  // Fonts (keep existing sizes; only normalize weights)
+  static const FontWeight _wRegular = FontWeight.w400;
+  static const FontWeight _wMedium = FontWeight.w500;
+  static const FontWeight _wSemi = FontWeight.w600;
+  static const FontWeight _wBold = FontWeight.w700;
+  static const FontWeight _wBlack = FontWeight.w900;
+
+  TextStyle get _title24 => const TextStyle(fontSize: 24, fontWeight: _wBlack);
+  TextStyle get _h16 => const TextStyle(fontSize: 16, fontWeight: _wBold);
+  TextStyle get _label14 => const TextStyle(fontSize: 14, fontWeight: _wBold);
+  TextStyle get _body12 => const TextStyle(fontSize: 12, fontWeight: _wMedium, color: Color(0xFF6B7280));
+  TextStyle get _chip11 => const TextStyle(fontSize: 11, fontWeight: _wBold, color: Colors.black87);
+  TextStyle get _valueBold => const TextStyle(fontWeight: _wBold);
 
   @override
   void initState() {
@@ -269,20 +284,6 @@ class _MobileAttendanceState extends State<MobileAttendance>
     return (_tabType == 'cur' ? storage.getItem('payroll_active_tag') : storage.getItem('payroll_past_tag'))?.toString() ?? '';
   }
 
-  String _daySplit(dynamic date, bool onlyDate) {
-    if (date == null) return '';
-    final s = date.toString();
-    if (!s.contains(' ')) return s;
-    final parts = s.split(' ');
-    if (onlyDate) {
-      if (parts.length < 2) return parts[0];
-      final chars = parts[1].split('');
-      if (chars.isNotEmpty) chars.removeLast();
-      return chars.join();
-    }
-    return parts[0];
-  }
-
   int _toInt(dynamic v) {
     if (v == null) return 0;
     if (v is int) return v;
@@ -325,7 +326,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
 
           Text(
             AppLocalizations.of(context)!.attendanceText,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+            style: _title24,
           ),
 
           GestureDetector(
@@ -359,9 +360,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
       margin: const EdgeInsets.only(top: _g12),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withOpacity(0.06)),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
       ),
       child: Row(
         children: [
@@ -381,7 +382,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: _wBold,
                       color: _tabType == 'cur' ? Colors.black87 : Colors.black54,
                     ),
                   ),
@@ -406,7 +407,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: _wBold,
                       color: _tabType == 'prv' ? Colors.black87 : Colors.black54,
                     ),
                   ),
@@ -440,12 +441,12 @@ class _MobileAttendanceState extends State<MobileAttendance>
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.black.withOpacity(0.06)),
+        border: Border.all(color: Colors.black.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 6),
           )
@@ -461,14 +462,14 @@ class _MobileAttendanceState extends State<MobileAttendance>
                 decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(20)),
                 child: const Text('GENERAL SHIFT', style: TextStyle(fontSize: 11, color: Color(0xFF2E7D32), fontWeight: FontWeight.w700)),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.06),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(_selectedMonthLabel(), style: const TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.w700)),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              //   decoration: BoxDecoration(
+              //     color: Colors.black.withOpacity(0.06),
+              //     borderRadius: BorderRadius.circular(20),
+              //   ),
+              //   child: Text(_selectedMonthLabel(), style: _chip11),
+              // ),
             ],
           ),
           const SizedBox(height: 12),
@@ -488,9 +489,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
   Widget _miniStat(String label, String value) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Text(value, style: const TextStyle(fontWeight: _wBold)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12)),
+        Text(label, style: _body12),
       ],
     );
   }
@@ -510,9 +511,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
           decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
           child: Column(
             children: [
-              Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12)),
+              Text(label, style: TextStyle(color: fg, fontWeight: _wBold, fontSize: 12)),
               const SizedBox(height: 6),
-              Text(value, style: TextStyle(color: fg, fontWeight: FontWeight.w900, fontSize: 18)),
+              Text(value, style: TextStyle(color: fg, fontWeight: _wBlack, fontSize: 18)),
             ],
           ),
         ),
@@ -525,15 +526,15 @@ class _MobileAttendanceState extends State<MobileAttendance>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Attendance for this Month', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800)),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(_selectedMonthLabel(), style: TextStyle(fontSize: 11, color: Colors.black87, fontWeight: FontWeight.w700)),
-            ),
+            Text('Attendance for this Month', style: _label14),
+            // Container(
+            //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            //   decoration: BoxDecoration(
+            //     color: Colors.black.withOpacity(0.06),
+            //     borderRadius: BorderRadius.circular(20),
+            //   ),
+            //   child: Text(_selectedMonthLabel(), style: _chip11),
+            // ),
           ],
         ),
         const SizedBox(height: 10),
@@ -629,12 +630,12 @@ class _MobileAttendanceState extends State<MobileAttendance>
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: HRColors.white,
+          color: _surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.black.withOpacity(0.06)),
+          border: Border.all(color: Colors.black.withOpacity(0.05)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 6),
             )
@@ -657,12 +658,12 @@ class _MobileAttendanceState extends State<MobileAttendance>
                             children: [
                               Text(
                                 "$dow $day",
-                                style: const TextStyle(fontSize: 15, color: Color(0xff676767)),
+                                style: const TextStyle(fontSize: 15, color: Color(0xff676767), fontWeight: _wMedium),
                               ),
                               Text(
                                 data.isOffday ? "DayOff" : "Shift",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: _wSemi,
                                   color: data.isOffday ? HRColors.dutyOff : HRColors.shift,
                                 ),
                               ),
@@ -673,11 +674,11 @@ class _MobileAttendanceState extends State<MobileAttendance>
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                const Text("IN : "),
-                                Text(inTime, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const Text("IN : ", style: TextStyle(fontWeight: _wMedium)),
+                                Text(inTime, style: _valueBold),
                                 SizedBox(width: MediaQuery.of(context).size.width * 0.45),
-                                const Text("OUT : "),
-                                Text(outTime, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                const Text("OUT : ", style: TextStyle(fontWeight: _wMedium)),
+                                Text(outTime, style: _valueBold),
                               ],
                             ),
                           ),
@@ -696,7 +697,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
               ExpandablePanel(
                 header: const Padding(
                   padding: EdgeInsets.all(8),
-                  child: Text("View Details"),
+                  child: Text("View Details", style: TextStyle(fontWeight: _wBold)),
                 ),
                 collapsed: const SizedBox.shrink(),
                 expanded: Padding(
@@ -713,101 +714,104 @@ class _MobileAttendanceState extends State<MobileAttendance>
             ],
           ),
         ),
-      ),
-    );
-  }
+    ));
+    }
 
-  TableRow _tableRow(String a, String b, String c, {bool header = false}) {
-    return TableRow(
-      decoration: header ? BoxDecoration(color: Colors.grey[350]) : null,
-      children: [
-        _cell(a, header),
-        _cell(b, header),
-        _cell(c, header),
-      ],
-    );
-  }
+    TableRow _tableRow(String a, String b, String c, {bool header = false}) {
+      return TableRow(
+        decoration: header ? BoxDecoration(color: Colors.grey[350]) : null,
+        children: [
+          _cell(a, header),
+          _cell(b, header),
+          _cell(c, header),
+        ],
+      );
+    }
 
-  Widget _cell(String text, bool header) {
-    return Padding(
-      padding: const EdgeInsets.all(6),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: header ? FontWeight.bold : FontWeight.normal),
-      ),
-    );
-  }
+    Widget _cell(String text, bool header) {
+      return Padding(
+        padding: const EdgeInsets.all(6),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: header ? _wBold : _wRegular),
+        ),
+      );
+    }
 
-  // ===== screen =====
+    // ===== screen =====
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: DesignConfig.drawer(_scaffoldKey, context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _topActions(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 12),
-                    _monthTabs(),
+    @override
+    Widget build(BuildContext context) {
+      return Scaffold(
+        key: _scaffoldKey,
+        drawer: Drawer(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: DesignConfig.drawerContent(_scaffoldKey, context),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _topActions(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      _monthTabs(),
 
-                    FutureBuilder<List<AttendanceModel>>(
-                      future: attendanceFuture,
-                      builder: (context, snap) {
-                        final list = snap.data ?? const <AttendanceModel>[];
-                        return Column(
-                          children: [
-                            _shiftCard(list),
-                            const SizedBox(height: 14),
-                            _monthSummary(list),
-                          ],
-                        );
-                      },
-                    ),
-
-                    const SizedBox(height: 10),
-                  ],
-                ),
-              ),
-
-              // History / details
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.attendanceText,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                          ),
-                          TextButton(
-                            onPressed: () => _loadAttendance(_tabType),
-                            child: const Text('Refresh', style: TextStyle(color: Colors.black87)),
-                          ),
-                        ],
+                      FutureBuilder<List<AttendanceModel>>(
+                        future: attendanceFuture,
+                        builder: (context, snap) {
+                          final list = snap.data ?? const <AttendanceModel>[];
+                          return Column(
+                            children: [
+                              _shiftCard(list),
+                              const SizedBox(height: 14),
+                              _monthSummary(list),
+                            ],
+                          );
+                        },
                       ),
-                    ),
-                    _attendanceList(),
-                    const SizedBox(height: 20),
-                  ],
+
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+
+                // History / details
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.attendanceText,
+                              style: _label14,
+                            ),
+                            TextButton(
+                              onPressed: () => _loadAttendance(_tabType),
+                              child: const Text('Refresh', style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      _attendanceList(),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      backgroundColor: _pageBg,
-    );
+        backgroundColor: _pageBg,
+      );
+    }
   }
-}

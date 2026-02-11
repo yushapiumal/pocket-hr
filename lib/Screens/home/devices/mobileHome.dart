@@ -18,7 +18,6 @@ import 'package:cn_pocket_hr/helper/GlassBox.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
 import 'package:cn_pocket_hr/helper/HRStrings.dart';
 import 'package:cn_pocket_hr/helper/customBlurHash.dart';
-import 'package:cn_pocket_hr/model/CategoryModel.dart';
 import 'package:cn_pocket_hr/model/SliderModel.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -529,8 +528,13 @@ class _MobileHomeState extends State<MobileHome>
       child: Scaffold(
         key: _scaffoldKey,
         extendBody: true,
+        backgroundColor: Colors.white,
         drawerScrimColor: Colors.transparent,
-        drawer: DesignConfig.drawer(_scaffoldKey, context),
+          drawer: Drawer(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: DesignConfig.drawerContent(_scaffoldKey, context),
+      ),
         body: Container(
           width: double.infinity,
           child: data(),
@@ -546,17 +550,21 @@ class _MobileHomeState extends State<MobileHome>
   Widget roster() {
     final CalendarController _controller = CalendarController();
 
+    const Color _surface = Color.fromARGB(255, 248, 250, 252);
+
     return GestureDetector(
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
             Container(
+              color: _surface,
               child: SfCalendar(
                 view: CalendarView.month,
                 controller: _controller,
                 viewNavigationMode: ViewNavigationMode.none,
                 dataSource: MeetingDataSource(_getDataSource()),
+                headerStyle: const CalendarHeaderStyle(backgroundColor: _surface, textAlign: TextAlign.center),
                 monthViewSettings: MonthViewSettings(
                   showTrailingAndLeadingDates: false,
                   appointmentDisplayMode:
@@ -580,7 +588,7 @@ class _MobileHomeState extends State<MobileHome>
 
   List<Meeting> _getDataSource() {
     final List<Meeting> meetings = <Meeting>[];
-    final DateTime today = DateTime.now();
+    // final DateTime today = DateTime.now();
     // final DateTime startTime =
     //     DateTime(today.year, today.month, today.day + 1, 9, 0, 0);
     // final DateTime endTime = startTime.add(const Duration(hours: 2));

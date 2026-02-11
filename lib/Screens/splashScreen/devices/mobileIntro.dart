@@ -1,182 +1,152 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localstorage/localstorage.dart';
-import 'package:octo_image/octo_image.dart';
+
 import 'package:cn_pocket_hr/Screens/login/LoginScreen.dart';
-import 'package:cn_pocket_hr/helper/HRColors.dart';
-import 'package:cn_pocket_hr/helper/HRStrings.dart';
-import 'package:cn_pocket_hr/helper/customBlurHash.dart';
-import 'package:cn_pocket_hr/model/IntroductionModel.dart';
 
 class MobileIntro extends StatefulWidget {
   const MobileIntro({Key? key}) : super(key: key);
 
   @override
-  _MobileIntroState createState() => _MobileIntroState();
+  State<MobileIntro> createState() => _MobileIntroState();
 }
 
-class _MobileIntroState extends State<MobileIntro> {
-  int currentIndex = 0;
-  late PageController _controller;
-
-  final LocalStorage storage = LocalStorage('pocketHR');
+class _MobileIntroState extends State<MobileIntro> with SingleTickerProviderStateMixin {
+  Timer? _timer;
+  late final AnimationController _anim;
 
   @override
   void initState() {
     super.initState();
-    _controller = PageController(initialPage: 0);
+
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+    _anim = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat();
+
+    _timer = Timer(const Duration(milliseconds: 1800), () {
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, HRLogin.routeName);
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _timer?.cancel();
+    _anim.dispose();
     super.dispose();
-  }
-
-  String setIntroText(int index) {
-    if (index == 0) {
-      return AppLocalizations.of(context)!.introductionOneText;
-    }
-    if (index == 1) {
-      return AppLocalizations.of(context)!.introductionTwoText;
-    }
-    return AppLocalizations.of(context)!.introductionThreeText;
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => true,
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarIconBrightness: Brightness.light,
-        ),
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: Stack(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF1D4ED8),
+                Color(0xFF3B82F6),
+                Color(0xFF60A5FA),
+              ],
+            ),
+          ),
+          child: Stack(
             children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: PageView.builder(
-                      controller: _controller,
-                      itemCount: introductionList.length,
-                      onPageChanged: (int index) {
-                        setState(() {
-                          currentIndex = index;
-                        });
-                      },
-                      itemBuilder: (_, i) {
-                        return OctoImage(
-                          image: CachedNetworkImageProvider(
-                              introductionList[i].imageUrl!),
-                          placeholderBuilder:
-                              OctoBlurHashFix.placeHolder(
-                            introductionList[i].blurUrl!,
-                          ),
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          errorBuilder:
-                              OctoError.icon(color: HRColors.black),
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    ),
+              // subtle curves
+              Positioned(
+                left: -120,
+                bottom: -200,
+                child: Container(
+                  width: 420,
+                  height: 420,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(260),
                   ),
-                ],
+                ),
+              ),
+              Positioned(
+                right: -140,
+                bottom: -240,
+                child: Container(
+                  width: 520,
+                  height: 520,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(320),
+                  ),
+                ),
               ),
 
-              // Soft overlay to match in-app pages
-              Container(color: const Color.fromARGB(60, 0, 0, 0)),
-
-              // Bottom card (Attendance/Leave style)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
-                  child: Container(
-                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-                    decoration: BoxDecoration(
-                      color: HRColors.white,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: HRColors.black.withOpacity(0.06)),
-                      boxShadow: [
-                        BoxShadow(color: HRColors.black.withOpacity(0.12), blurRadius: 24, offset: const Offset(0, 10)),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                          child: Text(
-                            setIntroText(currentIndex),
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: HRColors.darkFontColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: List.generate(
-                                introductionList.length,
-                                (index) => buildDot(index),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 44,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: HRColors.orangeColor,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                ),
-                                onPressed: () {
-                                  if (currentIndex < introductionList.length - 1) {
-                                    _controller.nextPage(
-                                      duration: const Duration(milliseconds: 250),
-                                      curve: Curves.easeOut,
-                                    );
-                                  } else {
-                                    Navigator.pushNamed(context, HRLogin.routeName);
-                                  }
-                                },
-                                child: Text(
-                                  currentIndex == introductionList.length - 1 ? HRStrings.continueText : HRStrings.nextText,
-                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: HRColors.white),
-                                ),
-                              ),
-                            ),
+              // content
+              SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Logo
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.94),
+                          borderRadius: BorderRadius.circular(28),
+                          boxShadow: const [
+                            BoxShadow(color: Color(0x33000000), blurRadius: 28, offset: Offset(0, 14)),
                           ],
                         ),
-                      ],
-                    ),
+                        child: const Center(
+                          child: Icon(Icons.shield_outlined, size: 64, color: Color(0xFF2563EB)),
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+
+                      const Text(
+                        'HR Connect',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 34,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(height: 26),
+
+                      // Animated loader
+                      AnimatedBuilder(
+                        animation: _anim,
+                        builder: (context, _) {
+                          return Transform.rotate(
+                            angle: _anim.value * 6.283185307179586,
+                            child: SizedBox(
+                              width: 36,
+                              height: 36,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                backgroundColor: Colors.white.withOpacity(0.25),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Container buildDot(int index) {
-    return Container(
-      height: 8,
-      width: currentIndex == index ? 20 : 8,
-      margin: const EdgeInsets.only(right: 5),
-      decoration: BoxDecoration(
-        color: currentIndex == index ? HRColors.orangeColor : HRColors.black.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(20),
       ),
     );
   }

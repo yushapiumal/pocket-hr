@@ -27,6 +27,9 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
   static const double _g20 = 20;
   static const double _g24 = 24;
 
+  static const Color _pageBg = Colors.white;
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+
   @override
   void initState() {
     super.initState();
@@ -109,12 +112,12 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.black.withOpacity(0.06)),
+          border: Border.all(color: Colors.black.withOpacity(0.05)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 6),
             )
@@ -291,7 +294,7 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
       );
     }
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 244, 246),
+      backgroundColor: _pageBg,
       appBar: null,
       body: SafeArea(
         child: Column(
@@ -322,8 +325,8 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: Colors.black87,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ),
@@ -335,9 +338,9 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
               padding: const EdgeInsets.symmetric(horizontal: _g12),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: _surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black.withOpacity(0.06)),
+                  border: Border.all(color: Colors.black.withOpacity(0.05)),
                 ),
                 child: TabBar(
                   controller: _tab,

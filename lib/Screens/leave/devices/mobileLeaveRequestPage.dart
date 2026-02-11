@@ -20,6 +20,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
   static const Color _accent = HRColors.orangeColor;
   static const Color _accentLight = HRColors.lightOrangeColor;
 
+  static const Color _pageBg = Colors.white;
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+
   final APIService apiService = APIService();
 
   final List<String> leaveTypeList = const ["annual", "casual", "medical", "duty", "nopay"];
@@ -286,11 +289,11 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: HRColors.white,
+        color: _surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: HRColors.black.withOpacity(0.06)),
+        border: Border.all(color: HRColors.black.withOpacity(0.05)),
         boxShadow: [
-          BoxShadow(color: HRColors.black.withOpacity(0.05), blurRadius: 14, offset: const Offset(0, 8)),
+          BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 14, offset: const Offset(0, 8)),
         ],
       ),
       child: Column(
@@ -305,7 +308,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
   }
 
   Widget _gradientActionButton({
-    required String label,
     required VoidCallback onTap,
     bool enabled = true,
   }) {
@@ -314,10 +316,10 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         child: Container(
-          height: 52,
-          padding: const EdgeInsets.only(right: 18),
+          height: 56,
+          width: 56,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(56),
             gradient: const LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
@@ -331,17 +333,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               ),
             ],
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(width: 20),
-              Text(
-                label,
-                style: const TextStyle(color: HRColors.white, fontWeight: FontWeight.w900, letterSpacing: 1.0),
-              ),
-              const SizedBox(width: 6),
-              const Icon(Icons.chevron_right, color: HRColors.white),
-            ],
+          child: const Center(
+            child: Icon(Icons.check_rounded, color: HRColors.white, size: 28),
           ),
         ),
       ),
@@ -380,10 +373,10 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
     final readOnly = widget.isEdit;
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 243, 244, 246),
+      backgroundColor: _pageBg,
       appBar: AppBar(
-        backgroundColor: HRColors.white,
-        surfaceTintColor: HRColors.white,
+        backgroundColor: _pageBg,
+        surfaceTintColor: _pageBg,
         elevation: 0,
         title: Text(readOnly ? 'Leave Details' : 'Leave Request', style: const TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
         iconTheme: const IconThemeData(color: HRColors.black),
@@ -544,8 +537,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               Align(
                 alignment: Alignment.centerRight,
                 child: _gradientActionButton(
-                  label: 'APPLY',
-                  //icon: Icons.menu,
                   onTap: _submit,
                 ),
               ),
