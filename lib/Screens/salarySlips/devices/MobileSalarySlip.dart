@@ -1,22 +1,13 @@
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/svg.dart';
+
 import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
 import 'package:cn_pocket_hr/Screens/leave/devices/Slidable.dart';
 import 'package:cn_pocket_hr/Screens/leave/devices/Slide_action.dart';
-import 'package:cn_pocket_hr/Screens/main/MainScreen.dart';
 import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
-import 'package:cn_pocket_hr/helper/DesignConfig.dart';
-import 'package:cn_pocket_hr/helper/GlassBox.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxCurve.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxFull.dart';
-
-
-import 'package:cn_pocket_hr/helper/HRColors.dart';
+import 'package:cn_pocket_hr/Screens/salarySlips/devices/SalarySlipDetailPage.dart';
 
 class MobileSalarySlip extends StatefulWidget {
   const MobileSalarySlip({Key? key}) : super(key: key);
@@ -25,10 +16,22 @@ class MobileSalarySlip extends StatefulWidget {
   State<MobileSalarySlip> createState() => _MobileSalarySlipState();
 }
 
-class _MobileSalarySlipState extends State<MobileSalarySlip>
-    with SingleTickerProviderStateMixin {
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+class _MobileSalarySlipState extends State<MobileSalarySlip> with SingleTickerProviderStateMixin {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   AnimationController? _animationController;
+
+  // Theme aligned with Attendance / Leave screens
+  static const Color _pageBg = Colors.white;
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+  static const double _g8 = 8;
+  static const double _g12 = 12;
+  static const double _g16 = 16;
+
+  // Fonts (keep sizes; normalize weights)
+  static const FontWeight _wMedium = FontWeight.w500;
+  static const FontWeight _wSemi = FontWeight.w600;
+  static const FontWeight _wBold = FontWeight.w700;
+  static const FontWeight _wBlack = FontWeight.w900;
 
   // Render HTML only when there is actual content to show.
   bool get _hasHtml => htmlData.trim().isNotEmpty;
@@ -38,260 +41,219 @@ class _MobileSalarySlipState extends State<MobileSalarySlip>
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 2000));
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
   }
 
   @override
   void dispose() {
-    _animationController!.dispose();
+    _animationController?.dispose();
     super.dispose();
+  }
+
+  Widget _topActions() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(_g16, _g8, _g16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).maybePop(),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 18),
+              ),
+            ),
+          ),
+          Text(
+            AppLocalizations.of(context)!.salarySlips,
+            style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: SvgPicture.asset(
+                  "assets/svg/notifications_icon.svg",
+                  colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      extendBody: true,
-      drawerScrimColor: Colors.transparent,
-      drawer: Drawer(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: DesignConfig.drawerContent(_scaffoldKey, context),
-      ),
-      body: Container(
-        child: GlassBoxFull(
-          background:
-              'https://images.pexels.com/photos/2880718/pexels-photo-2880718.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: Align(
-
-                  alignment: Alignment.topLeft,
-                  child: Container(
-                    padding: EdgeInsets.all(5.0),
-                    margin: EdgeInsets.only(top: 50.0, left: 7.0),
-                    child: GlassBox(
-                      redius: 40.0,
-                      width: 50,
-                      height: 50,
-                      child:Align(
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Icon(Icons.arrow_back_ios_sharp,
-                              color: HRColors.black),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height / 10.4,
-                      left: MediaQuery.of(context).size.width / 15.5),
-                  child: Container(
+      backgroundColor: _pageBg,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  _topActions(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: _g16),
                     child: Column(
                       children: [
-                        Center(
+                        const SizedBox(height: _g12),
+                        Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
-                            AppLocalizations.of(context)!.salarySlips,
-                            style: TextStyle(
-                                fontSize: 30,
-                                color: HRColors.black,
-                                fontWeight: FontWeight.normal),
-                            textAlign: TextAlign.left,
+                            'Salary Slip History',
+                            style: const TextStyle(fontSize: 16, fontWeight: _wBold),
                           ),
                         ),
-                        Container(
-                          height: MediaQuery.of(context).size.height * .7,
-                          child: SingleChildScrollView(
-                            physics: AlwaysScrollableScrollPhysics(),
-                            child: Column(
-                              children: [
-                                // Show slips content on mobile.
-                                showSlips(),
-                                SizedBox(
-                                  height: 50,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        const SizedBox(height: _g12),
+                        showSlips(),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
-              if (_hasHtml) showHtml(),
-            ],
-          ),
+            ),
+            if (_hasHtml) showHtml(),
+          ],
         ),
       ),
     );
   }
 
   Widget showSlips() {
-    return Container(
-      margin: EdgeInsets.only(
-        left: MediaQuery.of(context).size.width / 90,
-        right: MediaQuery.of(context).size.width / 20,
-      ),
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height / 35,
-      ),
-      child: Center(
-        child: OrientationBuilder(
-          builder: (context, orientation) =>
-              _buildList(context, Axis.horizontal),
-        ),
-      ),
+    return OrientationBuilder(
+      builder: (context, orientation) => _buildList(context, Axis.horizontal),
     );
   }
 
   Widget _buildList(BuildContext context, Axis direction) {
-    // Use the defined sample list so the widget actually renders.
-    final Future<List<_HomeItem>> homeListFuture =
-        Future<List<_HomeItem>>.value(homeList);
+    final Future<List<_HomeItem>> homeListFuture = Future<List<_HomeItem>>.value(homeList);
 
     return FutureBuilder<List<_HomeItem>>(
       future: homeListFuture,
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return SlideAnimation(
-            position: 4,
-            itemCount: snapshot.data!.length,
-            slideDirection: SlideDirection.fromLeft,
-            animationController: _animationController,
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              itemCount: snapshot.data!.length,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        height: MediaQuery.of(context).size.height / 10,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Color.fromRGBO(66, 66, 66, 1)
-                                  .withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: Offset(1, 1),
+        if (!snapshot.hasData) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final items = snapshot.data!;
+        if (items.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 40),
+            child: Center(child: Text('No records')),
+          );
+        }
+
+        return SlideAnimation(
+          position: 4,
+          itemCount: items.length,
+          slideDirection: SlideDirection.fromLeft,
+          animationController: _animationController,
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            itemCount: items.length,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (BuildContext context, int index) {
+              final it = items[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _surface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.black.withOpacity(0.05)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 6),
+                      )
+                    ],
+                  ),
+                  child: Slidable(
+                    key: Key(it.title),
+                    direction: direction,
+                    delegate: SlidableBehindDelegate(),
+                    actionExtentRatio: 0.25,
+                    actions: [
+                      IconSlideAction(
+                        caption: 'Approve',
+                        color: const Color.fromARGB(255, 15, 205, 25),
+                        icon: Icons.check,
+                        onTap: () {},
+                      ),
+                    ],
+                    secondaryActions: [
+                      IconSlideAction(
+                        caption: 'Reject',
+                        color: Colors.red,
+                        icon: Icons.cancel,
+                        onTap: () {},
+                      ),
+                    ],
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => SalarySlipDetailPage(item: it),
+                          ),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(it.title, style: const TextStyle(fontSize: 14, fontWeight: _wBold, color: Colors.black87)),
+                                  const SizedBox(height: 6),
+                                  Text(it.subtitle, style: const TextStyle(fontSize: 12, fontWeight: _wSemi, color: Colors.black54)),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Slidable(
-                          key: Key(snapshot.data![index].title),
-                          direction: direction,
-                          delegate: SlidableBehindDelegate(),
-                          actionExtentRatio: 0.25,
-                          actions: [
-                            IconSlideAction(
-                              caption: 'Approve',
-                              color: Color.fromARGB(255, 15, 205, 25),
-                              icon: Icons.check,
-                              onTap: () {},
-                            ),
-                          ],
-                          secondaryActions: [
-                            IconSlideAction(
-                              caption: 'Reject',
-                              color: Colors.red,
-                              icon: Icons.cancel,
-                              onTap: () {},
-                            ),
-                          ],
-                          child: Container(
-                            height: MediaQuery.of(context).size.height / 10,
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            color: Colors.white,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(9.0),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        SizedBox(width: 10),
-                                        Text(snapshot.data![index].title),
-                                        SizedBox(height: 10),
-                                        Text(snapshot.data![index].subtitle),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Flexible(
-                                  fit: FlexFit.tight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 10),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'From ',
-                                          maxLines: 1,
-                                          softWrap: false,
-                                        ),
-                                        SizedBox(height: 10),
-                                        Text(
-                                          'To : ',
-                                          maxLines: 1,
-                                          softWrap: false,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                Text('From: ${it.from}', style: const TextStyle(fontSize: 12, fontWeight: _wMedium, color: Colors.black54)),
+                                const SizedBox(height: 8),
+                                Text('To: ${it.to}', style: const TextStyle(fontSize: 12, fontWeight: _wMedium, color: Colors.black54)),
                               ],
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                );
-              },
-            ),
-          );
-        }
-        return Container(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 90),
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blue),
-              ),
-            ),
+                  ),
+                ),
+              );
+            },
           ),
         );
       },
@@ -301,105 +263,55 @@ class _MobileSalarySlipState extends State<MobileSalarySlip>
   final htmlData = r"""   """;
 
   Widget showHtml() {
-    return Container(
-      margin: EdgeInsets.only(top: MediaQuery.of(context).size.height / 6),
-      height: MediaQuery.of(context).size.height,
-      child: GlassBoxCurve(
-        height: MediaQuery.of(context).size.height * .5,
-        width: MediaQuery.of(context).size.width,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Html(
-                data: htmlData,
+    return Positioned.fill(
+      child: GestureDetector(
+        onTap: () => setState(() {}),
+        child: Container(
+          color: Colors.black.withOpacity(0.25),
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            width: double.infinity,
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.65),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(22),
+                topRight: Radius.circular(22),
               ),
-              Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom))
-            ],
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: const Text(
+                'HTML preview is not wired yet.',
+                style: TextStyle(fontWeight: _wSemi, color: Colors.black87),
+              ),
+            ),
           ),
         ),
       ),
     );
-
-    // return SingleChildScrollView(
-    //   child: Html(
-    //     data: htmlData,
-    //     tagsList: Html.tags..addAll(["bird", "flutter"]),
-    //     style: {
-    //       'h5': Style(maxLines: 2, textOverflow: TextOverflow.ellipsis),
-    //     },
-    //   ),
-    // );
-  }
-
-  Future<void> navigationPage() async {
-    Navigator.pop(context);
   }
 }
 
 class _HomeItem {
-  const _HomeItem(
-    this.index,
-    this.title,
-    this.subtitle,
-    this.color,
-  );
+  const _HomeItem(this.index, this.title, this.subtitle, this.color, {required this.from, required this.to, required this.pdfUrl});
 
   final int index;
   final String title;
   final String subtitle;
   final Color color;
+  final String from;
+  final String to;
+  final String pdfUrl;
 }
 
 List<_HomeItem> homeList = [
-  _HomeItem(
-    1,
-    "Aayansh",
-    "Aayansh@gmail.com",
-    Colors.amberAccent,
-  ),
-  _HomeItem(
-    2,
-    "Avyukt",
-    "Avyukt@gmail.com",
-    Colors.cyan,
-  ),
-  _HomeItem(
-    3,
-    "Kiyansh",
-    "Kiyansh@gmail.com",
-    Colors.redAccent,
-  ),
-  _HomeItem(
-    4,
-    "Atharv",
-    "Atharv@gmail.com",
-    Colors.deepPurpleAccent,
-  ),
-  _HomeItem(
-    5,
-    "Rihaan",
-    "Rihaan@gmail.com",
-    Colors.orangeAccent,
-  ),
-  _HomeItem(
-    6,
-    "Ivaan",
-    "Ivaan@gmail.com",
-    Colors.teal,
-  ),
-  _HomeItem(
-    7,
-    "Nirved",
-    "Nirved@gmail.com",
-    Colors.pink,
-  ),
-  _HomeItem(
-    8,
-    "Sriansh",
-    "Sriansh@gmail.com",
-    Colors.lightBlueAccent,
-  ),
+  _HomeItem(1, "Jan 2026", "Salary Slip", Colors.amberAccent, from: "2026-01-01", to: "2026-01-31", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(2, "Dec 2025", "Salary Slip", Colors.cyan, from: "2025-12-01", to: "2025-12-31", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(3, "Nov 2025", "Salary Slip", Colors.redAccent, from: "2025-11-01", to: "2025-11-30", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(4, "Oct 2025", "Salary Slip", Colors.deepPurpleAccent, from: "2025-10-01", to: "2025-10-31", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(5, "Sep 2025", "Salary Slip", Colors.orangeAccent, from: "2025-09-01", to: "2025-09-30", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(6, "Aug 2025", "Salary Slip", Colors.teal, from: "2025-08-01", to: "2025-08-31", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(7, "Jul 2025", "Salary Slip", Colors.pink, from: "2025-07-01", to: "2025-07-31", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
+  _HomeItem(8, "Jun 2025", "Salary Slip", Colors.lightBlueAccent, from: "2025-06-01", to: "2025-06-30", pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"),
 ];
