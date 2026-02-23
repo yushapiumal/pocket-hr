@@ -50,7 +50,10 @@ class AppLocalizationsSi extends AppLocalizations {
   String get userNameText => 'Username';
 
   @override
-  String get passwordText => 'Password';
+  String get passwordText => 'මුරපදය';
+
+  @override
+  String get tenantHint => 'සමාගම';
 
   @override
   String get rememberMeText => 'Remember me';

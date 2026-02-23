@@ -38,7 +38,7 @@ class _MobileSplashState extends State<MobileSplash>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 2000));
+        vsync: this, duration: Duration(milliseconds: 5000));
     startTime();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
@@ -50,7 +50,7 @@ class _MobileSplashState extends State<MobileSplash>
   }
 
   startTime() async {
-    var _duration = Duration(milliseconds: 2000);
+    var _duration = Duration(milliseconds: 5000);
     return Timer(_duration, navigationPage);
   }
 

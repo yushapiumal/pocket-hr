@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_links/app_links.dart';
+import 'package:cn_pocket_hr/services/device_details_service.dart';
 
 class SsoResult {
   final String accessToken;
@@ -57,12 +58,40 @@ class SsoService {
     debugPrint('[SSO] expected redirect example: $expectedRedirectExample');
     debugPrint('[SSO] signIn: start tenant="$tenant"');
 
-    final start = await _mobileStart(tenant: tenant);
+    // collect device details and include in mobile-start request
+    Map<String, dynamic>? deviceInfoForApi;
+    try {
+      final deviceService = DeviceDetailsService();
+      final details = await deviceService.collectAll();
+      final dev = details['device'] as Map<String, dynamic>? ?? {};
+      final deviceId = dev['androidId'] ?? dev['identifierForVendor'] ?? dev['device'] ?? '';
+      final model = dev['model'] ?? '';
+    //  final brand = dev['brand'] ?? '';
+      //final platform = dev['platform'] ?? '';
+     // final version = dev['version'] ?? '';
+     // final identifier = dev['identifierForVendor'] ?? '';
+
+      // include ip and battery summary if available
+    //  final ip = details['ip']?.toString() ?? '';
+     // final batteryLevel = (details['battery'] is Map) ? (details['battery']['level']?.toString() ?? '') : '';
+
+      if ((deviceId ?? '').toString().isNotEmpty || (model ?? '').toString().isNotEmpty) {
+        deviceInfoForApi = {
+          'device_id': deviceId?.toString() ?? '',
+          'model': model?.toString() ?? '',
+   
+     
+        };
+      }
+    } catch (e) {
+      debugPrint('[SSO] device details collection failed: $e');
+    }
+
+    final start = await _mobileStart(tenant: tenant, deviceInfo: deviceInfoForApi);
 
     final verifier = start['verifier']?.toString();
     final state = start['state']?.toString();
     final authUrl = start['authUrl']?.toString();
-
     debugPrint('[SSO] mobile-start: received keys=' + start.keys.join(','));
 
     if (verifier == null || verifier.isEmpty) {
@@ -142,16 +171,21 @@ class SsoService {
     return '${s.substring(0, max)}...<truncated ${s.length - max} chars>';
   }
 
-  Future<Map<String, dynamic>> _mobileStart({required String tenant}) async {
+
+  Future<Map<String, dynamic>> _mobileStart({required String tenant, Map<String, dynamic>? deviceInfo}) async {
     final uri = Uri.parse('$_baseUrl/sso/mobile-start');
     debugPrint('[SSO] POST $uri');
 
+    final body = <String, dynamic>{'tenant': tenant};
+    if (deviceInfo != null && deviceInfo.isNotEmpty) {
+      body.addAll(deviceInfo);
+    }
     final res = await http.post(
       uri,
       headers: const {'Content-Type': 'application/json'},
-      body: jsonEncode({'tenant': tenant}),
+      body: jsonEncode(body),
     );
-
+print(body);
     debugPrint('[SSO] mobile-start status=${res.statusCode}');
     debugPrint('[SSO] mobile-start body=${_truncate(res.body)}');
 

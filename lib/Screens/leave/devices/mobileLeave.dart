@@ -316,7 +316,7 @@ class MobileLeaveState extends State<MobileLeave>
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -365,7 +365,7 @@ class MobileLeaveState extends State<MobileLeave>
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
 
                 _leaveBalanceSummary(),
 

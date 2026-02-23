@@ -5,18 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cn_pocket_hr/helper/apiConfig.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
 import 'package:cn_pocket_hr/model/hr/AttendanceModel.dart';
 import 'package:cn_pocket_hr/model/hr/LeaveModel.dart';
 import 'package:cn_pocket_hr/model/hr/MeModel.dart';
+import 'package:cn_pocket_hr/services/device_details_service.dart';
 
 class APIService {
   final LocalStorage storage = LocalStorage('pocketHR');
   final APIConfig api = APIConfig();
-Future login(String email, String password) async {
+Future login(String email, String password, {Map<String, String>? deviceInfo}) async {
   try {
     var url = api.api() + "login";
+
+    final body = <String, String>{'email': email, 'password': password};
+    await _injectTenantToBody(body);
+    if (deviceInfo != null) {
+      // merge device info, overriding only if keys exist
+      deviceInfo.forEach((k, v) {
+        body[k] = v;
+      });
+    }
 
     final response = await http.post(
       Uri.parse(url),
@@ -24,7 +35,7 @@ Future login(String email, String password) async {
         "Accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded"
       },
-      body: {'email': email, 'password': password},
+      body: body,
       encoding: Encoding.getByName("utf-8"),
     );
 
@@ -156,13 +167,26 @@ Future login(String email, String password) async {
   }
 }
 
-  Future showToast(text) async {
+  Future<void> showToast(dynamic text) async {
     String msg;
     try {
       if (text is List) {
         msg = text.map((e) => e?.toString() ?? '').join('\n');
       } else if (text is Map) {
-        msg = text.toString();
+        // Try common keys in order of priority
+        if (text.containsKey('message')) {
+          msg = text['message']?.toString() ?? '';
+        } else if (text.containsKey('msg')) {
+          msg = text['msg']?.toString() ?? '';
+        } else if (text.containsKey('error')) {
+          msg = text['error']?.toString() ?? '';
+        } else if (text.containsKey('errors')) {
+          final errs = text['errors'];
+          if (errs is List) msg = errs.map((e) => e?.toString() ?? '').join('\n');
+          else msg = errs?.toString() ?? '';
+        } else {
+          msg = text.toString();
+        }
       } else {
         msg = text?.toString() ?? '';
       }
@@ -170,19 +194,24 @@ Future login(String email, String password) async {
       msg = text.toString();
     }
 
+    // Ensure non-empty fallback
+    if (msg.trim().isEmpty) msg = 'Message';
+
     Fluttertoast.showToast(
-        msg: msg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 2,
-        backgroundColor: Color.fromARGB(255, 211, 211, 211),
-        textColor: Colors.black);
+      msg: msg,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 4,
+      backgroundColor: HRColors.darkOrangeColor,
+      textColor: Colors.white,
+      fontSize: 14.0,
+    );
   }
 
   Future checkInCheckout(date, type, {String? latitude, String? longitude, String? address}) async {
-    String url = "https://api.human.go.digitable.io/human/v2/api/attendance/check-in";
-
     await storage.ready;
+
+    String url = "https://api.human.go.digitable.io/human/v2/api/attendance/check-in";
     String uid = storage.getItem('uid')?.toString() ?? '';
 
     if (uid.isEmpty) {
@@ -211,12 +240,11 @@ Future login(String email, String password) async {
       }
     }
 
-    var data = {
+    Map<String, String> data = {
       'uid': uid,
       'checked_at': date,
       'user-id': uid,
     };
-
     if (type == 'checkout') {
       url = "https://api.human.go.digitable.io/human/v2/api/attendance/check-out";
       data = {
@@ -226,12 +254,40 @@ Future login(String email, String password) async {
       };
     }
     if (latitude != null && latitude.isNotEmpty) {
-      data['lat'] = latitude; 
+      data['lat'] = latitude;
     }
     if (longitude != null && longitude.isNotEmpty) {
-      data['lng'] = longitude; 
+      data['lng'] = longitude;
     }
     if (address != null && address.isNotEmpty) data['address'] = address;
+
+    // Collect device details and include in request body (best-effort)
+    try {
+      final deviceService = DeviceDetailsService();
+      final details = await deviceService.collectAll();
+      final dev = details['device'] as Map<String, dynamic>? ?? {};
+      final deviceId = (dev['androidId'] ?? dev['identifierForVendor'] ?? dev['device'] ?? '').toString();
+      final model = (dev['model'] ?? '').toString();
+      final brand = (dev['brand'] ?? '').toString();
+      final platform = (dev['platform'] ?? '').toString();
+      final version = (dev['version'] ?? '').toString();
+      final identifier = (dev['identifierForVendor'] ?? dev['androidId'] ?? '').toString();
+      final ip = (details['ip'] ?? '').toString();
+      final batteryLevel = (details['battery'] is Map) ? (details['battery']['level']?.toString() ?? '') : '';
+
+      if (deviceId.isNotEmpty) data['device_id'] = deviceId;
+      if (model.isNotEmpty) data['device_model'] = model;
+      if (brand.isNotEmpty) data['device_brand'] = brand;
+      if (platform.isNotEmpty) data['device_platform'] = platform;
+      if (version.isNotEmpty) data['device_version'] = version;
+      if (identifier.isNotEmpty) data['device_identifier'] = identifier;
+      if (ip.isNotEmpty) data['device_ip'] = ip;
+      if (batteryLevel.isNotEmpty) data['battery_level'] = batteryLevel;
+    } catch (e) {
+      print('[CHECK] device details collect failed: $e');
+    }
+    // Ensure tenant is injected after any modifications to `data` (checkout branch and device details)
+    try { await _injectTenantToBody(data); } catch (_) {}
     final headers = {
       "Accept": "application/json",
       "Content-Type": "application/x-www-form-urlencoded"
@@ -246,25 +302,29 @@ Future login(String email, String password) async {
       print('[CHECK] body => ' + data.toString());
     } catch (_) {}
 
-    final response = await http.post(Uri.parse(url), headers: headers, body: data, encoding: Encoding.getByName("utf-8"));
-
-    var values = json.decode(response.body);
-    print('[CHECK] response => ' + response.body);
-    if (values is Map && values.containsKey('message')) print(values['message']);
-    showToast(values['message']);
-    print(values);
+    try {
+      final response = await http.post(Uri.parse(url), headers: headers, body: data, encoding: Encoding.getByName("utf-8"));
+      final values = json.decode(response.body);
+      print('[CHECK] response => ' + response.body);
+      if (values is Map && values.containsKey('message')) print(values['message']);
+      // Return decoded response map for caller to handle toast
+      if (values is Map) return Map<String, dynamic>.from(values);
+      return {'status': response.statusCode, 'body': response.body};
+    } catch (e) {
+      print('[CHECK] ERROR => $e');
+      return null;
+    }
   }
 
 
 
-  Future leave(details) async {
+  Future<dynamic> leave(details) async {
     try {
       await storage.ready;
       final url = api.api() + "leave/store";
 
       // Safe extraction of fields
       final uidStr = storage.getItem('uid')?.toString() ?? '';
-      final tokenStr = storage.getItem('token')?.toString() ?? '';
 
       final leaveTitle = details is Map && details['leave_title'] != null
           ? details['leave_title'].toString()
@@ -298,12 +358,12 @@ Future login(String email, String password) async {
         'session': session,
         'description': description,
       };
-
+      await _injectTenantToBody(data);
       final headers = {
         "Accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
       
-       "Oauth-Token": "4rMVDI0iOGifKm5Thi3hbxbhya3r8w"
+       "Oauth-Token": "q5t4uJB8pW94u1s7CGi4cIPuOC7TBk"
       };
 
       // Debug
@@ -311,47 +371,40 @@ Future login(String email, String password) async {
       print('[LEAVE] headers => ' + headers.toString());
       print('[LEAVE] body => ' + data.toString());
 
-      final response = await http.post(Uri.parse(url),
-          headers: headers, body: data, encoding: Encoding.getByName("utf-8"));
+      final response = await http.post(Uri.parse(url), headers: headers, body: data, encoding: Encoding.getByName("utf-8"));
 
       print('[LEAVE] response => ' + response.body);
       final values = json.decode(response.body);
       if (values is Map && values['status'] == true) {
         showToast(values['message'] ?? 'Submitted');
-        return true;
+        return values;
       } else {
-        // If API indicates failure, show message and return false
+        // If API indicates failure, show message and return the response map
         if (values is Map) showToast(values['message'] ?? 'Failed');
-        return false;
+        return values;
       }
     } catch (e, st) {
       print('[LEAVE] ERROR => $e');
       print(st);
       showToast('Failed to submit leave.');
-      return false;
+      return {'status': false, 'message': 'Failed to submit leave.'};
     }
   }
 
   Future<List<MeSubsModel>> getMeSubs() async {
-    String url = api.api() + "me";
+    final url = api.api() + "me";
 
     final uidStr = storage.getItem('uid')?.toString() ?? '';
     final tokenStr = storage.getItem('token')?.toString() ?? '';
-    Map<String, String> qParams = {
-      'user-id': uidStr,
-    };
-    Map<String, String> header = {
+    final qParams = {'user-id': uidStr};
+    final header = {
       "Accept": "application/json",
       "Content-Type": "application/x-www-form-urlencoded",
       "Oauth-token": tokenStr
     };
 
-    Uri uri = Uri.parse(url);
-    final finalUri = uri.replace(queryParameters: qParams); //USE THIS
-    final response = await http.get(
-      finalUri,
-      headers: header,
-    );
+    final finalUri = await _uriWithTenant(url, qParams);
+    final response = await http.get(finalUri, headers: header);
 
     if (response.statusCode == 200) {
       var jsonData = json.decode(response.body);
@@ -370,36 +423,31 @@ Future login(String email, String password) async {
   }
 
   Future<List<MyLeavesModel>> getMyLeaves(anotherPerson) async {
-    try {
-      await storage.ready;
+     try {
+       await storage.ready;
 
-      String url = "";
-      if (anotherPerson is String && anotherPerson.isNotEmpty) {
-        url = api.api() + "leave/list/" + anotherPerson;
-      } else {
-        url = api.api() + "leave/list";
-      }
+       String url = "";
+       if (anotherPerson is String && anotherPerson.isNotEmpty) {
+         url = api.api() + "leave/list/" + anotherPerson;
+       } else {
+         url = api.api() + "leave/list";
+       }
 
-      final uidStr = storage.getItem('uid')?.toString() ?? '';
-      final tokenStr = storage.getItem('token')?.toString() ?? '';
-      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+       final uidStr = storage.getItem('uid')?.toString() ?? '';
+       final accessToken = storage.getItem('access_token')?.toString() ?? '';
 
-      Map<String, String> qParams = {
-        'user-id': uidStr,
-      };
-      Map<String, String> header = {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Oauth-Token": "4rMVDI0iOGifKm5Thi3hbxbhya3r8w"
-      };
-      if (accessToken.isNotEmpty) header['Authorization'] = 'Bearer $accessToken';
+       Map<String, String> qParams = {
+         'user-id': uidStr,
+       };
+       Map<String, String> header = {
+         "Accept": "application/json",
+         "Content-Type": "application/x-www-form-urlencoded",
+         "Oauth-Token": "4rMVDI0iOGifKm5Thi3hbxbhya3r8w"
+       };
+       if (accessToken.isNotEmpty) header['Authorization'] = 'Bearer $accessToken';
 
-      Uri uri = Uri.parse(url);
-      final finalUri = uri.replace(queryParameters: qParams);
-      final response = await http.get(
-        finalUri,
-        headers: header,
-      );
+      final finalUri = await _uriWithTenant(url, qParams);
+      final response = await http.get(finalUri, headers: header);
 
       print('[LEAVE] GET $finalUri status=${response.statusCode}');
       print('[LEAVE] body=${response.body}');
@@ -428,23 +476,54 @@ Future login(String email, String password) async {
     try {
       await storage.ready;
 
-      final accessToken = storage.getItem('access_token');
-      if (accessToken == null || accessToken.toString().isEmpty) {
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+      if (accessToken.isEmpty) {
         print('[ME] Missing access_token in storage');
         return null;
       }
+      print('[ME] Found access_token in storage: $accessToken');
+      String tenant = storage.getItem('tenant')?.toString() ?? '';
+      if (tenant.isEmpty) {
+        tenant = storage.getItem('company')?.toString() ?? '';
+      }
 
-      final url = "https://api.human.go.digitable.io/human/v2/api/auth/me";
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $accessToken",
-        },
-      );
+      if (tenant.isEmpty) {
+        try {
+          final payload = _decodeJwtPayload(accessToken);
+          if (payload != null) {
+            if (payload.containsKey('tenant')) tenant = payload['tenant']?.toString() ?? '';
+            if (tenant.isEmpty && payload.containsKey('client_id')) {
+              final cid = payload['client_id']?.toString() ?? '';
+              if (cid.isNotEmpty) {
+                final parts = cid.split(RegExp(r'[_-]'));
+                tenant = parts.isNotEmpty ? parts.last : cid;
+              }
+            }
+            if (tenant.isEmpty && payload.containsKey('company')) tenant = payload['company']?.toString() ?? '';
+          }
+        } catch (_) {}
+      }
 
-      print('[ME] GET $url status=${response.statusCode}');
+      // Persist derived tenant for future calls
+      if (tenant.isNotEmpty) {
+        try {
+          await storage.setItem('tenant', tenant);
+        } catch (_) {}
+      }
+
+      final baseUrl = "https://api.human.go.digitable.io/human/v2/api/auth/me";
+      final uri = await _uriWithTenant(baseUrl);
+
+      final headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $accessToken",
+      };
+      if (tenant.isNotEmpty) headers['Tenant'] = tenant;
+
+      final response = await http.get(uri, headers: headers);
+
+      print('[ME] GET ${uri.toString()} status=${response.statusCode}');
       print('[ME] body=${response.body}');
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -516,16 +595,13 @@ Future login(String email, String password) async {
       throw Exception('Missing access_token');
     }
 
-    final url =
-        'https://api.human.go.digitable.io/human/v2/api/variables/variables/605b4f4c277bf8660c7b23df';  //$userId
-    final res = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        //'Authorization': 'Bearer $accessToken',
-      },
-    );
+    final url = 'https://api.human.go.digitable.io/human/v2/api/variables/variables/$userId';
+    final uri = await _uriWithTenant(url);
+    final res = await http.get(uri, headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      //'Authorization': 'Bearer $accessToken',
+    });
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw Exception('Failed to load variables (${res.statusCode})');
@@ -542,52 +618,134 @@ Future login(String email, String password) async {
     return const [];
   }
 
-  Future<List<dynamic>> fetchDebtsForUser(String userId) async {
-      await storage.ready;
+Future<List<dynamic>> fetchDebtsForUser(String userId) async {
+  try {
+    await storage.ready;
 
-      final accessToken = storage.getItem('access_token');
-      if (accessToken == null || accessToken.toString().isEmpty) {
-        throw Exception('Missing access_token');
+    print('\n[DEBT] ===== FETCH DEBTS START =====');
+
+    String? accessToken = storage.getItem('access_token')?.toString();
+    final oauthToken = storage.getItem('token')?.toString() ?? '';
+    final uid = (userId).toString().isNotEmpty
+        ? userId.toString()
+        : '605b4f4c277bf8660c7b23df';
+
+    print('[DEBT] User ID: $uid');
+
+    final url =
+        'https://api.human.go.digitable.io/human/v2/api/debts/$uid';
+    final uri = await _uriWithTenant(url);
+
+    print('[DEBT] URL: $uri');
+
+    Map<String, String> buildHeaders({
+      bool includeAccess = true,
+      bool includeOauth = true,
+    }) {
+      final h = <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      if (includeAccess &&
+          (accessToken != null && accessToken.isNotEmpty)) {
+        h['Authorization'] = 'Bearer $accessToken';
+        print('[DEBT] Using Access Token: ${accessToken!.substring(0, 8)}...');
       }
 
-      final oauthToken = storage.getItem('token')?.toString() ?? '';
-      final uid = (userId).toString().isNotEmpty ? userId.toString() : '605b4f4c277bf8660c7b23df';
- 
-      final url = 'https://api.human.go.digitable.io/human/v2/api/debts/605b4f4c277bf8660c7b23df';
-      final res = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ${accessToken.toString()}',
-          if (oauthToken.isNotEmpty) 'Oauth-Token': oauthToken,
-        },
-      );
- 
-      if (res.statusCode < 200 || res.statusCode >= 300) {
-        if (res.statusCode == 401 || res.statusCode == 403) {
-          try {
-            showToast('Session expired. Please login again.');
-          } catch (_) {}
-        }
-        throw Exception('Failed to load debts (${res.statusCode})');
+      if (includeOauth && oauthToken.isNotEmpty) {
+        h['Oauth-Token'] = oauthToken;
+        print('[DEBT] Using Oauth Token: ${oauthToken.substring(0, 8)}...');
       }
- 
-      final decoded = jsonDecode(res.body);
-      if (decoded is Map && decoded['data'] is Map) {
-        final data = Map<String, dynamic>.from(decoded['data']);
-        if (data['debts'] is List) {
-          return List<dynamic>.from(data['debts']);
-        }
-      }
-      return const [];
+
+      return h;
     }
 
+    print('[DEBT] Attempt 1 → Access + Oauth');
+
+    var res = await http.get(
+      uri,
+      headers: buildHeaders(includeAccess: true, includeOauth: true),
+    );
+
+    print('[DEBT] Response Status (Attempt 1): ${res.statusCode}');
+    print('[DEBT] Response Body: ${res.body}');
+
+    // Retry logic
+    if (res.statusCode == 401 || res.statusCode == 403) {
+      print('[DEBT] Unauthorized. Trying fallback methods...');
+
+      // Attempt 2 → oauth only
+      if (oauthToken.isNotEmpty) {
+        try {
+          print('[DEBT] Attempt 2 → Oauth Only');
+          res = await http.get(
+            uri,
+            headers:
+                buildHeaders(includeAccess: false, includeOauth: true),
+          );
+          print('[DEBT] Response Status (Attempt 2): ${res.statusCode}');
+        } catch (e) {
+          print('[DEBT] Attempt 2 Failed: $e');
+        }
+      }
+
+      // Attempt 3 → Refresh bearer
+      if (res.statusCode == 401 || res.statusCode == 403) {
+        try {
+          print('[DEBT] Attempt 3 → Refreshing Bearer Token...');
+          await fetchMeProfileWithBearer();
+          accessToken =
+              storage.getItem('access_token')?.toString();
+
+          res = await http.get(
+            uri,
+            headers:
+                buildHeaders(includeAccess: true, includeOauth: true),
+          );
+
+          print('[DEBT] Response Status (Attempt 3): ${res.statusCode}');
+        } catch (e) {
+          print('[DEBT] Attempt 3 Failed: $e');
+        }
+      }
+    }
+
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      print('[DEBT] Final Failure Status: ${res.statusCode}');
+      if (res.statusCode == 401 || res.statusCode == 403) {
+        try {
+          showToast('Session expired. Please login again.');
+        } catch (_) {}
+      }
+      throw Exception('Failed to load debts (${res.statusCode})');
+    }
+
+    print('[DEBT] Parsing response...');
+    final decoded = jsonDecode(res.body);
+
+    if (decoded is Map && decoded['data'] is Map) {
+      final data = Map<String, dynamic>.from(decoded['data']);
+      if (data['debts'] is List) {
+        print('[DEBT] Debts Count: ${(data['debts'] as List).length}');
+        print('[DEBT] ===== FETCH DEBTS SUCCESS =====\n');
+        return List<dynamic>.from(data['debts']);
+      }
+    }
+
+    print('[DEBT] No debts found.');
+    print('[DEBT] ===== FETCH DEBTS END =====\n');
+    return const [];
+  } catch (e, st) {
+    print('[DEBT] EXCEPTION: $e');
+    print('[DEBT] STACKTRACE: $st');
+    print('[DEBT] ===== FETCH DEBTS CRASHED =====\n');
+    rethrow;
+  }
+}
 
   apiFailedRedirect() async {
-    // storage.clear();
     showToast("Session timeout.");
-    // navigatorKey.currentState!.pushNamed('/login');
   }
 
   Map<String, dynamic>? _decodeJwtPayload(String token) {
@@ -603,6 +761,116 @@ Future login(String email, String password) async {
       return null;
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<void> _injectTenantToBody(Map<String, String> body) async {
+    try {
+      await storage.ready;
+      String tenant = storage.getItem('tenant')?.toString() ?? '';
+      if (tenant.isEmpty) tenant = storage.getItem('company')?.toString() ?? '';
+      if (tenant.isEmpty) {
+        final accessToken = storage.getItem('access_token')?.toString() ?? '';
+        if (accessToken.isNotEmpty) {
+          final payload = _decodeJwtPayload(accessToken);
+          if (payload != null) {
+            tenant = (payload['tenant'] ?? payload['company'] ?? '').toString();
+            if (tenant.isEmpty && payload.containsKey('client_id')) {
+              final cid = payload['client_id']?.toString() ?? '';
+              if (cid.isNotEmpty) {
+                final parts = cid.split(RegExp(r'[_-]'));
+                tenant = parts.isNotEmpty ? parts.last : cid;
+              }
+            }
+          }
+        }
+      }
+      if (tenant.isNotEmpty) {
+        body['tenant'] = tenant;
+      }
+    } catch (_) {}
+  }
+
+  // Resolve tenant from storage or access token payload
+  Future<String?> _resolveTenant() async {
+    try {
+      await storage.ready;
+      String tenant = storage.getItem('tenant')?.toString() ?? '';
+      if (tenant.isEmpty) tenant = storage.getItem('company')?.toString() ?? '';
+      if (tenant.isEmpty) {
+        final accessToken = storage.getItem('access_token')?.toString() ?? '';
+        if (accessToken.isNotEmpty) {
+          final payload = _decodeJwtPayload(accessToken);
+          if (payload != null) {
+            tenant = (payload['tenant'] ?? payload['company'] ?? '').toString();
+            if (tenant.isEmpty && payload.containsKey('client_id')) {
+              final cid = payload['client_id']?.toString() ?? '';
+              if (cid.isNotEmpty) {
+                final parts = cid.split(RegExp(r'[_-]'));
+                tenant = parts.isNotEmpty ? parts.last : cid;
+              }
+            }
+          }
+        }
+      }
+      return tenant.isNotEmpty ? tenant : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // Build a Uri and append tenant as query parameter when available.
+  Future<Uri> _uriWithTenant(String url, [Map<String, String>? qParams]) async {
+    try {
+      final tenant = await _resolveTenant();
+      final Uri uri = Uri.parse(url);
+      final Map<String, String> merged = {};
+      if (uri.queryParameters.isNotEmpty) merged.addAll(uri.queryParameters);
+      if (qParams != null && qParams.isNotEmpty) merged.addAll(qParams);
+      if (tenant != null && tenant.isNotEmpty) merged['tenant'] = tenant;
+      return uri.replace(queryParameters: merged.isNotEmpty ? merged : null);
+    } catch (_) {
+      return Uri.parse(url);
+    }
+  }
+
+  bool _isJwtExpired(String token) {
+    try {
+      final payload = _decodeJwtPayload(token);
+      if (payload == null) return true;
+      final expAny = payload['exp'] ?? payload['expiry'] ?? payload['expires_at'];
+      if (expAny == null) return true;
+      int expSec;
+      if (expAny is int) expSec = expAny;
+      else if (expAny is double) expSec = expAny.toInt();
+      else expSec = int.tryParse(expAny.toString()) ?? 0;
+      if (expSec <= 0) return true;
+      final nowSec = DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000;
+      return expSec <= nowSec;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  Future<bool> hasValidAccessToken() async {
+    try {
+      await storage.ready;
+      var token = storage.getItem('access_token')?.toString() ?? '';
+      if (token.isEmpty) {
+        try {
+          final secure = const FlutterSecureStorage();
+          final secureToken = await secure.read(key: 'access_token');
+          if (secureToken != null && secureToken.isNotEmpty) {
+            token = secureToken;
+            try { await storage.setItem('access_token', token); } catch (_) {}
+          }
+        } catch (_) {}
+      }
+
+      if (token.isEmpty) return false;
+      return !_isJwtExpired(token);
+    } catch (_) {
+      return false;
     }
   }
 
@@ -624,8 +892,7 @@ Future login(String email, String password) async {
     return uid;
   }
 
-  // Fetch attendance for a specific user and optional payroll month (format: MM-YYYY or 12-2025)
-  // NOTE: v2 attendance requires Mongo user _id (24 hex chars). Using legacy numeric uid will return empty records.
+  
   Future<List<AttendanceModel>> getAttendanceForUserMonth({String? userId, String? payroll}) async {
     try {
       await storage.ready;
@@ -634,14 +901,10 @@ Future login(String email, String password) async {
 
       String uid = (userId ?? '').toString();
       if (!looksLikeMongoId(uid)) uid = '';
-
-      // Prefer stored v2 id
       if (uid.isEmpty) {
         final stored = storage.getItem('human_user_id')?.toString() ?? '';
         if (looksLikeMongoId(stored)) uid = stored;
       }
-
-      // Fallback to legacy uid only if it is actually a Mongo id
       if (uid.isEmpty) {
         final candidate = storage.getItem('uid')?.toString() ?? '';
         if (looksLikeMongoId(candidate)) uid = candidate;
@@ -661,16 +924,22 @@ Future login(String email, String password) async {
       }
 
       if (uid.isEmpty) return [];
-
-      final baseUrl = 'https://api.human.go.digitable.io/human/v2/api/attendance/user/605b4f57277bf8660c7b256e';
-      final p = (payroll ?? '').trim();
-      Uri uri = Uri.parse(baseUrl);
-      if (p.isNotEmpty) {
-        uri = uri.replace(queryParameters: {'payroll': p});
+      final tenant = await _resolveTenant() ?? '';
+      String baseUrl;
+      if (tenant.isNotEmpty) {
+        baseUrl = 'https://api.human.go.digitable.io/human/v2/api/attendance/user/$tenant/$uid/';
+      } else {
+        baseUrl = 'https://api.human.go.digitable.io/human/v2/api/attendance/user/$uid/';
       }
+      final p = (payroll ?? '').trim();
+      final qParams = <String, String>{};
+      if (p.isNotEmpty) qParams['payroll'] = p;
+      if (tenant.isNotEmpty) qParams['tenant'] = tenant;
 
+      final uri = await _uriWithTenant(baseUrl, qParams);
       final token = storage.getItem('token')?.toString() ?? '';
       final access = storage.getItem('access_token')?.toString() ?? '';
+
 
       final headers = {
         'Accept': 'application/json',
@@ -739,14 +1008,12 @@ Future login(String email, String password) async {
     }
   }
 
-  // Simple wrapper
+
   Future<List<AttendanceModel>> getAttendanceForUser(String userId) async {
     return await getAttendanceForUserMonth(userId: userId);
   }
 
   Map<String, dynamic> _normalizeAttendanceV2Record(Map<String, dynamic> r) {
-    // AttendanceModel in this project expects some string fields and a 'boilerPlate' map.
-    // v2 records can contain nulls -> normalize to safe defaults.
     final att = (r['attendance'] is List) ? List<dynamic>.from(r['attendance']) : <dynamic>[];
 
     int? inEpoch;
@@ -819,4 +1086,212 @@ Future login(String email, String password) async {
       },
     };
   }
+
+
+
+
+
+
+  Future<List<Map<String, dynamic>>> getSalarySlips() async {
+    try {
+      await storage.ready;
+
+      // Resolve uid from storage / access token / bearer profile
+      String uid = storage.getItem('uid')?.toString() ?? '';
+      if (uid.isEmpty) {
+        uid = await ensureUidFromAccessToken() ?? '';
+      }
+      if (uid.isEmpty) {
+        final me = await fetchMeProfileWithBearer();
+        final dataAny = me?['data'] ?? me?['result'] ?? me?['user'];
+        if (dataAny is Map) {
+          uid = (dataAny['_id'] ?? dataAny['id'] ?? '').toString();
+          if (uid.isNotEmpty) await storage.setItem('uid', uid);
+        }
+      }
+
+      if (uid.isEmpty) {
+        print('[SLIPS] missing uid, cannot fetch slips');
+        return <Map<String, dynamic>>[];
+      }
+
+      final url = 'https://domex.rype3.com/human/api/v1/get-slips/$uid';
+      // Do NOT add tenant - use plain URI with only uid
+      final uri = Uri.parse(url);
+
+      final oauthToken = storage.getItem('token')?.toString() ?? '';
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+
+      final headers = <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
+      if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
+
+      print('[SLIPS] GET $uri');
+      final res = await http.get(uri, headers: headers);
+
+      print('[SLIPS] status=${res.statusCode}');
+      print('[SLIPS] body=${res.body}');
+
+      if (res.statusCode == 401 || res.statusCode == 403) {
+        try { showToast('Session expired. Please login again.'); } catch (_) {}
+        return <Map<String, dynamic>>[];
+      }
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        return <Map<String, dynamic>>[];
+      }
+
+      final decoded = jsonDecode(res.body);
+
+      // Normalize various response shapes into a list of maps
+      List<Map<String, dynamic>> out = <Map<String, dynamic>>[];
+      if (decoded is List) {
+        out = decoded.map((e) {
+          if (e is Map) return Map<String, dynamic>.from(e);
+          return <String, dynamic>{'raw': e};
+        }).toList();
+      } else if (decoded is Map) {
+        // common keys where list might live
+        final candidates = ['data', 'result', 'slips', 'items'];
+        for (final k in candidates) {
+          if (decoded.containsKey(k) && decoded[k] is List) {
+            out = (decoded[k] as List).map((e) {
+              if (e is Map) return Map<String, dynamic>.from(e);
+              return <String, dynamic>{'raw': e};
+            }).toList();
+            break;
+          }
+        }
+        // fallback: if the map itself looks like a single slip, return it wrapped
+        if (out.isEmpty && decoded.keys.any((k) => ['id', 'pdf', 'title', 'month'].contains(k))) {
+          out = [Map<String, dynamic>.from(decoded)];
+        }
+      }
+
+      return out;
+    } catch (e, st) {
+      print('[SLIPS] ERROR => $e');
+      print(st);
+      return <Map<String, dynamic>>[];
+    }
+  }
+
+  Future<Map<String, dynamic>> getSalarySlipDetail(String id) async {
+    // Dummy implementation: return a detailed breakdown for given slip id
+    await Future.delayed(const Duration(milliseconds: 350));
+    return {
+      'id': id,
+      'basic': 50000,
+      'allowances': 8000,
+      'deductions': 3000,
+      'tax': 5000,
+      'net_pay': 50000,
+      'notes': 'This is a dummy salary summary for $id'
+    };
+  }
+
+Future<Map<String, dynamic>> emailSalarySlip(String id) async {
+  try {
+    await storage.ready;
+
+    final url = 'https://domex.rype3.com/human/api/v1/slip_email/$id';
+    final oauthToken = storage.getItem('token')?.toString() ?? '';
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+
+    print('[SLIP] ==== EMAIL SALARY SLIP START ====');
+    print('[SLIP] ID: $id');
+    print('[SLIP] URL: $url');
+
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    };
+
+    if (oauthToken.isNotEmpty) {
+      headers['Oauth-Token'] = oauthToken;
+      print('[SLIP] Oauth-Token: ${oauthToken.substring(0, 8)}...'); // partial log
+    }
+
+    if (accessToken.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $accessToken';
+      print('[SLIP] Access-Token: ${accessToken.substring(0, 8)}...');
+    }
+
+    print('[SLIP] Sending POST request...');
+
+    final res = await http.post(Uri.parse(url), headers: headers);
+
+    print('[SLIP] Response Status: ${res.statusCode}');
+    print('[SLIP] Response Body: ${res.body}');
+    print('[SLIP] ==== RESPONSE RECEIVED ====');
+
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      try {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map) {
+          print('[SLIP] Parsed JSON success');
+          return {
+            'status': decoded['status'] ?? true,
+            'message': decoded['message']?.toString() ?? 'Email request sent',
+            'data': decoded,
+          };
+        }
+        return {
+          'status': true,
+          'message': 'Email request sent',
+          'raw': res.body
+        };
+      } catch (err) {
+        print('[SLIP] JSON Parse Error (but success status): $err');
+        return {
+          'status': true,
+          'message': 'Email request sent',
+          'raw': res.body
+        };
+      }
+    }
+
+    // Non-2xx response
+    String msg = 'Failed to email salary slip (${res.statusCode})';
+    try {
+      final decoded = jsonDecode(res.body);
+      if (decoded is Map && decoded['message'] != null) {
+        msg = decoded['message'].toString();
+      }
+    } catch (_) {}
+
+    print('[SLIP] ERROR: $msg');
+
+    return {
+      'status': false,
+      'message': msg,
+      'code': res.statusCode
+    };
+  } catch (e, st) {
+    print('[SLIP] EXCEPTION: $e');
+    print('[SLIP] STACKTRACE: $st');
+
+    return {
+      'status': false,
+      'message': e.toString()
+    };
+  }
 }
+
+
+  // Small helper used by dummy generator
+  String _monthName(int m) {
+    const names = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    if (m >= 1 && m <= 12) return names[m];
+    return 'Month$m';
+  }
+}
+
+
+
+

@@ -27,8 +27,10 @@
 
     "emailOrUsernameText" : "Email / UserName",
     
-    "passwordText" : "Password",
+    "passwordText" : "මුරපදය",
     
+    "tenantHint"  : "සමාගම",
+
     "rememberMeText" : "Remember me",
     
     "doNotHaveAccountText" : "Don't have account?",

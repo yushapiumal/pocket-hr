@@ -95,7 +95,7 @@ class DesignConfig {
     );
   }
 
-  static Widget drawerContent(GlobalKey<ScaffoldState> _scaffoldKey, BuildContext context) {
+  static Widget drawerContent(GlobalKey<ScaffoldState> scaffoldKey, BuildContext context) {
     Widget langPicker() {
       final provider = Provider.of<LocaleProvider>(context);
       final LocalStorage storage = LocalStorage('pocketHR');
@@ -168,230 +168,233 @@ class DesignConfig {
       );
     }
 
-    return Container(
-      width: 300,
-      height: double.infinity,
-      decoration: BoxDecoration(
-        color: HRColors.white.withOpacity(0.9),
-        boxShadow: [
-          BoxShadow(
-            color: HRColors.white.withOpacity(0.4),
-            blurRadius: 8.0,
-          )
-        ],
-      ),
-      child: Stack(
-        children: [
-          SizedBox(
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: 4.0,
-                  sigmaY: 4.0,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    Colors.grey.withOpacity(0.4),
-                    Colors.white.withOpacity(0.9),
-                  ])),
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        width: 300,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          color: HRColors.white.withOpacity(0.9),
+          boxShadow: [
+            BoxShadow(
+              color: HRColors.white.withOpacity(0.4),
+              blurRadius: 8.0,
+            )
+          ],
+        ),
+        child: Stack(
+          children: [
+            SizedBox(
+              child: ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: 4.0,
+                    sigmaY: 4.0,
+                  ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [
+                      Colors.grey.withOpacity(0.4),
+                      Colors.white.withOpacity(0.9),
+                    ])),
+                  ),
                 ),
               ),
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 70,
-                margin: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.height / 20.5,
-                  bottom: MediaQuery.of(context).size.height / 80,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (_scaffoldKey.currentState!.isDrawerOpen) {
-                          Navigator.of(context).pop();
-                        } else {
-                          _scaffoldKey.currentState!.openDrawer();
-                        }
-                      },
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          children: [
-                            Platform.isIOS ? BackButton() : Text(""),
-                            Container(
-                              padding: EdgeInsets.all(10.0),
-                              margin: EdgeInsets.only(left: 5.0),
-                              decoration: DesignConfig.boxDecorationButtonColor(
-                                  HRColors.white.withOpacity(0.9),
-                                  HRColors.white.withOpacity(0.9),
-                                  50),
-                              child: Icon(Icons.close, color: HRColors.black),
-                            ),
-                          ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 70,
+                  margin: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height / 20.5,
+                    bottom: MediaQuery.of(context).size.height / 80,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (scaffoldKey.currentState!.isDrawerOpen) {
+                            Navigator.of(context).pop();
+                          } else {
+                            scaffoldKey.currentState!.openDrawer();
+                          }
+                        },
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              Platform.isIOS ? BackButton() : Text(""),
+                              Container(
+                                padding: EdgeInsets.all(10.0),
+                                margin: EdgeInsets.only(left: 5.0),
+                                decoration: DesignConfig.boxDecorationButtonColor(
+                                    HRColors.white.withOpacity(0.9),
+                                    HRColors.white.withOpacity(0.9),
+                                    50),
+                                child: Icon(Icons.close, color: HRColors.black),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 20.0,
-                    ),
-                    Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          HRStrings.menuText,
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            HRStrings.menuText,
+                            style: TextStyle(
+                                fontSize: 20,
+                                color: HRColors.black,
+                                fontWeight: FontWeight.w500),
+                            textAlign: TextAlign.center,
+                          ))
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -2),
+                        onTap: () {
+                          Navigator.pushNamed(context, HRSalarySlips.routeName);
+                        },
+                        leading: const Icon(Icons.receipt_long, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.salarySlips,
                           style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 17,
                               color: HRColors.black,
-                              fontWeight: FontWeight.w500),
-                          textAlign: TextAlign.center,
-                        ))
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  children: [
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {
-                        Navigator.pushNamed(context, HRSalarySlips.routeName);
-                      },
-                      leading: const Icon(Icons.receipt_long, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.salarySlips,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, HRAllowancesDeductions.routeName);
-                      },
-                      leading: const Icon(Icons.account_balance_wallet_outlined, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.allowanceDeductions,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -2),
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, HRAllowancesDeductions.routeName);
+                        },
+                        leading: const Icon(Icons.account_balance_wallet_outlined, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.allowanceDeductions,
+                          style: TextStyle(
+                              fontSize: 17,
+                              color: HRColors.black,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {
-                        Navigator.pushNamed(context, HRDebtsAndLoans.routeName);
-                      },
-                      leading: const Icon(Icons.payments_outlined, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.debtLoans,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -2),
+                        onTap: () {
+                          Navigator.pushNamed(context, HRDebtsAndLoans.routeName);
+                        },
+                        leading: const Icon(Icons.payments_outlined, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.debtLoans,
+                          style: TextStyle(
+                              fontSize: 17,
+                              color: HRColors.black,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ComingSoonScreen(title: 'FAQ'),
-                          ),
-                        );
-                      },
-                      leading: const Icon(Icons.help_outline, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.faqText,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -2),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const ComingSoonScreen(title: 'FAQ'),
+                            ),
+                          );
+                        },
+                        leading: const Icon(Icons.help_outline, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.faqText,
+                          style: TextStyle(
+                              fontSize: 17,
+                              color: HRColors.black,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ComingSoonScreen(title: 'Privacy Policy'),
-                          ),
-                        );
-                      },
-                      leading: const Icon(Icons.privacy_tip_outlined, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.privacyPolicyText,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -2),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const ComingSoonScreen(title: 'Privacy Policy'),
+                            ),
+                          );
+                        },
+                        leading: const Icon(Icons.privacy_tip_outlined, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.privacyPolicyText,
+                          style: TextStyle(
+                              fontSize: 17,
+                              color: HRColors.black,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -2),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ComingSoonScreen(title: 'Terms & Conditions'),
-                          ),
-                        );
-                      },
-                      leading: const Icon(Icons.gavel_outlined, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.termsConditionsText,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -2),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const ComingSoonScreen(title: 'Terms & Conditions'),
+                            ),
+                          );
+                        },
+                        leading: const Icon(Icons.gavel_outlined, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.termsConditionsText,
+                          style: TextStyle(
+                              fontSize: 17,
+                              color: HRColors.black,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      dense: true,
-                      visualDensity: VisualDensity(horizontal: 1, vertical: -4),
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ComingSoonScreen(title: 'Contact Us'),
-                          ),
-                        );
-                      },
-                      leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
-                      title: Text(
-                        AppLocalizations.of(context)!.contactUsText,
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: HRColors.black,
-                            fontWeight: FontWeight.normal),
-                        textAlign: TextAlign.left,
+                      ListTile(
+                        dense: true,
+                        visualDensity: VisualDensity(horizontal: 1, vertical: -4),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const ComingSoonScreen(title: 'Contact Us'),
+                            ),
+                          );
+                        },
+                        leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
+                        title: Text(
+                          AppLocalizations.of(context)!.contactUsText,
+                          style: TextStyle(
+                              fontSize: 17,
+                              color: HRColors.black,
+                              fontWeight: FontWeight.normal),
+                          textAlign: TextAlign.left,
+                        ),
                       ),
-                    ),
-                    langPicker()
-                  ],
-                ),
-              )
-            ],
-          ),
-        ],
+                      langPicker()
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

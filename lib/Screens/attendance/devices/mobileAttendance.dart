@@ -75,14 +75,24 @@ class _MobileAttendanceState extends State<MobileAttendance>
   void _loadAttendance(String type) {
     _tabType = type;
     setState(() {
-      final payroll = type == 'cur'
+      String? payroll = type == 'cur'
           ? storage.getItem('payroll_active_tag')?.toString()
           : (_selectedPayroll ?? storage.getItem('payroll_past_tag')?.toString());
+
+      // If storage does not have a payroll tag for current month, generate a sensible default
+      if ((payroll == null || payroll.trim().isEmpty) && type == 'cur') {
+        final now = DateTime.now();
+        payroll = '${now.month}-${now.year}'; // fallback format expected by backend (M-YYYY)
+        print('[UI] fallback payroll tag for current month => $payroll');
+      }
+
       if (payroll == null || payroll.trim().isEmpty) {
         attendanceFuture = Future.value(<AttendanceModel>[]);
         return;
       }
 
+      // Always request fresh data when the tab is tapped
+      print('[UI] loading attendance for payroll=$payroll (type=$type)');
       attendanceFuture = apiService.getAttendanceForUserMonth(payroll: payroll).catchError((e, st) {
         print('[UI] getAttendanceForUserMonth ERROR => $e');
         print(st);

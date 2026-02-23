@@ -178,11 +178,17 @@ abstract class AppLocalizations {
   /// **'Username'**
   String get userNameText;
 
-  /// passwordText
+  /// tenantHint
   ///
   /// In en, this message translates to:
   /// **'Password'**
   String get passwordText;
+
+  /// No description provided for @tenantHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant/Company'**
+  String get tenantHint;
 
   /// rememberMeText
   ///

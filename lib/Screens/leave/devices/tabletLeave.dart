@@ -1,614 +1,589 @@
 import 'dart:async';
-import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
+
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:octo_image/octo_image.dart';
+
 import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
-import 'package:cn_pocket_hr/Screens/leave/requestLeaveScreen.dart';
+import 'package:cn_pocket_hr/Screens/leave/devices/Slidable.dart';
+import 'package:cn_pocket_hr/Screens/leave/devices/Slide_action.dart';
+import 'package:cn_pocket_hr/Screens/leave/devices/mobileLeaveRequestPage.dart';
 import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/helper/DesignConfig.dart';
-import 'package:cn_pocket_hr/helper/GlassBox.dart';
-import 'package:cn_pocket_hr/helper/GlassBoxFull.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
-import 'package:cn_pocket_hr/helper/HRStrings.dart';
-import 'package:cn_pocket_hr/model/FavouriteModel.dart';
 import 'package:cn_pocket_hr/model/hr/LeaveModel.dart';
 
 class TabletLeave extends StatefulWidget {
-  TabletLeave({Key? key}) : super(key: key);
+  const TabletLeave({Key? key}) : super(key: key);
 
   @override
-  TabletLeaveState createState() => TabletLeaveState();
+  State<TabletLeave> createState() => _TabletLeaveState();
 }
 
-class TabletLeaveState extends State<TabletLeave>
-    with SingleTickerProviderStateMixin {
-  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+class _TabletLeaveState extends State<TabletLeave> with SingleTickerProviderStateMixin {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   AnimationController? _animationController;
+
   Future<List<MyLeavesModel>>? myLeaves;
   final LocalStorage storage = LocalStorage('pocketHR');
-  List list = [];
-  Timer? _timer;
+
   bool isLoading = false;
-  APIService apiService = APIService();
+  final APIService apiService = APIService();
+
   int _leaveListCount = 0;
+  bool leaveManageForm = false;
+  bool leaveApprove = true;
+
+  String _historyFilter = 'all';
+
+  // Style aligned with MobileLeave
+  static const Color _pageBg = Colors.white;
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+
+  static const FontWeight _wSemi = FontWeight.w600;
+  static const FontWeight _wBold = FontWeight.w700;
+  static const FontWeight _wBlack = FontWeight.w900;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    getLeaves();
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 2000));
+    _initProfileAndLeaves();
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
   }
 
   @override
   void dispose() {
-    _animationController!.dispose();
+    _animationController?.dispose();
     super.dispose();
   }
 
-  getLeaves() async {
+  Future<void> _initProfileAndLeaves() async {
+    try {
+      await apiService.fetchMeProfileWithBearer();
+    } catch (_) {}
+    getMyLeaves();
+  }
+
+  void getMyLeaves() {
     setState(() {
       isLoading = true;
       final Future<List<MyLeavesModel>> leaves = apiService.getMyLeaves(false);
       leaves.then((value) {
         _leaveListCount = value.length;
       });
-
       myLeaves = leaves;
 
       if ((_leaveListCount > 0)) {
-        setState(() {
-          myLeaves = leaves;
-          isLoading = false;
-        });
+        myLeaves = leaves;
+        isLoading = false;
       } else {
         isLoading = false;
       }
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      extendBody: true,
-      drawerScrimColor: Colors.transparent,
-      drawer: Drawer(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        child: DesignConfig.drawerContent(_scaffoldKey, context),
+  Widget _leaveBalanceChip({required String label, required String value, required Color bg, required Color fg}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: HRColors.black.withOpacity(0.06)),
       ),
-      body: Container(
-        child: GlassBoxFull(
-          background:
-              'https://firebasestorage.googleapis.com/v0/b/smartkit-8e62c.appspot.com/o/travelapp%2Fimage_b.jpg?alt=media&token=2279a2b7-205e-4543-8260-b379377c5ba4',
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Stack(
-            children: [
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _scaffoldKey.currentState!.openDrawer();
-                      },
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 1.0, top: 26.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 47,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/drawer_icon.svg")),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 34.5,
-                    bottom: MediaQuery.of(context).size.height / 15.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, HRNotifications.routeName);
-                      },
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          margin: EdgeInsets.only(left: 10.0, top: 25.0),
-                          child: GlassBox(
-                            redius: 40.0,
-                            width: 50,
-                            height: 50,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: SvgPicture.asset(
-                                      "assets/svg/notifications_icon.svg")),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 10.4,
-                    left: MediaQuery.of(context).size.width / 15.5,
-                  ),
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Text(
-                          HRStrings.leaveText,
-                          style: TextStyle(
-                              fontSize: 35,
-                              color: HRColors.black,
-                              fontWeight: FontWeight.normal),
-                          textAlign: TextAlign.left,
-                        ),
-                        Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: MediaQuery.of(context).size.height / 35),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                              .getItem('leaveAnnual')
-                                              .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Anual",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                              .getItem('leaveCasual')
-                                              .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Casual",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                              .getItem('leaveMedical')
-                                              .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Medicle",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      Center(
-                                        child: Text(
-                                          storage
-                                              .getItem('leaveNopay')
-                                              .toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.red,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          "Nopay",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 4.2),
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  child: Column(
-                    children: [showLeave()],
-                  ),
-                ),
-              ),
-            ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: HRColors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
           ),
-        ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 90.0),
-        child: FloatingActionButton(
-          backgroundColor: HRColors.black,
-          elevation: 0.2,
-          child: Icon(Icons.add),
-          onPressed: () {
-            Navigator.pushNamed(context, HRLeaveRequest.routeName);
-          },
-        ),
+        ],
       ),
     );
   }
 
-  getIcon(status) {
-    if (status == "pending") {
-      return Icon(
-        Icons.pending_actions,
-        color: HRColors.darkOrangeColor,
-      );
-    } else if (status == "approved") {
-      return Icon(
-        Icons.check_circle_outline,
-        color: Colors.green,
-      );
-    } else if (status == "rejected") {
-      return Icon(
-        Icons.dangerous_outlined,
-        color: Colors.red,
-      );
-    }
+  Widget _leaveBalanceSummary() {
+    return Container(
+      margin: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: HRColors.black.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 6)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('My Leave Balance', style: TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
+          const SizedBox(height: 10),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _leaveBalanceChip(label: 'Annual', value: '2/12', bg: const Color(0xFFFFF7E6), fg: HRColors.darkOrangeColor),
+                const SizedBox(width: 10),
+                _leaveBalanceChip(label: 'Casual', value: '1/7', bg: const Color(0xFFEFF6FF), fg: HRColors.blueColor),
+                const SizedBox(width: 10),
+                _leaveBalanceChip(label: 'Medical', value: '0/10', bg: const Color(0xFFEAF7EE), fg: HRColors.green),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _leaveHistoryHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+        TextButton(
+          onPressed: () => getMyLeaves(),
+          child: const Text('Refresh', style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
+        ),
+      ],
+    );
+  }
+
+  Widget _topActions() {
+    return Row(
+       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        GestureDetector(
+          onTap: () => _scaffoldKey.currentState?.openDrawer(),
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(color: Colors.black.withOpacity(0.06)),
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                "assets/svg/drawer_icon.svg",
+                colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+              ),
+            ),
+          ),
+        ),
+        Text(
+          AppLocalizations.of(context)!.leaveText,
+          style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
+        ),
+        GestureDetector(
+          onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(40),
+              border: Border.all(color: Colors.black.withOpacity(0.06)),
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                "assets/svg/notifications_icon.svg",
+                colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget showLeave() {
+    return Container(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          _buildList(context, Axis.horizontal),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList(BuildContext context, Axis direction) {
     return FutureBuilder<List<MyLeavesModel>>(
       future: myLeaves,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          final all = snapshot.data ?? <MyLeavesModel>[];
+          List<MyLeavesModel> filtered = all;
+          if (_historyFilter != 'all') {
+            filtered = all.where((e) {
+              final t = e.leaveType.toString().toLowerCase();
+              if (_historyFilter == 'sick') return t.contains('medical') || t.contains('sick');
+              if (_historyFilter == 'unpaid') return t.contains('nopay') || t.contains('unpaid');
+              return t.contains(_historyFilter);
+            }).toList();
+          }
+          _leaveListCount = filtered.length;
+
+          if (_leaveListCount == 0) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(child: Text('No records')),
+            );
+          }
+
           return SlideAnimation(
             position: 4,
             itemCount: 8,
             slideDirection: SlideDirection.fromLeft,
             animationController: _animationController,
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              itemCount: _leaveListCount,
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (BuildContext context, int index) {
-                return Container(
-                  decoration: DesignConfig.boxDecorationButtonColor(
-                      HRColors.white.withOpacity(0.7),
-                      HRColors.white.withOpacity(0.6),
-                      40),
-                  padding: EdgeInsets.all(15.0),
-                  margin: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 0.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Text(
-                                                        snapshot.data![index]
-                                                            .leaveTitle,
-                                                        style: TextStyle(
-                                                            fontSize: 18,
-                                                            color:
-                                                                HRColors.black,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Text(
-                                                      '( ' +
-                                                          snapshot.data![index]
-                                                              .leaveType +
-                                                          ' )',
-                                                      style: TextStyle(
-                                                          fontSize: 18,
-                                                          color: HRColors
-                                                              .darkFontColor
-                                                              .withOpacity(0.7),
-                                                          fontWeight: FontWeight
-                                                              .normal),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 2.0),
-                                            child: Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  .52,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                        'From : ' +
-                                                            snapshot
-                                                                .data![index]
-                                                                .fromDate,
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: HRColors
-                                                                .darkFontColor
-                                                                .withOpacity(
-                                                                    0.7),
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 2.0),
-                                            child: Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  .52,
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Text(
-                                                        'To : ' +
-                                                            snapshot
-                                                                .data![index]
-                                                                .toDate,
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: HRColors
-                                                                .darkFontColor
-                                                                .withOpacity(
-                                                                    0.7),
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .normal),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        // Align(
-                                        //   alignment: Alignment.topLeft,
-                                        //   child: Padding(
-                                        //     padding:
-                                        //         const EdgeInsets.only(top: 2.0),
-                                        //     child: Container(
-                                        //       width: MediaQuery.of(context)
-                                        //               .size
-                                        //               .width *
-                                        //           .52,
-                                        //       child: Text(
-                                        //         snapshot.data![index].description,
-                                        //         style: TextStyle(
-                                        //             fontSize: 16,
-                                        //             color: HRColors.iconColor
-                                        //                 .withOpacity(0.7),
-                                        //             fontWeight:
-                                        //                 FontWeight.normal),
-                                        //         overflow: TextOverflow.ellipsis,
-                                        //       ),
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: GestureDetector(
-                              onTap: () {
-                                apiService
-                                    .showToast(snapshot.data![index].status);
-                              },
-                              child: Card(
-                                color: HRColors.white.withOpacity(0.7),
-                                elevation: 5,
-                                shadowColor:
-                                    HRColors.iconColor.withOpacity(0.5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                child: Container(
-                                    height: 50,
-                                    width: 50,
-                                    padding: EdgeInsets.all(10.0),
-                                    decoration:
-                                        DesignConfig.boxDecorationButtonColor(
-                                            HRColors.white.withOpacity(0.7),
-                                            HRColors.white.withOpacity(0.6),
-                                            50),
-                                    child:
-                                        getIcon(snapshot.data![index].status)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            child: LayoutBuilder(
+              builder: (context, c) {
+                final wide = c.maxWidth >= 980;
+
+                if (wide) {
+                  return GridView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _leaveListCount,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 2.9,
+                    ),
+                    itemBuilder: (_, i) => _leaveHistoryCard(filtered[i], direction),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _leaveListCount,
+                  itemBuilder: (_, i) => _leaveHistoryCard(filtered[i], direction),
                 );
               },
             ),
           );
         }
-        return Container(
-          child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 90),
-              child: Center(
-                  child: CircularProgressIndicator(
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.blue),
-              ))),
+
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 90),
+          child: Center(child: CircularProgressIndicator()),
         );
       },
     );
   }
 
-  Future<void> navigationPage() async {
-    Navigator.pop(context);
+  void setLeaveValue(MyLeavesModel value) {
+    // kept for approve/reject flow (if used elsewhere)
+  }
+
+  Widget _GradientPillButton({
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    final iconOnly = label.trim().isEmpty;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: iconOnly ? 56 : 52,
+        width: iconOnly ? 56 : null,
+        padding: iconOnly ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
+          gradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [HRColors.orangeColor, HRColors.orangeColor],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.18),
+              blurRadius: 14,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Center(
+          child: iconOnly
+              ? const Icon(Icons.add_rounded, color: HRColors.white, size: 28)
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: HRColors.white,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.chevron_right, color: HRColors.white),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _historyStepsRow(String? status) {
+    final s = (status ?? '').toLowerCase();
+    int step = 0;
+    if (s == 'pending') step = 1;
+    if (s == 'approved' || s == 'rejected') step = 2;
+
+    final createColor = HRColors.black;
+    final reviewColor = HRColors.black;
+    final approvedColor = HRColors.green;
+    final rejectedColor = HRColors.red;
+    final endColor = s == 'rejected' ? rejectedColor : approvedColor;
+
+    Widget dot(bool active, Color color) {
+      return Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: active ? color : color.withOpacity(0.25),
+          shape: BoxShape.circle,
+        ),
+      );
+    }
+
+    Widget item(String label, bool active, Color color) {
+      return Row(
+        children: [
+          dot(active, color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: _wBold,
+              color: active ? color : HRColors.grayColor,
+            ),
+          ),
+        ],
+      );
+    }
+
+    final endLabel = s == 'rejected' ? 'Rejected' : 'Approved';
+    return Row(
+      children: [
+        item('Create', true, createColor),
+        const SizedBox(width: 14),
+        item('Review', step >= 1, reviewColor),
+        const SizedBox(width: 14),
+        item(endLabel, step >= 2, endColor),
+      ],
+    );
+  }
+
+  Widget _leaveHistoryCard(MyLeavesModel model, Axis direction) {
+    final typeLabel = model.leaveType.toString();
+    final title = model.leaveTitle.toString();
+    final from = model.fromDate.toString();
+    final to = model.toDate.toString();
+
+    final status = model.status.toString().toLowerCase();
+    final bool isFinal = status == 'approved' || status == 'rejected';
+
+    IconData trailingIcon;
+    Color trailingBg;
+    Color trailingFg;
+    if (status == 'approved') {
+      trailingIcon = Icons.check_rounded;
+      trailingBg = HRColors.green.withOpacity(0.12);
+      trailingFg = HRColors.green;
+    } else if (status == 'rejected') {
+      trailingIcon = Icons.close_rounded;
+      trailingBg = HRColors.red.withOpacity(0.12);
+      trailingFg = HRColors.red;
+    } else {
+      trailingIcon = Icons.hourglass_bottom_rounded;
+      trailingBg = HRColors.lightOrangeColor;
+      trailingFg = HRColors.darkOrangeColor;
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: HRColors.black.withOpacity(0.05)),
+        boxShadow: [
+          BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 6)),
+        ],
+      ),
+      child: Slidable(
+        key: Key('${model.leaveTitle}-${model.fromDate}-${model.toDate}'),
+        direction: direction,
+        delegate: SlidableBehindDelegate(),
+        actionExtentRatio: 0.25,
+        actions: isFinal
+            ? const <Widget>[]
+            : [
+                IconSlideAction(
+                  caption: 'Approve',
+                  color: const Color.fromARGB(255, 15, 205, 25),
+                  icon: Icons.check,
+                  onTap: () {
+                    setState(() {
+                      leaveManageForm = true;
+                      leaveApprove = true;
+                    });
+                    setLeaveValue(model);
+                  },
+                ),
+              ],
+        secondaryActions: isFinal
+            ? const <Widget>[]
+            : [
+                IconSlideAction(
+                  caption: 'Reject',
+                  color: HRColors.red,
+                  icon: Icons.cancel,
+                  onTap: () {
+                    setState(() {
+                      leaveManageForm = true;
+                      leaveApprove = false;
+                    });
+                    setLeaveValue(model);
+                  },
+                ),
+              ],
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title.isNotEmpty ? title : 'Leave Request',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: _wBold, fontSize: 14, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          (from.isNotEmpty && to.isNotEmpty) ? '$from  -  $to' : (from.isNotEmpty ? from : ''),
+                          style: const TextStyle(fontSize: 12, color: Colors.black54, fontWeight: _wSemi),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          typeLabel,
+                          style: const TextStyle(fontSize: 12, color: Color(0xFFF59E0B), fontWeight: _wBold),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: trailingBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(trailingIcon, color: trailingFg),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _historyStepsRow(model.status),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final horizontal = (w * 0.06).clamp(16.0, 64.0);
+
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        key: _scaffoldKey,
+        extendBody: true,
+        drawerScrimColor: Colors.transparent,
+        drawer: Drawer(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Material(
+            color: Colors.transparent,
+            child: DesignConfig.drawerContent(_scaffoldKey, context),
+          ),
+        ),
+        backgroundColor: _pageBg,
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1100),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontal, vertical: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _topActions(),
+                      const SizedBox(height: 10),
+                      _leaveBalanceSummary(),
+                      const SizedBox(height: 18),
+                      _leaveHistoryHeader(),
+                      const SizedBox(height: 6),
+                      showLeave(),
+                      const SizedBox(height: 90),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        floatingActionButton: !leaveManageForm
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 90.0),
+                child: _GradientPillButton(
+                  label: '',
+                  onTap: () async {
+                    setState(() => leaveManageForm = true);
+
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const MobileLeaveRequestPage(isEdit: false, initial: null),
+                      ),
+                    );
+
+                    if (mounted) {
+                      setState(() => leaveManageForm = false);
+                      getMyLeaves();
+                    }
+                  },
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
   }
 }

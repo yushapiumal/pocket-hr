@@ -41,9 +41,9 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Matches: humanmahajana://callback/mahajana/pocket-hr/callback -->
                 <data
-                    android:scheme="humanmahajana"
+                    android:scheme="r3human"
                     android:host="callback"
-                    android:pathPrefix="/mahajana/pocket-hr/callback" />
+                    android:pathPrefix="/pocket-hr/callback" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

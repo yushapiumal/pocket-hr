@@ -8,6 +8,7 @@ import 'package:cn_pocket_hr/Screens/main/MainScreen.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/provider/locale_provider.dart';
 import 'package:cn_pocket_hr/services/sso_service.dart';
+import 'package:cn_pocket_hr/services/device_details_service.dart';
 
 class MobileLogin extends StatefulWidget {
   const MobileLogin({Key? key}) : super(key: key);
@@ -20,6 +21,11 @@ class _MobileLoginState extends State<MobileLogin> {
   final email = TextEditingController();
   final password = TextEditingController();
   final company = TextEditingController();
+
+  // Focus nodes to support Next/Done keyboard actions
+  final FocusNode _companyFocus = FocusNode();
+  final FocusNode _emailFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   bool _validateEmail = false;
   bool _validatePassword = false;
@@ -50,20 +56,42 @@ class _MobileLoginState extends State<MobileLogin> {
   Future<void> _autoLoginIfPossible() async {
     try {
       await storage.ready;
-      final token = storage.getItem('access_token')?.toString();
-      if (token != null && token.trim().isNotEmpty) {
+      final ok = await apiService.hasValidAccessToken();
+      if (!ok) {
+        // clear any stale tokens
+        try {
+          await storage.setItem('access_token', '');
+          await storage.setItem('refresh_token', '');
+        } catch (_) {}
+        if (mounted) setState(() => _autoRedirecting = false);
+        return;
+      }
+
+      // Token exists and not expired — try to fetch profile to ensure server accepts it
+      try {
+        await apiService.fetchMeProfileWithBearer();
         if (!mounted) return;
         Navigator.of(context).pushReplacementNamed(HRMain.routeName);
         return;
+      } catch (e) {
+        // fetch failed — clear tokens and show login
+        try {
+          await storage.setItem('access_token', '');
+          await storage.setItem('refresh_token', '');
+        } catch (_) {}
+        if (mounted) setState(() => _autoRedirecting = false);
+        return;
       }
     } catch (_) {
-      // ignore
+      if (mounted) setState(() => _autoRedirecting = false);
     }
-    if (mounted) setState(() => _autoRedirecting = false);
   }
 
   @override
   void dispose() {
+    _companyFocus.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     email.dispose();
     password.dispose();
     company.dispose();
@@ -137,16 +165,30 @@ class _MobileLoginState extends State<MobileLogin> {
   }
 
   Widget inputTenant() {
+    // Formatter to force lowercase
+    final lowerCaseFormatter = TextInputFormatter.withFunction((oldValue, newValue) {
+      final text = newValue.text.toLowerCase();
+      return TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+    });
+
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: TextFormField(
         controller: company,
+        focusNode: _companyFocus,
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
         onChanged: (_) => setState(() => _validateCompany = false),
         style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
         cursorColor: _accent,
+        inputFormatters: [
+          lowerCaseFormatter,
+          // allow only simple letters (a-z), numbers and spaces
+          FilteringTextInputFormatter.allow(RegExp('[a-z0-9 ]')),
+        ],
         decoration: _fieldDecoration(
           label: AppLocalizations.of(context)!.companyName,
-          hint: 'Tenant / Company',
+          hint: 'tenant / company',
           icon: Icons.apartment_rounded,
         ),
       ),
@@ -158,6 +200,9 @@ class _MobileLoginState extends State<MobileLogin> {
       padding: const EdgeInsets.only(top: 10),
       child: TextFormField(
         controller: email,
+        focusNode: _emailFocus,
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
         onChanged: (_) => setState(() => _validateEmail = false),
         style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
         cursorColor: _accent,
@@ -176,13 +221,16 @@ class _MobileLoginState extends State<MobileLogin> {
       padding: const EdgeInsets.only(top: 10),
       child: TextFormField(
         controller: password,
+        focusNode: _passwordFocus,
+        textInputAction: TextInputAction.done,
+        onFieldSubmitted: (_) => submit(),
         obscureText: _obscure,
         onChanged: (_) => setState(() => _validatePassword = false),
         style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
         cursorColor: _accent,
         decoration: _fieldDecoration(
           label: AppLocalizations.of(context)!.passwordText,
-          hint: 'Enter your password',
+          hint: '',
           icon: Icons.lock_outline_rounded,
           suffix: IconButton(
             onPressed: () => setState(() => _obscure = !_obscure),
@@ -223,7 +271,33 @@ class _MobileLoginState extends State<MobileLogin> {
     storage.setItem('email', email.text);
     storage.setItem('password', password.text);
 
-    final login1 = await apiService.login(email.text, password.text);
+    // collect device info and send with login
+    Map<String, String>? deviceInfo;
+    try {
+      final dsvc = DeviceDetailsService();
+      final details = await dsvc.collectAll();
+      final dev = details['device'] as Map<String, dynamic>? ?? {};
+      final deviceId = (dev['androidId'] ?? dev['identifierForVendor'] ?? dev['device'] ?? '').toString();
+      final model = (dev['model'] ?? '').toString();
+      final brand = (dev['brand'] ?? '').toString();
+      final platform = (dev['platform'] ?? '').toString();
+      final version = (dev['version'] ?? '').toString();
+      final ip = (details['ip'] ?? '').toString();
+      final batteryLevel = (details['battery'] is Map) ? (details['battery']['level']?.toString() ?? '') : '';
+      deviceInfo = {
+        'device_id': deviceId,
+        'device_model': model,
+        'device_brand': brand,
+        'device_platform': platform,
+        'device_version': version,
+        'device_ip': ip,
+        'battery_level': batteryLevel,
+      };
+    } catch (_) {
+      deviceInfo = null;
+    }
+
+    final login1 = await apiService.login(email.text, password.text, deviceInfo: deviceInfo);
 
     if (login1 == null) {
       apiService.showToast('Login failed, please Try again');
@@ -297,9 +371,9 @@ class _MobileLoginState extends State<MobileLogin> {
     }
 
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () async => true,
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomInset: true,
         body: Stack(
           children: [
             // Top header image
@@ -307,7 +381,7 @@ class _MobileLoginState extends State<MobileLogin> {
               child: Container(color: Colors.white),
             ),
             Positioned(
-              top: 2,
+              top: 0,
               left: 0,
               right: 0,
               height: MediaQuery.of(context).size.height * 0.42,
@@ -380,9 +454,9 @@ class _MobileLoginState extends State<MobileLogin> {
                         inputEmail(),
                         _errorText(_validateEmail, AppLocalizations.of(context)!.emailValidation),
                         inputPassword(),
-                        _errorText(_validatePassword, AppLocalizations.of(context)!.epfValidation),
+                        _errorText(_validatePassword, "please enter your password"),
 
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -416,7 +490,7 @@ class _MobileLoginState extends State<MobileLogin> {
                             child: Center(child: CircularProgressIndicator()),
                           ),
 
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -463,7 +537,7 @@ class _MobileLoginState extends State<MobileLogin> {
                         // ),
 
                         langPicker(),
-                         const SizedBox(height: 10),
+                         const SizedBox(height: 20),
                       ],
                       
                     ),

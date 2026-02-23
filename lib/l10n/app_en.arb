@@ -68,6 +68,11 @@
       "description": "passwordText"
     },
 
+     "tenantHint" : "Tenant/Company",
+    "@passwordText": {
+      "description": "tenantHint"
+    },
+
     "rememberMeText" : "Remember me",
     "@rememberMeText": {
       "description": "rememberMeText"

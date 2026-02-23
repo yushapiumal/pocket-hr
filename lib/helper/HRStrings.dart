@@ -85,9 +85,12 @@ class HRStrings {
   static String leaveRequest = "Leave Request";
   static String submit = "Submit";
   static String rosterText = "My Roster";
+  static String tenantHint = "Tenant/Company";
   // Validation
   static String emailValidation = "Please enter email address";
   static String tenantValidation = "Please enter company name";
   static String epfValidation = "Please enter epf number";
   static String pinCodeValidation = "Please enter pin code";
+  
+
 }

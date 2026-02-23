@@ -37,10 +37,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
   String fromText = 'From';
   String toText = 'To';
 
-  final FixedExtentScrollController _monthWheel = FixedExtentScrollController();
-  final FixedExtentScrollController _dayWheel = FixedExtentScrollController();
-  final FixedExtentScrollController _yearWheel = FixedExtentScrollController();
-
   @override
   void initState() {
     super.initState();
@@ -58,7 +54,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
       DateTime? tryParse(String s) {
         try {
-          // handle both yyyy-MM-dd and dd/MM/yyyy
           if (s.contains('/')) return DateFormat('dd/MM/yyyy').parse(s);
           if (s.contains('-')) return DateTime.tryParse(s);
         } catch (_) {}
@@ -76,20 +71,74 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         toText = DateFormat('dd/MM/yyyy').format(td);
       }
     }
-
-    // Final safety: DropdownButton requires its value to exist exactly once in items.
     if (typeValue == null || !leaveTypeList.contains(typeValue)) {
       typeValue = 'annual';
     }
+
+    // If no initial leave provided, default From = start of this week (Monday), To = today
+    if (m == null) {
+      final today = DateTime.now();
+      final startWeek = _startOfWeek(today);
+      fDate = startWeek;
+      tDate = today;
+      fromText = DateFormat('dd/MM/yyyy').format(fDate);
+      toText = DateFormat('dd/MM/yyyy').format(tDate);
+    }
+  }
+
+  DateTime _startOfWeek(DateTime d) {
+    // Treat Monday as start of week
+    final int weekday = d.weekday; // 1 = Monday
+    return DateTime(d.year, d.month, d.day).subtract(Duration(days: weekday - 1));
   }
 
   @override
   void dispose() {
     description.dispose();
-    _monthWheel.dispose();
-    _dayWheel.dispose();
-    _yearWheel.dispose();
     super.dispose();
+  }
+
+  // Show a transient message banner at the top of the page.
+  Future<void> _showTopMessage(String message, {bool error = false, Duration duration = const Duration(seconds: 3)}) async {
+    if (!mounted) return;
+    final overlay = Overlay.of(context);
+    final topPadding = MediaQuery.of(context).padding.top + 8.0;
+    final bg = error ? Colors.red.shade700 : HRColors.darkOrangeColor;
+
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (ctx) => Positioned(
+        top: topPadding,
+        left: 12,
+        right: 12,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
+            ),
+            child: SafeArea(
+              top: false,
+              bottom: false,
+              child: Row(
+                children: [
+                  Expanded(child: Text(message, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700))),
+                  const SizedBox(width: 8),
+                  GestureDetector(onTap: () { try { entry.remove(); } catch (_) {} }, child: const Icon(Icons.close, color: Colors.white, size: 18)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(entry);
+    await Future.delayed(duration);
+    try { entry.remove(); } catch (_) {}
   }
 
   bool _isDefaultFromTo() => fromText == 'From' || toText == 'To';
@@ -101,12 +150,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
     int selYear = initial.year;
     int selDay = initial.day;
 
-    _monthWheel.jumpToItem(selMonth - 1);
-    _yearWheel.jumpToItem(years.indexOf(selYear).clamp(0, years.length - 1));
-
+    // Create controllers with initialItem so picker shows the initial date
+    final monthController = FixedExtentScrollController(initialItem: selMonth - 1);
+    final yearController = FixedExtentScrollController(initialItem: years.indexOf(selYear).clamp(0, years.length - 1));
     int daysInMonth = DateUtils.getDaysInMonth(selYear, selMonth);
     selDay = selDay.clamp(1, daysInMonth);
-    _dayWheel.jumpToItem(selDay - 1);
+    final dayController = FixedExtentScrollController(initialItem: selDay - 1);
 
     return showModalBottomSheet<DateTime>(
       context: context,
@@ -184,7 +233,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     Row(
                       children: [
                         wheel<int>(
-                          controller: _monthWheel,
+                          controller: monthController,
                           items: months,
                           label: (m) => DateFormat.MMMM().format(DateTime(2000, m, 1)),
                           onSelected: (i) {
@@ -193,19 +242,19 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                               final dim = DateUtils.getDaysInMonth(selYear, selMonth);
                               if (selDay > dim) {
                                 selDay = dim;
-                                _dayWheel.jumpToItem(selDay - 1);
+                                dayController.jumpToItem(selDay - 1);
                               }
                             });
                           },
                         ),
                         wheel<int>(
-                          controller: _dayWheel,
+                          controller: dayController,
                           items: days,
                           label: (d) => d.toString(),
                           onSelected: (i) => setLocal(() => selDay = days[i]),
                         ),
                         wheel<int>(
-                          controller: _yearWheel,
+                          controller: yearController,
                           items: years,
                           label: (y) => y.toString(),
                           onSelected: (i) {
@@ -214,7 +263,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                               final dim = DateUtils.getDaysInMonth(selYear, selMonth);
                               if (selDay > dim) {
                                 selDay = dim;
-                                _dayWheel.jumpToItem(selDay - 1);
+                                dayController.jumpToItem(selDay - 1);
                               }
                             });
                           },
@@ -230,7 +279,13 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           backgroundColor: _accent,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                         ),
-                        onPressed: () => Navigator.pop(ctx, DateTime(selYear, selMonth, selDay)),
+                        onPressed: () {
+                          // dispose controllers before popping
+                          try { monthController.dispose(); } catch (_) {}
+                          try { dayController.dispose(); } catch (_) {}
+                          try { yearController.dispose(); } catch (_) {}
+                          Navigator.pop(ctx, DateTime(selYear, selMonth, selDay));
+                        },
                         child: const Text('Confirm', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white)),
                       ),
                     ),
@@ -243,7 +298,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                           side: BorderSide(color: HRColors.black.withOpacity(0.10)),
                         ),
-                        onPressed: () => Navigator.pop(ctx),
+                        onPressed: () {
+                          try { monthController.dispose(); } catch (_) {}
+                          try { dayController.dispose(); } catch (_) {}
+                          try { yearController.dispose(); } catch (_) {}
+                          Navigator.pop(ctx);
+                        },
                         child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.black87)),
                       ),
                     ),
@@ -343,19 +403,19 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
   Future<void> _submit() async {
     if (typeValue == null || typeValue!.isEmpty) {
-      apiService.showToast('Please select leave type');
+      await _showTopMessage('Please select leave type', error: true);
       return;
     }
     if (_isDefaultFromTo()) {
-      apiService.showToast('Please select From and To dates');
+      await _showTopMessage('Please select From and To dates', error: true);
       return;
     }
     if (tDate.isBefore(fDate)) {
-      apiService.showToast('To date must be after From date');
+      await _showTopMessage('To date must be after From date', error: true);
       return;
     }
 
-    final ok = await apiService.leave({
+    final res = await apiService.leave({
       'leave_title': 'Leave Request',
       'from_date': DateFormat('yyyy-MM-dd').format(fDate),
       'to_date': DateFormat('yyyy-MM-dd').format(tDate),
@@ -365,7 +425,125 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       'description': description.text,
     });
 
-    if (ok == true && mounted) Navigator.pop(context, true);
+    try {
+      if (res is Map && (res['status'] == true || res['status'] == 'true')) {
+        final msg = (res['message'] ?? 'Submitted').toString();
+        await _showTopMessage(msg, error: false);
+        if (mounted) Navigator.pop(context, true);
+        return;
+      }
+
+      if (res is Map) {
+        String msg = '';
+        try {
+          if (res['errors'] is Map && res['errors']['message'] != null && res['errors']['message'].toString().trim().isNotEmpty) {
+            msg = res['errors']['message'].toString();
+          } else if (res['message'] != null && res['message'].toString().trim().isNotEmpty) {
+            msg = res['message'].toString();
+          }
+        } catch (_) {}
+        if (msg.isEmpty) msg = 'Failed to submit leave.';
+        await _showTopMessage(msg, error: true);
+        return;
+      }
+    } catch (_) {}
+
+    await _showTopMessage('Failed to submit leave.', error: true);
+  }
+
+
+
+  Future<bool?> _showLeaveConfirmationDialog() async {
+    final days = tDate.difference(fDate).inDays + 1;
+    return showGeneralDialog<bool>(
+      context: context,
+      barrierLabel: 'Confirm Leave',
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.4),
+      transitionDuration: const Duration(milliseconds: 320),
+      pageBuilder: (ctx, a1, a2) {
+        return const SizedBox.shrink();
+      },
+      transitionBuilder: (ctx, anim, secondaryAnim, child) {
+        final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutBack);
+        return FadeTransition(
+          opacity: anim,
+          child: ScaleTransition(
+            scale: curved,
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 20)],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Confirm Leave', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                      const SizedBox(height: 12),
+                      Row(children: [Expanded(child: Text('From', style: TextStyle(fontWeight: FontWeight.w700))), Text(DateFormat('dd/MM/yyyy').format(fDate))]),
+                      const SizedBox(height: 6),
+                      Row(children: [Expanded(child: Text('To', style: TextStyle(fontWeight: FontWeight.w700))), Text(DateFormat('dd/MM/yyyy').format(tDate))]),
+                      const SizedBox(height: 6),
+                      Row(children: [Expanded(child: Text('Days', style: TextStyle(fontWeight: FontWeight.w700))), Text('$days')]),
+                      const SizedBox(height: 6),
+                      Row(children: [Expanded(child: Text('Leave Type', style: TextStyle(fontWeight: FontWeight.w700))), Text((typeValue ?? '').toString())]),
+                      const SizedBox(height: 8),
+                      if (description.text.trim().isNotEmpty)
+                        Column(children: [Align(alignment: Alignment.centerLeft, child: Text('Note', style: TextStyle(fontWeight: FontWeight.w700))), const SizedBox(height: 4), Text(description.text.trim())]),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              style: ElevatedButton.styleFrom(backgroundColor: _accent),
+                              child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmAndSubmit() async {
+    if (typeValue == null || typeValue!.isEmpty) {
+      await _showTopMessage('Please select leave type', error: true);
+      return;
+    }
+    if (_isDefaultFromTo()) {
+      await _showTopMessage('Please select From and To dates', error: true);
+      return;
+    }
+    if (tDate.isBefore(fDate)) {
+      await _showTopMessage('To date must be after From date', error: true);
+      return;
+    }
+
+    final confirmed = await _showLeaveConfirmationDialog();
+    if (confirmed == true) {
+      await _submit();
+    }
   }
 
   @override
@@ -439,9 +617,27 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           : () async {
                               final picked = await _pickWheelDate(initial: fDate);
                               if (picked == null) return;
+
+                              // normalize to date only
+                              final pickedDate = DateTime(picked.year, picked.month, picked.day);
+                              final today = DateTime.now();
+                              final todayDate = DateTime(today.year, today.month, today.day);
+
+                              if (pickedDate.isBefore(todayDate)) {
+                                apiService.showToast('Cannot select a past date');
+                                return;
+                              }
+
+                              // If selected From is after current To, show error
+                              final currentTo = DateTime(tDate.year, tDate.month, tDate.day);
+                              if (pickedDate.isAfter(currentTo)) {
+                                apiService.showToast('From date cannot be after To date');
+                                return;
+                              }
+
                               setState(() {
-                                fDate = picked;
-                                fromText = DateFormat('dd/MM/yyyy').format(picked);
+                                fDate = pickedDate;
+                                fromText = DateFormat('dd/MM/yyyy').format(pickedDate);
                               });
                             },
                       borderRadius: BorderRadius.circular(14),
@@ -476,9 +672,26 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           : () async {
                               final picked = await _pickWheelDate(initial: tDate);
                               if (picked == null) return;
+
+                              final pickedDate = DateTime(picked.year, picked.month, picked.day);
+                              final today = DateTime.now();
+                              final todayDate = DateTime(today.year, today.month, today.day);
+
+                              if (pickedDate.isBefore(todayDate)) {
+                                apiService.showToast('Cannot select a past date');
+                                return;
+                              }
+
+                              // If selected To is before current From, show error
+                              final currentFrom = DateTime(fDate.year, fDate.month, fDate.day);
+                              if (pickedDate.isBefore(currentFrom)) {
+                                apiService.showToast('To date must be after From date');
+                                return;
+                              }
+
                               setState(() {
-                                tDate = picked;
-                                toText = DateFormat('dd/MM/yyyy').format(picked);
+                                tDate = pickedDate;
+                                toText = DateFormat('dd/MM/yyyy').format(pickedDate);
                               });
                             },
                       borderRadius: BorderRadius.circular(14),
@@ -537,7 +750,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               Align(
                 alignment: Alignment.centerRight,
                 child: _gradientActionButton(
-                  onTap: _submit,
+                  onTap: _confirmAndSubmit,
                 ),
               ),
           ],

@@ -50,7 +50,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get userNameText => 'Username';
 
   @override
-  String get passwordText => 'Password';
+  String get passwordText => 'கடவுச்சொல்';
+
+  @override
+  String get tenantHint => 'Tenant/Company';
 
   @override
   String get rememberMeText => 'Remember me';

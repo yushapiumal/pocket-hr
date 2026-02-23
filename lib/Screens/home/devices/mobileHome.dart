@@ -31,7 +31,7 @@ class MobileHome extends StatefulWidget {
 }
 
 class _MobileHomeState extends State<MobileHome>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   int currentIndex = 0;
   AnimationController? _animationController;
   PageController? _controller;
@@ -57,6 +57,62 @@ class _MobileHomeState extends State<MobileHome>
   LocalStorage storage = LocalStorage('pocketHR');
   APIService apiService = APIService();
   HRController controller = HRController();
+  bool _pressingCheckIn = false;
+  bool _pressingCheckOut = false;
+  // Top toast overlay
+  void showTopToast(String message, {Color? background, Duration duration = const Duration(seconds: 3), VoidCallback? onTap}) {
+    final overlay = Overlay.of(context);
+
+    final animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 320));
+    final animation = CurvedAnimation(parent: animController, curve: Curves.easeOut);
+
+    late OverlayEntry entry;
+    entry = OverlayEntry(builder: (ctx) {
+      return Positioned(
+        top: MediaQuery.of(context).padding.top + 10,
+        left: 12,
+        right: 12,
+        child: SlideTransition(
+          position: Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(animation),
+          child: Material(
+            color: Colors.transparent,
+            child: GestureDetector(
+              onTap: () {
+                try { animController.reverse(); } catch (_) {}
+                try { entry.remove(); } catch (_) {}
+                try { animController.dispose(); } catch (_) {}
+                if (onTap != null) onTap();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: background ?? const Color(0xFF323232),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(message, style: const TextStyle(color: Colors.white), maxLines: 3, overflow: TextOverflow.ellipsis)),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.chevron_right, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+
+    overlay.insert(entry);
+    animController.forward();
+
+    Future.delayed(duration, () async {
+      try { await animController.reverse(); } catch (_) {}
+      try { entry.remove(); } catch (_) {}
+      try { animController.dispose(); } catch (_) {}
+    });
+  }
   @override
   void initState() {
     super.initState();
@@ -111,13 +167,28 @@ class _MobileHomeState extends State<MobileHome>
     final lng = (longitude != null) ? longitude.toString() : null;
     final addr = (address != null) ? address.toString() : null;
 
-    await apiService.checkInCheckout(
+    final res = await apiService.checkInCheckout(
       date,
       type,
       latitude: lat,
       longitude: lng,
       address: addr,
     );
+
+    String msg = '';
+    Color bg = Colors.black;
+    if (res is Map && res.containsKey('message')) {
+      msg = res['message']?.toString() ?? '';
+      bg = (type == 'checkout') ? HRColors.orangeColor : Colors.green;
+    } else if (res == null) {
+      msg = 'Failed to perform action';
+      bg = Colors.red;
+    } else {
+      msg = 'Success';
+      bg = (type == 'checkout') ? HRColors.orangeColor : Colors.green;
+    }
+
+    if (mounted) showTopToast(msg, background: bg);
   }
 
   changeBTN() {
@@ -292,102 +363,68 @@ class _MobileHomeState extends State<MobileHome>
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 GestureDetector(
-                                  onTap: () {
+                                  onTapDown: (_) => setState(() => _pressingCheckIn = true),
+                                  onTapUp: (_) {
+                                    setState(() => _pressingCheckIn = false);
                                     checkinCheckout('checkin');
                                   },
-                                  child: Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Container(
+                                  onTapCancel: () => setState(() => _pressingCheckIn = false),
+                                  child: AnimatedScale(
+                                    scale: _pressingCheckIn ? 0.96 : 1.0,
+                                    duration: const Duration(milliseconds: 120),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 160),
+                                      curve: Curves.easeOut,
                                       height: 50,
-                                      width: MediaQuery.of(context).size.width /
-                                          2.5,
+                                      width: MediaQuery.of(context).size.width / 2.5,
+                                      margin: const EdgeInsets.only(left: 20.0),
+                                      padding: const EdgeInsets.all(10.0),
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            colors: [
-                                              HRColors.blueColor,
-                                              HRColors.blueColor,
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight),
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(20),
-                                          bottomLeft: Radius.circular(20),
-                                        ),
+                                        gradient: LinearGradient(colors: [HRColors.blueColor, HRColors.blueColor], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                                        boxShadow: _pressingCheckIn ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))] : [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,6))],
                                       ),
-                                      alignment: AlignmentDirectional.center,
-                                      margin: EdgeInsets.only(
-                                        left: 20.0,
-                                      ),
-                                      padding: EdgeInsets.all(10.0),
+                                      alignment: Alignment.center,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'CHECK-IN',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: HRColors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                          SizedBox(width: 5),
-                                          Icon(
-                                            Icons.input,
-                                            color: HRColors.white,
-                                          ),
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: const [
+                                          Text('CHECK-IN', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20)),
+                                          SizedBox(width: 6),
+                                          Icon(Icons.input, color: Colors.white),
                                         ],
                                       ),
                                     ),
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () {
+                                  onTapDown: (_) => setState(() => _pressingCheckOut = true),
+                                  onTapUp: (_) {
+                                    setState(() => _pressingCheckOut = false);
                                     checkinCheckout('checkout');
                                   },
-                                  child: Align(
-                                    alignment: Alignment.topRight,
-                                    child: Container(
+                                  onTapCancel: () => setState(() => _pressingCheckOut = false),
+                                  child: AnimatedScale(
+                                    scale: _pressingCheckOut ? 0.96 : 1.0,
+                                    duration: const Duration(milliseconds: 120),
+                                    child: AnimatedContainer(
+                                      duration: const Duration(milliseconds: 160),
+                                      curve: Curves.easeOut,
                                       height: 50,
-                                      width: MediaQuery.of(context).size.width /
-                                          2.5,
+                                      width: MediaQuery.of(context).size.width / 2.5,
+                                      margin: const EdgeInsets.only(left: 5.0),
+                                      padding: const EdgeInsets.all(10.0),
                                       decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            colors: [
-                                              HRColors.orangeColor,
-                                              HRColors.orangeColor,
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight),
-                                        borderRadius: BorderRadius.only(
-                                          topRight: Radius.circular(20),
-                                          bottomRight: Radius.circular(20),
-                                        ),
+                                        gradient: LinearGradient(colors: [HRColors.orangeColor, HRColors.orangeColor], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                                        borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
+                                        boxShadow: _pressingCheckOut ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))] : [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,6))],
                                       ),
-                                      alignment: AlignmentDirectional.center,
-                                      margin: EdgeInsets.only(
-                                        left: 5.0,
-                                      ),
-                                      padding: EdgeInsets.all(10.0),
+                                      alignment: Alignment.center,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'CHECK-OUT',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: HRColors.white,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                          SizedBox(width: 5),
-                                          Icon(
-                                            Icons.output,
-                                            color: HRColors.white,
-                                          ),
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: const [
+                                          Text('CHECK-OUT', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20)),
+                                          SizedBox(width: 6),
+                                          Icon(Icons.output, color: Colors.white),
                                         ],
                                       ),
                                     ),

@@ -12,6 +12,8 @@ import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/helper/DesignConfig.dart';
 import 'package:cn_pocket_hr/helper/HRColors.dart';
 import 'package:cn_pocket_hr/helper/customBlurHash.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class MobileProfile extends StatefulWidget {
   @override
@@ -57,13 +59,15 @@ class _MobileProfileState extends State<MobileProfile> {
   Future<void> _loadProfileData() async {
     if (_loadingMe) return;
     setState(() => _loadingMe = true);
-    
+
     try {
       final meProfile = await _apiService.fetchMeProfileWithBearer();
-      if (meProfile == null || meProfile['data'] == null) return;
+      if (meProfile == null) return;
 
-      final data = Map<String, dynamic>.from(meProfile['data']);
-      
+      final dataAny = meProfile['data'] ?? meProfile['result'] ?? meProfile['user'];
+      if (dataAny is! Map) return;
+      final data = Map<String, dynamic>.from(dataAny);
+
       // Helper function to get custom field value
       String _getCustomField(Map<String, dynamic> data, String key) {
         final cfs = data['customfields'];
@@ -89,7 +93,7 @@ class _MobileProfileState extends State<MobileProfile> {
         _address = _getCustomField(data, 'cf_address');
         _nic = _getCustomField(data, 'cf_nic');
         _dob = _getCustomField(data, 'cf_dob');
-        
+
         // Set profile avatar if available
         if (data['avatar'] is String && data['avatar'].toString().isNotEmpty) {
           _profileAvatar = data['avatar'];
@@ -150,11 +154,31 @@ class _MobileProfileState extends State<MobileProfile> {
             child: Text('Cancel', style: TextStyle(color: _textSecondary)),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, HRLogin.routeName);
+              // Clear stored tokens and user identifiers (local + secure)
+              try {
+                final ls = LocalStorage('pocketHR');
+                await ls.ready;
+                await ls.setItem('access_token', '');
+                await ls.setItem('token', '');
+                await ls.setItem('refresh_token', '');
+                await ls.setItem('uid', '');
+                await ls.setItem('human_user_id', '');
+                await ls.setItem('login', false);
+              } catch (_) {}
+
+              try {
+                final secure = const FlutterSecureStorage();
+                await secure.delete(key: 'access_token');
+                await secure.delete(key: 'refresh_token');
+                await secure.delete(key: 'token');
+              } catch (_) {}
+
+              // Navigate to login and remove all previous routes
+              Navigator.pushNamedAndRemoveUntil(context, HRLogin.routeName, (route) => false);
             },
-            child: Text('Logout', style: TextStyle(color: Colors.red)),
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

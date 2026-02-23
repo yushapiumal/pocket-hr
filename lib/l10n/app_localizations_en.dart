@@ -51,6 +51,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordText => 'Password';
 
   @override
+  String get tenantHint => 'Tenant/Company';
+
+  @override
   String get rememberMeText => 'Remember me';
 
   @override
