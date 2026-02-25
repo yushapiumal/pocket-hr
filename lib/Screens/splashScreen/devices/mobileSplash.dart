@@ -61,14 +61,24 @@ class _MobileSplashState extends State<MobileSplash>
   var saveLang = null;
 
   navigationPage() async {
-    await storage.ready.then((_) => {
-          email = storage.getItem('email'),
-          token = storage.getItem('token'),
-          password = storage.getItem('password'),
-          saveLang = storage.getItem('lang'),
-          autoLogin(email, password),
-          setLanguage(saveLang)
-        });
+    await storage.ready;
+    saveLang = storage.getItem('lang');
+    setLanguage(saveLang);
+    // Try auto-login via valid access token
+    try {
+      final hasToken = await apiService.hasValidAccessToken();
+      if (hasToken) {
+        final me = await apiService.fetchMeProfileWithBearer();
+        if (me != null) {
+          Navigator.pushNamed(context, HRMain.routeName);
+          return;
+        }
+      }
+    } catch (_) {}
+
+    // Default -> login screen
+    try { await storage.setItem('access_token', ''); await storage.setItem('refresh_token', ''); } catch (_) {}
+    Navigator.pushNamed(context, HRLogin.routeName);
   }
 
   setLanguage(saveLang) async {
@@ -87,22 +97,10 @@ class _MobileSplashState extends State<MobileSplash>
   }
 
   void autoLogin(email, password) async {
-    if (email != null && password != null) {
-      var login1 = await apiService.login(email, password);
-      if (login1 != null) {
-        if (login1['status']) {
-          Navigator.pushNamed(context, HRMain.routeName);
-        } else {
-          navigationPage();
-        }
-      } else {
-        storage.clear();
-        Navigator.pushNamed(context, HRLogin.routeName);
-      }
-    } else {
-      storage.clear();
-      Navigator.pushNamed(context, HRLogin.routeName);
-    }
+    // Legacy email/password auto-login removed. Proceed to login screen.
+    try { await storage.setItem('access_token', ''); await storage.setItem('refresh_token', ''); } catch (_) {}
+    if (!mounted) return;
+    Navigator.pushNamed(context, HRLogin.routeName);
   }
 
   @override

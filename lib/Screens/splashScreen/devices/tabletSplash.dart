@@ -60,14 +60,24 @@ class _TabletSplashState extends State<TabletSplash>
   var saveLang = null;
 
   navigationPage() async {
-    await storage.ready.then((_) => {
-          email = storage.getItem('email'),
-          token = storage.getItem('token'),
-          epf = storage.getItem('epfNo'),
-          pin = storage.getItem('pin'),
-          autoLogin(email, pin, epf),
-          setLanguage(saveLang)
-        });
+    await storage.ready;
+    saveLang = storage.getItem('lang');
+    setLanguage(saveLang);
+    // Try access token first
+    try {
+      final hasToken = await apiService.hasValidAccessToken();
+      if (hasToken) {
+        final me = await apiService.fetchMeProfileWithBearer();
+        if (me != null) {
+          Navigator.pushNamed(context, HRMain.routeName);
+          return;
+        }
+      }
+    } catch (_) {}
+
+    // Fallback: navigate to introduction/login
+    storage.clear();
+    Navigator.pushNamed(context, HRIntroduction.routeName);
   }
 
   setLanguage(saveLang) async {
@@ -86,27 +96,9 @@ class _TabletSplashState extends State<TabletSplash>
   }
 
   void autoLogin(email, pin, epf) async {
-    if (email != null && pin != null && epf != null) {
-      var login1 = await apiService.login(email, pin);
-
-      if (login1 != null) {
-        if (login1['status']) {
-          Navigator.pushNamed(context, HRMain.routeName);
-        } else {
-          var login2 = await apiService.login(epf, epf);
-          if (login2['result']['pin'] != null) {
-            storage.setItem('pin', login2['result']['pin'].toString());
-            navigationPage(); //call back re-run code again
-          }
-        }
-      } else {
-        storage.clear();
-        Navigator.pushNamed(context, HRIntroduction.routeName);
-      }
-    } else {
-      storage.clear();
-      Navigator.pushNamed(context, HRIntroduction.routeName);
-    }
+    // Legacy auto login removed. Proceed to introduction/login.
+    storage.clear();
+    Navigator.pushNamed(context, HRIntroduction.routeName);
   }
 
   @override

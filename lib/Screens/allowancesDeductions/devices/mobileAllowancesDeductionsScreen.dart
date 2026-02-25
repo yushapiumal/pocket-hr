@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/model/hr/VariableModel.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 
 class MobileAllowancesDeductionsScreen extends StatefulWidget {
   @override
@@ -110,7 +111,6 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
     final sign = isAllowance ? '+' : '-';
     final icon = isAllowance ? Icons.add_circle_outline : Icons.remove_circle_outline;
     final iconColor = isAllowance ? Colors.green.shade700 : Colors.red.shade700;
-    final statusText = item.processed ? 'Processed' : 'Pending';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g8),
@@ -189,7 +189,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(
-                          statusText,
+                          item.processed ? AppLocalizations.of(context)!.processedLabel : AppLocalizations.of(context)!.pendingLabel,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -238,7 +238,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
             children: [
               Text(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: const Text('Retry')),
+              ElevatedButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.retryLabel)),
             ],
           ),
         ),
@@ -252,9 +252,9 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
             onRefresh: _load,
             child: filteredAll.isEmpty
                 ? ListView(
-                    children: const [
-                      SizedBox(height: 60),
-                      Center(child: Text('No records', style: TextStyle(color: Colors.black54))),
+                    children: [
+                      const SizedBox(height: 60),
+                      Center(child: Text(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
                     ],
                   )
                 : ListView.builder(
@@ -270,8 +270,8 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text('No allowances found',
-                            style: TextStyle(color: Colors.black54)),
+                        child: Text(AppLocalizations.of(context)!.noAllowancesFound,
+                            style: const TextStyle(color: Colors.black54)),
                       )
                     ],
                   )
@@ -288,8 +288,8 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text('No deductions found',
-                            style: TextStyle(color: Colors.black54)),
+                        child: Text(AppLocalizations.of(context)!.noDeductionsFound,
+                            style: const TextStyle(color: Colors.black54)),
                       )
                     ],
                   )
@@ -329,12 +329,12 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                     ),
                   ),
                   const SizedBox(width: _g12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Allowances & Deductions',
+                      AppLocalizations.of(context)!.allowanceDeductions,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -382,10 +382,10 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                   ),
                   labelColor: Colors.black87,
                   unselectedLabelColor: Colors.black54,
-                  tabs: const [
-                    Tab(text: 'All'),
-                    Tab(text: 'Allowances'),
-                    Tab(text: 'Deductions'),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.allLabel),
+                    Tab(text: AppLocalizations.of(context)!.allowancesLabel),
+                    Tab(text: AppLocalizations.of(context)!.deductionsLabel),
                   ],
                 ),
               ),

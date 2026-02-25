@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:octo_image/octo_image.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:cn_pocket_hr/Screens/login/LoginScreen.dart';
 import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
@@ -127,7 +128,7 @@ class _MobileProfileState extends State<MobileProfile> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Profile picture updated successfully'),
+          content: Text(AppLocalizations.of(context)!.profilePictureUpdated),
           backgroundColor: Colors.green,
         ),
       );
@@ -135,7 +136,7 @@ class _MobileProfileState extends State<MobileProfile> {
       setState(() => _savingImage = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update picture'),
+          content: Text(AppLocalizations.of(context)!.failedToUpdatePicture),
           backgroundColor: Colors.red,
         ),
       );
@@ -146,12 +147,12 @@ class _MobileProfileState extends State<MobileProfile> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to logout?'),
+        title: Text(AppLocalizations.of(context)!.logoutTitle, style: TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(AppLocalizations.of(context)!.logoutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: TextStyle(color: _textSecondary)),
+            child: Text(AppLocalizations.of(context)!.cancel, style: TextStyle(color: _textSecondary)),
           ),
           TextButton(
             onPressed: () async {
@@ -178,7 +179,7 @@ class _MobileProfileState extends State<MobileProfile> {
               // Navigate to login and remove all previous routes
               Navigator.pushNamedAndRemoveUntil(context, HRLogin.routeName, (route) => false);
             },
-            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            child: Text(AppLocalizations.of(context)!.logoutTitle, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -212,12 +213,12 @@ class _MobileProfileState extends State<MobileProfile> {
           children: [
             _topCircleButton(
               onTap: () => _scaffoldKey.currentState?.openDrawer(),
-           child: SvgPicture.asset(
-                            "assets/svg/drawer_icon.svg",
-                            colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
-                          ),
+              child: SvgPicture.asset(
+                "assets/svg/drawer_icon.svg",
+                colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+              ),
             ),
-            const Text('My Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87)),
+            Text(AppLocalizations.of(context)!.myProfileTitle, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.black87)),
             _topCircleButton(
               onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
               child: Image.asset(
@@ -342,7 +343,7 @@ class _MobileProfileState extends State<MobileProfile> {
 
           // Name and EPF
           Text(
-            _loadingMe ? 'Loading...' : _headerFullName,
+            _loadingMe ? AppLocalizations.of(context)!.loadingProfile : _headerFullName,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -352,7 +353,7 @@ class _MobileProfileState extends State<MobileProfile> {
           ),
           SizedBox(height: 4),
           Text(
-            'EPF : #${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
+            '${AppLocalizations.of(context)!.epfLabel}${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
             style: TextStyle(
               fontSize: 14,
               color: _textSecondary,
@@ -411,7 +412,7 @@ class _MobileProfileState extends State<MobileProfile> {
             child: ElevatedButton.icon(
               onPressed: _logout,
               icon: Icon(Icons.logout_rounded, size: 20),
-              label: Text('Logout', style: TextStyle(fontWeight: FontWeight.w600)),
+              label: Text(AppLocalizations.of(context)!.logoutTitle, style: TextStyle(fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.red, backgroundColor: Colors.red.withOpacity(0.1),
                 elevation: 0,
@@ -468,7 +469,7 @@ class _MobileProfileState extends State<MobileProfile> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  value.isNotEmpty ? value : 'Not added',
+                  value.isNotEmpty ? value : AppLocalizations.of(context)!.notAdded,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
@@ -492,7 +493,7 @@ class _MobileProfileState extends State<MobileProfile> {
           Padding(
             padding: EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
-              'Personal Information',
+              AppLocalizations.of(context)!.personalInformation,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -504,21 +505,21 @@ class _MobileProfileState extends State<MobileProfile> {
             children: [
               _buildInfoItem(
                 icon: Icons.email_rounded,
-                title: 'Email',
+                title: AppLocalizations.of(context)!.emailAddressText,
                 value: _email,
                 iconColor: _primaryColor,
               ),
               SizedBox(height: 12),
               _buildInfoItem(
                 icon: Icons.phone_rounded,
-                title: 'Phone',
+                title: AppLocalizations.of(context)!.phoneLabel,
                 value: _phone,
                 iconColor: Colors.green,
               ),
               SizedBox(height: 12),
               _buildInfoItem(
                 icon: Icons.location_on_rounded,
-                title: 'Address',
+                title: AppLocalizations.of(context)!.addressLabel,
                 value: _address,
                 iconColor: Colors.blue,
               ),
@@ -528,7 +529,7 @@ class _MobileProfileState extends State<MobileProfile> {
                   Expanded(
                     child: _buildInfoItem(
                       icon: Icons.badge_rounded,
-                      title: 'NIC',
+                      title: AppLocalizations.of(context)!.nicLabel,
                       value: _nic,
                       iconColor: Colors.purple,
                     ),
@@ -537,7 +538,7 @@ class _MobileProfileState extends State<MobileProfile> {
                   Expanded(
                     child: _buildInfoItem(
                       icon: Icons.cake_rounded,
-                      title: 'Date of Birth',
+                      title: AppLocalizations.of(context)!.dateOfBirth,
                       value: _dob,
                       iconColor: Colors.orange,
                     ),
@@ -571,7 +572,7 @@ class _MobileProfileState extends State<MobileProfile> {
                   CircularProgressIndicator(color: _primaryColor),
                   SizedBox(height: 16),
                   Text(
-                    'Loading profile...',
+                    AppLocalizations.of(context)!.loadingProfile,
                     style: TextStyle(color: _textSecondary),
                   ),
                 ],
@@ -595,4 +596,4 @@ class _MobileProfileState extends State<MobileProfile> {
             ),
     );
   }
-}
+ }

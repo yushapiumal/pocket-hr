@@ -245,7 +245,7 @@ class DesignConfig {
                       Align(
                           alignment: Alignment.center,
                           child: Text(
-                            HRStrings.menuText,
+                            AppLocalizations.of(context)!.menuText,
                             style: TextStyle(
                                 fontSize: 20,
                                 color: HRColors.black,

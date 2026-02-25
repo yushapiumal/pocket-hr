@@ -1,6 +1,7 @@
 // filepath: /home/akesh/Work/new_hr/cn_pocket_hr/lib/Screens/debtsAndLoans/devices/MobileDebtsAndLoansScreen.dart
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/model/hr/DebtModel.dart';
 
@@ -103,7 +104,7 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
     final sign = isDebt ? '-' : '+';
     final icon = isDebt ? Icons.trending_down : Icons.trending_up;
     final iconColor = isDebt ? Colors.red.shade700 : Colors.green.shade700;
-    final statusText = item.collected ? 'Collected' : 'Pending';
+    // statusText replaced by localized strings in UI
     final title = (item.description != null && item.description!.isNotEmpty)
         ? item.description!
         : (isDebt ? 'Debt' : 'Loan');
@@ -184,7 +185,7 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(
-                          statusText,
+                          item.collected ? AppLocalizations.of(context)!.collectedLabel : AppLocalizations.of(context)!.pendingLabel,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -230,7 +231,7 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
             children: [
               Text(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: const Text('Retry')),
+              ElevatedButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.retryLabel)),
             ],
           ),
         ),
@@ -243,9 +244,9 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
             onRefresh: _load,
             child: filteredAll.isEmpty
                 ? ListView(
-                    children: const [
-                      SizedBox(height: 60),
-                      Center(child: Text('No records', style: TextStyle(color: Colors.black54))),
+                    children: [
+                      const SizedBox(height: 60),
+                      Center(child: Text(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
                     ],
                   )
                 : ListView.builder(
@@ -261,8 +262,8 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text('No debts found',
-                            style: TextStyle(color: Colors.black54)),
+                        child: Text(AppLocalizations.of(context)!.noDebtsFound,
+                            style: const TextStyle(color: Colors.black54)),
                       )
                     ],
                   )
@@ -279,8 +280,8 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text('No loans found',
-                            style: TextStyle(color: Colors.black54)),
+                        child: Text(AppLocalizations.of(context)!.noLoansFound,
+                            style: const TextStyle(color: Colors.black54)),
                       )
                     ],
                   )
@@ -318,12 +319,12 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                     ),
                   ),
                   const SizedBox(width: _g12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Debts & Loans',
+                      AppLocalizations.of(context)!.debtsLabel + ' & ' + AppLocalizations.of(context)!.loansLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black87,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -354,10 +355,10 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                   ),
                   labelColor: Colors.black87,
                   unselectedLabelColor: Colors.black54,
-                  tabs: const [
-                    Tab(text: 'All'),
-                    Tab(text: 'Debts'),
-                    Tab(text: 'Loans'),
+                  tabs: [
+                    Tab(text: AppLocalizations.of(context)!.allLabel),
+                    Tab(text: AppLocalizations.of(context)!.debtsLabel),
+                    Tab(text: AppLocalizations.of(context)!.loansLabel),
                   ],
                 ),
               ),

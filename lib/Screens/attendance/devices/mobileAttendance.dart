@@ -363,8 +363,8 @@ class _MobileAttendanceState extends State<MobileAttendance>
   }
 
   Widget _monthTabs() {
-    final thisMonthLabel = storage.getItem('payroll_active_tag')?.toString() ?? 'This Month';
-    final pastMonthLabel = storage.getItem('payroll_past_tag')?.toString() ?? 'Past Month';
+    final thisMonthLabel = storage.getItem('payroll_active_tag')?.toString() ?? AppLocalizations.of(context)!.thisMonthLabel;
+    final pastMonthLabel = storage.getItem('payroll_past_tag')?.toString() ?? AppLocalizations.of(context)!.pastMonthLabel;
 
     return Container(
       margin: const EdgeInsets.only(top: _g12),
@@ -536,7 +536,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Attendance for this Month', style: _label14),
+            Text(AppLocalizations.of(context)!.attendanceForThisMonth, style: _label14),
             // Container(
             //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             //   decoration: BoxDecoration(
@@ -550,11 +550,11 @@ class _MobileAttendanceState extends State<MobileAttendance>
         const SizedBox(height: 10),
         Row(
           children: [
-            tile('Present', present.toString(), const Color(0xFFEAF7EE), const Color(0xFF2E7D32)),
+            tile(AppLocalizations.of(context)!.presentLabel, present.toString(), const Color(0xFFEAF7EE), const Color(0xFF2E7D32)),
             const SizedBox(width: 10),
-            tile('Absents', absents.toString().padLeft(2, '0'), const Color(0xFFFFEBEE), const Color(0xFFE53935)),
+            tile(AppLocalizations.of(context)!.absentsLabel, absents.toString().padLeft(2, '0'), const Color(0xFFFFEBEE), const Color(0xFFE53935)),
             const SizedBox(width: 10),
-            tile('Late in', late.toString().padLeft(2, '0'), const Color(0xFFFFF7E6), const Color(0xFFF59E0B)),
+            tile(AppLocalizations.of(context)!.lateInLabel, late.toString().padLeft(2, '0'), const Color(0xFFFFF7E6), const Color(0xFFF59E0B)),
           ],
         ),
       ],
@@ -671,7 +671,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                                 style: const TextStyle(fontSize: 15, color: Color(0xff676767), fontWeight: _wMedium),
                               ),
                               Text(
-                                data.isOffday ? "DayOff" : "Shift",
+                                data.isOffday ? AppLocalizations.of(context)!.dayOffLabel : AppLocalizations.of(context)!.shiftLabel,
                                 style: TextStyle(
                                   fontWeight: _wSemi,
                                   color: data.isOffday ? HRColors.dutyOff : HRColors.shift,
@@ -684,10 +684,10 @@ class _MobileAttendanceState extends State<MobileAttendance>
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
-                                const Text("IN : ", style: TextStyle(fontWeight: _wMedium)),
+                                Text(AppLocalizations.of(context)!.inLabel, style: TextStyle(fontWeight: _wMedium)),
                                 Text(inTime, style: _valueBold),
                                 SizedBox(width: MediaQuery.of(context).size.width * 0.45),
-                                const Text("OUT : ", style: TextStyle(fontWeight: _wMedium)),
+                                Text(AppLocalizations.of(context)!.outLabel, style: TextStyle(fontWeight: _wMedium)),
                                 Text(outTime, style: _valueBold),
                               ],
                             ),
@@ -705,9 +705,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
               ),
 
               ExpandablePanel(
-                header: const Padding(
-                  padding: EdgeInsets.all(8),
-                  child: Text("View Details", style: TextStyle(fontWeight: _wBold)),
+                header: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(AppLocalizations.of(context)!.viewDetails, style: const TextStyle(fontWeight: _wBold)),
                 ),
                 collapsed: const SizedBox.shrink(),
                 expanded: Padding(
@@ -715,7 +715,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                   child: Table(
                     border: TableBorder.symmetric(inside: const BorderSide(width: 1)),
                     children: [
-                      _tableRow("WORKED", "LATE", "OVER", header: true),
+                      _tableRow(AppLocalizations.of(context)!.workedHeader, AppLocalizations.of(context)!.lateHeader, AppLocalizations.of(context)!.overHeader, header: true),
                       _tableRow(wrkd, late, over),
                     ],
                   ),

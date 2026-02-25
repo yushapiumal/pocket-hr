@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -286,7 +287,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           try { yearController.dispose(); } catch (_) {}
                           Navigator.pop(ctx, DateTime(selYear, selMonth, selDay));
                         },
-                        child: const Text('Confirm', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white)),
+                        child: Text(AppLocalizations.of(context)!.confirmLabel, style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.white)),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -304,7 +305,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           try { yearController.dispose(); } catch (_) {}
                           Navigator.pop(ctx);
                         },
-                        child: const Text('Cancel', style: TextStyle(fontWeight: FontWeight.w800, color: Colors.black87)),
+                        child: Text(AppLocalizations.of(context)!.cancelLabel, style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87)),
                       ),
                     ),
                   ],
@@ -331,7 +332,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
           ),
           child: Center(
             child: Text(
-              title,
+              // Mode titles passed from caller; localize common ones
+              title == 'Half Day'
+                  ? AppLocalizations.of(context)!.halfDay
+                  : (title == 'Full Day'
+                      ? AppLocalizations.of(context)!.fullDay
+                      : (title == 'Alternative'
+                          ? AppLocalizations.of(context)!.alternative
+                          : title)),
               style: TextStyle(
                 color: isSelected ? _accent : HRColors.black,
                 fontWeight: FontWeight.w600,
@@ -403,15 +411,15 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
   Future<void> _submit() async {
     if (typeValue == null || typeValue!.isEmpty) {
-      await _showTopMessage('Please select leave type', error: true);
+      await _showTopMessage('Please select ${AppLocalizations.of(context)!.leaveTypeLabel}', error: true);
       return;
     }
     if (_isDefaultFromTo()) {
-      await _showTopMessage('Please select From and To dates', error: true);
+      await _showTopMessage('Please select ${AppLocalizations.of(context)!.fromToLabel}', error: true);
       return;
     }
     if (tDate.isBefore(fDate)) {
-      await _showTopMessage('To date must be after From date', error: true);
+      await _showTopMessage(AppLocalizations.of(context)!.toDateMustBeAfterFrom, error: true);
       return;
     }
 
@@ -484,25 +492,25 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Confirm Leave', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+                      Text(AppLocalizations.of(context)!.confirmLeave, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 12),
-                      Row(children: [Expanded(child: Text('From', style: TextStyle(fontWeight: FontWeight.w700))), Text(DateFormat('dd/MM/yyyy').format(fDate))]),
+                      Row(children: [Expanded(child: Text(AppLocalizations.of(context)!.fromLabel, style: TextStyle(fontWeight: FontWeight.w700))), Text(DateFormat('dd/MM/yyyy').format(fDate))]),
                       const SizedBox(height: 6),
-                      Row(children: [Expanded(child: Text('To', style: TextStyle(fontWeight: FontWeight.w700))), Text(DateFormat('dd/MM/yyyy').format(tDate))]),
+                      Row(children: [Expanded(child: Text(AppLocalizations.of(context)!.toLabel, style: TextStyle(fontWeight: FontWeight.w700))), Text(DateFormat('dd/MM/yyyy').format(tDate))]),
                       const SizedBox(height: 6),
-                      Row(children: [Expanded(child: Text('Days', style: TextStyle(fontWeight: FontWeight.w700))), Text('$days')]),
+                      Row(children: [Expanded(child: Text(AppLocalizations.of(context)!.daysLabel, style: TextStyle(fontWeight: FontWeight.w700))), Text('$days')]),
                       const SizedBox(height: 6),
-                      Row(children: [Expanded(child: Text('Leave Type', style: TextStyle(fontWeight: FontWeight.w700))), Text((typeValue ?? '').toString())]),
+                      Row(children: [Expanded(child: Text(AppLocalizations.of(context)!.leaveTypeLabel, style: TextStyle(fontWeight: FontWeight.w700))), Text((typeValue ?? '').toString())]),
                       const SizedBox(height: 8),
                       if (description.text.trim().isNotEmpty)
-                        Column(children: [Align(alignment: Alignment.centerLeft, child: Text('Note', style: TextStyle(fontWeight: FontWeight.w700))), const SizedBox(height: 4), Text(description.text.trim())]),
+                        Column(children: [Align(alignment: Alignment.centerLeft, child: Text(AppLocalizations.of(context)!.noteLabel, style: TextStyle(fontWeight: FontWeight.w700))), const SizedBox(height: 4), Text(description.text.trim())]),
                       const SizedBox(height: 14),
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () => Navigator.of(ctx).pop(false),
-                              child: const Text('Cancel'),
+                              child: Text(AppLocalizations.of(context)!.cancelLabel),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -510,7 +518,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                             child: ElevatedButton(
                               onPressed: () => Navigator.of(ctx).pop(true),
                               style: ElevatedButton.styleFrom(backgroundColor: _accent),
-                              child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+                              child: Text(AppLocalizations.of(context)!.confirmLabel, style: const TextStyle(color: Colors.white)),
                             ),
                           ),
                         ],
@@ -528,15 +536,15 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
   Future<void> _confirmAndSubmit() async {
     if (typeValue == null || typeValue!.isEmpty) {
-      await _showTopMessage('Please select leave type', error: true);
+      await _showTopMessage('Please select ${AppLocalizations.of(context)!.leaveTypeLabel}', error: true);
       return;
     }
     if (_isDefaultFromTo()) {
-      await _showTopMessage('Please select From and To dates', error: true);
+      await _showTopMessage('Please select ${AppLocalizations.of(context)!.fromToLabel}', error: true);
       return;
     }
     if (tDate.isBefore(fDate)) {
-      await _showTopMessage('To date must be after From date', error: true);
+      await _showTopMessage(AppLocalizations.of(context)!.toDateMustBeAfterFrom, error: true);
       return;
     }
 
@@ -556,7 +564,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         backgroundColor: _pageBg,
         surfaceTintColor: _pageBg,
         elevation: 0,
-        title: Text(readOnly ? 'Leave Details' : 'Leave Request', style: const TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
+        title: Text(readOnly ? AppLocalizations.of(context)!.leaveDetailsLabel : AppLocalizations.of(context)!.leaveRequestLabel, style: const TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
         iconTheme: const IconThemeData(color: HRColors.black),
       ),
       body: SingleChildScrollView(
@@ -565,8 +573,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _sectionCard(
-              title: 'Leave Type',
-              child: Container(
+              title: AppLocalizations.of(context)!.leaveTypeLabel,
+               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: HRColors.white,
@@ -581,21 +589,39 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                   isExpanded: true,
                   onChanged: readOnly ? null : (v) => setState(() => typeValue = v),
                   items: leaveTypeList
-                      .map((v) => DropdownMenuItem<String>(
-                            value: v,
-                            child: Text(
-                              v[0].toUpperCase() + v.substring(1),
-                              style: const TextStyle(fontWeight: FontWeight.w600, color: HRColors.black),
-                            ),
-                          ))
-                      .toList(),
+                      .map((v) {
+                        String label;
+                        switch (v) {
+                          case 'annual':
+                            label = AppLocalizations.of(context)!.annualLabel;
+                            break;
+                          case 'casual':
+                            label = AppLocalizations.of(context)!.casualLabel;
+                            break;
+                          case 'medical':
+                            label = AppLocalizations.of(context)!.medicalLabel;
+                            break;
+                          case 'duty':
+                            label = 'Duty';
+                            break;
+                          case 'nopay':
+                            label = 'No-Pay';
+                            break;
+                          default:
+                            label = v[0].toUpperCase() + v.substring(1);
+                        }
+                        return DropdownMenuItem<String>(
+                          value: v,
+                          child: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: HRColors.black)),
+                        );
+                      }).toList(),
                 ),
               ),
             ),
 
             _sectionCard(
-              title: 'Leave Mode',
-              child: Row(
+              title: AppLocalizations.of(context)!.leaveMode,
+               child: Row(
                 children: [
                   _modeButton('Half Day', 'half_day'),
                   const SizedBox(width: 8),
@@ -607,8 +633,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
             ),
 
             _sectionCard(
-              title: 'From / To',
-              child: Row(
+              title: AppLocalizations.of(context)!.fromToLabel,
+               child: Row(
                 children: [
                   Expanded(
                     child: InkWell(
@@ -624,14 +650,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                               final todayDate = DateTime(today.year, today.month, today.day);
 
                               if (pickedDate.isBefore(todayDate)) {
-                                apiService.showToast('Cannot select a past date');
+                                apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
                                 return;
                               }
 
                               // If selected From is after current To, show error
                               final currentTo = DateTime(tDate.year, tDate.month, tDate.day);
                               if (pickedDate.isAfter(currentTo)) {
-                                apiService.showToast('From date cannot be after To date');
+                                apiService.showToast(AppLocalizations.of(context)!.fromDateCannotBeAfterTo);
                                 return;
                               }
 
@@ -678,14 +704,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                               final todayDate = DateTime(today.year, today.month, today.day);
 
                               if (pickedDate.isBefore(todayDate)) {
-                                apiService.showToast('Cannot select a past date');
+                                apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
                                 return;
                               }
 
                               // If selected To is before current From, show error
                               final currentFrom = DateTime(fDate.year, fDate.month, fDate.day);
                               if (pickedDate.isBefore(currentFrom)) {
-                                apiService.showToast('To date must be after From date');
+                                apiService.showToast(AppLocalizations.of(context)!.toDateMustBeAfterFrom);
                                 return;
                               }
 
@@ -723,8 +749,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
             ),
 
             _sectionCard(
-              title: 'Description',
-              child: Container(
+              title: AppLocalizations.of(context)!.noteLabel,
+               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: HRColors.white,
@@ -737,10 +763,10 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                   minLines: 2,
                   maxLines: 4,
                   style: const TextStyle(color: HRColors.darkFontColor, fontWeight: FontWeight.w700),
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Description (optional)',
-                    hintStyle: TextStyle(color: HRColors.black, fontWeight: FontWeight.w600),
+                    hintText: '${AppLocalizations.of(context)!.noteLabel} (${AppLocalizations.of(context)!.optional})',
+                    hintStyle: const TextStyle(color: HRColors.black, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

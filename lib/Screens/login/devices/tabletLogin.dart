@@ -6,6 +6,8 @@ import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:cn_pocket_hr/Screens/main/MainScreen.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/services/sso_service.dart';
+import 'package:cn_pocket_hr/services/device_details_service.dart';
+import 'package:cn_pocket_hr/Screens/login/otp_page.dart';
 
 class TabletLogin extends StatefulWidget {
   const TabletLogin({Key? key}) : super(key: key);
@@ -170,41 +172,53 @@ class _TabletLoginState extends State<TabletLogin> {
 
     if (_validateCompany || _validateEmail || _validatePassword) return;
 
-    setState(() {
-      isLoading = true;
-      buttonDisable = true;
-    });
-
-    storage.setItem('company', company.text);
-    storage.setItem('email', email.text);
-    storage.setItem('password', password.text);
-
-    final login1 = await apiService.login(email.text, password.text);
-
-    if (login1 == null) {
-      apiService.showToast('Login failed, please Try again');
-      setState(() {
-        isLoading = false;
-        buttonDisable = false;
-      });
-      return;
-    }
-
+    setState(() { isLoading = true; buttonDisable = true; });
     try {
-      final result = (login1 is Map) ? (login1['result'] ?? login1) : null;
-      final access = (result is Map ? (result['access_token'] ?? result['accessToken']) : null)?.toString();
-      final refresh = (result is Map ? (result['refresh_token'] ?? result['refreshToken']) : null)?.toString();
-      if (access != null && access.isNotEmpty) storage.setItem('access_token', access);
-      if (refresh != null && refresh.isNotEmpty) storage.setItem('refresh_token', refresh);
-    } catch (_) {}
+      storage.setItem('company', company.text);
+      storage.setItem('email', email.text);
+      storage.setItem('password', password.text);
 
-    setState(() {
-      isLoading = false;
-      buttonDisable = false;
-    });
+      // collect device info
+      Map<String, String> deviceInfo = {};
+      try {
+        final dsvc = DeviceDetailsService();
+        final details = await dsvc.collectAll();
+        final dev = details['device'] as Map<String, dynamic>? ?? {};
+        deviceInfo['model_number'] = (dev['model'] ?? '').toString();
+        deviceInfo['device_id'] = (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
+        deviceInfo['ip_address'] = (details['ip'] ?? '').toString();
+      } catch (_) {}
 
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, HRMain.routeName);
+      final tenantName = company.text.trim();
+      final nic = email.text.trim();
+
+      // request OTP
+      final req = await apiService.sendAuthPinMobile(tenant: tenantName, nic: nic, deviceInfo: deviceInfo);
+      if (req['status'] == false) {
+        apiService.showToast(req['message'] ?? 'Failed to request OTP');
+        return;
+      }
+
+      // open OTP page
+      final otp = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
+      if (otp == null || otp.isEmpty) return;
+
+      // verify
+      final verify = await apiService.verifyAuthPinMobile(tenant: tenantName, nic: nic, pin: otp, deviceInfo: deviceInfo);
+      if (verify['status'] == false) {
+        apiService.showToast(verify['message'] ?? 'OTP verification failed');
+        return;
+      }
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, HRMain.routeName);
+    } catch (e, st) {
+      debugPrint('[TABLET LOGIN] ERROR: $e');
+      debugPrint(st.toString());
+      apiService.showToast('Login failed');
+    } finally {
+      if (mounted) setState(() { isLoading = false; buttonDisable = false; });
+    }
   }
 
   Future<void> _ssoLogin() async {

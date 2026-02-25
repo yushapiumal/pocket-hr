@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -302,7 +303,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 10),
                   child: Text(
-                    HRStrings.leaveRequest,
+                    AppLocalizations.of(context)!.leaveRequestLabel,
                     style: TextStyle(
                         fontSize: 35,
                         color: HRColors.black,
@@ -327,8 +328,10 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                   },
                 ),
                 Text(
-                  dummy,
-                  style: TextStyle(fontSize: 18),
+                  leave_typeValue == "full_day"
+                      ? '${AppLocalizations.of(context)!.fullDay} Selected'
+                      : '${AppLocalizations.of(context)!.halfDay} Selected',
+                  style: const TextStyle(fontSize: 18),
                 ),
                 // showLeaveType(),
                 if (halfDayToggle) showFirstSecond(),
@@ -368,9 +371,9 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            HRStrings.submit,
+                            AppLocalizations.of(context)!.submit,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: HRColors.white,
                               fontSize: 25,
                               fontWeight: FontWeight.normal,
@@ -467,7 +470,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         style: TextStyle(color: HRColors.black),
         cursorColor: HRColors.black,
         decoration: InputDecoration(
-          hintText: "Description (optional)",
+          hintText: '${AppLocalizations.of(context)!.fromToDescription} (${AppLocalizations.of(context)!.optional})',
           hintStyle: Theme.of(context).textTheme.titleSmall!.merge(TextStyle(
               fontWeight: FontWeight.normal,
               fontSize: 18,

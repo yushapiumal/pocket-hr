@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_controller.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,6 +13,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:cn_pocket_hr/Constant/Slideanimation.dart';
 import 'package:cn_pocket_hr/Screens/notifications/Notifications.dart';
+import 'package:cn_pocket_hr/Screens/qr/qr_scanner_page.dart';
 import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/controller/controller.dart';
 import 'package:cn_pocket_hr/helper/DesignConfig.dart';
@@ -35,7 +38,6 @@ class _MobileHomeState extends State<MobileHome>
   int currentIndex = 0;
   AnimationController? _animationController;
   PageController? _controller;
-  CarouselController buttonCarouselController = CarouselController();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String morningBg =
@@ -59,6 +61,8 @@ class _MobileHomeState extends State<MobileHome>
   HRController controller = HRController();
   bool _pressingCheckIn = false;
   bool _pressingCheckOut = false;
+  bool _withinQrRadius = false; // true when last scanned QR was within allowed radius
+  double? _lastQrDistanceMeters;
   // Top toast overlay
   void showTopToast(String message, {Color? background, Duration duration = const Duration(seconds: 3), VoidCallback? onTap}) {
     final overlay = Overlay.of(context);
@@ -254,6 +258,19 @@ class _MobileHomeState extends State<MobileHome>
     address = '${place.street}, ${place.locality}';
   }
 
+  // Compute distance between two lat/lng points in meters (Haversine formula)
+  double _distanceBetween(double lat1, double lon1, double lat2, double lon2) {
+    const double R = 6371000.0; // Earth radius in meters
+    final phi1 = lat1 * (math.pi / 180.0);
+    final phi2 = lat2 * (math.pi / 180.0);
+    final dPhi = (lat2 - lat1) * (math.pi / 180.0);
+    final dLambda = (lon2 - lon1) * (math.pi / 180.0);
+    final a = math.sin(dPhi / 2) * math.sin(dPhi / 2) +
+        math.cos(phi1) * math.cos(phi2) * math.sin(dLambda / 2) * math.sin(dLambda / 2);
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+    return R * c;
+  }
+
   Widget slider() {
     return Container(
       height: MediaQuery.of(context).size.height / 1.9,
@@ -360,76 +377,183 @@ class _MobileHomeState extends State<MobileHome>
                           child: Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                GestureDetector(
-                                  onTapDown: (_) => setState(() => _pressingCheckIn = true),
-                                  onTapUp: (_) {
-                                    setState(() => _pressingCheckIn = false);
-                                    checkinCheckout('checkin');
-                                  },
-                                  onTapCancel: () => setState(() => _pressingCheckIn = false),
-                                  child: AnimatedScale(
-                                    scale: _pressingCheckIn ? 0.96 : 1.0,
-                                    duration: const Duration(milliseconds: 120),
-                                    child: AnimatedContainer(
-                                      duration: const Duration(milliseconds: 160),
-                                      curve: Curves.easeOut,
-                                      height: 50,
-                                      width: MediaQuery.of(context).size.width / 2.5,
-                                      margin: const EdgeInsets.only(left: 20.0),
-                                      padding: const EdgeInsets.all(10.0),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(colors: [HRColors.blueColor, HRColors.blueColor], begin: Alignment.centerLeft, end: Alignment.centerRight),
-                                        borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
-                                        boxShadow: _pressingCheckIn ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))] : [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,6))],
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: const [
-                                          Text('CHECK-IN', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20)),
-                                          SizedBox(width: 6),
-                                          Icon(Icons.input, color: Colors.white),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTapDown: (_) => setState(() => _pressingCheckOut = true),
-                                  onTapUp: (_) {
-                                    setState(() => _pressingCheckOut = false);
-                                    checkinCheckout('checkout');
-                                  },
-                                  onTapCancel: () => setState(() => _pressingCheckOut = false),
-                                  child: AnimatedScale(
-                                    scale: _pressingCheckOut ? 0.96 : 1.0,
-                                    duration: const Duration(milliseconds: 120),
-                                    child: AnimatedContainer(
-                                      duration: const Duration(milliseconds: 160),
-                                      curve: Curves.easeOut,
-                                      height: 50,
-                                      width: MediaQuery.of(context).size.width / 2.5,
-                                      margin: const EdgeInsets.only(left: 5.0),
-                                      padding: const EdgeInsets.all(10.0),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(colors: [HRColors.orangeColor, HRColors.orangeColor], begin: Alignment.centerLeft, end: Alignment.centerRight),
-                                        borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomRight: Radius.circular(20)),
-                                        boxShadow: _pressingCheckOut ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))] : [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,6))],
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: const [
-                                          Text('CHECK-OUT', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 20)),
-                                          SizedBox(width: 6),
-                                          Icon(Icons.output, color: Colors.white),
-                                        ],
+                            
+                                // Check-in button (narrower)
+                                Expanded(
+                                  flex: 2,
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 10.0),
+                                    child: GestureDetector(
+                                      onTapDown: (_) => setState(() => _pressingCheckIn = true),
+                                      onTapUp: (_) {
+                                        setState(() => _pressingCheckIn = false);
+                                        if (!_withinQrRadius) {
+                                          showTopToast('Scan site QR to enable check-in', background: Colors.red);
+                                          return;
+                                        }
+                                        checkinCheckout('checkin');
+                                        _withinQrRadius = false; // require fresh scan for next action
+                                        if (mounted) setState(() {});
+                                      },
+                                      onTapCancel: () => setState(() => _pressingCheckIn = false),
+                                      child: AnimatedScale(
+                                        scale: _pressingCheckIn ? 0.96 : 1.0,
+                                        duration: const Duration(milliseconds: 120),
+                                        child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 160),
+                                          curve: Curves.easeOut,
+                                          height: 50,
+                                          padding: const EdgeInsets.all(8.0),
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(colors: [HRColors.blueColor, HRColors.blueColor], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                                            borderRadius: BorderRadius.circular(18),
+                                            boxShadow: _pressingCheckIn ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))] : [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,6))],
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: const [
+                                              Text('CHECK-IN', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 16)),
+                                              SizedBox(width: 6),
+                                              Icon(Icons.input, color: Colors.white),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
+
+                                const SizedBox(width: 5),
+
+                                // Check-out button (narrower)
+                          
+                               
+                             Expanded(
+                                    flex: 2,
+                                  
+                                      child: GestureDetector(
+                                        onTapDown: (_) => setState(() => _pressingCheckOut = true),
+                                        onTapUp: (_) {
+                                          setState(() => _pressingCheckOut = false);
+                                          if (!_withinQrRadius) {
+                                            showTopToast('Scan site QR to enable check-out', background: Colors.red);
+                                            return;
+                                          }
+                                          checkinCheckout('checkout');
+                                          _withinQrRadius = false; // require fresh scan for next action
+                                          if (mounted) setState(() {});
+                                        },
+                                        onTapCancel: () => setState(() => _pressingCheckOut = false),
+                                        child: AnimatedScale(
+                                          scale: _pressingCheckOut ? 0.96 : 1.0,
+                                          duration: const Duration(milliseconds: 120),
+                                          child: AnimatedContainer(
+                                            duration: const Duration(milliseconds: 160),
+                                            curve: Curves.easeOut,
+                                            height: 50,
+                                            padding: const EdgeInsets.all(8.0),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(colors: [HRColors.orangeColor, HRColors.orangeColor], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                                              borderRadius: BorderRadius.circular(18),
+                                              boxShadow: _pressingCheckOut ? [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0,2))] : [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,6))],
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: const [
+                                                Text('CHECK-OUT', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 16)),
+                                                SizedBox(width: 6),
+                                                Icon(Icons.output, color: Colors.white),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                
+                              
+
+                              //  const SizedBox(width: 6),
+       // QR scanner icon on left
+                                GestureDetector(
+                                  onTap: () async {
+                                    final code = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const QrScannerPage()));
+                                    if (code == null || code.isEmpty) return;
+
+                                    // Try parse QR payload for coordinates (JSON expected)
+                                    double? qlat;
+                                    double? qlng;
+                                    try {
+                                      final parsed = jsonDecode(code);
+                                      if (parsed is Map) {
+                                        final latAny = parsed['lat'] ?? parsed['latitude'];
+                                        final lngAny = parsed['lng'] ?? parsed['longitude'];
+                                        if (latAny != null && lngAny != null) {
+                                          qlat = double.tryParse(latAny.toString());
+                                          qlng = double.tryParse(lngAny.toString());
+                                        }
+                                      }
+                                    } catch (_) {
+                                      // not JSON or missing fields
+                                    }
+
+                                    if (qlat == null || qlng == null) {
+                                      showTopToast('QR does not contain coordinates', background: Colors.red);
+                                      return;
+                                    }
+
+                                    // Fetch trusted coordinates from backend for this QR
+                                    final resp = await apiService.getTenantCoordinateFromQr(code);
+                                    if (resp['status'] == false) {
+                                      showTopToast(resp['message']?.toString() ?? 'Invalid QR or server error', background: Colors.red);
+                                      return;
+                                    }
+                                    final data = resp['result'] ?? resp['data'] ?? resp;
+                                    final latAny = data['latitude'] ?? data['lat'];
+                                    final lngAny = data['longitude'] ?? data['lng'];
+                                    if (latAny == null || lngAny == null) {
+                                      showTopToast('Server did not return coordinates', background: Colors.red);
+                                      return;
+                                    }
+                                    final double slat = double.tryParse(latAny.toString()) ?? 0.0;
+                                    final double slng = double.tryParse(lngAny.toString()) ?? 0.0;
+                                    if (slat == 0.0 && slng == 0.0) {
+                                      showTopToast('Invalid server coordinates', background: Colors.red);
+                                      return;
+                                    }
+
+                                    // Compare QR coords with server coords
+                                    final d = _distanceBetween(qlat, qlng, slat, slng);
+                                    _lastQrDistanceMeters = d;
+                                    if (d <= 100.0) {
+                                      _withinQrRadius = true;
+                                      if (mounted) setState(() {});
+                                      showTopToast('QR matches server location (${d.toStringAsFixed(1)} m). Check-in/out enabled', background: Colors.green);
+                                    } else {
+                                      _withinQrRadius = false;
+                                      if (mounted) setState(() {});
+                                      showTopToast('QR and server coordinates differ by ${d.toStringAsFixed(1)} m. Move closer / contact admin.', background: Colors.red);
+                                    }
+                                  },
+                                  child: Container(
+                                    width: 52,
+                                    height: 52,
+                                    margin: const EdgeInsets.only(left: 12.0 ,right: 12.0),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(255, 37, 29, 29).withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: _withinQrRadius ? Colors.green : HRColors.orangeColor,
+                                        width: (_lastQrDistanceMeters != null) ? (1 + (math.min(_lastQrDistanceMeters!, 400.0) / 100.0)) : 1,
+                                      ),
+                                    ),
+                                    child: const Icon(Icons.qr_code_scanner, color: Colors.white),
+                                  ),
+                                ),
+
+                               // const SizedBox(width: 10),
                               ],
                             ),
                           ),
@@ -536,7 +660,7 @@ class _MobileHomeState extends State<MobileHome>
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: Text(
-                                  HRStrings.rosterText,
+                                  AppLocalizations.of(context)!.rosterText,
                                   style: TextStyle(
                                       color: HRColors.black,
                                       fontWeight: FontWeight.bold,

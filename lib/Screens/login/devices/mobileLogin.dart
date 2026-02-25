@@ -9,6 +9,7 @@ import 'package:cn_pocket_hr/api/apiService.dart';
 import 'package:cn_pocket_hr/provider/locale_provider.dart';
 import 'package:cn_pocket_hr/services/sso_service.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
+import 'package:cn_pocket_hr/Screens/login/otp_page.dart';
 
 class MobileLogin extends StatefulWidget {
   const MobileLogin({Key? key}) : super(key: key);
@@ -18,9 +19,10 @@ class MobileLogin extends StatefulWidget {
 }
 
 class _MobileLoginState extends State<MobileLogin> {
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final company = TextEditingController();
+   final email = TextEditingController();
+   final password = TextEditingController();
+   final company = TextEditingController();
+   final nicController = TextEditingController();
 
   // Focus nodes to support Next/Done keyboard actions
   final FocusNode _companyFocus = FocusNode();
@@ -41,7 +43,6 @@ class _MobileLoginState extends State<MobileLogin> {
   bool _autoRedirecting = true;
 
   bool _obscure = true;
-  bool _rememberMe = true;
 
   static const Color _accent = Color(0xFFF59E0B); // close to HRColors.orangeColor
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
@@ -94,6 +95,7 @@ class _MobileLoginState extends State<MobileLogin> {
     _passwordFocus.dispose();
     email.dispose();
     password.dispose();
+    nicController.dispose();
     company.dispose();
     super.dispose();
   }
@@ -188,56 +190,76 @@ class _MobileLoginState extends State<MobileLogin> {
         ],
         decoration: _fieldDecoration(
           label: AppLocalizations.of(context)!.companyName,
-          hint: 'tenant / company',
+          hint: AppLocalizations.of(context)!.tenantHint,
           icon: Icons.apartment_rounded,
         ),
       ),
     );
   }
 
-  Widget inputEmail() {
+  // Widget inputEmail() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(top: 10),
+  //     child: TextFormField(
+  //       controller: email,
+  //       focusNode: _emailFocus,
+  //       textInputAction: TextInputAction.next,
+  //       onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
+  //       onChanged: (_) => setState(() => _validateEmail = false),
+  //       style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
+  //       cursorColor: _accent,
+  //       decoration: _fieldDecoration(
+  //         label: AppLocalizations.of(context)!.emailAddressText,
+  //         hint: 'name@email.com',
+  //         icon: Icons.mail_outline_rounded,
+  //       ),
+  //       keyboardType: TextInputType.emailAddress,
+  //     ),
+  //   );
+  // }
+
+  // Widget inputPassword() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(top: 10),
+  //     child: TextFormField(
+  //       controller: password,
+  //       focusNode: _passwordFocus,
+  //       textInputAction: TextInputAction.done,
+  //       onFieldSubmitted: (_) => submit(),
+  //       obscureText: _obscure,
+  //       onChanged: (_) => setState(() => _validatePassword = false),
+  //       style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
+  //       cursorColor: _accent,
+  //       decoration: _fieldDecoration(
+  //         label: AppLocalizations.of(context)!.passwordText,
+  //         hint: '',
+  //         icon: Icons.lock_outline_rounded,
+  //         suffix: IconButton(
+  //           onPressed: () => setState(() => _obscure = !_obscure),
+  //           icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black45, size: 20),
+  //         ),
+  //       ),
+  //       keyboardType: TextInputType.visiblePassword,
+  //     ),
+  //   );
+  // }
+
+  Widget inputNic() {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: TextFormField(
-        controller: email,
-        focusNode: _emailFocus,
+        controller: nicController,
         textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_passwordFocus),
+        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
         onChanged: (_) => setState(() => _validateEmail = false),
         style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
         cursorColor: _accent,
         decoration: _fieldDecoration(
-          label: AppLocalizations.of(context)!.emailAddressText,
-          hint: 'name@email.com',
-          icon: Icons.mail_outline_rounded,
+          label: AppLocalizations.of(context)!.nic,
+          hint: AppLocalizations.of(context)!.nic,
+          icon: Icons.badge_outlined,
         ),
-        keyboardType: TextInputType.emailAddress,
-      ),
-    );
-  }
-
-  Widget inputPassword() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: TextFormField(
-        controller: password,
-        focusNode: _passwordFocus,
-        textInputAction: TextInputAction.done,
-        onFieldSubmitted: (_) => submit(),
-        obscureText: _obscure,
-        onChanged: (_) => setState(() => _validatePassword = false),
-        style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
-        cursorColor: _accent,
-        decoration: _fieldDecoration(
-          label: AppLocalizations.of(context)!.passwordText,
-          hint: '',
-          icon: Icons.lock_outline_rounded,
-          suffix: IconButton(
-            onPressed: () => setState(() => _obscure = !_obscure),
-            icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.black45, size: 20),
-          ),
-        ),
-        keyboardType: TextInputType.visiblePassword,
+        keyboardType: TextInputType.text,
       ),
     );
   }
@@ -254,76 +276,57 @@ class _MobileLoginState extends State<MobileLogin> {
   }
 
   void submit() async {
+    // Convert submit to use OTP flow (no direct login call)
     setState(() {
       _validateCompany = company.text.isEmpty;
-      _validateEmail = email.text.isEmpty;
-      _validatePassword = password.text.isEmpty;
+      _validateEmail = nicController.text.isEmpty;
     });
+    if (_validateCompany || _validateEmail) return;
 
-    if (_validateCompany || _validateEmail || _validatePassword) return;
-
-    setState(() {
-      isLoading = true;
-      buttonDisable = true;
-    });
-
-    storage.setItem('company', company.text);
-    storage.setItem('email', email.text);
-    storage.setItem('password', password.text);
-
-    // collect device info and send with login
-    Map<String, String>? deviceInfo;
+    setState(() { isLoading = true; buttonDisable = true; });
     try {
-      final dsvc = DeviceDetailsService();
-      final details = await dsvc.collectAll();
-      final dev = details['device'] as Map<String, dynamic>? ?? {};
-      final deviceId = (dev['androidId'] ?? dev['identifierForVendor'] ?? dev['device'] ?? '').toString();
-      final model = (dev['model'] ?? '').toString();
-      final brand = (dev['brand'] ?? '').toString();
-      final platform = (dev['platform'] ?? '').toString();
-      final version = (dev['version'] ?? '').toString();
-      final ip = (details['ip'] ?? '').toString();
-      final batteryLevel = (details['battery'] is Map) ? (details['battery']['level']?.toString() ?? '') : '';
-      deviceInfo = {
-        'device_id': deviceId,
-        'device_model': model,
-        'device_brand': brand,
-        'device_platform': platform,
-        'device_version': version,
-        'device_ip': ip,
-        'battery_level': batteryLevel,
-      };
-    } catch (_) {
-      deviceInfo = null;
+      storage.setItem('company', company.text);
+      storage.setItem('email', email.text);
+      storage.setItem('password', password.text);
+
+      Map<String, String> deviceInfo = {};
+      try {
+        final dsvc = DeviceDetailsService();
+        final details = await dsvc.collectAll();
+        final dev = details['device'] as Map<String, dynamic>? ?? {};
+        deviceInfo['model_number'] = (dev['model'] ?? '').toString();
+        deviceInfo['device_id'] = (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
+        deviceInfo['ip_address'] = (details['ip'] ?? '').toString();
+      } catch (_) {}
+
+      final tenantName = company.text.trim();
+      final nic = nicController.text.trim();
+
+      final req = await apiService.sendAuthPinMobile(tenant: tenantName, nic: nic, deviceInfo: deviceInfo);
+      if (req['status'] == false) {
+        apiService.showToast(req['message'] ?? 'Failed to request OTP');
+        return;
+      }
+
+      final otp = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
+      if (otp == null || otp.isEmpty) return;
+
+      final verify = await apiService.verifyAuthPinMobile(tenant: tenantName, nic: nic, pin: otp, deviceInfo: deviceInfo);
+      if (verify['status'] == false) {
+        apiService.showToast(verify['message'] ?? 'OTP verification failed');
+        return;
+      }
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, HRMain.routeName);
+    } catch (e, st) {
+      debugPrint('[SUBMIT][OTP] ERROR: $e');
+      debugPrint(st.toString());
+      apiService.showToast('Failed to login.');
+    } finally {
+      if (mounted) setState(() { isLoading = false; buttonDisable = false; });
     }
-
-    final login1 = await apiService.login(email.text, password.text, deviceInfo: deviceInfo);
-
-    if (login1 == null) {
-      apiService.showToast('Login failed, please Try again');
-      setState(() {
-        isLoading = false;
-        buttonDisable = false;
-      });
-      return;
-    }
-
-    try {
-      final result = (login1 is Map) ? (login1['result'] ?? login1) : null;
-      final access = (result is Map ? (result['access_token'] ?? result['accessToken']) : null)?.toString();
-      final refresh = (result is Map ? (result['refresh_token'] ?? result['refreshToken']) : null)?.toString();
-      if (access != null && access.isNotEmpty) storage.setItem('access_token', access);
-      if (refresh != null && refresh.isNotEmpty) storage.setItem('refresh_token', refresh);
-    } catch (_) {}
-
-    setState(() {
-      isLoading = false;
-      buttonDisable = false;
-    });
-
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, HRMain.routeName);
-  }
+   }
 
   Future<void> _ssoLogin() async {
     setState(() {
@@ -384,7 +387,7 @@ class _MobileLoginState extends State<MobileLogin> {
               top: 0,
               left: 0,
               right: 0,
-              height: MediaQuery.of(context).size.height * 0.42,
+              height: MediaQuery.of(context).size.height * 0.52,
               child: ClipRRect(
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(48),
@@ -401,7 +404,7 @@ class _MobileLoginState extends State<MobileLogin> {
               top: 0,
               left: 0,
               right: 0,
-              height: MediaQuery.of(context).size.height * 0.42,
+              height: MediaQuery.of(context).size.height * 0.82,
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
@@ -440,7 +443,7 @@ class _MobileLoginState extends State<MobileLogin> {
                       children: [
                         const SizedBox(height: 6),
                         Text(
-                          'Sign in',
+                          AppLocalizations.of(context)!.signIn,
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w900,
@@ -451,10 +454,9 @@ class _MobileLoginState extends State<MobileLogin> {
 
                         inputTenant(),
                         _errorText(_validateCompany, AppLocalizations.of(context)!.tenantValidation),
-                        inputEmail(),
-                        _errorText(_validateEmail, AppLocalizations.of(context)!.emailValidation),
-                        inputPassword(),
-                        _errorText(_validatePassword, "please enter your password"),
+                        // NIC instead of email/password for first step
+                        inputNic(),
+                        _errorText(_validateEmail, 'Please enter NIC'),
 
                         const SizedBox(height: 4),
                         Row(
@@ -476,8 +478,8 @@ class _MobileLoginState extends State<MobileLogin> {
                             ),
                             TextButton(
                               onPressed: () => apiService.showToast('Coming soon'),
-                              child: const Text(
-                                'Forgot Password?',
+                              child:  Text(
+                               AppLocalizations.of(context)!.forgetPw,
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _accent),
                               ),
                             ),
@@ -495,20 +497,70 @@ class _MobileLoginState extends State<MobileLogin> {
                           width: double.infinity,
                           height: 48,
                           child: ElevatedButton(
-                            onPressed: buttonDisable ? null : submit,
+                            onPressed: buttonDisable ? null : () async {
+                              // Validate company and NIC
+                              setState(() {
+                                _validateCompany = company.text.isEmpty;
+                                _validateEmail = nicController.text.isEmpty;
+                              });
+                              if (_validateCompany || _validateEmail) return;
+
+                              setState(() { isLoading = true; buttonDisable = true; });
+                              try {
+                                // collect minimal device info
+                                Map<String, String> deviceInfo = {};
+                                try {
+                                  final dsvc = DeviceDetailsService();
+                                  final details = await dsvc.collectAll();
+                                  final dev = details['device'] as Map<String, dynamic>? ?? {};
+                                  deviceInfo['model_number'] = (dev['model'] ?? '').toString();
+                                  deviceInfo['device_id'] = (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
+                                  deviceInfo['ip_address'] = (details['ip'] ?? '').toString();
+                                } catch (_) {}
+
+                                final tenantName = company.text.trim();
+                                final nic = nicController.text.trim();
+
+                                // Request OTP
+                                final req = await apiService.sendAuthPinMobile(tenant: tenantName, nic: nic, deviceInfo: deviceInfo);
+                                if (req['status'] == false) {
+                                  apiService.showToast(req['message'] ?? 'Failed to request OTP');
+                                  return;
+                                }
+
+                                // Open OTP page
+                                final otp = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
+                                if (otp == null || otp.isEmpty) return;
+
+                                // Verify OTP
+                                final verify = await apiService.verifyAuthPinMobile(tenant: tenantName, nic: nic, pin: otp, deviceInfo: deviceInfo);
+                                if (verify['status'] == false) {
+                                  apiService.showToast(verify['message'] ?? 'OTP verification failed');
+                                  return;
+                                }
+
+                                // verification success: redirect to main
+                                if (!mounted) return;
+                                Navigator.pushReplacementNamed(context, HRMain.routeName);
+                              } catch (e, st) {
+                                debugPrint('[LOGIN][OTP] ERROR: $e');
+                                debugPrint(st.toString());
+                                apiService.showToast('Something went wrong. Please try again');
+                              } finally {
+                                if (mounted) setState(() { isLoading = false; buttonDisable = false; });
+                              }
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: _accent,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                               elevation: 0,
                             ),
-                            child: Text(
-                              AppLocalizations.of(context)!.loginText,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900),
-                            ),
+                            child: Text(AppLocalizations.of(context)!.nextText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
                           ),
                         ),
 
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 18),
+
                         SizedBox(
                           width: double.infinity,
                           height: 46,
@@ -518,7 +570,7 @@ class _MobileLoginState extends State<MobileLogin> {
                               side: const BorderSide(color: _accent),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             ),
-                            child: const Text('SSO Login', style: TextStyle(fontWeight: FontWeight.w900, color: _accent)),
+                            child: Text(AppLocalizations.of(context)!.ssoLogin, style: TextStyle(fontWeight: FontWeight.w900, color: _accent)),
                           ),
                         ),
 

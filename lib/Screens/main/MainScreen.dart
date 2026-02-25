@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:cn_pocket_hr/Screens/attendance/attendanceScreen.dart';
 import 'package:cn_pocket_hr/Screens/home/HomeScreen.dart';
 import 'package:cn_pocket_hr/Screens/leave/leaveScreen.dart';
@@ -87,10 +88,10 @@ class _HRMainState extends State<HRMain> {
                     children: [
                       Row(
                         children: [
-                          _navItem(Icons.home_outlined, 'Home', 0),
-                          _navItem(Icons.event_busy, 'Leave', 1),
-                          _navItem(Icons.event_rounded, 'Attendance', 2),
-                          _navItem(Icons.person_outline, 'Profile', 3),
+                          _navItem(Icons.home_outlined, AppLocalizations.of(context)!.homeText, 0),
+                          _navItem(Icons.event_busy, AppLocalizations.of(context)!.leaveText, 1),
+                          _navItem(Icons.event_rounded, AppLocalizations.of(context)!.attendanceText, 2),
+                          _navItem(Icons.person_outline, AppLocalizations.of(context)!.profileText, 3),
                         ],
                       ),
                     ],

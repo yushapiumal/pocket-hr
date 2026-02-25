@@ -9,7 +9,7 @@ class APIConfig {
     //     storage.getItem('company').toLowerCase().trim() +
     //     ".rype3.loc/human/api/v1/";
     //-------- LIVE----------
-    return "https://mahajana.rype3.com/human/api/v1/";
+    return "https://api.human.go.digitable.io/human/v2/api/";
   }
 }
 

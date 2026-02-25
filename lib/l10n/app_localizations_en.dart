@@ -156,6 +156,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get companyName => 'Company Name';
 
   @override
+  String get signIn => 'Sign In';
+
+  @override
   String get pinCode => 'PIN Code';
 
   @override
@@ -255,8 +258,227 @@ class AppLocalizationsEn extends AppLocalizations {
   String get salarySlips => 'Salary Slips';
 
   @override
-  String get allowanceDeductions => 'Allowance / Deductions';
+  String get salarySlipHistory => 'Salary Slip History';
 
   @override
-  String get debtLoans => 'Debt / Loans';
+  String get salarySlipLabel => 'Salary Slip';
+
+  @override
+  String get htmlPreviewNotWired => 'HTML preview is not wired yet.';
+
+  @override
+  String get thisMonthLabel => 'This Month';
+
+  @override
+  String get pastMonthLabel => 'Past Month';
+
+  @override
+  String get noRecords => 'No records';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get nic => 'NIC';
+
+  @override
+  String get ssoLogin => 'SSO Login';
+
+  @override
+  String get profilePictureUpdated => 'Profile picture updated successfully';
+
+  @override
+  String get failedToUpdatePicture => 'Failed to update picture';
+
+  @override
+  String get confirmLabel => 'Confirm';
+
+  @override
+  String get cancelLabel => 'Cancel';
+
+  @override
+  String get leaveRequestLabel => 'Leave Request';
+
+  @override
+  String get leaveDetailsLabel => 'Leave Details';
+
+  @override
+  String get confirmLeave => 'Confirm Leave';
+
+  @override
+  String get fromLabel => 'From';
+
+  @override
+  String get toLabel => 'To';
+
+  @override
+  String get daysLabel => 'Days';
+
+  @override
+  String get leaveTypeLabel => 'Leave Type';
+
+  @override
+  String get annualLabel => 'Annual';
+
+  @override
+  String get casualLabel => 'Casual';
+
+  @override
+  String get medicalLabel => 'Medical';
+
+  @override
+  String get leaveMode => 'Leave Mode';
+
+  @override
+  String get fullDay => 'Full Day';
+
+  @override
+  String get halfDay => 'Half Day';
+
+  @override
+  String get alternative => 'Alternative';
+
+  @override
+  String get fromToDescription => 'Select start and end dates';
+
+  @override
+  String get leaveBalanceTitle => 'Leave Balances';
+
+  @override
+  String get attendanceForThisMonth => 'Attendance for this Month';
+
+  @override
+  String get presentLabel => 'Present';
+
+  @override
+  String get absentsLabel => 'Absents';
+
+  @override
+  String get lateInLabel => 'Late in';
+
+  @override
+  String get dayOffLabel => 'DayOff';
+
+  @override
+  String get shiftLabel => 'Shift';
+
+  @override
+  String get inLabel => 'IN :';
+
+  @override
+  String get outLabel => 'OUT :';
+
+  @override
+  String get viewDetails => 'View Details';
+
+  @override
+  String get workedHeader => 'WORKED';
+
+  @override
+  String get lateHeader => 'LATE';
+
+  @override
+  String get overHeader => 'OVER';
+
+  @override
+  String get allowanceDeductions => 'Allowances & Deductions';
+
+  @override
+  String get debtLoans => 'Debts & Loans';
+
+  @override
+  String get logoutTitle => 'Logout';
+
+  @override
+  String get logoutConfirmation => 'Are you sure you want to logout?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get myProfileTitle => 'My Profile';
+
+  @override
+  String get loadingProfile => 'Loading profile...';
+
+  @override
+  String get epfLabel => 'EPF: ';
+
+  @override
+  String get notAdded => 'Not added';
+
+  @override
+  String get personalInformation => 'Personal Information';
+
+  @override
+  String get phoneLabel => 'Phone';
+
+  @override
+  String get addressLabel => 'Address';
+
+  @override
+  String get nicLabel => 'NIC';
+
+  @override
+  String get dateOfBirth => 'Date of Birth';
+
+  @override
+  String get fromToLabel => 'From / To';
+
+  @override
+  String get cannotSelectPastDate => 'Cannot select a past date';
+
+  @override
+  String get fromDateCannotBeAfterTo => 'From date cannot be after To date';
+
+  @override
+  String get toDateMustBeAfterFrom => 'To date must be after From date';
+
+  @override
+  String get noteLabel => 'Note';
+
+  @override
+  String get optional => 'Optional';
+
+  @override
+  String get leaveHistory => 'Leave History';
+
+  @override
+  String get allLabel => 'All';
+
+  @override
+  String get allowancesLabel => 'Allowances';
+
+  @override
+  String get deductionsLabel => 'Deductions';
+
+  @override
+  String get noAllowancesFound => 'No allowances found';
+
+  @override
+  String get noDeductionsFound => 'No deductions found';
+
+  @override
+  String get processedLabel => 'Processed';
+
+  @override
+  String get pendingLabel => 'Pending';
+
+  @override
+  String get retryLabel => 'Retry';
+
+  @override
+  String get debtsLabel => 'Debts';
+
+  @override
+  String get loansLabel => 'Loans';
+
+  @override
+  String get noDebtsFound => 'No debts found';
+
+  @override
+  String get noLoansFound => 'No loans found';
+
+  @override
+  String get collectedLabel => 'Collected';
 }

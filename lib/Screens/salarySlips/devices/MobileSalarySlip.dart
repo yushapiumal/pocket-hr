@@ -123,7 +123,7 @@ class _MobileSalarySlipState extends State<MobileSalarySlip> with SingleTickerPr
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'Salary Slip History',
+                            AppLocalizations.of(context)!.salarySlipHistory,
                             style: const TextStyle(fontSize: 16, fontWeight: _wBold),
                           ),
                         ),
@@ -170,7 +170,8 @@ class _MobileSalarySlipState extends State<MobileSalarySlip> with SingleTickerPr
           }
         });
 
-        if (items.isEmpty) return const Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Center(child: Text('No records')));
+        if (items.isEmpty) return Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: Text(AppLocalizations.of(context)!.noRecords)));
+
         // convert to _HomeItem list
         final list = items.map((m) => _HomeItem(items.indexOf(m), m['title'] ?? '', m['subtitle'] ?? '', HRColors.darkOrangeColor, from: m['from'] ?? '', to: m['to'] ?? '', pdfUrl: m['pdfUrl'] ?? '', id: m['id'] ?? '')).toList();
         return _buildListFromData(context, list);

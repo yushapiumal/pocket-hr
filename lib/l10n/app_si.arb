@@ -1,170 +1,128 @@
 {
-    "language": "සිංහල",
-    
-    "helloWorld": "හෙලෝ !",
-    
-    "apNameText": "Travel",
-    
-    "introductionOneText" : "Plan your trips safely by browsing places through a safety parameter.",
-    
-    "introductionTwoText" : "Connect with a community of registered travelers  and know their experiences.",
-    
-    "introductionThreeText" : "Have a safety at WorldTour",
-    
-    "nextText" : "Next",
-    
-    "skipText" : "මඟ හරින්න", 
+  "language": "සිංහල",
+  "helloWorld": "හෙලෝ!",
+  "apNameText": "Travel",
+  "introductionOneText": "ආරක්ෂිත පරාමිතියක් හරහා ස්ථාන සොයමින් ඔබගේ සංචාර ආරක්ෂිතව සැලසුම් කරන්න.",
+  "introductionTwoText": "ලියාපදිංචි වූ සංචාරකයින්ගේ කණ්ඩායම සමඟ සම්බන්ධ වී ඔවුන්ගේ අත්දැකීම් දැනගන්න.",
+  "introductionThreeText": "WorldTour හි ආරක්ෂිත සංචාරයකි",
+  "nextText": "ඊළඟ",
+  "skipText": "මඟහැරීම",
+  "signUpText": "ලියාපදිංචි වන්න",
+  "loginText": "පිවිසෙන්න",
+  "alreadyHaveAnAccountText": "දැනටමත් ගිණුමක් තිබේද?",
+  "emailOrUsernameText": "ඊමේල් / පරිශීලක නාමය",
+  "welcomeText": "සාදරයෙන් පිළිගනිමු",
+  "userNameText": "පරිශීලක නාමය",
+  "passwordText": "මුරපදය",
+  "rememberMeText": "මාව මතක තබා ගන්න",
+  "doNotHaveAccountText": "ගිණුමක් නොමැතිද?",
+  "emailText": "ඊමේල්",
+  "countryText": "රට",
+  "birthdayText": "ජන්ම දිනය",
+  "iAgreeToAllTermsText": "මම සියලු කොන්දේසි වලට එකඟ වෙමි",
+  "fullNameText": "පිරිනැමුණු නාමය",
+  "emailAddressText": "ඊමේල් ලිපිනය",
+  "iAgreeToReceiveNewslettersText": "මාත්‍රිකා ලිපි ලැබීමට මම එකඟ වේ",
+  "subscribeText": "දායක වන්න",
+  "categoryText": "ප්‍රවර්ගය",
+  "homeText": "මුල් පිටුව",
+  "searchText": "සොයන්න",
+  "profileText": "ප්‍රොෆයිලය",
+  "readMoreText": "තව කියවන්න...",
+  "readLessText": "අඩු කියවන්න",
+  "searchForText": "මෙය සෙවීම...",
+  "settingsText": "යෙදුම් සැකසුම්",
+  "logoutText": "සිග්-අවුට්",
+  "termsText": "කොන්දේසිය",
+  "menuText": "මෙනුව",
+  "myAccountText": "මගේ ගිණුම",
+  "notificationText": "දැනුම්දීම",
+  "languageText": "භාෂාව",
+  "faqText": "ප්‍රශ්න සහ පිළිතුරු",
+  "privacyPolicyText": "රහස්‍යතා ප්‍රතිපත්ති",
+  "termsConditionsText": "නියමයන්  සහ කොන්දේසි ",
+  "contactUsText": "අපව සම්බන්ධ කරන්න",
+  "noNotificationFoundText": "දැනුම්දීමක් හමු නොවීය",
+  "notificationSubTitleText": "අපි කිසිදු දැනුම්දීමක් සොයා ගත නොහැකි විය",
+  "notificationSubTitle2Text": "අපේක්ෂා ආරම්භ කරමු",
+  "newText": "නවතම",
+  "companyName": "සමාගමේ නම",
+  "pinCode": "PIN කේතය",
+  "forgetPw": "මුරපදය අමතක වුණා ද?",
+  "click": "ලිස්සන්න",
+  "epfnumber": "EPF අංකය",
+  "viewMore": "තවත් බලන්න",
+  "checkIn": "පැමිණීම",
+  "checkOut": "පිටවීම",
+  "leaveText": "මගේ නිවාඩු",
+  "attendanceText": "පැමිණීම",
+  "continueText": "දැන්ම අඛණ්ඩව",
+  "leaveRequest": "නිවාඩු ඉල්ලීම",
+  "submit": "ඉදිරිපත් කරන්න",
+  "apply": "අයදුම් කරන්න",
+  "rosterText": "මගේ රෝස්ටර්",
+  "emailValidation": "කරුණාකර ඊමේල් ලිපිනය ඇතුළත් කරන්න",
+  "tenantValidation": "කරුණාකර සමාගමේ නම ඇතුළත් කරන්න",
+  "epfValidation": "කරුණාකර EPF අංකය ඇතුළත් කරන්න",
+  "pinCodeValidation": "කරුණාකර PIN කේතය ඇතුළත් කරන්න",
+  "january": "ජනවාරි",
+  "february": "පෙබරවාරි",
+  "march": "මාර්තු",
+  "april": "අප්‍රේල්",
+  "may": "මැයි",
+  "june": "ජූනි",
+  "july": "ජූලි",
+  "august": "අගෝස්තු",
+  "september": "සැප්තැම්බර්",
+  "october": "ඔක්තෝම්බර්",
+  "november": "නොවැම්බර්",
+  "december": "දෙසැම්බර්",
+  "leaveApprove": "නිවාඩු අනුමැතිය",
+  "leaveReject": "නිවාඩු ප්‍රතික්ෂේපය",
+  "salarySlips": "වැටුප් පත්‍රය",
+  "allowanceDeductions": "දීමනා / අඩුකිරීම්",
+  "debtLoans": "ණය/හිඟ",
+  "signIn": "පිවිසෙන්න",
+  "ssoLogin": "SSO ප්‍රවිශ්ටිය",
+  "nic": "ජා.හැ. අංකය",
+  "enterNic": "ජාතික හැඳුනුම්පත් අංකය ",
+  "tenantHint": "සමාගම",
+  "rosterLabel": "වැඩ වාර සටහන",
+  "leaveLabel": "නිවාඩු",
+  "attendanceLabel": "පැමිණීම",
+  "profileLabel": "මගේ විස්තරය",
+  "leaveBalanceTitle": "මගේ නිවාඩු ශේෂය",
+  "annualLabel": "වාර්ෂික",
+  "casualLabel": "සාමාන්‍ය",
+  "medicalLabel": "වෛද්‍ය",
+  "refresh": "නවීකරණය",
+  "noRecords": "ලේඛන නොමැත",
+  "leaveRequestLabel": "නිවාඩු ඉල්ලීම",
+  "leaveMode": "නිවාඩු මාදිලිය",
+  "halfDay": "අර්ධ දින",
+  "fullDay": "සම්පූර්ණ දින",
+  "alternative": "විකල්ප",
+  "fromToDescription": "ආරම්භක හා අවසාන දිනය තෝරන්න",
+  "optional": "විකල්ප",
+  "confirmLeave": "නිවාඩු තහවුරු කිරීම",
+  "leaveHistory": "නිවාඩු ඉතිහාසය",
 
-    "signUpText" : "Sign up",
-    
-    "loginText" : "ලොග් වන්න",
-    
-    "alreadyHaveAnAccountText" : "Already have an account?",
-    
-    "welcomeText" : "ආයුබෝවන්",
-    
-    "userNameText" : "Username",
+  "allLabel": "සියලු",
+  "allowancesLabel": "දීමනා",
+  "deductionsLabel": "අඩුකිරීම්",
+  "noAllowancesFound": "දීමනා නොපවතී",
+  "noDeductionsFound": "අඩුකිරීම් නොපවතී",
+  "processedLabel": "සකසා ඇත",
+  "pendingLabel": "බලාපොරොත්තු",
+  "retryLabel": "නැවත උත්සාහ කරන්න",
 
-    "emailOrUsernameText" : "Email / UserName",
-    
-    "passwordText" : "මුරපදය",
-    
-    "tenantHint"  : "සමාගම",
+  "debtsLabel": "හිඟ",
+  "loansLabel": "ණය",
+  "noDebtsFound": "හිඟ නොපවතී",
+  "noLoansFound": "ණය  නොපවතී",
+  "collectedLabel": "සැකසූ",
 
-    "rememberMeText" : "Remember me",
-    
-    "doNotHaveAccountText" : "Don't have account?",
-    
-    "emailText" : "Email",
-    
-    "countryText" : "Country",
-    
-    "birthdayText" : "Birthday",
-    
-    "iAgreeToAllTermsText" : "I agree to all terms",
-    
-    "fullNameText" : "Full name",
-    
-    "emailAddressText" : "ඊමේල් ලිපිනය",
-    
-    "iAgreeToReceiveNewslettersText" : "I agree to receive newsletters",
-    
-    "subscribeText" : "Subscribe",
-    
-    "categoryText" : "Category",
-    
-    "homeText" : "Home",
-    
-    "searchText" : "Search",
-    
-    "profileText" : "Profile",
-    
-    "readMoreText" : "Read More...",
-    
-    "readLessText" : "Read Less",
-    
-    "searchForText" : "Search for...",
-    
-    "settingsText" : "Settings",
-    
-    "logoutText" : "Logout",
-    
-    "termsText" : "Terms",
-    
-    "menuText" : "Menu",
-    
-    "myAccountText" : "මගේ ගිණුම",
-    
-    "notificationText" : "දැනුම්දීම",
-    
-    "languageText" : "භාෂාව",
-    
-    "faqText" : "නිති අසන පැණ",
-    
-    "privacyPolicyText" : "රහස්යතා ප්රතිපත්තිය",
-    
-    "termsConditionsText" : "කොන්දේසි පෙළ",
-    
-    "contactUsText" : "අපව අමතන්න",
-    
-    "noNotificationFoundText" : "දැනුම්දීමක් හමු නොවීය",
-    
-    "notificationSubTitleText" : "අපි කිසිදු දැනුම්දීමක් සොයා ගත්තේ නැත",
-    
-    "notificationSubTitle2Text" : "Lets start exploring",
-    
-    "newText" : "නවතම",
-    
-    "companyName" : "ආයතනයේ නම",
-    
-    "pinCode" : "PIN කේතය",
-    
-    "forgetPw" : "මුරපදය අමතක වුණා ද ?",
-    
-    "click" : "Click",
-    
-    "epfnumber" : "EPF අංකය",
-    
-    "viewMore" : "View More",
-    
-    "checkIn" : "Check In",
-    
-    "checkOut" : "Check Out",
-    
-    "leaveText" : "මගේ නිවාඩු",
-    
-    "attendanceText" : "මගේ පැමිණීම",
-    
-    "continueText" : "ඉදිරියට",
-    
-    "leaveRequest" : "නිවාඩු ඉල්ලීම",
-    
-    "submit" : "ඉදිරිපත් කරන්න",
-    
-    "apply" : "අයදුම් කරන්න",
-    
-    "rosterText" : "මගේ ලැයිස්තුව",
-    
-    "emailValidation" : "කරුණාකර ඊමේල් ලිපිනය හෝ EPF අංකය ඇතුළු කරන්න",
-    
-    "tenantValidation" : "කරුණාකර සමාගමේ නම ඇතුළත් කරන්න",
-    
-    "epfValidation" : "කරුණාකර epf අංකය ඇතුලත් කරන්න",
-    
-    "pinCodeValidation" : "කරුණාකර PIN කේතය ඇතුළු කරන්න",
-
-    "january":"ජනවාරි",
-    
-    "february" :"පෙබරවාරි",
-
-    "march" : "මාර්තු",
-
-    "april" : "අප්‍රේල්",
-
-    "may" : "මැයි",
-
-    "june" : "ජූනි",
-
-    "july" : "ජුලි",
-
-    "august" : "අගෝස්තු",
-
-    "september" : "සැප්තැම්බර්",
-
-    "october" : "ඔක්තෝම්බර්",
-
-    "november" : "නොවැම්බර්",
-
-    "december" : "දෙසැම්බර්",
-
-    "leaveApprove" : "නිවාඩු අනුමත කිරීම",
-
-    "leaveReject" : "නිවාඩු ප්‍රතික්ෂේප කිරීම",
-
-    "salarySlips" : "වැටුප් පත්‍රිකා",
-
-    "allowanceDeductions" : "දීමනා / අඩු කිරීම්",
-
-    "debtLoans" : "ණය / අත මාරු"
-       
+  "salarySlipHistory": "වැටුප් පත්‍ර ඉතිහාසය",
+  "salarySlipLabel": "වැටුප් පත්‍ර",
+  "htmlPreviewNotWired": "HTML පෙරදසුන තවම සම්බන්ධ කර නොමැත"
 }

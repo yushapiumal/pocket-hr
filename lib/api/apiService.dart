@@ -16,156 +16,158 @@ import 'package:cn_pocket_hr/services/device_details_service.dart';
 class APIService {
   final LocalStorage storage = LocalStorage('pocketHR');
   final APIConfig api = APIConfig();
-Future login(String email, String password, {Map<String, String>? deviceInfo}) async {
-  try {
-    var url = api.api() + "login";
 
-    final body = <String, String>{'email': email, 'password': password};
-    await _injectTenantToBody(body);
-    if (deviceInfo != null) {
-      // merge device info, overriding only if keys exist
-      deviceInfo.forEach((k, v) {
-        body[k] = v;
-      });
-    }
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-      },
-      body: body,
-      encoding: Encoding.getByName("utf-8"),
-    );
+// Future login(String email, String password, {Map<String, String>? deviceInfo}) async {
+//   try {
+//     var url = api.api() + "login";
 
-    print("RAW RESPONSE => ${response.body}");
+//     final body = <String, String>{'email': email, 'password': password};
+//     await _injectTenantToBody(body);
+//     if (deviceInfo != null) {
+//       // merge device info, overriding only if keys exist
+//       deviceInfo.forEach((k, v) {
+//         body[k] = v;
+//       });
+//     }
 
-    // 🔐 Check JSON first
-    if (!response.headers['content-type']
-        .toString()
-        .contains("application/json")) {
-      print("Server returned HTML, not JSON");
-      return null;
-    }
+//     final response = await http.post(
+//       Uri.parse(url),
+//       headers: {
+//         "Accept": "application/json",
+//         "Content-Type": "application/x-www-form-urlencoded"
+//       },
+//       body: body,
+//       encoding: Encoding.getByName("utf-8"),
+//     );
 
-    var values = jsonDecode(response.body);
+//     print("RAW RESPONSE => ${response.body}");
 
-    if (values == null) return null;
+//     // 🔐 Check JSON first
+//     if (!response.headers['content-type']
+//         .toString()
+//         .contains("application/json")) {
+//       print("Server returned HTML, not JSON");
+//       return null;
+//     }
 
-    if (values['status'] == true) {
+//     var values = jsonDecode(response.body);
 
-      await storage.ready; // IMPORTANT
+//     if (values == null) return null;
 
-      if (values['result'] != null &&
-          values['result']['user'] != null) {
+//     if (values['status'] == true) {
 
-        // TOKEN
-        await storage.setItem('token', values['result']['token']);
+//       await storage.ready; // IMPORTANT
 
-        // PAYROLL
-        await storage.setItem(
-            'payroll_active_tag',
-            values['result']['payroll_tags']['active']['tag']);
+//       if (values['result'] != null &&
+//           values['result']['user'] != null) {
 
-        await storage.setItem(
-            'payroll_active_id',
-            values['result']['payroll_tags']['active']['id']);
+//         // TOKEN
+//         await storage.setItem('token', values['result']['token']);
 
-        await storage.setItem(
-            'payroll_past_tag',
-            values['result']['payroll_tags']['past']['tag']);
+//         // PAYROLL
+//         await storage.setItem(
+//             'payroll_active_tag',
+//             values['result']['payroll_tags']['active']['tag']);
 
-        await storage.setItem(
-            'payroll_past_id',
-            values['result']['payroll_tags']['past']['id']);
+//         await storage.setItem(
+//             'payroll_active_id',
+//             values['result']['payroll_tags']['active']['id']);
 
-        // USER
-        final userAny = values['result']['user'];
-        final userMap = (userAny is Map) ? Map<String, dynamic>.from(userAny) : <String, dynamic>{};
-        final legacyId = (userMap['id'] ?? '').toString();
-        final humanId = (userMap['_id'] ?? userMap['human_id'] ?? userMap['user_id'] ?? '').toString();
+//         await storage.setItem(
+//             'payroll_past_tag',
+//             values['result']['payroll_tags']['past']['tag']);
 
-        // Keep legacy id for old APIs/UI
-        if (legacyId.isNotEmpty) {
-          await storage.setItem('uid', legacyId);
-        }
-        // Store v2 attendance user id separately (Mongo _id)
-        if (humanId.isNotEmpty) {
-          await storage.setItem('human_user_id', humanId);
-        }
+//         await storage.setItem(
+//             'payroll_past_id',
+//             values['result']['payroll_tags']['past']['id']);
 
-        await storage.setItem('full_name',
-            values['result']['user']['full_name']);
+//         // USER
+//         final userAny = values['result']['user'];
+//         final userMap = (userAny is Map) ? Map<String, dynamic>.from(userAny) : <String, dynamic>{};
+//         final legacyId = (userMap['id'] ?? '').toString();
+//         final humanId = (userMap['_id'] ?? userMap['human_id'] ?? userMap['user_id'] ?? '').toString();
 
-        await storage.setItem('fname',
-            values['result']['user']['first_name']);
+//         // Keep legacy id for old APIs/UI
+//         if (legacyId.isNotEmpty) {
+//           await storage.setItem('uid', legacyId);
+//         }
+//         // Store v2 attendance user id separately (Mongo _id)
+//         if (humanId.isNotEmpty) {
+//           await storage.setItem('human_user_id', humanId);
+//         }
 
-        await storage.setItem('lname',
-            values['result']['user']['last_name']);
+//         await storage.setItem('full_name',
+//             values['result']['user']['full_name']);
 
-        await storage.setItem('initials',
-            values['result']['user']['initials']);
+//         await storage.setItem('fname',
+//             values['result']['user']['first_name']);
 
-        await storage.setItem('avatar',
-            values['result']['user']['avatar']);
+//         await storage.setItem('lname',
+//             values['result']['user']['last_name']);
 
-        await storage.setItem('dob',
-            values['result']['user']['cf_dob']);
+//         await storage.setItem('initials',
+//             values['result']['user']['initials']);
 
-        await storage.setItem('nic',
-            values['result']['user']['cf_nic']);
+//         await storage.setItem('avatar',
+//             values['result']['user']['avatar']);
 
-        await storage.setItem('contact',
-            values['result']['user']['cf_phone']);
+//         await storage.setItem('dob',
+//             values['result']['user']['cf_dob']);
 
-        await storage.setItem('address',
-            values['result']['user']['address']);
+//         await storage.setItem('nic',
+//             values['result']['user']['cf_nic']);
 
-        await storage.setItem('apiation',
-            values['result']['user']['apiation']);
+//         await storage.setItem('contact',
+//             values['result']['user']['cf_phone']);
 
-        await storage.setItem('biostarId',
-            values['result']['user']['cf_biostar_id']);
+//         await storage.setItem('address',
+//             values['result']['user']['address']);
 
-        // LEAVE QUOTA
-        await storage.setItem('annualQuota',
-            values['result']['leave_quota']['annual']);
+//         await storage.setItem('apiation',
+//             values['result']['user']['apiation']);
 
-        await storage.setItem('casualQuota',
-            values['result']['leave_quota']['casual']);
+//         await storage.setItem('biostarId',
+//             values['result']['user']['cf_biostar_id']);
 
-        await storage.setItem('medicalQuota',
-            values['result']['leave_quota']['medical']);
+//         // LEAVE QUOTA
+//         await storage.setItem('annualQuota',
+//             values['result']['leave_quota']['annual']);
 
-        // LEAVE BALANCE
-        await storage.setItem('leaveAnnual',
-            values['result']['leave_balance']['annual']);
+//         await storage.setItem('casualQuota',
+//             values['result']['leave_quota']['casual']);
 
-        await storage.setItem('leaveCasual',
-            values['result']['leave_balance']['casual']);
+//         await storage.setItem('medicalQuota',
+//             values['result']['leave_quota']['medical']);
 
-        await storage.setItem('leaveMedical',
-            values['result']['leave_balance']['medical']);
+//         // LEAVE BALANCE
+//         await storage.setItem('leaveAnnual',
+//             values['result']['leave_balance']['annual']);
 
-        await storage.setItem('leaveNopay',
-            values['result']['leave_balance']['nopay']);
+//         await storage.setItem('leaveCasual',
+//             values['result']['leave_balance']['casual']);
 
-        // LOGIN FLAG
-        await storage.setItem('login', true); // ✅ correct
-      }
+//         await storage.setItem('leaveMedical',
+//             values['result']['leave_balance']['medical']);
 
-    } else {
-      showToast(values['message']);
-      apiFailedRedirect();
-    }
+//         await storage.setItem('leaveNopay',
+//             values['result']['leave_balance']['nopay']);
 
-    return values;
+//         // LOGIN FLAG
+//         await storage.setItem('login', true); // ✅ correct
+//       }
 
-  } catch (e) {
-    print("LOGIN ERROR => $e");
-  }
-}
+//     } else {
+//       showToast(values['message']);
+//       apiFailedRedirect();
+//     }
+
+//     return values;
+
+//   } catch (e) {
+//     print("LOGIN ERROR => $e");
+//   }
+// }
 
   Future<void> showToast(dynamic text) async {
     String msg;
@@ -1282,13 +1284,116 @@ Future<Map<String, dynamic>> emailSalarySlip(String id) async {
 }
 
 
-  // Small helper used by dummy generator
-  String _monthName(int m) {
-    const names = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    if (m >= 1 && m <= 12) return names[m];
-    return 'Month$m';
+  Future<Map<String, dynamic>> sendAuthPinMobile({required String tenant, required String nic, Map<String, String>? deviceInfo}) async {
+    try {
+      await storage.ready;
+      final url = api.api() + 'sso/auth-pin-mobile';
+      final oauthToken = storage.getItem('token')?.toString() ?? '';
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+
+      final body = <String, dynamic>{
+        'tenant': tenant,
+        'nic': nic,
+      };
+      if (deviceInfo != null) body.addAll(deviceInfo);
+
+      final headers = {'Accept': 'application/json', 'Content-Type': 'application/json'};
+      if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
+      if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
+
+      print('[AUTHPIN] POST $url');
+      print('[AUTHPIN] body => $body');
+
+      final res = await http.post(Uri.parse(url), headers: headers, body: jsonEncode(body));
+      print('[AUTHPIN] status=${res.statusCode} body=${res.body}');
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map) return Map<String, dynamic>.from(decoded);
+        return {'status': true, 'message': 'OTP requested'};
+      }
+
+      String msg = 'Failed to request OTP (${res.statusCode})';
+      try {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map && decoded['message'] != null) msg = decoded['message'].toString();
+      } catch (_) {}
+      return {'status': false, 'message': msg, 'code': res.statusCode};
+    } catch (e, st) {
+      print('[AUTHPIN] ERROR: $e');
+      print(st);
+      return {'status': false, 'message': e.toString()};
+    }
+  }
+
+  /// Verify the OTP (PIN) for mobile auth. On success, store access/refresh tokens if present.
+  Future<Map<String, dynamic>> verifyAuthPinMobile({required String tenant, required String nic, required String pin, Map<String, String>? deviceInfo}) async {
+    try {
+      await storage.ready;
+      final url = api.api() + 'sso/auth-pin-mobile/verify';
+      final oauthToken = storage.getItem('token')?.toString() ?? '';
+
+      final body = <String, dynamic>{'tenant': tenant, 'nic': nic, 'pin': pin};
+      if (deviceInfo != null) body.addAll(deviceInfo);
+
+      final headers = {'Accept': 'application/json', 'Content-Type': 'application/json'};
+      if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
+
+      print('[VERIFYPIN] POST $url');
+      print('[VERIFYPIN] body => $body');
+
+      final res = await http.post(Uri.parse(url), headers: headers, body: jsonEncode(body));
+      print('[VERIFYPIN] status=${res.statusCode} body=${res.body}');
+
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map) {
+          // If response contains tokens, persist
+          try {
+            final result = decoded['result'] ?? decoded;
+            if (result is Map) {
+              final access = (result['access_token'] ?? result['accessToken'] ?? result['access'])?.toString();
+              final refresh = (result['refresh_token'] ?? result['refreshToken'] ?? result['refresh'])?.toString();
+              if (access != null && access.isNotEmpty) await storage.setItem('access_token', access);
+              if (refresh != null && refresh.isNotEmpty) await storage.setItem('refresh_token', refresh);
+            }
+          } catch (_) {}
+          return Map<String, dynamic>.from(decoded);
+        }
+        return {'status': true, 'message': 'OTP verified'};
+      }
+
+      String msg = 'Failed to verify OTP (${res.statusCode})';
+      try {
+        final decoded = jsonDecode(res.body);
+        if (decoded is Map && decoded['message'] != null) msg = decoded['message'].toString();
+      } catch (_) {}
+      return {'status': false, 'message': msg, 'code': res.statusCode};
+    } catch (e, st) {
+      print('[VERIFYPIN] ERROR: $e');
+      print(st);
+      return {'status': false, 'message': e.toString()};
+    }
+  }
+
+  /// Send scanned QR data to backend and retrieve tenant coordinate (latitude & longitude)
+  Future<Map<String, dynamic>> getTenantCoordinateFromQr(String qrData, {String? tenant}) async {
+    try {
+      await storage.ready;
+      // NOTE: returning hard-coded coordinates for frontend-only testing.
+      // Latitude/Longitude set to Colombo, Sri Lanka (6.9271, 79.8612).
+      final hardcoded = {
+        'status': true,
+        'message': 'Using hardcoded coordinates',
+        'data': {'latitude': '6.9271', 'longitude': '79.8612'}
+      };
+      print('[QR] Returning hardcoded coordinates for QR: $qrData');
+      return hardcoded;
+    } catch (e, st) {
+      print('[QR] ERROR: $e');
+      print(st);
+      return {'status': false, 'message': e.toString()};
+    }
   }
 }
 

@@ -102,17 +102,17 @@ class MobileLeaveState extends State<MobileLeave>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('My Leave Balance', style: TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
+          Text(AppLocalizations.of(context)!.leaveBalanceTitle, style: const TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _leaveBalanceChip(label: 'Annual', value: '2/12', bg: const Color(0xFFFFF7E6), fg: HRColors.darkOrangeColor),
+                _leaveBalanceChip(label: AppLocalizations.of(context)!.annualLabel, value: '2/12', bg: const Color(0xFFFFF7E6), fg: HRColors.darkOrangeColor),
                 const SizedBox(width: 10),
-                _leaveBalanceChip(label: 'Casual', value: '1/7', bg: const Color(0xFFEFF6FF), fg: HRColors.blueColor),
+                _leaveBalanceChip(label: AppLocalizations.of(context)!.casualLabel, value: '1/7', bg: const Color(0xFFEFF6FF), fg: HRColors.blueColor),
                 const SizedBox(width: 10),
-                _leaveBalanceChip(label: 'Medical', value: '0/10', bg: const Color(0xFFEAF7EE), fg: HRColors.green),
+                _leaveBalanceChip(label: AppLocalizations.of(context)!.medicalLabel, value: '0/10', bg: const Color(0xFFEAF7EE), fg: HRColors.green),
               ],
             ),
           ),
@@ -259,8 +259,8 @@ class MobileLeaveState extends State<MobileLeave>
                     child: Container(
                       child: ElevatedButton(
                         child: Text(
-                          'My Leaves',
-                          style: TextStyle(color: Colors.black),
+                          AppLocalizations.of(context)!.leaveText,
+                          style: const TextStyle(color: Colors.black),
                         ),
                         onPressed: () {
                           apiService.showToast('Already loaded');
@@ -374,10 +374,10 @@ class MobileLeaveState extends State<MobileLeave>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                    Text(AppLocalizations.of(context)!.leaveHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                     TextButton(
                       onPressed: () => getMyLeaves(),
-                      child: const Text('Refresh', style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
+                      child: Text(AppLocalizations.of(context)!.refresh, style: const TextStyle(color: Colors.black87, fontWeight: _wBold)),
                     ),
                   ],
                 ),
@@ -475,9 +475,9 @@ class MobileLeaveState extends State<MobileLeave>
           _leaveListCount = filtered.length;
 
           if (_leaveListCount == 0) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 40),
-              child: Center(child: Text('No records')),
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(child: Text(AppLocalizations.of(context)!.noRecords)),
             );
           }
 
@@ -701,7 +701,7 @@ class MobileLeaveState extends State<MobileLeave>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            title.isNotEmpty ? title : 'Leave Request',
+                            title.isNotEmpty ? title : AppLocalizations.of(context)!.leaveRequestLabel,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: _wBold, fontSize: 14, color: Colors.black87),

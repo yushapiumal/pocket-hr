@@ -244,6 +244,12 @@
       "description": "companyName"
     },
 
+      "signIn" : "Sign In",
+    "@signIn": {
+      "description": "signIn"
+    },
+
+
     "pinCode" : "PIN Code",
     "@pinCode": {
       "description": "pinCode"
@@ -406,19 +412,94 @@
     },
 
     "salarySlips" : "Salary Slips",
-    "@salarySlips": {
-      "description": "Salary Slips"
-    },
 
-    "allowanceDeductions" : "Allowance / Deductions",
-    "@allowanceDeductions": {
-      "description": "Allowance / Deductions"
-    },
+    "salarySlipHistory": "Salary Slip History",
+    "salarySlipLabel": "Salary Slip",
+    "htmlPreviewNotWired": "HTML preview is not wired yet.",
 
-    "debtLoans" : "Debt / Loans",
-    "@debtLoans": {
-      "description": "Debt / Loans"
-    }
-    
+    "thisMonthLabel": "This Month",
+    "pastMonthLabel": "Past Month",
+
+    "noRecords": "No records",
+    "refresh": "Refresh",
+
+    "nic": "NIC",
+    "ssoLogin": "SSO Login",
+
+    "profilePictureUpdated": "Profile picture updated successfully",
+    "failedToUpdatePicture": "Failed to update picture",
+
+    "confirmLabel": "Confirm",
+    "cancelLabel": "Cancel",
+
+    "leaveRequestLabel": "Leave Request",
+    "leaveDetailsLabel": "Leave Details",
+    "confirmLeave": "Confirm Leave",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "daysLabel": "Days",
+    "leaveTypeLabel": "Leave Type",
+    "annualLabel": "Annual",
+    "casualLabel": "Casual",
+    "medicalLabel": "Medical",
+    "leaveMode": "Leave Mode",
+    "fullDay": "Full Day",
+    "halfDay": "Half Day",
+    "alternative": "Alternative",
+    "fromToDescription": "Select start and end dates",
+    "leaveBalanceTitle": "Leave Balances",
+
+    "attendanceForThisMonth": "Attendance for this Month",
+    "presentLabel": "Present",
+    "absentsLabel": "Absents",
+    "lateInLabel": "Late in",
+    "dayOffLabel": "DayOff",
+    "shiftLabel": "Shift",
+    "inLabel": "IN :",
+    "outLabel": "OUT :",
+    "viewDetails": "View Details",
+    "workedHeader": "WORKED",
+    "lateHeader": "LATE",
+    "overHeader": "OVER",
+
+    "allowanceDeductions": "Allowances & Deductions",
+    "debtLoans": "Debts & Loans",
+
+    "logoutTitle": "Logout",
+    "logoutConfirmation": "Are you sure you want to logout?",
+    "cancel": "Cancel",
+    "myProfileTitle": "My Profile",
+    "loadingProfile": "Loading profile...",
+    "epfLabel": "EPF: ",
+    "notAdded": "Not added",
+    "personalInformation": "Personal Information",
+    "phoneLabel": "Phone",
+    "addressLabel": "Address",
+    "nicLabel": "NIC",
+    "dateOfBirth": "Date of Birth",
+
+    "fromToLabel": "From / To",
+    "cannotSelectPastDate": "Cannot select a past date",
+    "fromDateCannotBeAfterTo": "From date cannot be after To date",
+    "toDateMustBeAfterFrom": "To date must be after From date",
+    "noteLabel": "Note",
+    "optional": "Optional",
+
+    "leaveHistory": "Leave History",
+
+    "allLabel": "All",
+    "allowancesLabel": "Allowances",
+    "deductionsLabel": "Deductions",
+    "noAllowancesFound": "No allowances found",
+    "noDeductionsFound": "No deductions found",
+    "processedLabel": "Processed",
+    "pendingLabel": "Pending",
+    "retryLabel": "Retry",
+
+    "debtsLabel": "Debts",
+    "loansLabel": "Loans",
+    "noDebtsFound": "No debts found",
+    "noLoansFound": "No loans found",
+    "collectedLabel": "Collected"
 
 }
