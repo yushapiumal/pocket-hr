@@ -100,85 +100,85 @@ abstract class AppLocalizations {
     Locale('ta')
   ];
 
-  /// The current Language
+  /// No description provided for @language.
   ///
   /// In en, this message translates to:
   /// **'English'**
   String get language;
 
-  /// A programmer greeting
+  /// No description provided for @helloWorld.
   ///
   /// In en, this message translates to:
   /// **'Hello World!'**
   String get helloWorld;
 
-  /// Travel
+  /// No description provided for @apNameText.
   ///
   /// In en, this message translates to:
   /// **'Travel'**
   String get apNameText;
 
-  /// introductionOneText
+  /// No description provided for @introductionOneText.
   ///
   /// In en, this message translates to:
   /// **'Organize anything with anyone anywhere.'**
   String get introductionOneText;
 
-  /// introductionTwoText
+  /// No description provided for @introductionTwoText.
   ///
   /// In en, this message translates to:
   /// **'Enhanced in-app communication.'**
   String get introductionTwoText;
 
-  /// introductionThreeText
+  /// No description provided for @introductionThreeText.
   ///
   /// In en, this message translates to:
   /// **'Stay in the know - even on the go.'**
   String get introductionThreeText;
 
-  /// nextText
+  /// No description provided for @nextText.
   ///
   /// In en, this message translates to:
   /// **'Next'**
   String get nextText;
 
-  /// skipText
+  /// No description provided for @skipText.
   ///
   /// In en, this message translates to:
   /// **'Skip'**
   String get skipText;
 
-  /// signUpText
+  /// No description provided for @signUpText.
   ///
   /// In en, this message translates to:
   /// **'Sign up'**
   String get signUpText;
 
-  /// loginText
+  /// No description provided for @loginText.
   ///
   /// In en, this message translates to:
   /// **'Login'**
   String get loginText;
 
-  /// alreadyHaveAnAccountText
+  /// No description provided for @alreadyHaveAnAccountText.
   ///
   /// In en, this message translates to:
   /// **'Already have an account?'**
   String get alreadyHaveAnAccountText;
 
-  /// welcomeText
+  /// No description provided for @welcomeText.
   ///
   /// In en, this message translates to:
   /// **'Welcome'**
   String get welcomeText;
 
-  /// userNameText
+  /// No description provided for @userNameText.
   ///
   /// In en, this message translates to:
   /// **'Username'**
   String get userNameText;
 
-  /// tenantHint
+  /// No description provided for @passwordText.
   ///
   /// In en, this message translates to:
   /// **'Password'**
@@ -190,407 +190,413 @@ abstract class AppLocalizations {
   /// **'Tenant/Company'**
   String get tenantHint;
 
-  /// rememberMeText
+  /// No description provided for @rememberMeText.
   ///
   /// In en, this message translates to:
   /// **'Remember me'**
   String get rememberMeText;
 
-  /// doNotHaveAccountText
+  /// No description provided for @doNotHaveAccountText.
   ///
   /// In en, this message translates to:
   /// **'Don\'t have account?'**
   String get doNotHaveAccountText;
 
-  /// emailText
+  /// No description provided for @emailText.
   ///
   /// In en, this message translates to:
   /// **'Email'**
   String get emailText;
 
-  /// countryText
+  /// No description provided for @countryText.
   ///
   /// In en, this message translates to:
   /// **'Country'**
   String get countryText;
 
-  /// birthdayText
+  /// No description provided for @birthdayText.
   ///
   /// In en, this message translates to:
   /// **'Birthday'**
   String get birthdayText;
 
-  /// iAgreeToAllTermsText
+  /// No description provided for @iAgreeToAllTermsText.
   ///
   /// In en, this message translates to:
   /// **'I agree to all terms'**
   String get iAgreeToAllTermsText;
 
-  /// fullNameText
+  /// No description provided for @fullNameText.
   ///
   /// In en, this message translates to:
   /// **'Full name'**
   String get fullNameText;
 
-  /// emailAddressText
+  /// No description provided for @emailAddressText.
   ///
   /// In en, this message translates to:
   /// **'Email Address'**
   String get emailAddressText;
 
-  /// emailOrUsernameText
+  /// No description provided for @emailOrUsernameText.
   ///
   /// In en, this message translates to:
   /// **'Email / UserName'**
   String get emailOrUsernameText;
 
-  /// iAgreeToReceiveNewslettersText
+  /// No description provided for @iAgreeToReceiveNewslettersText.
   ///
   /// In en, this message translates to:
   /// **'I agree to receive newsletters'**
   String get iAgreeToReceiveNewslettersText;
 
-  /// subscribeText
+  /// No description provided for @subscribeText.
   ///
   /// In en, this message translates to:
   /// **'Subscribe'**
   String get subscribeText;
 
-  /// categoryText
+  /// No description provided for @categoryText.
   ///
   /// In en, this message translates to:
   /// **'Category'**
   String get categoryText;
 
-  /// homeText
+  /// No description provided for @homeText.
   ///
   /// In en, this message translates to:
   /// **'Home'**
   String get homeText;
 
-  /// searchText
+  /// No description provided for @searchText.
   ///
   /// In en, this message translates to:
   /// **'Search'**
   String get searchText;
 
-  /// profileText
+  /// No description provided for @profileText.
   ///
   /// In en, this message translates to:
   /// **'Profile'**
   String get profileText;
 
-  /// readMoreText
+  /// No description provided for @readMoreText.
   ///
   /// In en, this message translates to:
   /// **'Read More...'**
   String get readMoreText;
 
-  /// readLessText
+  /// No description provided for @readLessText.
   ///
   /// In en, this message translates to:
   /// **'Read Less'**
   String get readLessText;
 
-  /// searchForText
+  /// No description provided for @searchForText.
   ///
   /// In en, this message translates to:
   /// **'Search for...'**
   String get searchForText;
 
-  /// settingsText
+  /// No description provided for @settingsText.
   ///
   /// In en, this message translates to:
   /// **'Settings'**
   String get settingsText;
 
-  /// logoutText
+  /// No description provided for @logoutText.
   ///
   /// In en, this message translates to:
   /// **'Logout'**
   String get logoutText;
 
-  /// termsText
+  /// No description provided for @termsText.
   ///
   /// In en, this message translates to:
   /// **'Terms'**
   String get termsText;
 
-  /// menuText
+  /// No description provided for @menuText.
   ///
   /// In en, this message translates to:
   /// **'Menu'**
   String get menuText;
 
-  /// myAccountText
+  /// No description provided for @myAccountText.
   ///
   /// In en, this message translates to:
   /// **'My account'**
   String get myAccountText;
 
-  /// notificationText
+  /// No description provided for @notificationText.
   ///
   /// In en, this message translates to:
   /// **'Notification'**
   String get notificationText;
 
-  /// languageText
+  /// No description provided for @languageText.
   ///
   /// In en, this message translates to:
   /// **'Language'**
   String get languageText;
 
-  /// faqText
+  /// No description provided for @faqText.
   ///
   /// In en, this message translates to:
   /// **'FAQ'**
   String get faqText;
 
-  /// privacyPolicyText
+  /// No description provided for @privacyPolicyText.
   ///
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get privacyPolicyText;
 
-  /// termsConditionsText
+  /// No description provided for @termsConditionsText.
   ///
   /// In en, this message translates to:
   /// **'Terms & Conditions'**
   String get termsConditionsText;
 
-  /// contactUsText
+  /// No description provided for @contactUsText.
   ///
   /// In en, this message translates to:
   /// **'Contact Us'**
   String get contactUsText;
 
-  /// noNotificationFoundText
+  /// No description provided for @noNotificationFoundText.
   ///
   /// In en, this message translates to:
   /// **'No notification found'**
   String get noNotificationFoundText;
 
-  /// notificationSubTitleText
+  /// No description provided for @notificationSubTitleText.
   ///
   /// In en, this message translates to:
   /// **'We did not found any notification'**
   String get notificationSubTitleText;
 
-  /// notificationSubTitle2Text
+  /// No description provided for @notificationSubTitle2Text.
   ///
   /// In en, this message translates to:
   /// **'Lets start exploring'**
   String get notificationSubTitle2Text;
 
-  /// newText
+  /// No description provided for @newText.
   ///
   /// In en, this message translates to:
   /// **'NEW'**
   String get newText;
 
-  /// companyName
+  /// No description provided for @companyName.
   ///
   /// In en, this message translates to:
   /// **'Company Name'**
   String get companyName;
 
-  /// signIn
+  /// No description provided for @signIn.
   ///
   /// In en, this message translates to:
   /// **'Sign In'**
   String get signIn;
 
-  /// pinCode
+  /// No description provided for @pinCode.
   ///
   /// In en, this message translates to:
   /// **'PIN Code'**
   String get pinCode;
 
-  /// forgetPw
+  /// No description provided for @forgetPw.
   ///
   /// In en, this message translates to:
   /// **'Forgot Password ?'**
   String get forgetPw;
 
-  /// click
+  /// No description provided for @click.
   ///
   /// In en, this message translates to:
   /// **'Click'**
   String get click;
 
-  /// epfnumber
+  /// No description provided for @epfnumber.
   ///
   /// In en, this message translates to:
   /// **'EPF Number'**
   String get epfnumber;
 
-  /// viewMore
+  /// No description provided for @viewMore.
   ///
   /// In en, this message translates to:
   /// **'View More'**
   String get viewMore;
 
-  /// checkIn
+  /// No description provided for @checkIn.
   ///
   /// In en, this message translates to:
   /// **'Check In'**
   String get checkIn;
 
-  /// checkOut
+  /// No description provided for @checkOut.
   ///
   /// In en, this message translates to:
   /// **'Check Out'**
   String get checkOut;
 
-  /// leaveText
+  /// No description provided for @leaveText.
   ///
   /// In en, this message translates to:
   /// **'My Leaves'**
   String get leaveText;
 
-  /// attendanceText
+  /// No description provided for @attendanceText.
   ///
   /// In en, this message translates to:
   /// **'My Attendance'**
   String get attendanceText;
 
-  /// continueText
+  /// No description provided for @continueText.
   ///
   /// In en, this message translates to:
   /// **'Continue'**
   String get continueText;
 
-  /// leaveRequest
+  /// No description provided for @leaveRequest.
   ///
   /// In en, this message translates to:
   /// **'Leave Request'**
   String get leaveRequest;
 
-  /// submit
+  /// No description provided for @submit.
   ///
   /// In en, this message translates to:
   /// **'Submit'**
   String get submit;
 
-  /// apply
+  /// No description provided for @apply.
   ///
   /// In en, this message translates to:
   /// **'Apply'**
   String get apply;
 
-  /// rosterText
+  /// No description provided for @rosterText.
   ///
   /// In en, this message translates to:
   /// **'My Roster'**
   String get rosterText;
 
-  /// emailValidation
+  /// No description provided for @emailValidation.
   ///
   /// In en, this message translates to:
   /// **'Please enter email address'**
   String get emailValidation;
 
-  /// tenantValidation
+  /// No description provided for @tenantValidation.
   ///
   /// In en, this message translates to:
   /// **'Please enter company name'**
   String get tenantValidation;
 
-  /// epfValidation
+  /// No description provided for @epfValidation.
   ///
   /// In en, this message translates to:
   /// **'Please enter epf number'**
   String get epfValidation;
 
-  /// pinCodeValidation
+  /// No description provided for @pinCodeValidation.
   ///
   /// In en, this message translates to:
   /// **'Please enter pin code'**
   String get pinCodeValidation;
 
-  /// January
+  /// No description provided for @january.
   ///
   /// In en, this message translates to:
   /// **'January'**
   String get january;
 
-  /// February
+  /// No description provided for @february.
   ///
   /// In en, this message translates to:
   /// **'February'**
   String get february;
 
-  /// March
+  /// No description provided for @march.
   ///
   /// In en, this message translates to:
   /// **'March'**
   String get march;
 
-  /// April
+  /// No description provided for @april.
   ///
   /// In en, this message translates to:
   /// **'April'**
   String get april;
 
-  /// May
+  /// No description provided for @may.
   ///
   /// In en, this message translates to:
   /// **'May'**
   String get may;
 
-  /// June
+  /// No description provided for @june.
   ///
   /// In en, this message translates to:
   /// **'June'**
   String get june;
 
-  /// July
+  /// No description provided for @july.
   ///
   /// In en, this message translates to:
   /// **'July'**
   String get july;
 
-  /// August
+  /// No description provided for @august.
   ///
   /// In en, this message translates to:
   /// **'August'**
   String get august;
 
-  /// September
+  /// No description provided for @september.
   ///
   /// In en, this message translates to:
   /// **'September'**
   String get september;
 
-  /// October
+  /// No description provided for @october.
   ///
   /// In en, this message translates to:
   /// **'October'**
   String get october;
 
-  /// November
+  /// No description provided for @november.
   ///
   /// In en, this message translates to:
   /// **'November'**
   String get november;
 
-  /// December
+  /// No description provided for @december.
   ///
   /// In en, this message translates to:
   /// **'December'**
   String get december;
 
-  /// Leave Approve
+  /// No description provided for @leaveApprove.
   ///
   /// In en, this message translates to:
   /// **'Leave Approve'**
   String get leaveApprove;
 
-  /// Leave Reject
+  /// No description provided for @leaveReject.
   ///
   /// In en, this message translates to:
   /// **'Leave Reject'**
   String get leaveReject;
+
+  /// No description provided for @scannText.
+  ///
+  /// In en, this message translates to:
+  /// **'please keep the QR code in the center of the square.It will be scenned automatically.'**
+  String get scannText;
 
   /// No description provided for @salarySlips.
   ///
@@ -1047,6 +1053,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Collected'**
   String get collectedLabel;
+
+  /// No description provided for @scanSiteCheckIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan site QR to enable check-in'**
+  String get scanSiteCheckIn;
+
+  /// No description provided for @scanSiteCheckOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan site QR to enable check-out'**
+  String get scanSiteCheckOut;
+
+  /// No description provided for @qrNoCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'QR does not contain coordinates'**
+  String get qrNoCoordinates;
+
+  /// No description provided for @invalidQrServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid QR or server error'**
+  String get invalidQrServerError;
+
+  /// No description provided for @qrCoordinatesNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'QR and company location differ by {meters} m. Move closer or contact admin.'**
+  String qrCoordinatesNotMatch(Object meters);
+
+  /// No description provided for @serverDidNotReturnCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Server did not return coordinates'**
+  String get serverDidNotReturnCoordinates;
+
+  /// No description provided for @invalidServerCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid server coordinates'**
+  String get invalidServerCoordinates;
+
+  /// No description provided for @qrMatchesServerLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'QR matches.distence ({meters} m). Check-in/out enabled'**
+  String qrMatchesServerLocation(Object meters);
+
+  /// No description provided for @qrCoordinatesDiffer.
+  ///
+  /// In en, this message translates to:
+  /// **'QR and company location differ by {meters} m. Move closer or contact admin.'**
+  String qrCoordinatesDiffer(Object meters);
+
+  /// No description provided for @noInternetConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection'**
+  String get noInternetConnection;
+
+  /// No description provided for @qrValidatedTapToPunch.
+  ///
+  /// In en, this message translates to:
+  /// **'QR validated. Tap Check-In / Check-Out within 20 seconds.'**
+  String get qrValidatedTapToPunch;
+
+  /// No description provided for @qrCannotPunchHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot check in/out in this location.'**
+  String qrCannotPunchHere(String username);
+
+  /// No description provided for @qrCoordinatesMismatchMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned code and company QR not match.'**
+  String get qrCoordinatesMismatchMessage;
+
+  /// No description provided for @remoteChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Checking'**
+  String get remoteChecking;
+
+  /// No description provided for @checkInSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'CheckIn is successful'**
+  String get checkInSuccess;
+
+  /// No description provided for @checkOutSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout is successful'**
+  String get checkOutSuccess;
+
+  /// No description provided for @cantLocate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot locate or User Not Found.'**
+  String get cantLocate;
+
+  /// No description provided for @sessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please log in again.'**
+  String get sessionExpired;
+
+  /// No description provided for @filedToPerform.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to perform action.'**
+  String get filedToPerform;
+
+  /// No description provided for @activeRemoteCheking.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote checking active.Tap Check-In / Check-Out within 20 seconds.'**
+  String get activeRemoteCheking;
+
+  /// No description provided for @approvedLable.
+  ///
+  /// In en, this message translates to:
+  /// **'approved'**
+  String get approvedLable;
+
+  /// No description provided for @pendindingLable.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get pendindingLable;
+
+  /// No description provided for @rejectedLable.
+  ///
+  /// In en, this message translates to:
+  /// **'rejected'**
+  String get rejectedLable;
+
+  /// No description provided for @loadedLeaveLable.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded leaves'**
+  String get loadedLeaveLable;
+
+  /// No description provided for @leaveSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Summary'**
+  String get leaveSummary;
+
+  /// No description provided for @totalRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Requests'**
+  String get totalRequests;
+
+  /// No description provided for @availableBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Balance'**
+  String get availableBalance;
+
+  /// No description provided for @submitRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Request'**
+  String get submitRequest;
+
+  /// No description provided for @leaveAppliedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave applied successfully'**
+  String get leaveAppliedSuccessfully;
+
+  /// No description provided for @invalidDetailsPleaseCheckYourForm.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid details. Please check your form.'**
+  String get invalidDetailsPleaseCheckYourForm;
+
+  /// No description provided for @failedToSubmitLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit leave.'**
+  String get failedToSubmitLeave;
+
+  /// No description provided for @generalShift.
+  ///
+  /// In en, this message translates to:
+  /// **'General Shift'**
+  String get generalShift;
+
+  /// No description provided for @shortLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Short Leave'**
+  String get shortLeave;
+
+  /// No description provided for @morning.
+  ///
+  /// In en, this message translates to:
+  /// **' Two hours in morning'**
+  String get morning;
+
+  /// No description provided for @evening.
+  ///
+  /// In en, this message translates to:
+  /// **' Two hours in the Evening'**
+  String get evening;
+
+  /// No description provided for @workingHrs.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Hrs'**
+  String get workingHrs;
+
+  /// No description provided for @refreshSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh successful'**
+  String get refreshSuccess;
+
+  /// No description provided for @refreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing...'**
+  String get refreshing;
+
+  /// No description provided for @myTeam.
+  ///
+  /// In en, this message translates to:
+  /// **'My Team'**
+  String get myTeam;
+
+  /// No description provided for @serverError.
+  ///
+  /// In en, this message translates to:
+  /// **'This page cant be reached. please contact your company'**
+  String get serverError;
+
+  /// No description provided for @rs.
+  ///
+  /// In en, this message translates to:
+  /// **'Rs.'**
+  String get rs;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get create;
+
+  /// No description provided for @review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get review;
+
+  /// No description provided for @nopayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No Pay'**
+  String get nopayLabel;
+
+  /// No description provided for @selectTeamMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Select team member'**
+  String get selectTeamMember;
+
+  /// No description provided for @employeeDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Details'**
+  String get employeeDetails;
+
+  /// No description provided for @leaveDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Details'**
+  String get leaveDetails;
+
+  /// No description provided for @leaveDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Duration'**
+  String get leaveDuration;
+
+  /// No description provided for @leaveTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Type'**
+  String get leaveTypeTitle;
+
+  /// No description provided for @leaveDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Dates'**
+  String get leaveDates;
+
+  /// No description provided for @reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reason;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'day'**
+  String get day;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get days;
+
+  /// No description provided for @allTeamMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'All team members'**
+  String get allTeamMembers;
+
+  /// No description provided for @members.
+  ///
+  /// In en, this message translates to:
+  /// **'members'**
+  String get members;
+
+  /// No description provided for @member.
+  ///
+  /// In en, this message translates to:
+  /// **'member'**
+  String get member;
+
+  /// No description provided for @present.
+  ///
+  /// In en, this message translates to:
+  /// **'PRESENT'**
+  String get present;
+
+  /// No description provided for @inOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'IN ONLY'**
+  String get inOnly;
+
+  /// No description provided for @outOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'OUT ONLY'**
+  String get outOnly;
+
+  /// No description provided for @leaveApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave approved successfully'**
+  String get leaveApproved;
+
+  /// No description provided for @leaveRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave rejected successfully'**
+  String get leaveRejected;
+
+  /// No description provided for @leaveApproveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to approve leave'**
+  String get leaveApproveFailed;
+
+  /// No description provided for @leaveRejectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reject leave'**
+  String get leaveRejectFailed;
+
+  /// No description provided for @errorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorPrefix(Object error);
+
+  /// No description provided for @teamDataLoadedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Team data loaded successfully'**
+  String get teamDataLoadedSuccessfully;
+
+  /// No description provided for @failedToLoadTeamData.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load team data'**
+  String get failedToLoadTeamData;
+
+  /// No description provided for @weAreHere.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'re here to help'**
+  String get weAreHere;
+
+  /// No description provided for @reachOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach out to us through any of the channels below.'**
+  String get reachOut;
+
+  /// No description provided for @getInTouch.
+  ///
+  /// In en, this message translates to:
+  /// **'Get in touch'**
+  String get getInTouch;
+
+  /// No description provided for @emailSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Support'**
+  String get emailSupport;
+
+  /// No description provided for @phoneSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Support'**
+  String get phoneSupport;
+
+  /// No description provided for @liveChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Chat'**
+  String get liveChat;
+
+  /// No description provided for @chatWhatsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with us on WhatsApp'**
+  String get chatWhatsApp;
+
+  /// No description provided for @office.
+  ///
+  /// In en, this message translates to:
+  /// **'Office'**
+  String get office;
+
+  /// No description provided for @headOffice.
+  ///
+  /// In en, this message translates to:
+  /// **'Head Office'**
+  String get headOffice;
+
+  /// No description provided for @officeAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'123 Main Street,\nColombo 03,\nSri Lanka.'**
+  String get officeAddress;
+
+  /// No description provided for @businessHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Business Hours'**
+  String get businessHours;
+
+  /// No description provided for @weekdays.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday – Friday'**
+  String get weekdays;
+
+  /// No description provided for @weekdayHours.
+  ///
+  /// In en, this message translates to:
+  /// **'8:30 AM – 5:30 PM'**
+  String get weekdayHours;
+
+  /// No description provided for @saturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get saturday;
+
+  /// No description provided for @saturdayHours.
+  ///
+  /// In en, this message translates to:
+  /// **'8:30 AM – 1:30 PM'**
+  String get saturdayHours;
+
+  /// No description provided for @sunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get sunday;
+
+  /// No description provided for @closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closed;
 }
 
 class _AppLocalizationsDelegate
