@@ -19,45 +19,43 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get introductionOneText =>
-      'பாதுகாப்பு அளவீட்டினைப் பயன்படுத்தி இடங்களை ஆய்வு செய்து உங்கள் பயணங்களை பாதுகாப்பாக திட்டமிடுங்கள்.';
+      'பாதுகாப்பான அளவுருக்களைப் பயன்படுத்தி யாருடனும் எங்கும் எதையும் பாதுகாப்பாக ஒழுங்கமைக்கவும்.';
 
   @override
-  String get introductionTwoText =>
-      'பதிவு செய்யப்பட்ட பயணிகள் எங்கள் சமூகத்துடன் இணைந்து அவர்களின் அனுபவங்களை அறிந்து கொள்ளுங்கள்.';
+  String get introductionTwoText => 'மேம்பட்ட பயன்பாட்டு தொடர்பு.';
 
   @override
-  String get introductionThreeText =>
-      'WorldTour-ல் ஒரு பாதுகாப்பான பயணத்தை அனுபவிக்கவும்';
+  String get introductionThreeText => 'பயணத்தின்போதும் அறிந்திருங்கள்.';
 
   @override
   String get nextText => 'அடுத்து';
 
   @override
-  String get skipText => 'தவிர்க்கவும்';
+  String get skipText => 'தவிர்';
 
   @override
-  String get signUpText => 'பதிவு செய்யவும்';
+  String get signUpText => 'பதிவு செய்க';
 
   @override
-  String get loginText => 'உள்நுழைய';
+  String get loginText => 'உள்நுழை';
 
   @override
-  String get alreadyHaveAnAccountText => 'ஏற்கனவே ஒரு கணக்கு உள்ளதா?';
+  String get alreadyHaveAnAccountText => 'ஏற்கனவே கணக்கு உள்ளதா?';
 
   @override
   String get welcomeText => 'வரவேற்பு';
 
   @override
-  String get userNameText => 'பயனர் பெயர்';
+  String get userNameText => 'பயனர்பெயர்';
 
   @override
-  String get passwordText => 'கடவுச்சொல்';
+  String get passwordText => 'கடவுச்சொல்';
 
   @override
-  String get tenantHint => 'Tenant/Company';
+  String get tenantHint => 'நிறுவனம் / குழு';
 
   @override
-  String get rememberMeText => 'என்னை நினைவில் வைக்கவும்';
+  String get rememberMeText => 'என்னை நினைவில் கொள்';
 
   @override
   String get doNotHaveAccountText => 'கணக்கு இல்லையா?';
@@ -73,7 +71,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get iAgreeToAllTermsText =>
-      'எல்லா விதிமுறைகளுக்கும் நான் ஒப்புக்கொள்கிறேன்';
+      'நான் அனைத்து விதிமுறைகளையும் ஏற்றுக்கொள்கிறேன்';
 
   @override
   String get fullNameText => 'முழு பெயர்';
@@ -82,14 +80,14 @@ class AppLocalizationsTa extends AppLocalizations {
   String get emailAddressText => 'மின்னஞ்சல் முகவரி';
 
   @override
-  String get emailOrUsernameText => 'மின்னஞ்சல் / பயனர் பெயர்';
+  String get emailOrUsernameText => 'மின்னஞ்சல் / பயனர்பெயர்';
 
   @override
   String get iAgreeToReceiveNewslettersText =>
-      'செய்திமடல்களைப் பெற நான் உடன்படுகிறேன்';
+      'செய்திமடல்களைப் பெற நான் ஒப்புக்கொள்கிறேன்';
 
   @override
-  String get subscribeText => 'சேர்';
+  String get subscribeText => 'சந்தா';
 
   @override
   String get categoryText => 'வகை';
@@ -98,7 +96,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get homeText => 'முகப்பு';
 
   @override
-  String get searchText => 'தேடு';
+  String get searchText => 'தேடல்';
 
   @override
   String get profileText => 'சுயவிவரம்';
@@ -110,7 +108,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get readLessText => 'குறைவாக படிக்க';
 
   @override
-  String get searchForText => 'இதைத் தேட...';
+  String get searchForText => 'தேட...';
 
   @override
   String get settingsText => 'அமைப்புகள்';
@@ -122,19 +120,19 @@ class AppLocalizationsTa extends AppLocalizations {
   String get termsText => 'விதிமுறைகள்';
 
   @override
-  String get menuText => 'மெனு';
+  String get menuText => 'பட்டி';
 
   @override
   String get myAccountText => 'என் கணக்கு';
 
   @override
-  String get notificationText => 'அறிவிப்புகள்';
+  String get notificationText => 'அறிவிப்பு';
 
   @override
   String get languageText => 'மொழி';
 
   @override
-  String get faqText => 'கேள்விகள் & பதில்கள்';
+  String get faqText => 'அடிக்கடி கேட்கப்படும் கேள்விகள்';
 
   @override
   String get privacyPolicyText => 'தனியுரிமைக் கொள்கை';
@@ -143,20 +141,20 @@ class AppLocalizationsTa extends AppLocalizations {
   String get termsConditionsText => 'விதிமுறைகள் மற்றும் நிபந்தனைகள்';
 
   @override
-  String get contactUsText => 'எங்களை தொடர்பு கொள்ளவும்';
+  String get contactUsText => 'தொடர்பு கொள்ளவும்';
 
   @override
-  String get noNotificationFoundText => 'எந்த அறிவிப்பும் இல்லை';
+  String get noNotificationFoundText => 'அறிவிப்பு எதுவும் இல்லை';
 
   @override
   String get notificationSubTitleText =>
       'எங்களுக்கு எந்த அறிவிப்பும் கிடைக்கவில்லை';
 
   @override
-  String get notificationSubTitle2Text => 'ஆராயத்தைத் தொடங்குவோம்';
+  String get notificationSubTitle2Text => 'ஆராய்வோம்';
 
   @override
-  String get newText => 'புதியது';
+  String get newText => 'புதிய';
 
   @override
   String get companyName => 'நிறுவனத்தின் பெயர்';
@@ -165,13 +163,13 @@ class AppLocalizationsTa extends AppLocalizations {
   String get signIn => 'உள்நுழைய';
 
   @override
-  String get pinCode => 'PIN குறியீடு';
+  String get pinCode => 'பின் குறியீடு';
 
   @override
-  String get forgetPw => 'கடவுச்சொல்லை மறவிட்டீர்களா?';
+  String get forgetPw => 'கடவுச்சொல் மறந்துவிட்டதா?';
 
   @override
-  String get click => 'தட்டவும்';
+  String get click => 'கிளிக் செய்யவும்';
 
   @override
   String get epfnumber => 'EPF எண்';
@@ -180,43 +178,43 @@ class AppLocalizationsTa extends AppLocalizations {
   String get viewMore => 'மேலும் காண்க';
 
   @override
-  String get checkIn => 'வருகை பதிவு';
+  String get checkIn => 'வருகை';
 
   @override
-  String get checkOut => 'புறப்படுதல்';
+  String get checkOut => 'வெளியேறு';
 
   @override
   String get leaveText => 'என் விடுமுறைகள்';
 
   @override
-  String get attendanceText => 'ஹாஜற்';
+  String get attendanceText => 'என் வருகை';
 
   @override
   String get continueText => 'தொடர்க';
 
   @override
-  String get leaveRequest => 'விடுமுறை கோரிக்கை';
+  String get leaveRequest => 'விடுப்பு கோரிக்கை';
 
   @override
-  String get submit => 'சமர்ப்பிக்கவும்';
+  String get submit => 'சமர்ப்பி';
 
   @override
   String get apply => 'விண்ணப்பிக்கவும்';
 
   @override
-  String get rosterText => 'என் ரோஸ்டர்';
+  String get rosterText => 'என் பட்டியல்';
 
   @override
-  String get emailValidation => 'தயவு செய்து மின்னஞ்சல் முகவரியை உள்ளிடுங்கள்';
+  String get emailValidation => 'மின்னஞ்சல் முகவரியை உள்ளிடவும்';
 
   @override
-  String get tenantValidation => 'தயவு செய்து நிறுவனப் பெயரைக் குறிப்பிடுக';
+  String get tenantValidation => 'நிறுவனத்தின் பெயரை உள்ளிடவும்';
 
   @override
-  String get epfValidation => 'தயவு செய்து EPF எண்ணை உள்ளிடவும்';
+  String get epfValidation => 'EPF எண்ணை உள்ளிடவும்';
 
   @override
-  String get pinCodeValidation => 'தயவு செய்து PIN குறியீடு உள்ளிடவும்';
+  String get pinCodeValidation => 'பின் குறியீட்டை உள்ளிடவும்';
 
   @override
   String get january => 'ஜனவரி';
@@ -255,85 +253,91 @@ class AppLocalizationsTa extends AppLocalizations {
   String get december => 'டிசம்பர்';
 
   @override
-  String get leaveApprove => 'விடுமுறை ஒப்புதல்';
+  String get leaveApprove => 'விடுப்பு ஒப்புதல்';
 
   @override
-  String get leaveReject => 'விடுமுறை நிராகரிப்பு';
+  String get leaveReject => 'விடுப்பு நிராகரிப்பு';
 
   @override
-  String get salarySlips => 'இலட்சம் பதிவுகள்';
+  String get scannText =>
+      'QR குறியீட்டை சதுரத்தின் மையத்தில் வைக்கவும். அது தானாகவே ஸ்கேன் செய்யப்படும்.';
 
   @override
-  String get salarySlipHistory => 'சம்பளச் சீட்டு வரலாறு';
+  String get salarySlips => 'சம்பள சீட்டுகள்';
 
   @override
-  String get salarySlipLabel => 'சம்பளப் சீட்டு';
+  String get salarySlipHistory => 'சம்பள சீட்டு வரலாறு';
 
   @override
-  String get htmlPreviewNotWired => 'HTML முன்னோட்டம் இன்னும் இணைக்கப்படவில்லை';
+  String get salarySlipLabel => 'சம்பள சீட்டு';
 
   @override
-  String get thisMonthLabel => 'This Month';
+  String get htmlPreviewNotWired =>
+      'HTML மாதிரிக்காட்சி இன்னும் இணைக்கப்படவில்லை';
 
   @override
-  String get pastMonthLabel => 'Past Month';
+  String get thisMonthLabel => 'இந்த மாதம்';
+
+  @override
+  String get pastMonthLabel => 'கடந்த மாதம்';
 
   @override
   String get noRecords => 'பதிவுகள் இல்லை';
 
   @override
-  String get refresh => 'புதுப்பிக்கவும்';
+  String get refresh => 'புதுப்பிக்க';
 
   @override
-  String get nic => 'ஜா.ஹெ.அ';
+  String get nic => 'தே.அ.அட்டை';
 
   @override
   String get ssoLogin => 'SSO உள்நுழைவு';
 
   @override
-  String get profilePictureUpdated => 'Profile picture updated successfully';
+  String get profilePictureUpdated =>
+      'சுயவிவரப் படம் வெற்றிகரமாகப் புதுப்பிக்கப்பட்டது';
 
   @override
-  String get failedToUpdatePicture => 'Failed to update picture';
+  String get failedToUpdatePicture => 'படத்தைப் புதுப்பிக்க முடியவில்லை';
 
   @override
-  String get confirmLabel => 'Confirm';
+  String get confirmLabel => 'உறுதிப்படுத்து';
 
   @override
-  String get cancelLabel => 'Cancel';
+  String get cancelLabel => 'ரத்துசெய்';
 
   @override
-  String get leaveRequestLabel => 'விடுமுறை கோரிக்கை';
+  String get leaveRequestLabel => 'விடுப்பு கோரிக்கை';
 
   @override
-  String get leaveDetailsLabel => 'Leave Details';
+  String get leaveDetailsLabel => 'விடுப்பு விவரங்கள்';
 
   @override
-  String get confirmLeave => 'விடுமுறையை உறுதிப்படுத்தவும்';
+  String get confirmLeave => 'விடுப்பை உறுதிப்படுத்து';
 
   @override
-  String get fromLabel => 'From';
+  String get fromLabel => 'இருந்து';
 
   @override
-  String get toLabel => 'To';
+  String get toLabel => 'வரை';
 
   @override
-  String get daysLabel => 'Days';
+  String get daysLabel => 'நாட்கள்';
 
   @override
-  String get leaveTypeLabel => 'Leave Type';
+  String get leaveTypeLabel => 'விடுப்பு வகை';
 
   @override
-  String get annualLabel => 'ஒரு முறை';
+  String get annualLabel => 'ஆண்டு';
 
   @override
-  String get casualLabel => 'ஜனரல்';
+  String get casualLabel => 'சாதாரண';
 
   @override
   String get medicalLabel => 'மருத்துவம்';
 
   @override
-  String get leaveMode => 'விடுமுறை முறை';
+  String get leaveMode => 'விடுப்பு முறை';
 
   @override
   String get fullDay => 'முழு நாள்';
@@ -342,149 +346,425 @@ class AppLocalizationsTa extends AppLocalizations {
   String get halfDay => 'அரை நாள்';
 
   @override
-  String get alternative => 'பக்கவாட்டு';
+  String get alternative => 'மாற்று';
 
   @override
-  String get fromToDescription => 'இருந்து வரை விவரம்';
+  String get fromToDescription =>
+      'தொடக்க மற்றும் இறுதி தேதிகளைத் தேர்ந்தெடுக்கவும்';
 
   @override
-  String get leaveBalanceTitle => 'என் விடுமுறைக் இருப்பு';
+  String get leaveBalanceTitle => 'விடுப்பு நிலுவைகள்';
 
   @override
-  String get attendanceForThisMonth => 'Attendance for this Month';
+  String get attendanceForThisMonth => 'இந்த மாதத்திற்கான வருகை';
 
   @override
-  String get presentLabel => 'Present';
+  String get presentLabel => 'வருகை';
 
   @override
-  String get absentsLabel => 'Absents';
+  String get absentsLabel => 'வராதவை';
 
   @override
-  String get lateInLabel => 'Late in';
+  String get lateInLabel => 'தாமதமாக';
 
   @override
-  String get dayOffLabel => 'DayOff';
+  String get dayOffLabel => 'விடுமுறை நாள்';
 
   @override
-  String get shiftLabel => 'Shift';
+  String get shiftLabel => 'முறை';
 
   @override
-  String get inLabel => 'IN :';
+  String get inLabel => 'உள் :';
 
   @override
-  String get outLabel => 'OUT :';
+  String get outLabel => 'வெளி :';
 
   @override
-  String get viewDetails => 'View Details';
+  String get viewDetails => 'விவரங்களைக் காண்க';
 
   @override
-  String get workedHeader => 'WORKED';
+  String get workedHeader => 'வேலை செய்தது';
 
   @override
-  String get lateHeader => 'LATE';
+  String get lateHeader => 'தாமதம்';
 
   @override
-  String get overHeader => 'OVER';
+  String get overHeader => 'கூடுதல்';
 
   @override
-  String get allowanceDeductions => 'Allowances & Deductions';
+  String get allowanceDeductions => 'கொடுப்பனவுகள் மற்றும் கழிவுகள்';
 
   @override
-  String get debtLoans => 'Debts & Loans';
+  String get debtLoans => 'கடன்கள் மற்றும் கடன்கள்';
 
   @override
-  String get logoutTitle => 'Logout';
+  String get logoutTitle => 'வெளியேறு';
 
   @override
-  String get logoutConfirmation => 'Are you sure you want to logout?';
+  String get logoutConfirmation =>
+      'நீங்கள் நிச்சயமாக வெளியேற விரும்புகிறீர்களா?';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'ரத்துசெய்';
 
   @override
-  String get myProfileTitle => 'My Profile';
+  String get myProfileTitle => 'என் சுயவிவரம்';
 
   @override
-  String get loadingProfile => 'Loading profile...';
+  String get loadingProfile => 'சுயவிவரம் ஏற்றப்படுகிறது...';
 
   @override
   String get epfLabel => 'EPF: ';
 
   @override
-  String get notAdded => 'Not added';
+  String get notAdded => 'சேர்க்கப்படவில்லை';
 
   @override
-  String get personalInformation => 'Personal Information';
+  String get personalInformation => 'தனிப்பட்ட தகவல்';
 
   @override
-  String get phoneLabel => 'Phone';
+  String get phoneLabel => 'தொலைபேசி';
 
   @override
-  String get addressLabel => 'Address';
+  String get addressLabel => 'முகவரி';
 
   @override
-  String get nicLabel => 'NIC';
+  String get nicLabel => 'தே.அ.அட்டை';
 
   @override
-  String get dateOfBirth => 'Date of Birth';
+  String get dateOfBirth => 'பிறந்த தேதி';
 
   @override
-  String get fromToLabel => 'From / To';
+  String get fromToLabel => 'இருந்து / வரை';
 
   @override
-  String get cannotSelectPastDate => 'Cannot select a past date';
+  String get cannotSelectPastDate => 'கடந்த தேதியைத் தேர்ந்தெடுக்க முடியாது';
 
   @override
-  String get fromDateCannotBeAfterTo => 'From date cannot be after To date';
+  String get fromDateCannotBeAfterTo =>
+      'தொடக்க தேதி இறுதி தேதிக்கு பிறகு இருக்க முடியாது';
 
   @override
-  String get toDateMustBeAfterFrom => 'To date must be after From date';
+  String get toDateMustBeAfterFrom =>
+      'இறுதி தேதி தொடக்க தேதிக்கு பிறகு இருக்க வேண்டும்';
 
   @override
-  String get noteLabel => 'Note';
+  String get noteLabel => 'குறிப்பு';
 
   @override
   String get optional => 'விருப்பத்தேர்வு';
 
   @override
-  String get leaveHistory => 'விடுமுறை வரலாறு';
+  String get leaveHistory => 'விடுப்பு வரலாறு';
 
   @override
-  String get allLabel => 'அனைத்து';
+  String get allLabel => 'அனைத்தும்';
 
   @override
-  String get allowancesLabel => 'அனுமதிகள்';
+  String get allowancesLabel => 'கொடுப்பனவுகள்';
 
   @override
-  String get deductionsLabel => 'கழிப்புகள்';
+  String get deductionsLabel => 'கழிவுகள்';
 
   @override
-  String get noAllowancesFound => 'அனுமதிகள் கிடையாது';
+  String get noAllowancesFound => 'கொடுப்பனவுகள் எதுவும் இல்லை';
 
   @override
-  String get noDeductionsFound => 'கழிப்புகள் கிடையாது';
+  String get noDeductionsFound => 'கழிவுகள் எதுவும் இல்லை';
 
   @override
-  String get processedLabel => 'செயல்படுத்தப்பட்டது';
+  String get processedLabel => 'செயலாக்கப்பட்டது';
 
   @override
-  String get pendingLabel => 'மாறியிருக்கும்';
+  String get pendingLabel => 'நிலுவையில்';
 
   @override
-  String get retryLabel => 'மீண்டும் முயற்சி செய்';
+  String get retryLabel => 'மீண்டும் முயற்சிக்கவும்';
 
   @override
-  String get debtsLabel => 'கடன்';
+  String get debtsLabel => 'கடன்கள்';
 
   @override
-  String get loansLabel => 'கடனுதவி';
+  String get loansLabel => 'கடன்கள்';
 
   @override
-  String get noDebtsFound => 'கடன் கிடையாது';
+  String get noDebtsFound => 'கடன்கள் எதுவும் இல்லை';
 
   @override
-  String get noLoansFound => 'கடனுதவி கிடையாது';
+  String get noLoansFound => 'கடன்கள் எதுவும் இல்லை';
 
   @override
-  String get collectedLabel => 'இகழ்வுச் செய்தது';
+  String get collectedLabel => 'சேகரிக்கப்பட்டது';
+
+  @override
+  String get scanSiteCheckIn =>
+      'வருகையை இயக்க தளத்தின் QR குறியீட்டை ஸ்கேன் செய்யவும்';
+
+  @override
+  String get scanSiteCheckOut =>
+      'வெளியேற தளத்தின் QR குறியீட்டை ஸ்கேன் செய்யவும்';
+
+  @override
+  String get qrNoCoordinates => 'QR இல் ஒருங்கிணைப்புகள் இல்லை';
+
+  @override
+  String get invalidQrServerError => 'தவறான QR அல்லது சேவையக பிழை';
+
+  @override
+  String qrCoordinatesNotMatch(Object meters) {
+    return 'QR மற்றும் சேவையக ஒருங்கிணைப்புகள் $meters மீ வேறுபடுகின்றன. நெருக்கமாக செல்லவும் / நிர்வாகியைத் தொடர்பு கொள்ளவும்';
+  }
+
+  @override
+  String get serverDidNotReturnCoordinates =>
+      'சேவையகம் ஒருங்கிணைப்புகளை வழங்கவில்லை';
+
+  @override
+  String get invalidServerCoordinates => 'தவறான சேவையக ஒருங்கிணைப்புகள்';
+
+  @override
+  String qrMatchesServerLocation(Object meters) {
+    return 'QR சேவையக இருப்பிடத்துடன் ($meters மீ) பொருந்துகிறது. வருகை/வெளியேறு இயக்கப்பட்டது';
+  }
+
+  @override
+  String qrCoordinatesDiffer(Object meters) {
+    return 'QR மற்றும் சேவையக ஒருங்கிணைப்புகள் $meters மீ வேறுபடுகின்றன. நெருக்கமாக செல்லவும் / நிர்வாகியைத் தொடர்பு கொள்ளவும்';
+  }
+
+  @override
+  String get noInternetConnection => 'இணைய இணைப்பு இல்லை';
+
+  @override
+  String get qrValidatedTapToPunch =>
+      'QR சரிபார்க்கப்பட்டது. 20 வினாடிகளுக்குள் வருகை / வெளியேறு என்பதைத் தட்டவும்.';
+
+  @override
+  String qrCannotPunchHere(String username) {
+    return 'வணக்கம் $username, இந்த இடத்தில் உங்களால் வருகை/வெளியேற முடியாது.';
+  }
+
+  @override
+  String get qrCoordinatesMismatchMessage =>
+      'QR மற்றும் சேவையக ஒருங்கிணைப்புகள் பொருந்தவில்லை. தயவுசெய்து இருப்பிடத்திற்கு அருகில் சென்று மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get remoteChecking => 'தொலைதூர சரிபார்ப்பு';
+
+  @override
+  String get checkInSuccess => 'வருகை வெற்றிகரமாக நடந்துவிட்டது';
+
+  @override
+  String get checkOutSuccess => 'வெளியேறல் வெற்றிகரமாக நடந்துவிட்டது';
+
+  @override
+  String get cantLocate => 'இடம் அல்லது பயனரை அடையாளம் காண முடியாது.';
+
+  @override
+  String get sessionExpired => 'அமர்வு காலாவதி. தயவுசெய்து மீண்டும் உள்நுழைக.';
+
+  @override
+  String get filedToPerform => 'செயல்பாட்டை நிறைவேற்ற முடியவில்லை';
+
+  @override
+  String get activeRemoteCheking =>
+      'தொலைதூர வருகைப் பதிவு இயக்கப்பட்டது. 20 வினாடிகளுக்குள் நுழைய/வெளியேற தட்டவும்.';
+
+  @override
+  String get approvedLable => 'அனுமதிக்கப்பட்டது';
+
+  @override
+  String get pendindingLable => 'நிலுவையில்';
+
+  @override
+  String get rejectedLable => 'நிராகரிக்கப்பட்டது';
+
+  @override
+  String get loadedLeaveLable => 'மொத்த விடுப்பு எண்ணிக்கை';
+
+  @override
+  String get leaveSummary => 'விடுப்பு சுருக்கம்';
+
+  @override
+  String get totalRequests => 'மொத்த கோரிக்கைகள்';
+
+  @override
+  String get availableBalance => 'மீதமுள்ள விடுப்பு';
+
+  @override
+  String get submitRequest => 'கோரிக்கை சமர்ப்பிக்க';
+
+  @override
+  String get leaveAppliedSuccessfully =>
+      'விடுப்பு விண்ணப்பம் வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது';
+
+  @override
+  String get invalidDetailsPleaseCheckYourForm =>
+      'தவறான விவரங்கள். உங்கள் படிவத்தை சரிபார்க்கவும்.';
+
+  @override
+  String get failedToSubmitLeave =>
+      'விடுப்பு விண்ணப்பத்தை சமர்ப்பிக்க முடியவில்லை.';
+
+  @override
+  String get generalShift => 'பொது பணி நேரம்';
+
+  @override
+  String get shortLeave => 'குறுகிய விடுப்பு';
+
+  @override
+  String get morning => 'காலை 2 மணி நேரம்';
+
+  @override
+  String get evening => 'மாலை 2 மணி நேரம்';
+
+  @override
+  String get workingHrs => 'மொத்த நேரம்';
+
+  @override
+  String get refreshSuccess => 'புதுப்பிப்பு வெற்றிகரமாக முடிந்தது';
+
+  @override
+  String get refreshing => 'புதுப்பிக்கப்படுகிறது...';
+
+  @override
+  String get myTeam => 'என் குழு';
+
+  @override
+  String get serverError =>
+      'இந்தப் பக்கத்தை வழங்க இயலாது. தயவுசெய்து உங்கள் நிறுவனத்தைத் தொடர்புகொள்ளவும்.';
+
+  @override
+  String get rs => 'ரூபாய்.';
+
+  @override
+  String get loading => 'ஏற்றப்படுகிறது....';
+
+  @override
+  String get create => 'கோரிக்கை';
+
+  @override
+  String get review => 'காண்க';
+
+  @override
+  String get nopayLabel => 'ஊதியம் இல்லை';
+
+  @override
+  String get selectTeamMember => 'குழு உறுப்பினரைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get employeeDetails => 'ஊழியர் விவரங்கள்';
+
+  @override
+  String get leaveDetails => 'விடுப்பு விவரங்கள்';
+
+  @override
+  String get leaveDuration => 'விடுப்பு காலம்';
+
+  @override
+  String get leaveTypeTitle => 'விடுப்பு வகை';
+
+  @override
+  String get leaveDates => 'விடுப்பு தேதிகள்';
+
+  @override
+  String get reason => 'காரணம்';
+
+  @override
+  String get day => 'நாள்';
+
+  @override
+  String get days => 'நாட்கள்';
+
+  @override
+  String get allTeamMembers => 'அனைத்து குழு உறுப்பினர்கள்';
+
+  @override
+  String get members => 'உறுப்பினர்கள்';
+
+  @override
+  String get member => 'உறுப்பினர்';
+
+  @override
+  String get present => 'வருகை';
+
+  @override
+  String get inOnly => 'உள்நுழைவு மட்டும்';
+
+  @override
+  String get outOnly => 'வெளியேறு மட்டும்';
+
+  @override
+  String get leaveApproved => 'விடுப்பு வெற்றிகரமாக அனுமதிக்கப்பட்டது';
+
+  @override
+  String get leaveRejected => 'விடுப்பு வெற்றிகரமாக நிராகரிக்கப்பட்டது';
+
+  @override
+  String get leaveApproveFailed => 'விடுப்பை அனுமதிக்க முடியவில்லை';
+
+  @override
+  String get leaveRejectFailed => 'விடுப்பை நிராகரிக்க முடியவில்லை';
+
+  @override
+  String errorPrefix(Object error) {
+    return 'பிழை: $error';
+  }
+
+  @override
+  String get teamDataLoadedSuccessfully => 'குழு தரவு வெற்றிகரமாக ஏற்றப்பட்டது';
+
+  @override
+  String get failedToLoadTeamData => 'குழு தரவை ஏற்ற முடியவில்லை';
+
+  @override
+  String get weAreHere => 'நாங்கள் உங்களுக்கு உதவ இங்கே இருக்கிறோம்';
+
+  @override
+  String get reachOut => 'கீழே உள்ள வழிகளில் எங்களை தொடர்பு கொள்ளுங்கள்.';
+
+  @override
+  String get getInTouch => 'தொடர்பு கொள்ளவும்';
+
+  @override
+  String get emailSupport => 'மின்னஞ்சல் ஆதரவு';
+
+  @override
+  String get phoneSupport => 'தொலைபேசி ஆதரவு';
+
+  @override
+  String get liveChat => 'நேரடி அரட்டை';
+
+  @override
+  String get chatWhatsApp => 'WhatsApp மூலம் எங்களுடன் பேசுங்கள்';
+
+  @override
+  String get office => 'அலுவலகம்';
+
+  @override
+  String get headOffice => 'முதன்மை அலுவலகம்';
+
+  @override
+  String get officeAddress => '123 மெயின் வீதி,\nகொழும்பு 03,\nஇலங்கை.';
+
+  @override
+  String get businessHours => 'வணிக நேரங்கள்';
+
+  @override
+  String get weekdays => 'திங்கள் – வெள்ளி';
+
+  @override
+  String get weekdayHours => 'காலை 8:30 – மாலை 5:30';
+
+  @override
+  String get saturday => 'சனி';
+
+  @override
+  String get saturdayHours => 'காலை 8:30 – பிற்பகல் 1:30';
+
+  @override
+  String get sunday => 'ஞாயிறு';
+
+  @override
+  String get closed => 'மூடப்பட்டுள்ளது';
 }

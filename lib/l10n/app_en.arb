@@ -1,505 +1,286 @@
 {
-    "language": "English",
-    "@language":{
-      "description": "The current Language"
-    },
-    "helloWorld": "Hello World!",
-    "@helloWorld": {
-      "description": "A programmer greeting"
-    },
-
-    "apNameText": "Travel",
-    "@apNameText": {
-      "description": "Travel"
-    },
-
-    "introductionOneText" : "Organize anything with anyone anywhere.",
-    "@introductionOneText": {
-      "description": "introductionOneText"
-    },
-
-    "introductionTwoText" : "Enhanced in-app communication.",
-    "@introductionTwoText": {
-      "description": "introductionTwoText"
-    },
-
-    "introductionThreeText" : "Stay in the know - even on the go.",
-    "@introductionThreeText": {
-      "description": "introductionThreeText"
-    },
-
-    "nextText" : "Next",
-    "@nextText": {
-      "description": "nextText"
-    },
-
-    "skipText" : "Skip",
-    "@skipText": {
-      "description": "skipText"
-    },
-
-    "signUpText" : "Sign up",
-    "@signUpText": {
-      "description": "signUpText"
-    },
-
-    "loginText" : "Login",
-    "@loginText": {
-      "description": "loginText"
-    },
- 
-    "alreadyHaveAnAccountText" : "Already have an account?",
-    "@alreadyHaveAnAccountText": {
-      "description": "alreadyHaveAnAccountText"
-    },
-
-    "welcomeText" : "Welcome",
-    "@welcomeText": {
-      "description": "welcomeText"
-    },
-
-    "userNameText" : "Username",
-    "@userNameText": {
-      "description": "userNameText"
-    },
-
-    "passwordText" : "Password",
-    "@passwordText": {
-      "description": "passwordText"
-    },
-
-     "tenantHint" : "Tenant/Company",
-    "@passwordText": {
-      "description": "tenantHint"
-    },
-
-    "rememberMeText" : "Remember me",
-    "@rememberMeText": {
-      "description": "rememberMeText"
-    },
-
-    "doNotHaveAccountText" : "Don't have account?",
-    "@doNotHaveAccountText": {
-      "description": "doNotHaveAccountText"
-    },
-
-    "emailText" : "Email",
-    "@emailText": {
-      "description": "emailText"
-    },
-
-    "countryText" : "Country",
-    "@countryText": {
-      "description": "countryText"
-    },
- 
-    "birthdayText" : "Birthday",
-    "@birthdayText": {
-      "description": "birthdayText"
-    },
-
-    "iAgreeToAllTermsText" : "I agree to all terms",
-    "@iAgreeToAllTermsText": {
-      "description": "iAgreeToAllTermsText"
-    },
- 
-
-    "fullNameText" : "Full name",
-    "@fullNameText": {
-      "description": "fullNameText"
-    },
-
-    "emailAddressText" : "Email Address",
-    "@emailAddressText": {
-      "description": "emailAddressText"
-    },
-
-    "emailOrUsernameText" : "Email / UserName",
-    "@emailOrUsernameText": {
-      "description": "emailOrUsernameText"
-    },
-
-    "iAgreeToReceiveNewslettersText" : "I agree to receive newsletters",
-    "@iAgreeToReceiveNewslettersText": {
-      "description": "iAgreeToReceiveNewslettersText"
-    },
-
-    "subscribeText" : "Subscribe",
-    "@subscribeText": {
-      "description": "subscribeText"
-    },
-
-    "categoryText" : "Category",
-    "@categoryText": {
-      "description": "categoryText"
-    },
-
-    "homeText" : "Home",
-    "@homeText": {
-      "description": "homeText"
-    },
-
-    "searchText" : "Search",
-    "@searchText": {
-      "description": "searchText"
-    },
-
-    "profileText" : "Profile",
-    "@profileText": {
-      "description": "profileText"
-    },
-
-    "readMoreText" : "Read More...",
-    "@readMoreText": {
-      "description": "readMoreText"
-    },
-
-    "readLessText" : "Read Less",
-    "@readLessText": {
-      "description": "readLessText"
-    },
-
-    "searchForText" : "Search for...",
-    "@searchForText": {
-      "description": "searchForText"
-    },
-
-    "settingsText" : "Settings",
-    "@settingsText": {
-      "description": "settingsText"
-    },
-
-    "logoutText" : "Logout",
-    "@logoutText": {
-      "description": "logoutText"
-    },
-
-    "termsText" : "Terms",
-    "@termsText": {
-      "description": "termsText"
-    },
-
-    "menuText" : "Menu",
-    "@menuText": {
-      "description": "menuText"
-    },
-
-    "myAccountText" : "My account",
-    "@myAccountText": {
-      "description": "myAccountText"
-    },
-
-    "notificationText" : "Notification",
-    "@notificationText": {
-      "description": "notificationText"
-    },
-
-    "languageText" : "Language",
-    "@languageText": {
-      "description": "languageText"
-    },
-
-    "faqText" : "FAQ",
-    "@faqText": {
-      "description": "faqText"
-    },
-
-    "privacyPolicyText" : "Privacy Policy",
-    "@privacyPolicyText": {
-      "description": "privacyPolicyText"
-    },
-
-    "termsConditionsText" : "Terms & Conditions",
-    "@termsConditionsText": {
-      "description": "termsConditionsText"
-    },
-
-    "contactUsText" : "Contact Us",
-    "@contactUsText": {
-      "description": "contactUsText"
-    },
- 
-    "noNotificationFoundText" : "No notification found",
-    "@noNotificationFoundText": {
-      "description": "noNotificationFoundText"
-    },
-
-    "notificationSubTitleText" : "We did not found any notification",
-    "@notificationSubTitleText": {
-      "description": "notificationSubTitleText"
-    },
-
-    "notificationSubTitle2Text" : "Lets start exploring",
-    "@notificationSubTitle2Text": {
-      "description": "notificationSubTitle2Text"
-    },
-    
-    "newText" : "NEW",
-    "@newText": {
-      "description": "newText"
-    },
-
-    "companyName" : "Company Name",
-    "@companyName": {
-      "description": "companyName"
-    },
-
-      "signIn" : "Sign In",
-    "@signIn": {
-      "description": "signIn"
-    },
-
-
-    "pinCode" : "PIN Code",
-    "@pinCode": {
-      "description": "pinCode"
-    },
-
-    "forgetPw" : "Forgot Password ?",
-    "@forgetPw": {
-      "description": "forgetPw"
-    },
-
-    "click" : "Click",
-    "@click": {
-      "description": "click"
-    },
-
-    "epfnumber" : "EPF Number",
-    "@epfnumber": {
-      "description": "epfnumber"
-    },
-
-    "viewMore" : "View More",
-    "@viewMore": {
-      "description": "viewMore"
-    },
-
-    "checkIn" : "Check In",
-    "@checkIn": {
-      "description": "checkIn"
-    },
-
-    "checkOut" : "Check Out",
-    "@checkOut": {
-      "description": "checkOut"
-    },
-
-    "leaveText" : "My Leaves",
-    "@leaveText": {
-      "description": "leaveText"
-    },
-
-    "attendanceText" : "My Attendance",
-    "@attendanceText": {
-      "description": "attendanceText"
-    },
- 
-    "continueText" : "Continue",
-    "@continueText": {
-      "description": "continueText"
-    },
-
-    "leaveRequest" : "Leave Request",
-    "@leaveRequest": {
-      "description": "leaveRequest"
-    },
-
-    "submit" : "Submit",
-    "@submit": {
-      "description": "submit"
-    },
-
-    "apply" : "Apply",
-    "@apply": {
-      "description": "apply"
-    },
-   
-    "rosterText" : "My Roster",
-    "@rosterText": {
-      "description": "rosterText"
-    },
-
-    "emailValidation" : "Please enter email address",
-    "@emailValidation": {
-      "description": "emailValidation"
-    },
-
-    "tenantValidation" : "Please enter company name",
-    "@tenantValidation": {
-      "description": "tenantValidation"
-    },
-
-    "epfValidation" : "Please enter epf number",
-    "@epfValidation": {
-      "description": "epfValidation"
-    },
-
-    "pinCodeValidation" : "Please enter pin code",
-    "@pinCodeValidation": {
-      "description": "pinCodeValidation"
-    },
-
-
-    "january" : "January",
-    "@january": {
-      "description": "January"
-    },
- 
-    "february" : "February",
-    "@february": {
-      "description": "February"
-    },
-
-    "march" : "March",
-    "@march": {
-      "description": "March"
-    },
- 
-    "april" : "April",
-    "@april": {
-      "description": "April"
-    },
- 
-    "may" : "May",
-    "@may": {
-      "description": "May"
-    },
- 
-    "june" : "June",
-    "@june": {
-      "description": "June"
-    },
-
-    "july" : "July",
-    "@july": {
-      "description": "July"
-    },
-
-    "august" : "August",
-    "@august": {
-      "description": "August"
-    },
- 
-    "september" : "September",
-    "@september": {
-      "description": "September"
-    },
-  
-    "october" : "October",
-    "@october": {
-      "description": "October"
-    },
-
-    "november" : "November",
-    "@november": {
-      "description": "November"
-    },
- 
-    "december" : "December",
-    "@december": {
-      "description": "December"
-    },    
-
-    "leaveApprove" : "Leave Approve",
-    "@leaveApprove": {
-      "description": "Leave Approve"
-    },    
-    
-    "leaveReject" : "Leave Reject",
-    "@leaveReject": {
-      "description": "Leave Reject"
-    },
-
-    "salarySlips" : "Salary Slips",
-
-    "salarySlipHistory": "Salary Slip History",
-    "salarySlipLabel": "Salary Slip",
-    "htmlPreviewNotWired": "HTML preview is not wired yet.",
-
-    "thisMonthLabel": "This Month",
-    "pastMonthLabel": "Past Month",
-
-    "noRecords": "No records",
-    "refresh": "Refresh",
-
-    "nic": "NIC",
-    "ssoLogin": "SSO Login",
-
-    "profilePictureUpdated": "Profile picture updated successfully",
-    "failedToUpdatePicture": "Failed to update picture",
-
-    "confirmLabel": "Confirm",
-    "cancelLabel": "Cancel",
-
-    "leaveRequestLabel": "Leave Request",
-    "leaveDetailsLabel": "Leave Details",
-    "confirmLeave": "Confirm Leave",
-    "fromLabel": "From",
-    "toLabel": "To",
-    "daysLabel": "Days",
-    "leaveTypeLabel": "Leave Type",
-    "annualLabel": "Annual",
-    "casualLabel": "Casual",
-    "medicalLabel": "Medical",
-    "leaveMode": "Leave Mode",
-    "fullDay": "Full Day",
-    "halfDay": "Half Day",
-    "alternative": "Alternative",
-    "fromToDescription": "Select start and end dates",
-    "leaveBalanceTitle": "Leave Balances",
-
-    "attendanceForThisMonth": "Attendance for this Month",
-    "presentLabel": "Present",
-    "absentsLabel": "Absents",
-    "lateInLabel": "Late in",
-    "dayOffLabel": "DayOff",
-    "shiftLabel": "Shift",
-    "inLabel": "IN :",
-    "outLabel": "OUT :",
-    "viewDetails": "View Details",
-    "workedHeader": "WORKED",
-    "lateHeader": "LATE",
-    "overHeader": "OVER",
-
-    "allowanceDeductions": "Allowances & Deductions",
-    "debtLoans": "Debts & Loans",
-
-    "logoutTitle": "Logout",
-    "logoutConfirmation": "Are you sure you want to logout?",
-    "cancel": "Cancel",
-    "myProfileTitle": "My Profile",
-    "loadingProfile": "Loading profile...",
-    "epfLabel": "EPF: ",
-    "notAdded": "Not added",
-    "personalInformation": "Personal Information",
-    "phoneLabel": "Phone",
-    "addressLabel": "Address",
-    "nicLabel": "NIC",
-    "dateOfBirth": "Date of Birth",
-
-    "fromToLabel": "From / To",
-    "cannotSelectPastDate": "Cannot select a past date",
-    "fromDateCannotBeAfterTo": "From date cannot be after To date",
-    "toDateMustBeAfterFrom": "To date must be after From date",
-    "noteLabel": "Note",
-    "optional": "Optional",
-
-    "leaveHistory": "Leave History",
-
-    "allLabel": "All",
-    "allowancesLabel": "Allowances",
-    "deductionsLabel": "Deductions",
-    "noAllowancesFound": "No allowances found",
-    "noDeductionsFound": "No deductions found",
-    "processedLabel": "Processed",
-    "pendingLabel": "Pending",
-    "retryLabel": "Retry",
-
-    "debtsLabel": "Debts",
-    "loansLabel": "Loans",
-    "noDebtsFound": "No debts found",
-    "noLoansFound": "No loans found",
-    "collectedLabel": "Collected"
-
-}
+  "language": "English",
+  "helloWorld": "Hello World!",
+  "apNameText": "Travel",
+  "introductionOneText": "Organize anything with anyone anywhere.",
+  "introductionTwoText": "Enhanced in-app communication.",
+  "introductionThreeText": "Stay in the know - even on the go.",
+  "nextText": "Next",
+  "skipText": "Skip",
+  "signUpText": "Sign up",
+  "loginText": "Login",
+  "alreadyHaveAnAccountText": "Already have an account?",
+  "welcomeText": "Welcome",
+  "userNameText": "Username",
+  "passwordText": "Password",
+  "tenantHint": "Tenant/Company",
+  "rememberMeText": "Remember me",
+  "doNotHaveAccountText": "Don't have account?",
+  "emailText": "Email",
+  "countryText": "Country",
+  "birthdayText": "Birthday",
+  "iAgreeToAllTermsText": "I agree to all terms",
+  "fullNameText": "Full name",
+  "emailAddressText": "Email Address",
+  "emailOrUsernameText": "Email / UserName",
+  "iAgreeToReceiveNewslettersText": "I agree to receive newsletters",
+  "subscribeText": "Subscribe",
+  "categoryText": "Category",
+  "homeText": "Home",
+  "searchText": "Search",
+  "profileText": "Profile",
+  "readMoreText": "Read More...",
+  "readLessText": "Read Less",
+  "searchForText": "Search for...",
+  "settingsText": "Settings",
+  "logoutText": "Logout",
+  "termsText": "Terms",
+  "menuText": "Menu",
+  "myAccountText": "My account",
+  "notificationText": "Notification",
+  "languageText": "Language",
+  "faqText": "FAQ",
+  "privacyPolicyText": "Privacy Policy",
+  "termsConditionsText": "Terms & Conditions",
+  "contactUsText": "Contact Us",
+  "noNotificationFoundText": "No notification found",
+  "notificationSubTitleText": "We did not found any notification",
+  "notificationSubTitle2Text": "Lets start exploring",
+  "newText": "NEW",
+  "companyName": "Company Name",
+  "signIn": "Sign In",
+  "pinCode": "PIN Code",
+  "forgetPw": "Forgot Password ?",
+  "click": "Click",
+  "epfnumber": "EPF Number",
+  "viewMore": "View More",
+  "checkIn": "Check In",
+  "checkOut": "Check Out",
+  "leaveText": "My Leaves",
+  "attendanceText": "My Attendance",
+  "continueText": "Continue",
+  "leaveRequest": "Leave Request",
+  "submit": "Submit",
+  "apply": "Apply",
+  "rosterText": "My Roster",
+  "emailValidation": "Please enter email address",
+  "tenantValidation": "Please enter company name",
+  "epfValidation": "Please enter epf number",
+  "pinCodeValidation": "Please enter pin code",
+  "january": "January",
+  "february": "February",
+  "march": "March",
+  "april": "April",
+  "may": "May",
+  "june": "June",
+  "july": "July",
+  "august": "August",
+  "september": "September",
+  "october": "October",
+  "november": "November",
+  "december": "December",
+  "leaveApprove": "Leave Approve",
+  "leaveReject": "Leave Reject",
+  "scannText": "please keep the QR code in the center of the square.It will be scenned automatically.",
+  "salarySlips": "Salary Slips",
+  "salarySlipHistory": "Salary Slip History",
+  "salarySlipLabel": "Salary Slip",
+  "htmlPreviewNotWired": "HTML preview is not wired yet.",
+  "thisMonthLabel": "This Month",
+  "pastMonthLabel": "Past Month",
+  "noRecords": "No records",
+  "refresh": "Refresh",
+  "nic": "NIC",
+  "ssoLogin": "SSO Login",
+  "profilePictureUpdated": "Profile picture updated successfully",
+  "failedToUpdatePicture": "Failed to update picture",
+  "confirmLabel": "Confirm",
+  "cancelLabel": "Cancel",
+  "leaveRequestLabel": "Leave Request",
+  "leaveDetailsLabel": "Leave Details",
+  "confirmLeave": "Confirm Leave",
+  "fromLabel": "From",
+  "toLabel": "To",
+  "daysLabel": "Days",
+  "leaveTypeLabel": "Leave Type",
+  "annualLabel": "Annual",
+  "casualLabel": "Casual",
+  "medicalLabel": "Medical",
+  "leaveMode": "Leave Mode",
+  "fullDay": "Full Day",
+  "halfDay": "Half Day",
+  "alternative": "Alternative",
+  "fromToDescription": "Select start and end dates",
+  "leaveBalanceTitle": "Leave Balances",
+  "attendanceForThisMonth": "Attendance for this Month",
+  "presentLabel": "Present",
+  "absentsLabel": "Absents",
+  "lateInLabel": "Late in",
+  "dayOffLabel": "DayOff",
+  "shiftLabel": "Shift",
+  "inLabel": "IN :",
+  "outLabel": "OUT :",
+  "viewDetails": "View Details",
+  "workedHeader": "WORKED",
+  "lateHeader": "LATE",
+  "overHeader": "OVER",
+  "allowanceDeductions": "Allowances & Deductions",
+  "debtLoans": "Debts & Loans",
+  "logoutTitle": "Logout",
+  "logoutConfirmation": "Are you sure you want to logout?",
+  "cancel": "Cancel",
+  "myProfileTitle": "My Profile",
+  "loadingProfile": "Loading profile...",
+  "epfLabel": "EPF: ",
+  "notAdded": "Not added",
+  "personalInformation": "Personal Information",
+  "phoneLabel": "Phone",
+  "addressLabel": "Address",
+  "nicLabel": "NIC",
+  "dateOfBirth": "Date of Birth",
+  "fromToLabel": "From / To",
+  "cannotSelectPastDate": "Cannot select a past date",
+  "fromDateCannotBeAfterTo": "From date cannot be after To date",
+  "toDateMustBeAfterFrom": "To date must be after From date",
+  "noteLabel": "Note",
+  "optional": "Optional",
+  "leaveHistory": "Leave History",
+  "allLabel": "All",
+  "allowancesLabel": "Allowances",
+  "deductionsLabel": "Deductions",
+  "noAllowancesFound": "No allowances found",
+  "noDeductionsFound": "No deductions found",
+  "processedLabel": "Processed",
+  "pendingLabel": "Pending",
+  "retryLabel": "Retry",
+  "debtsLabel": "Debts",
+  "loansLabel": "Loans",
+  "noDebtsFound": "No debts found",
+  "noLoansFound": "No loans found",
+  "collectedLabel": "Collected",
+  "scanSiteCheckIn": "Scan site QR to enable check-in",
+  "scanSiteCheckOut": "Scan site QR to enable check-out",
+  "qrNoCoordinates": "QR does not contain coordinates",
+  "invalidQrServerError": "Invalid QR or server error",
+  "qrCoordinatesNotMatch": "QR and company location differ by {meters} m. Move closer or contact admin.",
+  "@qrCoordinatesNotMatch": {
+    "placeholders": {
+      "meters": {
+        "type": "Object"
+      }
+    }
+  },
+  "serverDidNotReturnCoordinates": "Server did not return coordinates",
+  "invalidServerCoordinates": "Invalid server coordinates",
+  "qrMatchesServerLocation": "QR matches.distence ({meters} m). Check-in/out enabled",
+  "@qrMatchesServerLocation": {
+    "placeholders": {
+      "meters": {
+        "type": "Object"
+      }
+    }
+  },
+  "qrCoordinatesDiffer": "QR and company location differ by {meters} m. Move closer or contact admin.",
+  "@qrCoordinatesDiffer": {
+    "placeholders": {
+      "meters": {
+        "type": "Object"
+      }
+    }
+  },
+  "noInternetConnection": "No internet connection",
+  "qrValidatedTapToPunch": "QR validated. Tap Check-In / Check-Out within 20 seconds.",
+  "qrCannotPunchHere": "Cannot check in/out in this location.",
+  "@qrCannotPunchHere": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "qrCoordinatesMismatchMessage": "Scanned code and company QR not match.",
+  "remoteChecking": "Remote Checking",
+  "checkInSuccess": "CheckIn is successful",
+  "checkOutSuccess": "Checkout is successful",
+  "cantLocate" : "Cannot locate or User Not Found.",
+  "sessionExpired" :"Session expired. Please log in again.",
+  "filedToPerform" :"Failed to perform action.",
+  "activeRemoteCheking" : "Remote checking active.Tap Check-In / Check-Out within 20 seconds.",
+  "approvedLable":"approved",
+  "pendindingLable":"pending",
+  "rejectedLable": "rejected",
+  "loadedLeaveLable" :"Loaded leaves",
+  "leaveSummary": "Leave Summary",
+  "totalRequests": "Total Requests",
+  "availableBalance": "Available Balance",
+  "submitRequest": "Submit Request",
+  "leaveAppliedSuccessfully": "Leave applied successfully",
+  "invalidDetailsPleaseCheckYourForm": "Invalid details. Please check your form.",
+  "failedToSubmitLeave": "Failed to submit leave.",
+  "generalShift": "General Shift",
+  "shortLeave": "Short Leave",
+  "morning": " Two hours in morning",
+  "evening": " Two hours in the Evening",
+  "workingHrs": "Total Hrs",
+  "refresh": "Refresh",
+  "refreshSuccess": "Refresh successful",
+   "refreshing": "Refreshing...",
+   "myTeam" :"My Team",
+   "serverError":"This page cant be reached. please contact your company",
+   "rs":"Rs.",
+   "loading":"Loading...",
+   "create":"Create",
+   "review":"Review",
+   "nopayLabel": "No Pay",
+   "selectTeamMember": "Select team member",
+  "employeeDetails": "Employee Details",
+  "leaveDetails": "Leave Details",
+  "leaveDuration": "Leave Duration",
+  "leaveTypeTitle": "Leave Type",
+  "leaveDates": "Leave Dates",
+  "reason": "Reason",
+  "day": "day",
+  "days": "days",
+  "allTeamMembers": "All team members",
+  "members": "members",
+  "member": "member",
+  "present": "PRESENT",
+  "inOnly": "IN ONLY",
+  "outOnly": "OUT ONLY",
+   "leaveApproved": "Leave approved successfully",
+  "leaveRejected": "Leave rejected successfully",
+  "leaveApproveFailed": "Failed to approve leave",
+  "leaveRejectFailed": "Failed to reject leave",
+  "errorPrefix": "Error: {error}",
+  "@errorPrefix": {
+    "placeholders": {
+      "error": {}
+    }
+  },
+   "teamDataLoadedSuccessfully": "Team data loaded successfully",
+  "failedToLoadTeamData": "Failed to load team data",
+   "weAreHere": "We're here to help",
+  "reachOut": "Reach out to us through any of the channels below.",
+
+  "getInTouch": "Get in touch",
+  "emailSupport": "Email Support",
+  "phoneSupport": "Phone Support",
+  "liveChat": "Live Chat",
+  "chatWhatsApp": "Chat with us on WhatsApp",
+
+  "office": "Office",
+  "headOffice": "Head Office",
+  "officeAddress": "123 Main Street,\nColombo 03,\nSri Lanka.",
+
+  "businessHours": "Business Hours",
+  "weekdays": "Monday – Friday",
+  "weekdayHours": "8:30 AM – 5:30 PM",
+  "saturday": "Saturday",
+  "saturdayHours": "8:30 AM – 1:30 PM",
+  "sunday": "Sunday",
+  "closed": "Closed"
+
+
+
+
+} 

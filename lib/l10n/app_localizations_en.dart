@@ -255,6 +255,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get leaveReject => 'Leave Reject';
 
   @override
+  String get scannText =>
+      'please keep the QR code in the center of the square.It will be scenned automatically.';
+
+  @override
   String get salarySlips => 'Salary Slips';
 
   @override
@@ -481,4 +485,272 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get collectedLabel => 'Collected';
+
+  @override
+  String get scanSiteCheckIn => 'Scan site QR to enable check-in';
+
+  @override
+  String get scanSiteCheckOut => 'Scan site QR to enable check-out';
+
+  @override
+  String get qrNoCoordinates => 'QR does not contain coordinates';
+
+  @override
+  String get invalidQrServerError => 'Invalid QR or server error';
+
+  @override
+  String qrCoordinatesNotMatch(Object meters) {
+    return 'QR and company location differ by $meters m. Move closer or contact admin.';
+  }
+
+  @override
+  String get serverDidNotReturnCoordinates =>
+      'Server did not return coordinates';
+
+  @override
+  String get invalidServerCoordinates => 'Invalid server coordinates';
+
+  @override
+  String qrMatchesServerLocation(Object meters) {
+    return 'QR matches.distence ($meters m). Check-in/out enabled';
+  }
+
+  @override
+  String qrCoordinatesDiffer(Object meters) {
+    return 'QR and company location differ by $meters m. Move closer or contact admin.';
+  }
+
+  @override
+  String get noInternetConnection => 'No internet connection';
+
+  @override
+  String get qrValidatedTapToPunch =>
+      'QR validated. Tap Check-In / Check-Out within 20 seconds.';
+
+  @override
+  String qrCannotPunchHere(String username) {
+    return 'Cannot check in/out in this location.';
+  }
+
+  @override
+  String get qrCoordinatesMismatchMessage =>
+      'Scanned code and company QR not match.';
+
+  @override
+  String get remoteChecking => 'Remote Checking';
+
+  @override
+  String get checkInSuccess => 'CheckIn is successful';
+
+  @override
+  String get checkOutSuccess => 'Checkout is successful';
+
+  @override
+  String get cantLocate => 'Cannot locate or User Not Found.';
+
+  @override
+  String get sessionExpired => 'Session expired. Please log in again.';
+
+  @override
+  String get filedToPerform => 'Failed to perform action.';
+
+  @override
+  String get activeRemoteCheking =>
+      'Remote checking active.Tap Check-In / Check-Out within 20 seconds.';
+
+  @override
+  String get approvedLable => 'approved';
+
+  @override
+  String get pendindingLable => 'pending';
+
+  @override
+  String get rejectedLable => 'rejected';
+
+  @override
+  String get loadedLeaveLable => 'Loaded leaves';
+
+  @override
+  String get leaveSummary => 'Leave Summary';
+
+  @override
+  String get totalRequests => 'Total Requests';
+
+  @override
+  String get availableBalance => 'Available Balance';
+
+  @override
+  String get submitRequest => 'Submit Request';
+
+  @override
+  String get leaveAppliedSuccessfully => 'Leave applied successfully';
+
+  @override
+  String get invalidDetailsPleaseCheckYourForm =>
+      'Invalid details. Please check your form.';
+
+  @override
+  String get failedToSubmitLeave => 'Failed to submit leave.';
+
+  @override
+  String get generalShift => 'General Shift';
+
+  @override
+  String get shortLeave => 'Short Leave';
+
+  @override
+  String get morning => ' Two hours in morning';
+
+  @override
+  String get evening => ' Two hours in the Evening';
+
+  @override
+  String get workingHrs => 'Total Hrs';
+
+  @override
+  String get refreshSuccess => 'Refresh successful';
+
+  @override
+  String get refreshing => 'Refreshing...';
+
+  @override
+  String get myTeam => 'My Team';
+
+  @override
+  String get serverError =>
+      'This page cant be reached. please contact your company';
+
+  @override
+  String get rs => 'Rs.';
+
+  @override
+  String get loading => 'Loading...';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get review => 'Review';
+
+  @override
+  String get nopayLabel => 'No Pay';
+
+  @override
+  String get selectTeamMember => 'Select team member';
+
+  @override
+  String get employeeDetails => 'Employee Details';
+
+  @override
+  String get leaveDetails => 'Leave Details';
+
+  @override
+  String get leaveDuration => 'Leave Duration';
+
+  @override
+  String get leaveTypeTitle => 'Leave Type';
+
+  @override
+  String get leaveDates => 'Leave Dates';
+
+  @override
+  String get reason => 'Reason';
+
+  @override
+  String get day => 'day';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get allTeamMembers => 'All team members';
+
+  @override
+  String get members => 'members';
+
+  @override
+  String get member => 'member';
+
+  @override
+  String get present => 'PRESENT';
+
+  @override
+  String get inOnly => 'IN ONLY';
+
+  @override
+  String get outOnly => 'OUT ONLY';
+
+  @override
+  String get leaveApproved => 'Leave approved successfully';
+
+  @override
+  String get leaveRejected => 'Leave rejected successfully';
+
+  @override
+  String get leaveApproveFailed => 'Failed to approve leave';
+
+  @override
+  String get leaveRejectFailed => 'Failed to reject leave';
+
+  @override
+  String errorPrefix(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get teamDataLoadedSuccessfully => 'Team data loaded successfully';
+
+  @override
+  String get failedToLoadTeamData => 'Failed to load team data';
+
+  @override
+  String get weAreHere => 'We\'re here to help';
+
+  @override
+  String get reachOut => 'Reach out to us through any of the channels below.';
+
+  @override
+  String get getInTouch => 'Get in touch';
+
+  @override
+  String get emailSupport => 'Email Support';
+
+  @override
+  String get phoneSupport => 'Phone Support';
+
+  @override
+  String get liveChat => 'Live Chat';
+
+  @override
+  String get chatWhatsApp => 'Chat with us on WhatsApp';
+
+  @override
+  String get office => 'Office';
+
+  @override
+  String get headOffice => 'Head Office';
+
+  @override
+  String get officeAddress => '123 Main Street,\nColombo 03,\nSri Lanka.';
+
+  @override
+  String get businessHours => 'Business Hours';
+
+  @override
+  String get weekdays => 'Monday – Friday';
+
+  @override
+  String get weekdayHours => '8:30 AM – 5:30 PM';
+
+  @override
+  String get saturday => 'Saturday';
+
+  @override
+  String get saturdayHours => '8:30 AM – 1:30 PM';
+
+  @override
+  String get sunday => 'Sunday';
+
+  @override
+  String get closed => 'Closed';
 }

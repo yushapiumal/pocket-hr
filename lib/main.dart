@@ -2,14 +2,13 @@ import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:cn_pocket_hr/Screens/splashScreen/Splashscreen.dart';
+import 'package:cn_pocket_hr/screens/splash_screen/splashscreen.dart';
 import 'package:cn_pocket_hr/l10n/l10n.dart';
-import 'package:cn_pocket_hr/provider/locale_provider.dart';
+import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:cn_pocket_hr/routes.dart'; 
-
 import 'package:provider/provider.dart';
-// void main() => runApp(PocketHR());
-// 
+import 'package:cn_pocket_hr/providers/connection_provider.dart';
+
 void main() {
   // add these lines
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,11 +23,14 @@ class PocketHR extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 // 
   @override
-  Widget build(BuildContext context) => ChangeNotifierProvider(
-        create: (context) => LocaleProvider(),
+  Widget build(BuildContext context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LocaleProvider()),
+          ChangeNotifierProvider(create: (_) => ConnectionProvider()),
+        ],
         builder: (context, child) {
           final provider = Provider.of<LocaleProvider>(context);
-// 
+          final conn = Provider.of<ConnectionProvider>(context);
           return MaterialApp(
             title: 'Pocket-HR',
             theme: ThemeData(
@@ -48,58 +50,45 @@ class PocketHR extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             initialRoute: SplashScreen.routeName,
             routes: routes,
-          );
-        },
-      );
-}
-
-
-
-// import 'package:flutter/material.dart';
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         primarySwatch: Colors.blue,
-//         visualDensity: VisualDensity.adaptivePlatformDensity,
-//       ),
-//       home: MyHomePage(),
-//     );
-//   }
-// }
-
-// class MyHomePage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Flutter Demo Home Page'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             Text(
-//               'Welcome to Flutter!',
-//               style: TextStyle(fontSize: 24),
-//             ),
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () {
-//                 // Add your onPressed functionality here
-//               },
-//               child: Text('Press Me'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+            builder: (context, widget) {
+              return Stack(
+                children: [
+                  if (widget != null) widget,
+                  if (conn.showBanner)
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top,
+                    left: 0,
+                    right: 0,
+                    child: Material(
+                      color: conn.isOnline ? Colors.green : Colors.red,
+                      elevation: 6,
+                        child: Container(
+                          width: 12,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                conn.isOnline
+                                    ? (conn.isWifi
+                                        ? 'Connected Wi-Fi'
+                                        : (conn.isMobile ? 'Connected  Mobile Data' : 'Connected'))
+                                    : AppLocalizations.of(context)!.noInternetConnection,
+                                style: const TextStyle(color: Colors.white ,fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  
+                 ],
+               );
+             },
+           );
+         },
+       );
+  }
