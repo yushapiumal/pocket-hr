@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
@@ -185,7 +186,7 @@ void showTopToast(
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
+                      child: AutoSizeText(
                         message,
                         style: const TextStyle(color: Colors.white),
                         maxLines: 3,
@@ -770,7 +771,7 @@ void showTopToast(
       if (response['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Attendance marked successfully'),
+              content: AutoSizeText('Attendance marked successfully'),
               backgroundColor: Colors.green),
         );
         await _loadMemberAttendance();
@@ -783,7 +784,7 @@ void showTopToast(
       debugPrint('$st');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: AutoSizeText('Error: ${e.toString()}'),
             backgroundColor: Colors.red),
       );
     }
@@ -830,14 +831,14 @@ void _showMarkAttendanceDialog(Map<String, dynamic> attendanceRecord) {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        AutoSizeText(
                           'Mark Attendance',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        Text(
+                        AutoSizeText(
                           formattedDate,
                           style: const TextStyle(
                             fontSize: 12,
@@ -893,7 +894,7 @@ void _showMarkAttendanceDialog(Map<String, dynamic> attendanceRecord) {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Cancel'),
+                      child: AutoSizeText('Cancel'),
                     ),
                   ),
                   const SizedBox(width: _g12),
@@ -921,7 +922,7 @@ void _showMarkAttendanceDialog(Map<String, dynamic> attendanceRecord) {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text('Save'),
+                      child: AutoSizeText('Save'),
                     ),
                   ),
                 ],
@@ -1142,7 +1143,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            AutoSizeText(
                               _getLeaveTypeLabel(context, type),
                               style: const TextStyle(
                                 fontSize: 20,
@@ -1158,7 +1159,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 color: statusColor.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                            child: Text(
+                            child: AutoSizeText(
                             status == 'approved'
                                 ? AppLocalizations.of(context)!.approvedLable.toUpperCase()
                                 : status == 'rejected'
@@ -1186,7 +1187,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoSizeText(
                         AppLocalizations.of(context)!.employeeDetails,
                         style: TextStyle(
                           fontSize: 16,
@@ -1210,7 +1211,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  AutoSizeText(
                                     employeeName,
                                     style: const TextStyle(
                                       fontSize: 14,
@@ -1219,7 +1220,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                     ),
                                   ),
                                   const SizedBox(height: _g4),
-                                  Text(
+                                  AutoSizeText(
                                     leave['employeeName'] ?? '',
                                     style: const TextStyle(
                                       fontSize: 12,
@@ -1242,12 +1243,12 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    const Text('EPF',
+                                    AutoSizeText('EPF',
                                         style: TextStyle(
                                             fontSize: 10,
                                             color: Colors.black54)),
                                     const SizedBox(height: 2),
-                                    Text(epf,
+                                    AutoSizeText(epf,
                                         style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -1268,7 +1269,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoSizeText(
                         AppLocalizations.of(context)!.leaveDetails,
                         style: TextStyle(
                           fontSize: 16,
@@ -1300,7 +1301,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
+                                          AutoSizeText(
                                             AppLocalizations.of(context)!
                                                 .leaveDuration,
                                             style: TextStyle(
@@ -1309,7 +1310,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                             ),
                                           ),
                                           const SizedBox(height: _g4),
-                                          Text(
+                                          AutoSizeText(
                                             '${dates.length} ${dates.length > 1 ? AppLocalizations.of(context)!.daysLabel : AppLocalizations.of(context)!.days}',
                                             style: const TextStyle(
                                               fontSize: 14,
@@ -1349,7 +1350,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        AutoSizeText(
                                           AppLocalizations.of(context)!
                                               .leaveTypeLabel,
                                           style: TextStyle(
@@ -1358,7 +1359,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                           ),
                                         ),
                                         const SizedBox(height: _g4),
-                                        Text(
+                                        AutoSizeText(
                                           _getLeaveTypeLabel(context, type),
                                           style: const TextStyle(
                                             fontSize: 14,
@@ -1394,7 +1395,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 if (dates.isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(_g16, _g16, _g16, _g8),
-                    child: Text(
+                    child: AutoSizeText(
                       AppLocalizations.of(context)!.leaveDates,
                       style: TextStyle(
                         fontSize: 16,
@@ -1430,7 +1431,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: Colors.black12),
                             ),
-                            child: Text(
+                            child: AutoSizeText(
                               label,
                               style: const TextStyle(
                                 fontSize: 13,
@@ -1448,7 +1449,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 if (reason.isNotEmpty) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(_g16, _g16, _g16, _g8),
-                    child: Text(
+                    child: AutoSizeText(
                       AppLocalizations.of(context)!.reason,
                       style: TextStyle(
                         fontSize: 16,
@@ -1465,7 +1466,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                       color: _surface,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
+                    child: AutoSizeText(
                       reason,
                       style: const TextStyle(
                         fontSize: 14,
@@ -1492,7 +1493,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                   context, leaveId, employeeName);
                             },
                             icon: const Icon(Icons.close, size: 18),
-                            label: Text(
+                            label: AutoSizeText(
                                 AppLocalizations.of(context)!.rejectedLable ,),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
@@ -1514,7 +1515,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                   context, leaveId, employeeName);
                             },
                             icon: const Icon(Icons.check, size: 18 , color: Colors.white,),
-                            label: Text(
+                            label: AutoSizeText(
                                 AppLocalizations.of(context)!.approvedLable,  style: TextStyle(color: Colors.white)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
@@ -1553,7 +1554,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
             children: [
               const Icon(Icons.check_circle_outline, color: Colors.green),
               const SizedBox(width: 8),
-              const Text("Approve Leave",
+              AutoSizeText("Approve Leave",
                   style: TextStyle(fontWeight: FontWeight.w700)),
             ],
           ),
@@ -1599,7 +1600,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              child: const Text('Cancel'),
+              child: AutoSizeText('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -1614,7 +1615,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                     borderRadius: BorderRadius.circular(12)),
               ),
               child:
-                  const Text('Approve', style: TextStyle(color: Colors.white)),
+                  AutoSizeText('Approve', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -1640,7 +1641,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 children: [
                   const Icon(Icons.cancel_outlined, color: Colors.red),
                   const SizedBox(width: 8),
-                  const Text("Reject Leave",
+                  AutoSizeText("Reject Leave",
                       style: TextStyle(fontWeight: FontWeight.w700)),
                 ],
               ),
@@ -1699,7 +1700,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                       const SizedBox(height: _g8),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: AutoSizeText(
                           '${_reasonController.text.trim().length}/300',
                           style:
                               const TextStyle(fontSize: 11, color: Colors.grey),
@@ -1721,7 +1722,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                   ),
-                  child: const Text('Cancel'),
+                  child: AutoSizeText('Cancel'),
                 ),
                 ElevatedButton(
                   onPressed: isValid
@@ -1739,7 +1740,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Reject',
+                  child: AutoSizeText('Reject',
                       style: TextStyle(color: Colors.white)),
                 ),
               ],
@@ -1924,7 +1925,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    AutoSizeText(
                       _getLeaveTypeLabel(context, type),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1936,7 +1937,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                     ),
                     const SizedBox(height: 8),
                     if (employeeName.isNotEmpty) ...[
-                      Text(
+                      AutoSizeText(
                         epf.isNotEmpty
                             ? '$employeeName ($epf)'
                             : employeeName,
@@ -1958,7 +1959,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                           color: Colors.grey,
                         ),
                         const SizedBox(width: 5),
-                        Text(
+                        AutoSizeText(
                           dateText,
                           style: const TextStyle(
                             fontSize: 12.5,
@@ -1983,7 +1984,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                       color: statusColor.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: AutoSizeText(
                       status == 'approved'
                           ? l10n.approvedLable.toUpperCase()
                           : status == 'rejected'
@@ -2116,7 +2117,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Date + Member Name (when All selected)
-                    Text(
+                    AutoSizeText(
                       _selectedUserId == null && memberName.isNotEmpty
                           ? '$formattedDate • $memberName'
                           : formattedDate,
@@ -2142,7 +2143,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 color: Colors.green.withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(
+                              child: AutoSizeText(
                                 '${AppLocalizations.of(context)!.checkIn} $checkIn',
                                 style: const TextStyle(
                                   fontSize: 12,
@@ -2159,7 +2160,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 color: Colors.red.withOpacity(0.08),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(
+                              child: AutoSizeText(
                                 '${AppLocalizations.of(context)!.checkOut} $checkOut',
                                 style: const TextStyle(
                                   fontSize: 12,
@@ -2176,7 +2177,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 color: Colors.grey.shade100,
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(
+                              child: AutoSizeText(
                                 workHoursDisplay,
                                 style: const TextStyle(
                                   fontSize: 12,
@@ -2187,7 +2188,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                         ],
                       )
                     else
-                      const Text(
+                      AutoSizeText(
                         'Tap to mark attendance',
                         style: TextStyle(
                           fontSize: 12,
@@ -2207,7 +2208,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
               //     color: statusColor.withOpacity(0.12),
               //     borderRadius: BorderRadius.circular(20),
               //   ),
-              //   child: Text(
+              //   child: AutoSizeText(
               //     statusText,
               //     style: TextStyle(
               //       fontSize: 11,
@@ -2256,7 +2257,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_teamError!,
+              AutoSizeText(_teamError!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.red)),
               const SizedBox(height: _g12),
@@ -2264,7 +2265,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   onPressed: _loadTeamData,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: HRColors.orangeColor),
-                  child: const Text('Retry')),
+                  child: AutoSizeText('Retry')),
             ],
           ),
         ),
@@ -2309,7 +2310,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   ),
                   const SizedBox(width: _g12),
                   Expanded(
-                    child: Text(AppLocalizations.of(context)!.myTeam,
+                    child: AutoSizeText(AppLocalizations.of(context)!.myTeam,
                         style: const TextStyle(
                             color: Colors.black87,
                             fontSize: 24,
@@ -2354,7 +2355,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
               children: [
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: _g16),
-                  child: Text(
+                  child: AutoSizeText(
                     AppLocalizations.of(context)!.selectTeamMember,
                     style: TextStyle(
                       fontSize: 14,
@@ -2419,7 +2420,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                     Text(
+                                     AutoSizeText(
                                       AppLocalizations.of(context)!.allTeamMembers,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
@@ -2428,7 +2429,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                         color: Colors.black87,
                                       ),
                                     ),
-                                    Text(
+                                    AutoSizeText(
                                       '${_teamMembers.length} ${AppLocalizations.of(context)!.members}',
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -2467,7 +2468,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 CircleAvatar(
                                   radius: 16,
                                   backgroundColor: Colors.blueGrey.shade50,
-                                  child: Text(
+                                  child: AutoSizeText(
                                     initials(),
                                     style: const TextStyle(
                                       color: Colors.black87,
@@ -2483,7 +2484,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      AutoSizeText(
                                         name,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
@@ -2493,7 +2494,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                         ),
                                       ),
                                       if (epf.isNotEmpty)
-                                        Text(
+                                        AutoSizeText(
                                           'EPF: $epf',
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
@@ -2544,7 +2545,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
+                                    AutoSizeText(
                                       AppLocalizations.of(context)!.allTeamMembers,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w700,
@@ -2552,7 +2553,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
+                                    AutoSizeText(
                                       '${_teamMembers.length} ${AppLocalizations.of(context)!.members}',
                                       style: const TextStyle(
                                         fontSize: 12,
@@ -2598,7 +2599,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 CircleAvatar(
                                   radius: 18,
                                   backgroundColor: Colors.blueGrey.shade50,
-                                  child: Text(
+                                  child: AutoSizeText(
                                     initials(),
                                     style: const TextStyle(
                                       color: Colors.black87,
@@ -2613,7 +2614,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
+                                      AutoSizeText(
                                         name,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
@@ -2623,7 +2624,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                       ),
                                       if (epf.isNotEmpty) ...[
                                         const SizedBox(height: 2),
-                                        Text(
+                                        AutoSizeText(
                                           'EPF: $epf',
                                           style: const TextStyle(
                                             fontSize: 12,
@@ -2666,13 +2667,13 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_leaveError!, style: const TextStyle(color: Colors.red)),
+            AutoSizeText(_leaveError!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: _g12),
             ElevatedButton(
                 onPressed: _loadMemberLeaves,
                 style: ElevatedButton.styleFrom(
                     backgroundColor: HRColors.orangeColor),
-                child: Text(AppLocalizations.of(context)!.retryLabel),)
+                child: AutoSizeText(AppLocalizations.of(context)!.retryLabel),)
           ],
         ),
       );
@@ -2684,7 +2685,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
           children: [
             Icon(Icons.event_busy, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text(AppLocalizations.of(context)!.noRecords,
+            AutoSizeText(AppLocalizations.of(context)!.noRecords,
                 style: TextStyle(color: Colors.black54)),
           ],
         ),
@@ -2709,14 +2710,14 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_attendanceError!, style: const TextStyle(color: Colors.red)),
+            AutoSizeText(_attendanceError!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: _g12),
             ElevatedButton(
               onPressed: _loadMemberAttendance,
               style: ElevatedButton.styleFrom(
                 backgroundColor: HRColors.orangeColor,
               ),
-              child: const Text('Retry'),
+              child: AutoSizeText('Retry'),
             ),
           ],
         ),
@@ -2741,7 +2742,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   ),
                 ),
               ),
-              Text(
+              AutoSizeText(
                 '${_selectedMonth.year} - ${_selectedMonth.month.toString().padLeft(2, '0')}',
                 style: const TextStyle(
                   fontSize: 14,
@@ -2775,7 +2776,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                         color: Colors.grey.shade400,
                       ),
                       const SizedBox(height: 16),
-                      Text(
+                      AutoSizeText(
                         '${AppLocalizations.of(context)!.noRecords} ${_selectedMonth.year} - ${_selectedMonth.month.toString().padLeft(2, '0')}',
                         style: TextStyle(
                           fontSize: 14,

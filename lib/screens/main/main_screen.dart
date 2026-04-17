@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:ui';
 import 'dart:io';
 
@@ -143,9 +144,10 @@ class _HRMainState extends State<HRMain> {
                 const SizedBox(height: 4),
                 SizedBox(
                   height: 14,
-                  child: Text(
+                  child: AutoSizeText(
                     label,
                     maxLines: 1,
+                    minFontSize: 9,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 11,

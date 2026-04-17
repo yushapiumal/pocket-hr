@@ -1,2 +1,11 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
+
+// Keep Xcode module caches inside the project temp directory to avoid
+// intermittent failures when the global DerivedData cache is missing/corrupted.
+MODULE_CACHE_DIR=$(PROJECT_TEMP_DIR)/ModuleCache.noindex
+CLANG_MODULES_BUILD_SESSION_FILE=$(PROJECT_TEMP_DIR)/Session.modulevalidation
+SDK_STAT_CACHE_DIR=$(PROJECT_TEMP_DIR)/SDKStatCaches.noindex
+SDK_STAT_CACHE_ENABLE=NO
+CLANG_ENABLE_EXPLICIT_MODULES=NO
+SWIFT_ENABLE_EXPLICIT_MODULES=NO

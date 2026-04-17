@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class GlassBox extends StatelessWidget {
                 sigmaX: 7.0,
                 sigmaY: 7.0,
               ),
-              child: Container(width: width, height: height, child: Text(" ")),
+              child: Container(width: width, height: height, child: AutoSizeText(" ")),
             ),
             Container(
               decoration: BoxDecoration(

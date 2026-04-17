@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
@@ -37,7 +38,7 @@ class _HRNotificationsState extends State<HRNotifications> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Text(
+                      child: AutoSizeText(
                         HRStrings.noNotificationFoundText,
                         style: TextStyle(
                             color: HRColors.black,
@@ -47,7 +48,7 @@ class _HRNotificationsState extends State<HRNotifications> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Text(
+                      child: AutoSizeText(
                         HRStrings.notificationSubTitleText,
                         style: TextStyle(
                             color: HRColors.black,
@@ -67,7 +68,7 @@ class _HRNotificationsState extends State<HRNotifications> {
                     //         margin: EdgeInsets.only(
                     //             left: 30.0, top: 30.0, right: 30.0),
                     //         padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
-                    //         child: Text(
+                    //         child: AutoSizeText(
                     //           HRStrings.letsStartExploringText,
                     //           textAlign: TextAlign.center,
                     //           style: TextStyle(

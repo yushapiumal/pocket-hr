@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +142,7 @@ class _TabletLoginState extends State<TabletLogin> {
           foregroundColor: Colors.black87,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
-        child: Text(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: AutoSizeText(label, style: const TextStyle(fontWeight: FontWeight.w800)),
       ),
     );
   }
@@ -276,7 +277,7 @@ class _TabletLoginState extends State<TabletLogin> {
       padding: const EdgeInsets.only(top: 6),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Text(text, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w700)),
+        child: AutoSizeText(text, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w700)),
       ),
     );
   }
@@ -466,7 +467,7 @@ class _TabletLoginState extends State<TabletLogin> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 6),
-                        Text(
+                        AutoSizeText(
                           AppLocalizations.of(context)!.signIn,
                           style: TextStyle(
                             fontSize: 24,
@@ -494,7 +495,7 @@ class _TabletLoginState extends State<TabletLogin> {
                                 //   activeColor: _accent,
                                 //   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 // ),
-                                // const Text(
+                                // AutoSizeText(
                                 //   'Remember Me',
                                 //   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black54),
                                 // ),
@@ -502,7 +503,7 @@ class _TabletLoginState extends State<TabletLogin> {
                             ),
                             TextButton(
                               onPressed: () => apiService.showToast('Coming soon'),
-                              child:  Text(
+                              child:  AutoSizeText(
                                AppLocalizations.of(context)!.forgetPw,
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _accent),
                               ),
@@ -582,7 +583,7 @@ class _TabletLoginState extends State<TabletLogin> {
                         //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                         //       elevation: 0,
                         //     ),
-                        //     child: Text(AppLocalizations.of(context)!.nextText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
+                        //     child: AutoSizeText(AppLocalizations.of(context)!.nextText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
                         //   ),
                         // ),
 
@@ -602,7 +603,7 @@ class _TabletLoginState extends State<TabletLogin> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                              AutoSizeText(
                               AppLocalizations.of(context)!.continueText,
                               style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
                               ),
@@ -618,10 +619,10 @@ class _TabletLoginState extends State<TabletLogin> {
                         //   child: Wrap(
                         //     spacing: 4,
                         //     children: [
-                        //       Text("Don't have an Account?", style: TextStyle(color: Colors.black.withOpacity(0.45), fontWeight: FontWeight.w700, fontSize: 12)),
+                        //       AutoSizeText("Don't have an Account?", style: TextStyle(color: Colors.black.withOpacity(0.45), fontWeight: FontWeight.w700, fontSize: 12)),
                         //       TextButton(
                         //          onPressed: () => apiService.showToast('Coming soon'),
-                        //         child: const Text('Sign up', style: TextStyle(fontWeight: FontWeight.w900, color: Color.fromARGB(255, 243, 241, 238))),
+                        //         child: AutoSizeText('Sign up', style: TextStyle(fontWeight: FontWeight.w900, color: Color.fromARGB(255, 243, 241, 238))),
                         //       )
                         //     ],
                         //   ),

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/material.dart';
@@ -123,7 +124,7 @@ class _TabletIntroState extends State<TabletIntro> {
                             alignment: AlignmentDirectional.center,
                             margin: const EdgeInsets.only(
                                 left: 20.0, top: 30.0, right: 20.0),
-                            child: Text(
+                            child: AutoSizeText(
                               setIntroText(currentIndex).toString(),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -151,7 +152,7 @@ class _TabletIntroState extends State<TabletIntro> {
                             ),
                             GestureDetector(
                               child: ElevatedButton(
-                                child: Text(
+                                child: AutoSizeText(
                                   'EN',
                                   style: TextStyle(color: Colors.black),
                                 ),
@@ -166,7 +167,7 @@ class _TabletIntroState extends State<TabletIntro> {
                             ),
                             GestureDetector(
                               child: ElevatedButton(
-                                child: Text(
+                                child: AutoSizeText(
                                   'සිං',
                                   style: TextStyle(color: Colors.black),
                                 ),
@@ -181,7 +182,7 @@ class _TabletIntroState extends State<TabletIntro> {
                             ),
                             GestureDetector(
                               child: ElevatedButton(
-                                child: Text(
+                                child: AutoSizeText(
                                   'தமிழ்',
                                   style: TextStyle(color: Colors.black),
                                 ),
@@ -201,7 +202,7 @@ class _TabletIntroState extends State<TabletIntro> {
                                     Navigator.pushNamed(
                                         context, HRLogin.routeName);
                                   },
-                                  child: Text(
+                                  child: AutoSizeText(
                                     currentIndex == introductionList.length - 1
                                         ? HRStrings.continueText
                                         : HRStrings.skipText,

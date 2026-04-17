@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.pockethr.xcode-module-cache</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>/Users/admin/yushan/pocket-hr/tooling/ensure_xcode_module_cache.sh</string>
+    <string>--watch</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/Users/admin/yushan/pocket-hr/tooling/xcode-module-cache.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/admin/yushan/pocket-hr/tooling/xcode-module-cache.log</string>
+</dict>
+</plist>

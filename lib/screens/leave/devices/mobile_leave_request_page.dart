@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/services/leave_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
@@ -163,7 +164,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
+                    child: AutoSizeText(
                       message,
                       style: const TextStyle(
                         color: Colors.white,
@@ -256,7 +257,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     onSelectedItemChanged: onSelected,
                     children: items
                         .map((e) => Center(
-                              child: Text(
+                              child: AutoSizeText(
                                 label(e),
                                 style: const TextStyle(
                                   fontSize: 16,
@@ -368,7 +369,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           } catch (_) {}
                           Navigator.pop(ctx, DateTime(selYear, selMonth, selDay));
                         },
-                        child: Text(
+                        child: AutoSizeText(
                           AppLocalizations.of(context)!.confirmLabel,
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
@@ -400,7 +401,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           } catch (_) {}
                           Navigator.pop(ctx);
                         },
-                        child: Text(
+                        child: AutoSizeText(
                           AppLocalizations.of(context)!.cancelLabel,
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
@@ -467,7 +468,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                   color: isSelected ? Colors.white : _accent,
                 ),
                 const SizedBox(height: 5),
-                Text(
+                AutoSizeText(
                   label,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -513,7 +514,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
+              child: AutoSizeText(
                 text,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
@@ -569,7 +570,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AutoSizeText(
                   readOnly
                       ? "View your leave information"
                       : "Fill in the details and submit your leave request",
@@ -616,7 +617,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
             children: [
               Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
               SizedBox(width: 8),
-              Text(
+              AutoSizeText(
                 AppLocalizations.of(context)!.submitRequest,
                 style: TextStyle(
                   color: Colors.white,
@@ -729,7 +730,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         child: Row(
           children: [
             Expanded(
-              child: Text(
+              child: AutoSizeText(
                 title,
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
@@ -738,7 +739,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                 ),
               ),
             ),
-            Text(
+            AutoSizeText(
               value,
               style: const TextStyle(
                 fontWeight: FontWeight.w800,
@@ -802,7 +803,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
+                      AutoSizeText(
                         AppLocalizations.of(context)!.confirmLeave,
                         style: const TextStyle(
                           fontSize: 16,
@@ -831,7 +832,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                         const SizedBox(height: 8),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(
+                          child: AutoSizeText(
                             AppLocalizations.of(context)!.noteLabel,
                             style: const TextStyle(
                               fontWeight: FontWeight.w800,
@@ -849,7 +850,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey.shade300),
                           ),
-                          child: Text(
+                          child: AutoSizeText(
                             description.text.trim(),
                             style: const TextStyle(
                               color: _textDark,
@@ -872,7 +873,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                                 ),
                                 side: BorderSide(color: Colors.grey.shade300),
                               ),
-                              child: Text(
+                              child: AutoSizeText(
                                 AppLocalizations.of(context)!.cancelLabel,
                                 style: const TextStyle(fontSize: 12),
                               ),
@@ -890,7 +891,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              child: Text(
+                              child: AutoSizeText(
                                 AppLocalizations.of(context)!.confirmLabel,
                                 style: const TextStyle(
                                   color: Colors.white,
@@ -1005,7 +1006,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
+          child: AutoSizeText(
             title,
             style: const TextStyle(
               fontWeight: FontWeight.w800,
@@ -1069,11 +1070,11 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  AutoSizeText(
                     '${_getLeaveTypeLabel(key.toLowerCase())}: ',
                     style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                   ),
-                  Text(
+                  AutoSizeText(
                     value.toString(),
                     style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900),
                   ),
@@ -1124,7 +1125,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         Text(
+                         AutoSizeText(
                           AppLocalizations.of(context)!.leaveSummary,
                           style: TextStyle(
                             fontSize: 14,
@@ -1133,7 +1134,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           ),
                         ),
                          SizedBox(height: 4),
-                        Text(
+                        AutoSizeText(
                           "${AppLocalizations.of(context)!.totalRequests}: $totalLeavesCount • ${AppLocalizations.of(context)!.pendindingLable}: $pendingLeavesCount",
                           style: TextStyle(
                             fontSize: 12,
@@ -1150,7 +1151,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                 const SizedBox(height: 12),
                 Container(width: double.infinity, height: 1, color: Colors.white.withOpacity(0.2)),
                 const SizedBox(height: 8),
-                 Text(
+                 AutoSizeText(
                   AppLocalizations.of(context)!.availableBalance,
                   style: TextStyle(
                     fontSize: 11,
@@ -1181,7 +1182,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         surfaceTintColor: _pageBg,
         elevation: 0,
         centerTitle: true,
-        title: Text(
+        title: AutoSizeText(
           readOnly
               ? AppLocalizations.of(context)!.leaveDetailsLabel
               : AppLocalizations.of(context)!.leaveRequestLabel,
@@ -1237,7 +1238,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                       items: leaveTypeList.map((v) {
                         return DropdownMenuItem<String>(
                           value: v,
-                          child: Text(
+                          child: AutoSizeText(
                             _getLeaveTypeLabel(v),
                             style: const TextStyle(
                               fontWeight: FontWeight.w700,
@@ -1328,14 +1329,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                         items:  [
                           DropdownMenuItem<String>(
                             value: 'morning',
-                            child: Text(
+                            child: AutoSizeText(
                               AppLocalizations.of(context)!.morning,
                               style: TextStyle(fontWeight: FontWeight.w700, color: _textDark, fontSize: 12),
                             ),
                           ),
                           DropdownMenuItem<String>(
                             value: 'evening',
-                            child: Text(
+                            child: AutoSizeText(
                               AppLocalizations.of(context)!.evening,
                               style: TextStyle(fontWeight: FontWeight.w700, color: _textDark, fontSize: 12),
                             ),

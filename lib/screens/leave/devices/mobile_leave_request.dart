@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
@@ -116,7 +117,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
 
   leaveTypeError() {
     if (_leaveTypeValidation) {
-      return Text(
+      return AutoSizeText(
         'Please select leave type',
         style: TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
@@ -129,7 +130,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
 
   fromDateError() {
     if (_fromDateValidation) {
-      return Text(
+      return AutoSizeText(
         'Please select from date',
         style: TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
@@ -142,7 +143,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
 
   toDateError() {
     if (_toDateValidation) {
-      return Text(
+      return AutoSizeText(
         'Please select to date',
         style: TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
@@ -155,7 +156,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
 
   leaveReasonError() {
     if (_leaveReasonValidation) {
-      return Text(
+      return AutoSizeText(
         'Please select leave reason',
         style: TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
@@ -300,7 +301,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 10),
-                  child: Text(
+                  child: AutoSizeText(
                     AppLocalizations.of(context)!.leaveRequestLabel,
                     style: TextStyle(
                         fontSize: 35,
@@ -325,7 +326,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                     });
                   },
                 ),
-                Text(
+                AutoSizeText(
                   leave_typeValue == "full_day"
                       ? '${AppLocalizations.of(context)!.fullDay} Selected'
                       : '${AppLocalizations.of(context)!.halfDay} Selected',
@@ -368,7 +369,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          AutoSizeText(
                             AppLocalizations.of(context)!.submit,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -418,7 +419,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
       child: DropdownButton<String>(
         underline: Container(color: Colors.transparent, height: 2.0),
         dropdownColor: HRColors.white,
-        hint: Text(
+        hint: AutoSizeText(
           HRStrings.countryText,
           style: TextStyle(
             color: HRColors.grayColor,
@@ -443,7 +444,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: firstsecondList.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
+            child: AutoSizeText(
               value,
               textAlign: TextAlign.right,
             ),
@@ -489,7 +490,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
       child: DropdownButton<String>(
         underline: Container(color: Colors.transparent, height: 2.0),
         dropdownColor: HRColors.white,
-        hint: Text(HRStrings.countryText,
+        hint: AutoSizeText(HRStrings.countryText,
             style: TextStyle(
               color: HRColors.grayColor,
               fontSize: 18,
@@ -515,7 +516,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: reasonList.map<DropdownMenuItem<String>>((String value) {
           if (value == "Select Leave Reason") {
             return DropdownMenuItem<String>(
-              child: Text(value, style: const TextStyle(color: Colors.grey)),
+              child: AutoSizeText(value, style: const TextStyle(color: Colors.grey)),
               value: value,
               onTap: () => null,
               enabled: false, // disable this item
@@ -523,7 +524,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
           }
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
+            child: AutoSizeText(
               value,
               textAlign: TextAlign.right,
             ),
@@ -544,7 +545,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
       child: DropdownButton<String>(
         underline: Container(color: Colors.transparent, height: 2.0),
         dropdownColor: HRColors.white,
-        hint: Text(HRStrings.countryText,
+        hint: AutoSizeText(HRStrings.countryText,
             style: TextStyle(
               color: HRColors.grayColor,
               fontSize: 18,
@@ -570,7 +571,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: leaveTypeList.map<DropdownMenuItem<String>>((String value) {
           if (value == 'Select Leave Type') {
             return DropdownMenuItem<String>(
-              child: Text(value, style: const TextStyle(color: Colors.grey)),
+              child: AutoSizeText(value, style: const TextStyle(color: Colors.grey)),
               value: value,
               onTap: () => null,
               enabled: false, // disable this item
@@ -578,7 +579,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
           }
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
+            child: AutoSizeText(
               capitalize(value),
               textAlign: TextAlign.right,
             ),
@@ -602,7 +603,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(fromText,
+            AutoSizeText(fromText,
                 style: TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,
@@ -628,7 +629,7 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(toText,
+            AutoSizeText(toText,
                 style: TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,

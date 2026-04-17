@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:io';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -84,7 +85,7 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
                 child: Row(
                   children: [
                     Expanded(
-                        child: Text(message,
+                        child: AutoSizeText(message,
                             style: const TextStyle(color: Colors.white),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis)),
@@ -148,7 +149,7 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
               ),
             ),
           ),
-          Text(
+          AutoSizeText(
             AppLocalizations.of(context)!.salarySlips,
             style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
           ),
@@ -195,7 +196,7 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
                         const SizedBox(height: _g12),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(
+                          child: AutoSizeText(
                             AppLocalizations.of(context)!.salarySlipHistory,
                             style: const TextStyle(fontSize: 16, fontWeight: _wBold),
                           ),
@@ -256,7 +257,7 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
           }
         });
 
-        if (items.isEmpty) return Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: Text(AppLocalizations.of(context)!.noRecords)));
+        if (items.isEmpty) return Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)));
 
         // convert to _HomeItem list taking dynamic fields from the backend
         final list = items.map((m) {
@@ -387,7 +388,7 @@ Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          AutoSizeText(
                             it.title,
                             style: const TextStyle(
                               fontSize: 14,
@@ -396,7 +397,7 @@ Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
+                          AutoSizeText(
                             it.subtitle,
                             style: const TextStyle(
                               fontSize: 12,
@@ -410,7 +411,7 @@ Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
+                        AutoSizeText(
                           it.amountStr ?? '',
                           style: const TextStyle(
                             fontSize: 14,
@@ -462,7 +463,7 @@ Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
             ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
-              child: const Text(
+              child: AutoSizeText(
                 'HTML preview is not wired yet.',
                 style: TextStyle(fontWeight: _wSemi, color: Colors.black87),
               ),

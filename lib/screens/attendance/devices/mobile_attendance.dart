@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
@@ -100,7 +101,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                 const Icon(Icons.info_outline, color: Colors.white, size: 22),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
+                  child: AutoSizeText(
                     msg,
                     style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
                   ),
@@ -262,7 +263,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                               onSelectedItemChanged: (i) => selectedMonth = i + 1,
                               children: months
                                   .map((m) => Center(
-                                        child: Text(
+                                        child: AutoSizeText(
                                           m,
                                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                         ),
@@ -280,7 +281,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                               onSelectedItemChanged: (i) => selectedYear = years[i],
                               children: years
                                   .map((y) => Center(
-                                        child: Text(
+                                        child: AutoSizeText(
                                           y.toString(),
                                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                         ),
@@ -305,7 +306,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                       ),
                       onPressed: () => Navigator.pop(ctx, DateTime(selectedYear, selectedMonth, 1)),
-                      child: Text(
+                      child: AutoSizeText(
                         AppLocalizations.of(context)!.confirmLabel,
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
                       ),
@@ -324,7 +325,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                         side: BorderSide(color: Colors.black.withOpacity(0.06)),
                       ),
                       onPressed: () => Navigator.pop(ctx),
-                      child:  Text(
+                      child:  AutoSizeText(
                       AppLocalizations.of(context)!.cancelLabel,
                         style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w700),
                       ),
@@ -380,7 +381,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
             ),
           ),
 
-          Text(
+          AutoSizeText(
             AppLocalizations.of(context)!.attendanceText,
             style: _title24,
           ),
@@ -433,7 +434,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
-                  child: Text(
+                  child: AutoSizeText(
                     thisMonthLabel,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -458,7 +459,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
-                  child: Text(
+                  child: AutoSizeText(
                     _tabType == 'prv' && _selectedPayroll != null ? _selectedPayroll! : pastMonthLabel,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -516,7 +517,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
   //             Container(
   //               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
   //               decoration: BoxDecoration(color: const Color(0xFFE8F5E9), borderRadius: BorderRadius.circular(20)),
-  //               child:  Text(AppLocalizations.of(context)!.generalShift, style: TextStyle(fontSize: 11, color: Color(0xFF2E7D32), fontWeight: FontWeight.w700)),
+  //               child:  AutoSizeText(AppLocalizations.of(context)!.generalShift, style: TextStyle(fontSize: 11, color: Color(0xFF2E7D32), fontWeight: FontWeight.w700)),
   //             ),
   //             // Container(
   //             //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -524,7 +525,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
   //             //     color: Colors.black.withOpacity(0.06),
   //             //     borderRadius: BorderRadius.circular(20),
   //             //   ),
-  //             //   child: Text(_selectedMonthLabel(), style: _chip11),
+  //             //   child: AutoSizeText(_selectedMonthLabel(), style: _chip11),
   //             // ),
   //           ],
   //         ),
@@ -570,9 +571,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
           decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
           child: Column(
             children: [
-              Text(label, style: TextStyle(color: fg, fontWeight: _wBold, fontSize: 10)),
+              AutoSizeText(label, style: TextStyle(color: fg, fontWeight: _wBold, fontSize: 10)),
               const SizedBox(height: 6),
-              Text(value, style: TextStyle(color: fg, fontWeight: _wBlack, fontSize: 12)),
+              AutoSizeText(value, style: TextStyle(color: fg, fontWeight: _wBlack, fontSize: 12)),
             ],
           ),
         ),
@@ -585,14 +586,14 @@ class _MobileAttendanceState extends State<MobileAttendance>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-          //  Text(AppLocalizations.of(context)!.attendanceForThisMonth, style: _label14),
+          //  AutoSizeText(AppLocalizations.of(context)!.attendanceForThisMonth, style: _label14),
             // Container(
             //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             //   decoration: BoxDecoration(
             //     color: Colors.black.withOpacity(0.06),
             //     borderRadius: BorderRadius.circular(20),
             //   ),
-            //   child: Text(_selectedMonthLabel(), style: _chip11),
+            //   child: AutoSizeText(_selectedMonthLabel(), style: _chip11),
             // ),
           ],
         ),
@@ -717,7 +718,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
         if (data.isEmpty) {
           return  Padding(
             padding: EdgeInsets.symmetric(vertical: 40),
-            child: Center(child: Text(AppLocalizations.of(context)!.noRecords)),
+            child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
           );
         }
 
@@ -782,11 +783,11 @@ class _MobileAttendanceState extends State<MobileAttendance>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              AutoSizeText(
                                 "$dow $day",
                                 style: const TextStyle(fontSize: 15, color: Color(0xff676767), fontWeight: _wMedium),
                               ),
-                              Text(
+                              AutoSizeText(
                                 data.isOffday ? AppLocalizations.of(context)!.dayOffLabel : AppLocalizations.of(context)!.shiftLabel,
                                 style: TextStyle(
                                   fontWeight: _wSemi,
@@ -804,7 +805,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                                   child: Row(
                                     children: [
                                       Flexible(
-                                        child: Text(
+                                        child: AutoSizeText(
                                           AppLocalizations.of(context)!.inLabel,
                                           style: TextStyle(fontWeight: _wMedium),
                                           overflow: TextOverflow.ellipsis,
@@ -812,7 +813,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                                       ),
                                       const SizedBox(width: 6),
                                       Flexible(
-                                        child: Text(
+                                        child: AutoSizeText(
                                           inTime,
                                           style: _valueBold,
                                           overflow: TextOverflow.ellipsis,
@@ -827,7 +828,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Flexible(
-                                        child: Text(
+                                        child: AutoSizeText(
                                           AppLocalizations.of(context)!.outLabel,
                                           style: TextStyle(fontWeight: _wMedium),
                                           overflow: TextOverflow.ellipsis,
@@ -835,7 +836,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                                       ),
                                       const SizedBox(width: 6),
                                       Flexible(
-                                        child: Text(
+                                        child: AutoSizeText(
                                           outTime,
                                           style: _valueBold,
                                           overflow: TextOverflow.ellipsis,
@@ -862,7 +863,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
               ExpandablePanel(
                 header: Padding(
                   padding: const EdgeInsets.all(8),
-                  child: Text(AppLocalizations.of(context)!.viewDetails, style: const TextStyle(fontWeight: _wBold)),
+                  child: AutoSizeText(AppLocalizations.of(context)!.viewDetails, style: const TextStyle(fontWeight: _wBold)),
                 ),
                 collapsed: const SizedBox.shrink(),
                 expanded: Padding(
@@ -896,7 +897,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
     Widget _cell(String text, bool header) {
       return Padding(
         padding: const EdgeInsets.all(6),
-        child: Text(
+        child: AutoSizeText(
           text,
           textAlign: TextAlign.center,
           style: TextStyle(fontWeight: header ? _wBold : _wRegular),
@@ -956,13 +957,13 @@ class _MobileAttendanceState extends State<MobileAttendance>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            AutoSizeText(
                               AppLocalizations.of(context)!.attendanceText,
                               style: _label14,
                             ),
                             TextButton(
                               onPressed: () => _loadAttendance(_tabType),
-                              child:  Text(AppLocalizations.of(context)!.refresh, style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
+                              child:  AutoSizeText(AppLocalizations.of(context)!.refresh, style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
                             ),
                           ],
                         ),

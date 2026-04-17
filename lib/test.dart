@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 
 //qr onoff test  button 
 
@@ -17,7 +18,7 @@
 //                                 apiService.qrEnable = !apiService.qrEnable;
 //                               });
 //                             },
-//                             child: Text('QR: ${apiService.qrEnable ? "ON" : "OFF"}', style: TextStyle(color: Colors.white)),
+//                             child: AutoSizeText('QR: ${apiService.qrEnable ? "ON" : "OFF"}', style: TextStyle(color: Colors.white)),
 //                           ),
 //                           const SizedBox(width: 10),
 //                           ElevatedButton(
@@ -29,7 +30,7 @@
 //                                 apiService.remoteEnable = !apiService.remoteEnable;
 //                               });
 //                             },
-//                             child: Text('Remote: ${apiService.remoteEnable ? "ON" : "OFF"}', style: TextStyle(color: Colors.white)),
+//                             child: AutoSizeText('Remote: ${apiService.remoteEnable ? "ON" : "OFF"}', style: TextStyle(color: Colors.white)),
 //                           ),
 //                         ],
 //                       ),

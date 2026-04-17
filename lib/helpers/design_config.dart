@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:ui';
 import 'package:cn_pocket_hr/contact_us.dart/contact_us.dart';
 import 'package:cn_pocket_hr/helpers/logout.dart';
@@ -145,7 +146,7 @@ class DesignConfig {
                     ),
                   ),
                   const SizedBox(width: 20),
-                  Text(
+                  AutoSizeText(
                     AppLocalizations.of(context)!.menuText,
                     style: const TextStyle(
                         fontSize: 20,
@@ -166,7 +167,7 @@ class DesignConfig {
                     visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(context, '/team'),
                     leading: const Icon(Icons.people_alt, color: HRColors.black),
-                    title: Text(
+                    title: AutoSizeText(
                       AppLocalizations.of(context)!.myTeam,
                       style: const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
@@ -176,7 +177,7 @@ class DesignConfig {
                     visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(context, HRSalarySlips.routeName),
                     leading: const Icon(Icons.receipt_long, color: HRColors.black),
-                    title: Text(
+                    title: AutoSizeText(
                       AppLocalizations.of(context)!.salarySlips,
                       style: const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
@@ -186,7 +187,7 @@ class DesignConfig {
                     visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(context, HRAllowancesDeductions.routeName),
                     leading: const Icon(Icons.account_balance_wallet_outlined, color: HRColors.black),
-                    title: Text(
+                    title: AutoSizeText(
                       AppLocalizations.of(context)!.allowanceDeductions,
                       style: const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
@@ -196,7 +197,7 @@ class DesignConfig {
                     visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
                     leading: const Icon(Icons.payments_outlined, color: HRColors.black),
-                    title: Text(
+                    title: AutoSizeText(
                       AppLocalizations.of(context)!.debtLoans,
                       style: const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
@@ -210,7 +211,7 @@ class DesignConfig {
                       );
                     },
                     leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
-                    title: Text(
+                    title: AutoSizeText(
                       AppLocalizations.of(context)!.contactUsText,
                       style: const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
@@ -266,7 +267,7 @@ class DesignConfig {
                             children: [
                               const Icon(Icons.logout_rounded, size: 20),
                               const SizedBox(width: 8),
-                              Text(
+                              AutoSizeText(
                                 AppLocalizations.of(context)!.logoutText,
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                               ),
@@ -275,7 +276,7 @@ class DesignConfig {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
+                      AutoSizeText(
                         'App Version $version',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
@@ -301,7 +302,7 @@ class DesignConfig {
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
-        child: Text(text, style: const TextStyle(color: Colors.black)),
+        child: AutoSizeText(text, style: const TextStyle(color: Colors.black)),
       ),
     );
   }
@@ -328,7 +329,7 @@ class DesignConfig {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
+                  child: AutoSizeText(
                     message,
                     style: const TextStyle(color: Colors.white, fontSize: 15),
                     maxLines: 2,
@@ -373,7 +374,7 @@ class DesignConfig {
                   direction: Axis.horizontal,
                 )
               : const Icon(Icons.star, size: 14, color: Colors.amber),
-          Text("\t\t$rating", style: const TextStyle(color: HRColors.white, fontWeight: FontWeight.w400)),
+          AutoSizeText("\t\t$rating", style: const TextStyle(color: HRColors.white, fontWeight: FontWeight.w400)),
         ],
       ),
     );
@@ -459,7 +460,7 @@ class __RefreshListTileState extends State<_RefreshListTile> with TickerProvider
         turns: _spinController,
         child: const Icon(Icons.refresh, color: HRColors.black, size: 24),
       ),
-      title: Text(
+      title: AutoSizeText(
         _isRefreshing ? AppLocalizations.of(context)!.refreshing : AppLocalizations.of(context)!.refresh,
         style: const TextStyle(fontSize: 17, color: HRColors.black, fontWeight: FontWeight.normal),
       ),

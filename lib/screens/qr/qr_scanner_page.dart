@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:flutter/material.dart';
@@ -303,7 +304,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                       )
                     ],
                   ),
-                  child: Text(
+                  child: AutoSizeText(
                     _message!,
                     style: TextStyle(
                       color: _isError ? Colors.redAccent : Colors.green,
@@ -333,7 +334,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                     width: 1,
                   ),
                 ),
-                child: Text(
+                child: AutoSizeText(
                   AppLocalizations.of(context)!.scannText,
                   style: TextStyle(
                     color: Colors.black,
@@ -363,7 +364,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child:  Text(
+                    child:  AutoSizeText(
                          AppLocalizations.of(context)!.remoteChecking,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold , color: Colors.white),
                     ),

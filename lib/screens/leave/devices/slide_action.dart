@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -135,7 +136,7 @@ class IconSlideAction extends ClosableSlideAction {
         ThemeData.estimateBrightnessForColor(color) == Brightness.light
             ? Colors.black
             : Colors.white;
-    final Text textWidget = Text(
+    final Widget textWidget = AutoSizeText(
       caption ?? '',
       overflow: TextOverflow.ellipsis,
       style: Theme.of(context)

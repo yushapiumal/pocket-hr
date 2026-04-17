@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -188,7 +189,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 10),
-                  child: Text(
+                  child: AutoSizeText(
                     HRStrings.leaveRequest,
                     style: TextStyle(
                         fontSize: 35,
@@ -213,7 +214,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                     });
                   },
                 ),
-                Text(
+                AutoSizeText(
                   dummy,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -245,7 +246,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
+                            AutoSizeText(
                               HRStrings.submit,
                               textAlign: TextAlign.center,
                               style: TextStyle(
@@ -295,7 +296,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   //       child: DropdownButton<String>(
   //         underline: Container(color: Colors.transparent, height: 2.0),
   //         dropdownColor: HRColors.white,
-  //         hint: Text(
+  //         hint: AutoSizeText(
   //           HRStrings.countryText,
   //           style: TextStyle(
   //             color: HRColors.grayColor,
@@ -320,7 +321,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   //         items: leaveList.map<DropdownMenuItem<String>>((String value) {
   //           return DropdownMenuItem<String>(
   //             value: value,
-  //             child: Text(
+  //             child: AutoSizeText(
   //               value,
   //               textAlign: TextAlign.right,
   //             ),
@@ -340,7 +341,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
       child: DropdownButton<String>(
         underline: Container(color: Colors.transparent, height: 2.0),
         dropdownColor: HRColors.white,
-        hint: Text(
+        hint: AutoSizeText(
           HRStrings.countryText,
           style: TextStyle(
             color: HRColors.grayColor,
@@ -365,7 +366,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         items: firstsecondList.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
+            child: AutoSizeText(
               value,
               textAlign: TextAlign.right,
             ),
@@ -411,7 +412,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
       child: DropdownButton<String>(
         underline: Container(color: Colors.transparent, height: 2.0),
         dropdownColor: HRColors.white,
-        hint: Text(HRStrings.countryText,
+        hint: AutoSizeText(HRStrings.countryText,
             style: TextStyle(
               color: HRColors.grayColor,
               fontSize: 18,
@@ -436,7 +437,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         items: reasonList.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
+            child: AutoSizeText(
               value,
               textAlign: TextAlign.right,
             ),
@@ -457,7 +458,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
       child: DropdownButton<String>(
         underline: Container(color: Colors.transparent, height: 2.0),
         dropdownColor: HRColors.white,
-        hint: Text(HRStrings.countryText,
+        hint: AutoSizeText(HRStrings.countryText,
             style: TextStyle(
               color: HRColors.grayColor,
               fontSize: 18,
@@ -482,7 +483,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         items: leaveTypeList.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(
+            child: AutoSizeText(
               capitalize(value),
               textAlign: TextAlign.right,
             ),
@@ -506,7 +507,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(fromText,
+            AutoSizeText(fromText,
                 style: TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,
@@ -532,7 +533,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(toText,
+            AutoSizeText(toText,
                 style: TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,

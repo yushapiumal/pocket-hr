@@ -5,6 +5,7 @@ import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/models/hr/variable_model.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class MobileAllowancesDeductionsScreen extends StatefulWidget {
   @override
@@ -126,7 +127,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: AutoSizeText(
                           item.allowance,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -138,7 +139,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                         ),
                       ),
                       const SizedBox(width: _g12),
-                      Text(
+                      AutoSizeText(
                         '$sign${FormatUtils.money(item.amount)}',
                         style: TextStyle(
                           fontSize: 14,
@@ -154,7 +155,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                       Icon(Icons.calendar_month, size: 14, color: Colors.black54),
                       const SizedBox(width: 6),
                       Expanded(
-                        child: Text(
+                        child: AutoSizeText(
                           FormatUtils.dateFromUnixSeconds(item.issuedDate),
                           style: const TextStyle(color: Colors.black54, fontSize: 11),
                         ),
@@ -166,7 +167,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                               .withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Text(
+                        child: AutoSizeText(
                           item.processed ? AppLocalizations.of(context)!.processedLabel : AppLocalizations.of(context)!.pendindingLable,
                           style: TextStyle(
                             fontSize: 11,
@@ -214,9 +215,9 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_error!, textAlign: TextAlign.center),
+              AutoSizeText(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.retryLabel)),
+              ElevatedButton(onPressed: _load, child: AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
             ],
           ),
         ),
@@ -232,7 +233,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                 ? ListView(
                     children: [
                       const SizedBox(height: 60),
-                      Center(child: Text(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
+                      Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
                     ],
                   )
                 : ListView.builder(
@@ -248,7 +249,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.noAllowancesFound,
+                        child: AutoSizeText(AppLocalizations.of(context)!.noAllowancesFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -266,7 +267,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.noDeductionsFound,
+                        child: AutoSizeText(AppLocalizations.of(context)!.noDeductionsFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -308,7 +309,7 @@ class _MobileAllowancesDeductionsScreenState extends State<MobileAllowancesDeduc
                   ),
                   const SizedBox(width: _g12),
                   Expanded(
-                    child: Text(
+                    child: AutoSizeText(
                       AppLocalizations.of(context)!.allowanceDeductions,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

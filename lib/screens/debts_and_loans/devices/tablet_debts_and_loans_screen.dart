@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/services/debt_service.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
 import 'package:cn_pocket_hr/api/api_client.dart';
@@ -120,7 +121,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: AutoSizeText(
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -132,7 +133,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                         ),
                       ),
                       const SizedBox(width: _g12),
-                      Text(
+                      AutoSizeText(
                         '$sign${FormatUtils.money(item.amount)}',
                         style: TextStyle(
                           fontSize: 14,
@@ -148,7 +149,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                       Icon(Icons.calendar_month, size: 14, color: Colors.black54),
                       const SizedBox(width: 6),
                       Expanded(
-                        child: Text(
+                        child: AutoSizeText(
                           FormatUtils.dateFromUnixSeconds(item.issuedDate),
                           style: const TextStyle(color: Colors.black54, fontSize: 11),
                         ),
@@ -160,7 +161,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                               .withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Text(
+                        child: AutoSizeText(
                           item.collected ? AppLocalizations.of(context)!.collectedLabel : AppLocalizations.of(context)!.pendingLabel,
                           style: TextStyle(
                             fontSize: 11,
@@ -205,9 +206,9 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_error!, textAlign: TextAlign.center),
+              AutoSizeText(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.retryLabel)),
+              ElevatedButton(onPressed: _load, child: AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
             ],
           ),
         ),
@@ -222,7 +223,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                 ? ListView(
                     children: [
                       const SizedBox(height: 60),
-                      Center(child: Text(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
+                      Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
                     ],
                   )
                 : ListView.builder(
@@ -238,7 +239,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.noDebtsFound,
+                        child: AutoSizeText(AppLocalizations.of(context)!.noDebtsFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -256,7 +257,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.noLoansFound,
+                        child: AutoSizeText(AppLocalizations.of(context)!.noLoansFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -296,7 +297,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                   ),
                   const SizedBox(width: _g12),
                   Expanded(
-                    child: Text(
+                    child: AutoSizeText(
                       AppLocalizations.of(context)!.debtsLabel + ' & ' + AppLocalizations.of(context)!.loansLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

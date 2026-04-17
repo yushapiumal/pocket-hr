@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class OtpPage extends StatefulWidget {
@@ -224,7 +225,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
       
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please enter the 6-digit OTP'),
+          content: AutoSizeText('Please enter the 6-digit OTP'),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.red.shade400,
@@ -261,7 +262,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
           children: const [
             Icon(Icons.check_circle, color: Colors.white),
             SizedBox(width: 8),
-            Text('OTP resent successfully!'),
+            AutoSizeText('OTP resent successfully!'),
           ],
         ),
         behavior: SnackBarBehavior.floating,
@@ -290,7 +291,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
               ),
             );
           },
-          child: const Text('', style: TextStyle(color: Colors.black87)),
+          child: AutoSizeText('', style: TextStyle(color: Colors.black87)),
         ),
       ),
       body: SafeArea(
@@ -351,7 +352,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
                     ),
                   );
                 },
-                child: const Text(
+                child: AutoSizeText(
                   'Enter OTP Code',
                   style: TextStyle(
                     fontSize: 26, 
@@ -370,7 +371,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
                   opacity: _fadeAnimation,
                   child: Column(
                     children: [
-                      const Text(
+                      AutoSizeText(
                         'We have sent a 6-digit code to:',
                         style: TextStyle(
                           fontSize: 15, 
@@ -390,7 +391,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
                           children: [
                             Icon(Icons.email_outlined, size: 20, color: _accent),
                             const SizedBox(width: 8),
-                            const Text(
+                            AutoSizeText(
                               '+1 234 567 8900',
                               style: TextStyle(
                                 fontSize: 16,
@@ -458,7 +459,7 @@ class _OtpPageState extends State<OtpPage> with TickerProviderStateMixin {
                         ),
                         elevation: 5,
                       ),
-                      child: const Text(
+                      child: AutoSizeText(
                         'Verify',
                         style: TextStyle(
                           fontSize: 18,

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 
@@ -15,7 +16,7 @@ class ComingSoonScreen extends StatelessWidget {
         surfaceTintColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: HRColors.black),
-        title: Text(
+        title: AutoSizeText(
           title,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: HRColors.black),
         ),
@@ -45,13 +46,13 @@ class ComingSoonScreen extends StatelessWidget {
                 child: const Icon(Icons.hourglass_bottom_rounded, color: HRColors.darkOrangeColor, size: 30),
               ),
               const SizedBox(height: 12),
-              Text(
+              AutoSizeText(
                 '$title is coming soon',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: HRColors.darkFontColor),
               ),
               const SizedBox(height: 6),
-              const Text(
+              AutoSizeText(
                 'We are working on this feature and will release it in a future update.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: HRColors.lightFontColor),

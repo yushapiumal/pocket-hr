@@ -1,23 +1,19 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/services/debt_service.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
-import 'package:cn_pocket_hr/api/api_client.dart';
 // filepath: /home/akesh/Work/new_hr/cn_pocket_hr/lib/Screens/debtsAndLoans/devices/MobileDebtsAndLoansScreen.dart
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
-import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/models/hr/debt_model.dart';
 
 class MobileDebtsAndLoansScreen extends StatefulWidget {
   @override
-  State<MobileDebtsAndLoansScreen> createState() => _MobileDebtsAndLoansScreenState();
+  State<MobileDebtsAndLoansScreen> createState() =>
+      _MobileDebtsAndLoansScreenState();
 }
 
 class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
     with SingleTickerProviderStateMixin {
-  final _api = APIService();
-  final _storage = LocalStorage('pocketHR');
-
   late final TabController _tab;
   bool _loading = true;
   String? _error;
@@ -47,8 +43,6 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
     super.dispose();
   }
 
-  
-
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -70,9 +64,6 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
       });
     }
   }
-
-  
-  
 
   Widget _itemCard(DebtItem item) {
     final isDebt = item.type.toLowerCase() == 'debt';
@@ -120,9 +111,10 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
+                        child: AutoSizeText(
                           title,
                           maxLines: 1,
+                          minFontSize: 10,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 14,
@@ -132,8 +124,10 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                         ),
                       ),
                       const SizedBox(width: _g12),
-                      Text(
+                      AutoSizeText(
                         '$sign${FormatUtils.money(item.amount)}',
+                        maxLines: 1,
+                        minFontSize: 10,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -145,23 +139,32 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                   const SizedBox(height: _g8),
                   Row(
                     children: [
-                      Icon(Icons.calendar_month, size: 14, color: Colors.black54),
+                      Icon(Icons.calendar_month,
+                          size: 14, color: Colors.black54),
                       const SizedBox(width: 6),
                       Expanded(
-                        child: Text(
+                        child: AutoSizeText(
                           FormatUtils.dateFromUnixSeconds(item.issuedDate),
-                          style: const TextStyle(color: Colors.black54, fontSize: 11),
+                          maxLines: 1,
+                          minFontSize: 9,
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: 11),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 5),
                         decoration: BoxDecoration(
                           color: (item.collected ? Colors.green : Colors.orange)
                               .withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Text(
-                          item.collected ? AppLocalizations.of(context)!.collectedLabel : AppLocalizations.of(context)!.pendingLabel,
+                        child: AutoSizeText(
+                          item.collected
+                              ? AppLocalizations.of(context)!.collectedLabel
+                              : AppLocalizations.of(context)!.pendingLabel,
+                          maxLines: 1,
+                          minFontSize: 9,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -190,8 +193,13 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
     List<DebtItem> filter(List<DebtItem> list) {
       if (_query.isEmpty) return list;
       final q = _query.toLowerCase();
-      return list.where((e) => ((e.description ?? (e.type == 'debt' ? 'Debt' : 'Loan')).toLowerCase().contains(q))).toList();
+      return list
+          .where((e) => ((e.description ?? (e.type == 'debt' ? 'Debt' : 'Loan'))
+              .toLowerCase()
+              .contains(q)))
+          .toList();
     }
+
     final filteredAll = filter(allItems);
     final filteredDebts = filter(debts);
     final filteredLoans = filter(loans);
@@ -205,9 +213,17 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_error!, textAlign: TextAlign.center),
+              AutoSizeText(_error!,
+                  textAlign: TextAlign.center, maxLines: 4, minFontSize: 10),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.retryLabel)),
+              ElevatedButton(
+                onPressed: _load,
+                child: AutoSizeText(
+                  AppLocalizations.of(context)!.retryLabel,
+                  maxLines: 1,
+                  minFontSize: 10,
+                ),
+              ),
             ],
           ),
         ),
@@ -222,7 +238,14 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                 ? ListView(
                     children: [
                       const SizedBox(height: 60),
-                      Center(child: Text(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
+                      Center(
+                        child: AutoSizeText(
+                          AppLocalizations.of(context)!.noRecords,
+                          maxLines: 2,
+                          minFontSize: 10,
+                          style: const TextStyle(color: Colors.black54),
+                        ),
+                      ),
                     ],
                   )
                 : ListView.builder(
@@ -238,8 +261,12 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.noDebtsFound,
-                            style: const TextStyle(color: Colors.black54)),
+                        child: AutoSizeText(
+                          AppLocalizations.of(context)!.noDebtsFound,
+                          maxLines: 2,
+                          minFontSize: 10,
+                          style: const TextStyle(color: Colors.black54),
+                        ),
                       )
                     ],
                   )
@@ -256,8 +283,12 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: Text(AppLocalizations.of(context)!.noLoansFound,
-                            style: const TextStyle(color: Colors.black54)),
+                        child: AutoSizeText(
+                          AppLocalizations.of(context)!.noLoansFound,
+                          maxLines: 2,
+                          minFontSize: 10,
+                          style: const TextStyle(color: Colors.black54),
+                        ),
                       )
                     ],
                   )
@@ -289,16 +320,21 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(40),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                        border:
+                            Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                      child: const Icon(Icons.navigate_before, color: Colors.black87),
+                      child: const Icon(Icons.navigate_before,
+                          color: Colors.black87),
                     ),
                   ),
                   const SizedBox(width: _g12),
                   Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.debtsLabel + ' & ' + AppLocalizations.of(context)!.loansLabel,
+                    child: AutoSizeText(
+                      AppLocalizations.of(context)!.debtsLabel +
+                          ' & ' +
+                          AppLocalizations.of(context)!.loansLabel,
                       maxLines: 1,
+                      minFontSize: 16,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.black87,
@@ -332,9 +368,27 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                   labelColor: Colors.black87,
                   unselectedLabelColor: Colors.black54,
                   tabs: [
-                    Tab(text: AppLocalizations.of(context)!.allLabel),
-                    Tab(text: AppLocalizations.of(context)!.debtsLabel),
-                    Tab(text: AppLocalizations.of(context)!.loansLabel),
+                    Tab(
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.allLabel,
+                        maxLines: 1,
+                        minFontSize: 10,
+                      ),
+                    ),
+                    Tab(
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.debtsLabel,
+                        maxLines: 1,
+                        minFontSize: 10,
+                      ),
+                    ),
+                    Tab(
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.loansLabel,
+                        maxLines: 1,
+                        minFontSize: 10,
+                      ),
+                    ),
                   ],
                 ),
               ),

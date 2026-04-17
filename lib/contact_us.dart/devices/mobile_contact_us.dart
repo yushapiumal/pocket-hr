@@ -1,4 +1,5 @@
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -53,7 +54,7 @@ class _ContactUsMobileScreenState extends State<ContactUsMobileScreen> {
                   ),
                   const SizedBox(width: ContactUsMobileScreen._g12),
                    Expanded(
-                    child: Text(
+                    child: AutoSizeText(
                       AppLocalizations.of(context)!.contactUsText,
                       style: TextStyle(color: Colors.black87, fontSize: 24, fontWeight: FontWeight.w900),
                     ),
@@ -83,12 +84,12 @@ class _ContactUsMobileScreenState extends State<ContactUsMobileScreen> {
                       children:  [
                         Icon(Icons.support_agent_rounded, color: Colors.white, size: 40),
                         SizedBox(height: ContactUsMobileScreen._g12),
-                        Text(
+                        AutoSizeText(
                           AppLocalizations.of(context)!.weAreHere,
                           style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w800),
                         ),
                         SizedBox(height: ContactUsMobileScreen._g4),
-                        Text(
+                        AutoSizeText(
                           AppLocalizations.of(context)!.reachOut,
                           style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
                         ),
@@ -153,9 +154,9 @@ class _ContactUsMobileScreenState extends State<ContactUsMobileScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(AppLocalizations.of(context)!.headOffice, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black87)),
+                              AutoSizeText(AppLocalizations.of(context)!.headOffice, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black87)),
                               SizedBox(height: ContactUsMobileScreen._g4),
-                              Text('123 Main Street,\nColombo 03,\nSri Lanka.', style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5)),
+                              AutoSizeText('123 Main Street,\nColombo 03,\nSri Lanka.', style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5)),
                             ],
                           ),
                         ),
@@ -190,7 +191,7 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87));
+    return AutoSizeText(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black87));
   }
 }
 
@@ -236,9 +237,9 @@ class _ContactTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black87)),
+                  AutoSizeText(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black87)),
                   const SizedBox(height: 2),
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                  AutoSizeText(subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
                 ],
               ),
             ),
@@ -272,8 +273,8 @@ class _HoursRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(day, style: const TextStyle(fontSize: 13, color: Colors.black87)),
-          Text(
+          AutoSizeText(day, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+          AutoSizeText(
             hours,
             style: TextStyle(
               fontSize: 13,

@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -111,7 +112,7 @@ class _MobileIntroState extends State<MobileIntro> with SingleTickerProviderStat
                       ),
                       const SizedBox(height: 22),
 
-                      const Text(
+                      AutoSizeText(
                         'HR Connect',
                         style: TextStyle(
                           color: Colors.white,

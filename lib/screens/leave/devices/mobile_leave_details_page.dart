@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -37,9 +38,9 @@ class MobileLeaveDetailsPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: HRColors.black.withOpacity(0.55))),
+          AutoSizeText(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: HRColors.black.withOpacity(0.55))),
           const SizedBox(height: 6),
-          Text(value.isEmpty ? '-' : value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: HRColors.black)),
+          AutoSizeText(value.isEmpty ? '-' : value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: HRColors.black)),
         ],
       ),
     );
@@ -61,7 +62,7 @@ class MobileLeaveDetailsPage extends StatelessWidget {
         surfaceTintColor: HRColors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: HRColors.black),
-        title: const Text('Leave Details', style: TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
+        title: AutoSizeText('Leave Details', style: TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -121,9 +122,9 @@ class MobileLeaveDetailsPage extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(title.isEmpty ? 'Leave Request' : title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: HRColors.black)),
+                              AutoSizeText(title.isEmpty ? 'Leave Request' : title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: HRColors.black)),
                               const SizedBox(height: 4),
-                              Text('$from  -  $to', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: HRColors.black.withOpacity(0.55))),
+                              AutoSizeText('$from  -  $to', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: HRColors.black.withOpacity(0.55))),
                             ],
                           ),
                         ),

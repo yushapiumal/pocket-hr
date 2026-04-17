@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -131,7 +132,7 @@ class _TabletProfileState extends State<TabletProfile> {
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.profilePictureUpdated),
+          content: AutoSizeText(AppLocalizations.of(context)!.profilePictureUpdated),
           backgroundColor: Colors.green,
         ),
       );
@@ -139,7 +140,7 @@ class _TabletProfileState extends State<TabletProfile> {
       setState(() => _savingImage = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.failedToUpdatePicture),
+          content: AutoSizeText(AppLocalizations.of(context)!.failedToUpdatePicture),
           backgroundColor: Colors.red,
         ),
       );
@@ -179,7 +180,7 @@ class _TabletProfileState extends State<TabletProfile> {
                     const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
               ),
             ),
-            Text(AppLocalizations.of(context)!.myProfileTitle,
+            AutoSizeText(AppLocalizations.of(context)!.myProfileTitle,
                 style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
@@ -310,7 +311,7 @@ class _TabletProfileState extends State<TabletProfile> {
           SizedBox(height: 16),
 
           // Name and EPF
-          // Text(
+          // AutoSizeText(
           //   _loadingMe ? AppLocalizations.of(context)!.loadingProfile : _headerFullName,
           //   style: TextStyle(
           //     fontSize: 22,
@@ -320,7 +321,7 @@ class _TabletProfileState extends State<TabletProfile> {
           //   textAlign: TextAlign.center,
           // ),
           SizedBox(height: 4),
-          Text(
+          AutoSizeText(
             '${AppLocalizations.of(context)!.epfLabel}${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
             style: TextStyle(
               fontSize: 14,
@@ -342,7 +343,7 @@ class _TabletProfileState extends State<TabletProfile> {
                       color: _primaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: AutoSizeText(
                       _designation,
                       style: TextStyle(
                         fontSize: 13,
@@ -360,7 +361,7 @@ class _TabletProfileState extends State<TabletProfile> {
                       color: _secondaryColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Text(
+                    child: AutoSizeText(
                       _department,
                       style: TextStyle(
                         fontSize: 13,
@@ -380,7 +381,7 @@ class _TabletProfileState extends State<TabletProfile> {
             child: ElevatedButton.icon(
             onPressed: () => LogoutHelper.logout(context),
               icon: Icon(Icons.logout_rounded, size: 20),
-              label: Text(AppLocalizations.of(context)!.logoutText,
+              label: AutoSizeText(AppLocalizations.of(context)!.logoutText,
                   style: TextStyle(fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.red,
@@ -430,7 +431,7 @@ class _TabletProfileState extends State<TabletProfile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                AutoSizeText(
                   title,
                   style: TextStyle(
                     fontSize: 13,
@@ -438,7 +439,7 @@ class _TabletProfileState extends State<TabletProfile> {
                   ),
                 ),
                 SizedBox(height: 4),
-                Text(
+                AutoSizeText(
                   value.isNotEmpty
                       ? value
                       : AppLocalizations.of(context)!.notAdded,
@@ -464,7 +465,7 @@ class _TabletProfileState extends State<TabletProfile> {
         children: [
           Padding(
             padding: EdgeInsets.only(left: 4, bottom: 12),
-            child: Text(
+            child: AutoSizeText(
               AppLocalizations.of(context)!.personalInformation,
               style: TextStyle(
                 fontSize: 18,
@@ -545,7 +546,7 @@ class _TabletProfileState extends State<TabletProfile> {
         color: HRColors.darkOrangeColor,
         radius: 16.0,),
                   SizedBox(height: 16),
-                  // Text(
+                  // AutoSizeText(
                   //   AppLocalizations.of(context)!.loadingProfile,
                   //   style: TextStyle(color: _textSecondary),
                   // ),

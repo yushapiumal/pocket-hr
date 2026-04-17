@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +72,7 @@ class PocketHR extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
+                              AutoSizeText(
                                 conn.isOnline
                                     ? (conn.isWifi
                                         ? 'Connected Wi-Fi'

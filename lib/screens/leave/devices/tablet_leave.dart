@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/services/leave_service.dart';
 import 'dart:async';
 import 'dart:ui';
@@ -75,7 +76,7 @@ class TabletLeaveState extends State<TabletLeave>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
+          AutoSizeText(label, style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -83,7 +84,7 @@ class TabletLeaveState extends State<TabletLeave>
               color: HRColors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text(value, style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
+            child: AutoSizeText(value, style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
           ),
         ],
       ),
@@ -113,7 +114,7 @@ class TabletLeaveState extends State<TabletLeave>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(AppLocalizations.of(context)!.leaveBalanceTitle, style: const TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
+          AutoSizeText(AppLocalizations.of(context)!.leaveBalanceTitle, style: const TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -252,7 +253,7 @@ class TabletLeaveState extends State<TabletLeave>
                     margin: const EdgeInsets.only(top: 20, bottom: 3, left: 16),
                     alignment: Alignment.bottomLeft,
                     // margin: const EdgeInsets.only(bottom: 8, ),
-                    child: Text(
+                    child: AutoSizeText(
                       "Others",
                       style: TextStyle(
                         fontSize: 20.0,
@@ -315,7 +316,7 @@ class TabletLeaveState extends State<TabletLeave>
                                 BorderRadius.circular(10), // <-- Radius
                           ),
                         ),
-                        child: Text(
+                        child: AutoSizeText(
                           AppLocalizations.of(context)!.leaveText,
                           style: const TextStyle(color: Colors.black),
                         ),
@@ -388,7 +389,7 @@ class TabletLeaveState extends State<TabletLeave>
                         ),
                       ),
                     ),
-                    Text(
+                    AutoSizeText(
                       AppLocalizations.of(context)!.leaveText,
                       style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
                     ),
@@ -421,10 +422,10 @@ class TabletLeaveState extends State<TabletLeave>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(AppLocalizations.of(context)!.leaveHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                    AutoSizeText(AppLocalizations.of(context)!.leaveHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
                     TextButton(
                       onPressed: () => getMyLeaves(),
-                      child: Text(AppLocalizations.of(context)!.refresh, style: const TextStyle(color: Colors.black87, fontWeight: _wBold)),
+                      child: AutoSizeText(AppLocalizations.of(context)!.refresh, style: const TextStyle(color: Colors.black87, fontWeight: _wBold)),
                     ),
                   ],
                 ),
@@ -472,7 +473,7 @@ class TabletLeaveState extends State<TabletLeave>
                       final n = (s.data ?? const <MyLeavesModel>[]).length;
                       return Padding(
                         padding: const EdgeInsets.only(top: 4, bottom: 6),
-                        child: Text(
+                        child: AutoSizeText(
                           "${AppLocalizations.of(context)!.loadedLeaveLable}:$n",
                           style: TextStyle(
                             fontSize: 11,
@@ -488,8 +489,8 @@ class TabletLeaveState extends State<TabletLeave>
                 // Row(
                 //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 //   children: [
-                //     const Text('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                //     TextButton(onPressed: () => getMyLeaves(), child: const Text('Refresh')),
+                //     AutoSizeText('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                //     TextButton(onPressed: () => getMyLeaves(), child: AutoSizeText('Refresh')),
                 //   ],
                 // ),
 
@@ -579,7 +580,7 @@ class TabletLeaveState extends State<TabletLeave>
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 40),
             child: Center(
-              child: Text(
+              child: AutoSizeText(
                 'Failed to load leaves',
                 style: TextStyle(color: Colors.red.shade700),
               ),
@@ -604,7 +605,7 @@ class TabletLeaveState extends State<TabletLeave>
            if (_leaveListCount == 0) {
              return Padding(
                padding: const EdgeInsets.symmetric(vertical: 40),
-               child: Center(child: Text(AppLocalizations.of(context)!.noRecords)),
+               child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
              );
            }
 
@@ -626,7 +627,7 @@ class TabletLeaveState extends State<TabletLeave>
         // Future completed but returned null (should not happen) => empty state
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 40),
-          child: Center(child: Text(AppLocalizations.of(context)!.noRecords)),
+          child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
         );
       },
     );
@@ -672,7 +673,7 @@ class TabletLeaveState extends State<TabletLeave>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      AutoSizeText(
                         label,
                         style: const TextStyle(
                           color: HRColors.white,
@@ -723,7 +724,7 @@ class TabletLeaveState extends State<TabletLeave>
         children: [
           dot(active, color),
           const SizedBox(width: 6),
-          Text(
+          AutoSizeText(
             label,
             style: TextStyle(
               fontSize: 11,
@@ -853,7 +854,7 @@ class TabletLeaveState extends State<TabletLeave>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AutoSizeText(
                         AppLocalizations.of(context)!.leaveSummary,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -873,7 +874,7 @@ class TabletLeaveState extends State<TabletLeave>
                           ),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(
+                            child: AutoSizeText(
                               (from.isNotEmpty && to.isNotEmpty) ? '$from  -  $to' : (from.isNotEmpty ? from : ''),
                               style: const TextStyle(
                                 color: Colors.grey,
@@ -885,7 +886,7 @@ class TabletLeaveState extends State<TabletLeave>
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(
+                      AutoSizeText(
                         typeLabel,
                         style: const TextStyle(
                           fontSize: 12, 

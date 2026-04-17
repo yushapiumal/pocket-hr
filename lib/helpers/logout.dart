@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,17 +10,17 @@ class LogoutHelper {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(
+        title: AutoSizeText(
           AppLocalizations.of(dialogContext)!.logoutText,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: Text(
+        content: AutoSizeText(
           AppLocalizations.of(dialogContext)!.logoutConfirmation,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(AppLocalizations.of(dialogContext)!.cancel),
+            child: AutoSizeText(AppLocalizations.of(dialogContext)!.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -58,7 +59,7 @@ class LogoutHelper {
                   .pushNamedAndRemoveUntil(
                       HRLogin.routeName, (route) => false);
             },
-            child: Text(
+            child: AutoSizeText(
               AppLocalizations.of(dialogContext)!.logoutText,
               style: const TextStyle(color: Colors.red),
             ),
