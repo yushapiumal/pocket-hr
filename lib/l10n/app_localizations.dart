@@ -1129,7 +1129,7 @@ abstract class AppLocalizations {
   /// No description provided for @qrCoordinatesMismatchMessage.
   ///
   /// In en, this message translates to:
-  /// **'Scanned code and company QR not match.'**
+  /// **'Check-in/out is not allowed at this location.'**
   String get qrCoordinatesMismatchMessage;
 
   /// No description provided for @remoteChecking.

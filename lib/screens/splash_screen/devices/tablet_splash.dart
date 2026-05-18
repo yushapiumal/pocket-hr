@@ -118,7 +118,7 @@ class _TabletSplashState extends State<TabletSplash>
             child: SizeTransition(
               sizeFactor: _animation,
               child: Image.asset(
-                HrConstant.getImagePath('logo.png'),
+                HrConstant.getImagePath('app_logo.png'),
                 width: MediaQuery.of(context).size.width / 3.4,
               ),
             ),

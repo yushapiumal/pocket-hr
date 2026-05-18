@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// Lightweight "liquid" side menu animation using a curved reveal clip.
@@ -30,7 +31,8 @@ class LiquidSideMenu extends StatefulWidget {
   State<LiquidSideMenu> createState() => LiquidSideMenuState();
 }
 
-class LiquidSideMenuState extends State<LiquidSideMenu> with SingleTickerProviderStateMixin {
+class LiquidSideMenuState extends State<LiquidSideMenu>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _c;
   late final Animation<double> _t;
 
@@ -40,7 +42,10 @@ class LiquidSideMenuState extends State<LiquidSideMenu> with SingleTickerProvide
   void initState() {
     super.initState();
     _c = AnimationController(vsync: this, duration: widget.duration);
-    _t = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic);
+    _t = CurvedAnimation(
+        parent: _c,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic);
   }
 
   @override
@@ -72,31 +77,10 @@ class LiquidSideMenuState extends State<LiquidSideMenu> with SingleTickerProvide
           final dx = widget.menuWidth * p;
           final scale = 1.0 - (0.05 * p);
           final radius = 24.0 * p;
+          final overlayOpacity = 0.12 * p;
 
           return Stack(
             children: [
-              // Menu (revealed with liquid clip)
-              ClipPath(
-                clipper: _LiquidClipper(progress: p, width: widget.menuWidth),
-                child: SizedBox(
-                  width: widget.menuWidth,
-                  height: mq.size.height,
-                  child: widget.menu,
-                ),
-              ),
-
-              // Dim overlay
-              if (p > 0)
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: close,
-                    behavior: HitTestBehavior.opaque,
-                    child: Container(
-                      color: Colors.black.withOpacity(0.12 * p),
-                    ),
-                  ),
-                ),
-
               // Main content (slides + slight scale + rounded corners)
               Transform.translate(
                 offset: Offset(dx, 0),
@@ -110,6 +94,46 @@ class LiquidSideMenuState extends State<LiquidSideMenu> with SingleTickerProvide
                       child: widget.child,
                     ),
                   ),
+                ),
+              ),
+
+              // Real blur overlay on top of shifted content only
+              if (p > 0)
+                Transform.translate(
+                  offset: Offset(dx, 0),
+                  child: Transform.scale(
+                    scale: scale,
+                    alignment: Alignment.centerLeft,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(radius),
+                      child: ClipRect(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: 18.0 * p,
+                            sigmaY: 18.0 * p,
+                          ),
+                          child: GestureDetector(
+                            onTap: close,
+                            behavior: HitTestBehavior.opaque,
+                            child: Container(
+                              width: mq.size.width,
+                              height: mq.size.height,
+                              color: Colors.white.withOpacity(overlayOpacity),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Menu (revealed with liquid clip, on top)
+              ClipPath(
+                clipper: _LiquidClipper(progress: p, width: widget.menuWidth),
+                child: SizedBox(
+                  width: widget.menuWidth,
+                  height: mq.size.height,
+                  child: widget.menu,
                 ),
               ),
             ],

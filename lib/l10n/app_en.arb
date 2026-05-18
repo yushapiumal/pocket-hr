@@ -198,7 +198,7 @@
       }
     }
   },
-  "qrCoordinatesMismatchMessage": "Scanned code and company QR not match.",
+  "qrCoordinatesMismatchMessage": "Check-in/out is not allowed at this location.",
   "remoteChecking": "Remote Checking",
   "checkInSuccess": "CheckIn is successful",
   "checkOutSuccess": "Checkout is successful",

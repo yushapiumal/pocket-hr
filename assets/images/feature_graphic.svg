@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <!-- Background gradient: deep navy to teal -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D1B2A;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#1A3A5C;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0E7C86;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Accent glow for circle -->
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:0.25" />
+      <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:0" />
+    </radialGradient>
+
+    <!-- Icon gradient -->
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0E7C86;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Subtle card shadow -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+
+    <filter id="textGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="500" fill="url(#bgGrad)" />
+
+  <!-- Decorative circles (background geometry) -->
+  <circle cx="820" cy="250" r="320" fill="url(#glowGrad)" />
+  <circle cx="820" cy="250" r="200" fill="none" stroke="#00D4FF" stroke-width="1" stroke-opacity="0.12"/>
+  <circle cx="820" cy="250" r="140" fill="none" stroke="#00D4FF" stroke-width="1" stroke-opacity="0.18"/>
+  <circle cx="820" cy="250" r="80"  fill="none" stroke="#00D4FF" stroke-width="1.5" stroke-opacity="0.25"/>
+
+  <!-- Top-left small decorative dots -->
+  <circle cx="60"  cy="60"  r="4" fill="#00D4FF" fill-opacity="0.3"/>
+  <circle cx="90"  cy="45"  r="2.5" fill="#00D4FF" fill-opacity="0.2"/>
+  <circle cx="45"  cy="90"  r="2" fill="#00D4FF" fill-opacity="0.2"/>
+  <circle cx="120" cy="70"  r="3" fill="#00D4FF" fill-opacity="0.15"/>
+
+  <!-- Bottom-right decorative dots -->
+  <circle cx="960" cy="440" r="4" fill="#00D4FF" fill-opacity="0.25"/>
+  <circle cx="990" cy="420" r="2.5" fill="#00D4FF" fill-opacity="0.2"/>
+  <circle cx="940" cy="465" r="2" fill="#00D4FF" fill-opacity="0.15"/>
+
+  <!-- Diagonal accent line -->
+  <line x1="0" y1="500" x2="600" y2="0" stroke="#00D4FF" stroke-width="0.5" stroke-opacity="0.07"/>
+  <line x1="100" y1="500" x2="700" y2="0" stroke="#00D4FF" stroke-width="0.5" stroke-opacity="0.05"/>
+
+  <!-- ===== ICON / LOGO AREA ===== -->
+  <!-- Rounded card behind icon -->
+  <rect x="80" y="150" width="200" height="200" rx="36" ry="36"
+        fill="#0D1B2A" fill-opacity="0.7" filter="url(#shadow)" stroke="#00D4FF" stroke-width="1.5" stroke-opacity="0.4"/>
+
+  <!-- Person/Human silhouette icon (stylized) -->
+  <!-- Head -->
+  <circle cx="180" cy="210" r="30" fill="url(#iconGrad)" />
+  <!-- Body -->
+  <path d="M130 310 Q130 265 180 260 Q230 265 230 310 Z" fill="url(#iconGrad)" />
+  <!-- Digital circuit lines on icon -->
+  <line x1="150" y1="210" x2="120" y2="210" stroke="#0D1B2A" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="120" y1="210" x2="120" y2="225" stroke="#0D1B2A" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="210" y1="210" x2="240" y2="210" stroke="#0D1B2A" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="240" y1="210" x2="240" y2="225" stroke="#0D1B2A" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="120" cy="228" r="4" fill="#0D1B2A"/>
+  <circle cx="240" cy="228" r="4" fill="#0D1B2A"/>
+
+  <!-- ===== TEXT AREA ===== -->
+  <!-- App Name: "DigitAlly" -->
+  <text x="320" y="240"
+        font-family="'Segoe UI', 'Arial', sans-serif"
+        font-size="88"
+        font-weight="800"
+        fill="#FFFFFF"
+        filter="url(#textGlow)"
+        letter-spacing="-2">Digit<tspan fill="#00D4FF">Ally</tspan></text>
+
+  <!-- Subtitle: "(Human)" -->
+  <text x="324" y="295"
+        font-family="'Segoe UI', 'Arial', sans-serif"
+        font-size="32"
+        font-weight="400"
+        fill="#00D4FF"
+        fill-opacity="0.85"
+        letter-spacing="6">(Human)</text>
+
+  <!-- Tagline -->
+  <text x="322" y="355"
+        font-family="'Segoe UI', 'Arial', sans-serif"
+        font-size="20"
+        font-weight="300"
+        fill="#FFFFFF"
+        fill-opacity="0.65"
+        letter-spacing="1">Smart HR Management · Built for People</text>
+
+  <!-- Thin accent divider under app name -->
+  <rect x="322" y="308" width="380" height="2" rx="1" fill="#00D4FF" fill-opacity="0.35"/>
+
+  <!-- Bottom branding bar -->
+  <rect x="0" y="468" width="1024" height="32" fill="#000000" fill-opacity="0.25"/>
+  <text x="512" y="490"
+        font-family="'Segoe UI', 'Arial', sans-serif"
+        font-size="14"
+        font-weight="400"
+        fill="#FFFFFF"
+        fill-opacity="0.45"
+        text-anchor="middle"
+        letter-spacing="3">ATTENDANCE · LEAVE · PAYROLL · TEAM</text>
+</svg>

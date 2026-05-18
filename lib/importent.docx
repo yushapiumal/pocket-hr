@@ -1,0 +1,20 @@
+What is your first and last name?
+  [Piumal]:  
+What is the name of your organizational unit?
+  [Digitable]:  
+What is the name of your organization?
+  [Digitable]:  
+What is the name of your City or Locality?
+  [Colombo]:  
+What is the name of your State or Province?
+  [western ]:  
+What is the two-letter country code for this unit?
+  [LK]:  
+
+
+storePassword=PocketHR2026
+keyPassword=PocketHR2026
+keyAlias=upload
+storeFile=/Users/admin/upload-keystore.jks
+
+biddle id - asia.ceynet.human.pocket

@@ -23,20 +23,31 @@ class SlideAnimation extends StatefulWidget {
 }
 
 class _SlideAnimationState extends State<SlideAnimation> {
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    final double rawBegin =
+        widget.itemCount > 0 ? (1 / widget.itemCount) * widget.position : 0.0;
+    // If position >= itemCount the begin would reach/exceed 1.0 which makes
+    // Interval produce NaN → opacity 0. Fall back to 0.0 so items still animate.
+    final double intervalBegin = rawBegin >= 1.0 ? 0.0 : rawBegin;
+    _animation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: widget.animationController!,
+      curve: Interval(intervalBegin, 1.0, curve: Curves.fastOutSlowIn),
+    ));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.animationController!.reset();
+        widget.animationController!.forward();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    // we need x and y translation variables to animate items in different direction using our enum
     var _xTranslation = 0.0, _yTranslation = 0.0;
-
-    // we need to declare our animation for fade transition widget
-    var _animation = Tween(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-      parent: widget.animationController!,
-      // curve for the way you want to animate your list item widget. you can use anything from curves
-      curve: Interval((1 / widget.itemCount) * widget.position, 1.0,
-          curve: Curves.fastOutSlowIn),
-    ));
-
-    widget.animationController!.forward();
 
     return AnimatedBuilder(
       animation: widget.animationController!,

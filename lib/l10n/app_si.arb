@@ -203,7 +203,7 @@
     }
   },
   "scannText": "QR කේතය කොටුවේ මැද තබන්න. එය ස්වයංක්‍රීයව ස්කෑන් වේ.",
-  "qrCoordinatesMismatchMessage": "මෙම කේතය සහ ආයතනයේ කේතය නොගැලපේ. කරුණාකර ස්ථානයට ළං වී නැවත උත්සාහ කරන්න.",
+  "qrCoordinatesMismatchMessage": "මෙම ස්ථානයේ Check-in/Check-out සටහන් කිරීම අවසර නැත.",
   "signIn": "පිවිසෙන්න",
   "remoteChecking": "දුරස්ථව පැමිණීම",
   "checkInSuccess": "පැමිණීම සාර්ථකයි",

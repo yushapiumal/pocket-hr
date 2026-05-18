@@ -546,7 +546,7 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get qrCoordinatesMismatchMessage =>
-      'QR மற்றும் சேவையக ஒருங்கிணைப்புகள் பொருந்தவில்லை. தயவுசெய்து இருப்பிடத்திற்கு அருகில் சென்று மீண்டும் முயற்சிக்கவும்.';
+      'இந்த இடத்தில் Check-in/Check-out செய்ய அனுமதி இல்லை.';
 
   @override
   String get remoteChecking => 'தொலைதூர சரிபார்ப்பு';

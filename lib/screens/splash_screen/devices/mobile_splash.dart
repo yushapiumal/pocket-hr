@@ -26,13 +26,25 @@ class _MobileSplashState extends State<MobileSplash>
   APIService apiService = APIService();
 
   late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 1),
+    duration: const Duration(milliseconds: 2000),
     vsync: this,
   )..forward();
-  late final Animation<double> _animation = CurvedAnimation(
+
+  late final Animation<double> _scaleAnimation = Tween<double>(
+    begin: 0.1,
+    end: 1.0,
+  ).animate(CurvedAnimation(
     parent: _controller,
-    curve: Curves.fastOutSlowIn,
-  );
+    curve: Curves.elasticOut,
+  ));
+
+  late final Animation<double> _fadeAnimation = Tween<double>(
+    begin: 0.0,
+    end: 1.0,
+  ).animate(CurvedAnimation(
+    parent: _controller,
+    curve: const Interval(0.0, 0.4, curve: Curves.easeIn),
+  ));
 
   @override
   void initState() {
@@ -77,7 +89,10 @@ class _MobileSplashState extends State<MobileSplash>
     } catch (_) {}
 
     // Default -> login screen
-    try { await storage.setItem('access_token', ''); await storage.setItem('refresh_token', ''); } catch (_) {}
+    try {
+      await storage.setItem('access_token', '');
+      await storage.setItem('refresh_token', '');
+    } catch (_) {}
     Navigator.pushNamed(context, HRLogin.routeName);
   }
 
@@ -98,7 +113,10 @@ class _MobileSplashState extends State<MobileSplash>
 
   void autoLogin(email, password) async {
     // Legacy email/password auto-login removed. Proceed to login screen.
-    try { await storage.setItem('access_token', ''); await storage.setItem('refresh_token', ''); } catch (_) {}
+    try {
+      await storage.setItem('access_token', '');
+      await storage.setItem('refresh_token', '');
+    } catch (_) {}
     if (!mounted) return;
     Navigator.pushNamed(context, HRLogin.routeName);
   }
@@ -114,14 +132,31 @@ class _MobileSplashState extends State<MobileSplash>
         body: Container(
           color: HRColors.white,
           alignment: Alignment.center,
-          child: Padding(
-            padding:
-                EdgeInsets.only(left: MediaQuery.of(context).size.width * .35),
-            child: SizeTransition(
-              sizeFactor: _animation,
-              child: Image.asset(
-                HrConstant.getImagePath('logo.png'),
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
                 width: MediaQuery.of(context).size.width / 3.4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.15),
+                      blurRadius: 24,
+                      spreadRadius: 2,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.asset(
+                    HrConstant.getImagePath('app_logo.png'),
+                    width: MediaQuery.of(context).size.width / 3.4,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
           ),

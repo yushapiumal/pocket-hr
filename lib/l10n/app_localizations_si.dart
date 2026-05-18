@@ -537,7 +537,7 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get qrCoordinatesMismatchMessage =>
-      'මෙම කේතය සහ ආයතනයේ කේතය නොගැලපේ. කරුණාකර ස්ථානයට ළං වී නැවත උත්සාහ කරන්න.';
+      'මෙම ස්ථානයේ Check-in/Check-out සටහන් කිරීම අවසර නැත.';
 
   @override
   String get remoteChecking => 'දුරස්ථව පැමිණීම';

@@ -5,15 +5,16 @@ import 'package:cn_pocket_hr/helpers/logout.dart';
 import 'package:cn_pocket_hr/screens/allowances_deductions/allowance.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:localstorage/localstorage.dart'; 
+import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
-import 'package:cn_pocket_hr/screens/salary_slips/salary_slips.dart'; 
+import 'package:cn_pocket_hr/screens/salary_slips/salary_slips.dart';
 import 'package:cn_pocket_hr/helpers/flutter_rating_bar.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:cn_pocket_hr/screens/debts_and_loans/debts_and_loans_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
+import 'package:cn_pocket_hr/helpers/tenant_helper.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DesignConfig {
@@ -28,8 +29,10 @@ class DesignConfig {
   static BoxDecoration boxDecorationIntroductionColor(
       Color color1, Color color2, double sizes) {
     return BoxDecoration(
-      gradient: LinearGradient(colors: [color1, color2],
-          begin: Alignment.centerLeft, end: Alignment.centerRight),
+      gradient: LinearGradient(
+          colors: [color1, color2],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight),
       borderRadius: BorderRadius.only(
         topLeft: Radius.circular(sizes),
         topRight: Radius.circular(sizes),
@@ -46,8 +49,10 @@ class DesignConfig {
 
   static BoxDecoration boxDecorationButton(Color color1, Color color2) {
     return BoxDecoration(
-      gradient: LinearGradient(colors: [color1, color2],
-          begin: Alignment.centerLeft, end: Alignment.centerRight),
+      gradient: LinearGradient(
+          colors: [color1, color2],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight),
       borderRadius: BorderRadius.circular(10),
     );
   }
@@ -69,8 +74,10 @@ class DesignConfig {
   static BoxDecoration boxDecorationButtonColor(
       Color color1, Color color2, double sizes) {
     return BoxDecoration(
-      gradient: LinearGradient(colors: [color1, color2],
-          begin: Alignment.centerLeft, end: Alignment.centerRight),
+      gradient: LinearGradient(
+          colors: [color1, color2],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight),
       borderRadius: BorderRadius.circular(sizes),
     );
   }
@@ -78,8 +85,10 @@ class DesignConfig {
   static BoxDecoration boxDecorationLeafButtonColor(
       Color color1, Color color2, double sizes) {
     return BoxDecoration(
-      gradient: LinearGradient(colors: [color1, color2],
-          begin: Alignment.centerLeft, end: Alignment.centerRight),
+      gradient: LinearGradient(
+          colors: [color1, color2],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight),
       borderRadius: BorderRadius.only(
         topLeft: Radius.circular(sizes),
         bottomRight: Radius.circular(sizes),
@@ -88,7 +97,8 @@ class DesignConfig {
   }
 
   // ==================== DRAWER WITH YOUR BG COLOR ====================
-  static Widget drawerContent(GlobalKey<ScaffoldState> scaffoldKey, BuildContext context) {
+  static Widget drawerContent(
+      GlobalKey<ScaffoldState> scaffoldKey, BuildContext context) {
     Widget langPicker() {
       final provider = Provider.of<LocaleProvider>(context);
       final LocalStorage storage = LocalStorage('pocketHR');
@@ -153,6 +163,37 @@ class DesignConfig {
                         color: HRColors.black,
                         fontWeight: FontWeight.w500),
                   ),
+                  const Spacer(),
+                  FutureBuilder<String?>(
+                    future: TenantHelper.getCurrentTenant(),
+                    builder: (context, snapshot) {
+                      final tenant = snapshot.data;
+                      final path = TenantHelper.getLogoForTenant(tenant);
+                      final borderColor =
+                          TenantHelper.getLogoBorderColor(tenant);
+                      final fillColor = TenantHelper.getLogoFillColor(tenant);
+                      final logo = Image.asset(
+                        path,
+                        height: 20,
+                        width: 70,
+                        fit: BoxFit.contain,
+                      );
+                      if (borderColor != null || fillColor != null) {
+                        return Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: fillColor,
+                            border: borderColor != null
+                                ? Border.all(color: borderColor, width: 2)
+                                : null,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: logo,
+                        );
+                      }
+                      return logo;
+                    },
+                  ),
                 ],
               ),
             ),
@@ -164,58 +205,73 @@ class DesignConfig {
                 children: [
                   ListTile(
                     dense: true,
-                    visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+                    visualDensity:
+                        const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(context, '/team'),
-                    leading: const Icon(Icons.people_alt, color: HRColors.black),
+                    leading:
+                        const Icon(Icons.people_alt, color: HRColors.black),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.myTeam,
-                      style: const TextStyle(fontSize: 17, color: HRColors.black),
+                      style:
+                          const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
                   ),
                   ListTile(
                     dense: true,
-                    visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () => Navigator.pushNamed(context, HRSalarySlips.routeName),
-                    leading: const Icon(Icons.receipt_long, color: HRColors.black),
+                    visualDensity:
+                        const VisualDensity(horizontal: 1, vertical: -2),
+                    onTap: () =>
+                        Navigator.pushNamed(context, HRSalarySlips.routeName),
+                    leading:
+                        const Icon(Icons.receipt_long, color: HRColors.black),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.salarySlips,
-                      style: const TextStyle(fontSize: 17, color: HRColors.black),
+                      style:
+                          const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
                   ),
                   ListTile(
                     dense: true,
-                    visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () => Navigator.pushNamed(context, HRAllowancesDeductions.routeName),
-                    leading: const Icon(Icons.account_balance_wallet_outlined, color: HRColors.black),
+                    visualDensity:
+                        const VisualDensity(horizontal: 1, vertical: -2),
+                    onTap: () => Navigator.pushNamed(
+                        context, HRAllowancesDeductions.routeName),
+                    leading: const Icon(Icons.account_balance_wallet_outlined,
+                        color: HRColors.black),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.allowanceDeductions,
-                      style: const TextStyle(fontSize: 17, color: HRColors.black),
+                      style:
+                          const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
                   ),
                   ListTile(
                     dense: true,
-                    visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () => Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
-                    leading: const Icon(Icons.payments_outlined, color: HRColors.black),
+                    visualDensity:
+                        const VisualDensity(horizontal: 1, vertical: -2),
+                    onTap: () =>
+                        Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
+                    leading: const Icon(Icons.payments_outlined,
+                        color: HRColors.black),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.debtLoans,
-                      style: const TextStyle(fontSize: 17, color: HRColors.black),
+                      style:
+                          const TextStyle(fontSize: 17, color: HRColors.black),
                     ),
                   ),
-                  ListTile(
-                    dense: true,
-                    visualDensity: const VisualDensity(horizontal: 1, vertical: -4),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) =>  HRContactUs()),
-                      );
-                    },
-                    leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
-                    title: AutoSizeText(
-                      AppLocalizations.of(context)!.contactUsText,
-                      style: const TextStyle(fontSize: 17, color: HRColors.black),
-                    ),
-                  ),
+                  // ListTile(
+                  //   dense: true,
+                  //   visualDensity: const VisualDensity(horizontal: 1, vertical: -4),
+                  //   onTap: () {
+                  //     Navigator.of(context).push(
+                  //       MaterialPageRoute(builder: (_) =>  HRContactUs()),
+                  //     );
+                  //   },
+                  //   leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
+                  //   title: AutoSizeText(
+                  //     AppLocalizations.of(context)!.contactUsText,
+                  //     style: const TextStyle(fontSize: 17, color: HRColors.black),
+                  //   ),
+                  // ),
 
                   // Refresh Button as ListTile
                   const _RefreshListTile(),
@@ -244,8 +300,10 @@ class DesignConfig {
                   String version = "1.0.0";
                   if (snapshot.hasData) {
                     version = snapshot.data!.version;
-                    if (snapshot.data!.buildNumber != null && snapshot.data!.buildNumber!.isNotEmpty) {
-                      version = "${snapshot.data!.version}+${snapshot.data!.buildNumber}";
+                    if (snapshot.data!.buildNumber != null &&
+                        snapshot.data!.buildNumber!.isNotEmpty) {
+                      version =
+                          "${snapshot.data!.version}+${snapshot.data!.buildNumber}";
                     }
                   }
 
@@ -260,7 +318,8 @@ class DesignConfig {
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -269,7 +328,8 @@ class DesignConfig {
                               const SizedBox(width: 8),
                               AutoSizeText(
                                 AppLocalizations.of(context)!.logoutText,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -291,7 +351,8 @@ class DesignConfig {
     );
   }
 
-  static Widget _buildLangButton(LocaleProvider provider, LocalStorage storage, String text, String langCode) {
+  static Widget _buildLangButton(LocaleProvider provider, LocalStorage storage,
+      String text, String langCode) {
     return GestureDetector(
       child: ElevatedButton(
         onPressed: () {
@@ -300,7 +361,8 @@ class DesignConfig {
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         ),
         child: AutoSizeText(text, style: const TextStyle(color: Colors.black)),
       ),
@@ -308,7 +370,8 @@ class DesignConfig {
   }
 
   // ==================== FIXED showTopToast (No more TickerProvider error) ====================
-  static void showTopToast(BuildContext context, String message, {Color? background}) {
+  static void showTopToast(BuildContext context, String message,
+      {Color? background}) {
     final overlay = Overlay.of(context);
     if (overlay == null) return;
 
@@ -324,7 +387,9 @@ class DesignConfig {
             decoration: BoxDecoration(
               color: background ?? const Color(0xFF323232),
               borderRadius: BorderRadius.circular(10),
-              boxShadow: [const BoxShadow(color: Colors.black26, blurRadius: 10)],
+              boxShadow: [
+                const BoxShadow(color: Colors.black26, blurRadius: 10)
+              ],
             ),
             child: Row(
               children: [
@@ -368,13 +433,16 @@ class DesignConfig {
           isfullratingbar
               ? RatingBarIndicator(
                   rating: double.parse(rating),
-                  itemBuilder: (context, index) => const Icon(Icons.star, color: Colors.amber),
+                  itemBuilder: (context, index) =>
+                      const Icon(Icons.star, color: Colors.amber),
                   itemCount: 5,
                   itemSize: 14,
                   direction: Axis.horizontal,
                 )
               : const Icon(Icons.star, size: 14, color: Colors.amber),
-          AutoSizeText("\t\t$rating", style: const TextStyle(color: HRColors.white, fontWeight: FontWeight.w400)),
+          AutoSizeText("\t\t$rating",
+              style: const TextStyle(
+                  color: HRColors.white, fontWeight: FontWeight.w400)),
         ],
       ),
     );
@@ -388,7 +456,8 @@ class DesignConfig {
           isfullratingbar
               ? RatingBarIndicator(
                   rating: double.parse(rating!),
-                  itemBuilder: (context, index) => const Icon(Icons.star, color: Colors.amber),
+                  itemBuilder: (context, index) =>
+                      const Icon(Icons.star, color: Colors.amber),
                   itemCount: 5,
                   itemSize: 14,
                   direction: Axis.horizontal,
@@ -408,14 +477,16 @@ class _RefreshListTile extends StatefulWidget {
   __RefreshListTileState createState() => __RefreshListTileState();
 }
 
-class __RefreshListTileState extends State<_RefreshListTile> with TickerProviderStateMixin {
+class __RefreshListTileState extends State<_RefreshListTile>
+    with TickerProviderStateMixin {
   late AnimationController _spinController;
   bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    _spinController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _spinController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800));
   }
 
   @override
@@ -461,8 +532,11 @@ class __RefreshListTileState extends State<_RefreshListTile> with TickerProvider
         child: const Icon(Icons.refresh, color: HRColors.black, size: 24),
       ),
       title: AutoSizeText(
-        _isRefreshing ? AppLocalizations.of(context)!.refreshing : AppLocalizations.of(context)!.refresh,
-        style: const TextStyle(fontSize: 17, color: HRColors.black, fontWeight: FontWeight.normal),
+        _isRefreshing
+            ? AppLocalizations.of(context)!.refreshing
+            : AppLocalizations.of(context)!.refresh,
+        style: const TextStyle(
+            fontSize: 17, color: HRColors.black, fontWeight: FontWeight.normal),
       ),
     );
   }

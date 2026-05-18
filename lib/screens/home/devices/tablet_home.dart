@@ -67,6 +67,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   bool _pressingCheckOut = false;
   bool _withinQrRadius =
       false; // true when last scanned QR was within allowed radius
+  bool _isRemotePunch = false; // true when punch triggered via remote button
 
   // --- QR gating window (10s) ---
   Timer? _qrWindowTimer;
@@ -219,7 +220,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     });
   }
 
-  checkinCheckout(type) async {
+  checkinCheckout(type, {bool isRemote = false}) async {
     DateTime getCurrentTimestamp = DateTime.now();
     String date = controller.formatISOTime(getCurrentTimestamp);
     final latStr = (latitude != null) ? latitude.toString() : null;
@@ -272,6 +273,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         latitude: latStr,
         longitude: lngStr,
         address: addr,
+        isRemotePunch: isRemote,
       );
     } catch (_) {
       // network error: save offline instead of logging error
@@ -317,7 +319,9 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     if (res is Map && res.containsKey('status')) {
       final statusCode = res['status'];
       if (statusCode == 200) {
-        msg = type == 'checkout' ? AppLocalizations.of(context)!.checkOutSuccess : AppLocalizations.of(context)!.checkInSuccess;
+        msg = type == 'checkout'
+            ? AppLocalizations.of(context)!.checkOutSuccess
+            : AppLocalizations.of(context)!.checkInSuccess;
         bg = type == 'checkout' ? HRColors.orangeColor : HRColors.blueColor;
       } else if (statusCode == 400) {
         msg = AppLocalizations.of(context)!.cantLocate;
@@ -333,7 +337,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       msg = AppLocalizations.of(context)!.filedToPerform;
       bg = Colors.red;
     }
-    
+
     if (mounted) showTopToast(msg, background: bg);
   }
 
@@ -417,7 +421,6 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   }
 
   Future<bool> _ensureQrValidatedIfRequired() async {
-
     if (!apiService.qrEnable) {
       _withinQrRadius = true;
       return true;
@@ -504,7 +507,8 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
               }
 
               if (matchedLocation == null) {
-                return AppLocalizations.of(context)!.qrCoordinatesMismatchMessage;
+                return AppLocalizations.of(context)!
+                    .qrCoordinatesMismatchMessage;
               }
 
               // Get radius specifically for the matched location
@@ -513,28 +517,24 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                 final dynamic anyLoc = matchedLocation;
                 dynamic r;
                 try {
-                   r = anyLoc.radius ?? anyLoc.radiusMeters ?? anyLoc.range;
-                } catch(_) {}
+                  r = anyLoc.radius ?? anyLoc.radiusMeters ?? anyLoc.range;
+                } catch (_) {}
                 if (r is num) {
-                   allowedRadiusMeters = r.toDouble();
+                  allowedRadiusMeters = r.toDouble();
                 } else if (r is String) {
-                   allowedRadiusMeters = double.tryParse(r) ?? 500.0;
+                  allowedRadiusMeters = double.tryParse(r) ?? 500.0;
                 }
               } catch (_) {}
 
               // After scan: validate device location within allowed radius
-               final double? dlat =  (latitude is num)
+              final double? dlat = (latitude is num)
                   ? (latitude as num).toDouble()
                   : double.tryParse(latitude?.toString() ?? '');
-             
 
+              // final double? dlat = 6.927079;
+              // final double? dlng = 79.861244;
 
-
-                // final double? dlat = 6.927079;
-                // final double? dlng = 79.861244;
-
-
-             final double? dlng = (longitude is num)
+              final double? dlng = (longitude is num)
                   ? (longitude as num).toDouble()
                   : double.tryParse(longitude?.toString() ?? '');
 
@@ -547,8 +547,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                         storage.getItem('username') ??
                         '')
                     .toString();
-                final baseMsg =
-                    AppLocalizations.of(context)!.qrCannotPunchHere(
+                final baseMsg = AppLocalizations.of(context)!.qrCannotPunchHere(
                   username.isNotEmpty ? username : 'User',
                 );
                 final extra =
@@ -568,12 +567,15 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       // check if it's the remote button override
       if (qr == 'remote') {
         _withinQrRadius = true;
+        _isRemotePunch = true;
         _startQrWindow(20);
-        showTopToast(AppLocalizations.of(context)!.activeRemoteCheking, background: Colors.green);
+        showTopToast(AppLocalizations.of(context)!.activeRemoteCheking,
+            background: Colors.green);
         return true;
       }
 
       // accepted by validator; start countdown
+      _isRemotePunch = false;
       _withinQrRadius = true;
       _startQrWindow(20);
       showTopToast(AppLocalizations.of(context)!.qrValidatedTapToPunch,
@@ -638,11 +640,12 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     try {
       // If already validated and inside countdown window => punch now.
       if (_qrWindowActive && _withinQrRadius) {
-        await checkinCheckout(type);
+        await checkinCheckout(type, isRemote: _isRemotePunch);
         _qrWindowTimer?.cancel();
         _qrWindowEnd = null;
         _qrSecondsLeft = 0;
         _withinQrRadius = false;
+        _isRemotePunch = false;
 
         // stop blinking immediately after punch
         try {
@@ -650,7 +653,9 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
           _blinkController?.value = 1.0;
         } catch (_) {}
         // stop audio when punch occurs
-        try { _audioPlayer.stop(); } catch (_) {}
+        try {
+          _audioPlayer.stop();
+        } catch (_) {}
         return;
       }
 
@@ -658,7 +663,8 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       final ok = await _ensureQrValidatedIfRequired();
       if (!ok) return;
       if (!_qrWindowActive) {
-        await checkinCheckout(type);
+        await checkinCheckout(type, isRemote: _isRemotePunch);
+        _isRemotePunch = false;
         return;
       }
     } finally {
@@ -805,8 +811,8 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                                       setState(() => _pressingCheckIn = false);
                                       await _onCheckTap('checkin');
                                     },
-                                    onTapCancel: () =>
-                                        setState(() => _pressingCheckIn = false),
+                                    onTapCancel: () => setState(
+                                        () => _pressingCheckIn = false),
                                     child: AnimatedScale(
                                       scale: _pressingCheckIn ? 0.96 : 1.0,
                                       duration:
@@ -903,19 +909,21 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                                 child: Container(
                                   margin: const EdgeInsets.only(right: 12.0),
                                   child: GestureDetector(
-                                    onTapDown: (_) =>
-                                        setState(() => _pressingCheckOut = true),
+                                    onTapDown: (_) => setState(
+                                        () => _pressingCheckOut = true),
                                     onTapUp: (_) async {
                                       setState(() => _pressingCheckOut = false);
                                       await _onCheckTap('checkout');
                                     },
-                                    onTapCancel: () =>
-                                        setState(() => _pressingCheckOut = false),
+                                    onTapCancel: () => setState(
+                                        () => _pressingCheckOut = false),
                                     child: AnimatedScale(
                                       scale: _pressingCheckOut ? 0.96 : 1.0,
-                                      duration: const Duration(milliseconds: 120),
+                                      duration:
+                                          const Duration(milliseconds: 120),
                                       child: AnimatedContainer(
-                                        duration: const Duration(milliseconds: 160),
+                                        duration:
+                                            const Duration(milliseconds: 160),
                                         curve: Curves.easeOut,
                                         height: 50,
                                         padding: const EdgeInsets.all(8.0),
@@ -928,7 +936,8 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
                                           ),
-                                          borderRadius: BorderRadius.circular(18),
+                                          borderRadius:
+                                              BorderRadius.circular(18),
                                           boxShadow: _pressingCheckOut
                                               ? [
                                                   BoxShadow(

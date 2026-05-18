@@ -534,7 +534,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrCoordinatesMismatchMessage =>
-      'Scanned code and company QR not match.';
+      'Check-in/out is not allowed at this location.';
 
   @override
   String get remoteChecking => 'Remote Checking';

@@ -10,7 +10,9 @@ import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 class MobileTeam extends StatefulWidget {
 //  final String ownerId;
 
-  const MobileTeam({Key? key,}) : super(key: key);
+  const MobileTeam({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<MobileTeam> createState() => _MobileTeamState();
@@ -51,9 +53,6 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
 
   final _apiService = APIService();
   final TextEditingController _reasonController = TextEditingController();
-  final TextEditingController _checkInController = TextEditingController();
-  final TextEditingController _checkOutController = TextEditingController();
- 
 
   // Animation controllers for list items
   final Map<int, AnimationController> _leaveAnimationControllers = {};
@@ -76,8 +75,6 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     _reasonController.dispose();
-    _checkInController.dispose();
-    _checkOutController.dispose();
 
     // Dispose all animation controllers
     for (var controller in _leaveAnimationControllers.values) {
@@ -128,154 +125,149 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     }
   }
 
+  void showTopToast(
+    String message, {
+    Color? background,
+    Duration duration = const Duration(seconds: 3),
+    VoidCallback? onTap,
+  }) {
+    final overlay = Overlay.of(context);
 
-void showTopToast(
-  String message, {
-  Color? background,
-  Duration duration = const Duration(seconds: 3),
-  VoidCallback? onTap,
-}) {
-  final overlay = Overlay.of(context);
+    final animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 320),
+    );
+    final animation =
+        CurvedAnimation(parent: animController, curve: Curves.easeOut);
 
-  final animController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 320),
-  );
-  final animation =
-      CurvedAnimation(parent: animController, curve: Curves.easeOut);
-
-  late OverlayEntry entry;
-  entry = OverlayEntry(
-    builder: (ctx) {
-      return Positioned(
-        top: MediaQuery.of(context).padding.top + 10,
-        left: 12,
-        right: 12,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, -1),
-            end: Offset.zero,
-          ).animate(animation),
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              onTap: () {
-                try {
-                  animController.reverse();
-                } catch (_) {}
-                try {
-                  entry.remove();
-                } catch (_) {}
-                try {
-                  animController.dispose();
-                } catch (_) {}
-                if (onTap != null) onTap();
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: background ?? const Color(0xFF323232),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black26, blurRadius: 8),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: AutoSizeText(
-                        message,
-                        style: const TextStyle(color: Colors.white),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (ctx) {
+        return Positioned(
+          top: MediaQuery.of(context).padding.top + 10,
+          left: 12,
+          right: 12,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, -1),
+              end: Offset.zero,
+            ).animate(animation),
+            child: Material(
+              color: Colors.transparent,
+              child: GestureDetector(
+                onTap: () {
+                  try {
+                    animController.reverse();
+                  } catch (_) {}
+                  try {
+                    entry.remove();
+                  } catch (_) {}
+                  try {
+                    animController.dispose();
+                  } catch (_) {}
+                  if (onTap != null) onTap();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: background ?? const Color(0xFF323232),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black26, blurRadius: 8),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AutoSizeText(
+                          message,
+                          style: const TextStyle(color: Colors.white),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.chevron_right, color: Colors.white),
-                  ],
+                      const SizedBox(width: 8),
+                      const Icon(Icons.chevron_right, color: Colors.white),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
+        );
+      },
+    );
 
-  overlay.insert(entry);
-  animController.forward();
+    overlay.insert(entry);
+    animController.forward();
 
-  Future.delayed(duration, () async {
+    Future.delayed(duration, () async {
+      try {
+        await animController.reverse();
+      } catch (_) {}
+      try {
+        entry.remove();
+      } catch (_) {}
+      try {
+        animController.dispose();
+      } catch (_) {}
+    });
+  }
+
+  Future<void> _loadTeamData() async {
+    setState(() {
+      _loadingTeam = true;
+      _teamError = null;
+    });
+
     try {
-      await animController.reverse();
-    } catch (_) {}
-    try {
-      entry.remove();
-    } catch (_) {}
-    try {
-      animController.dispose();
-    } catch (_) {}
-  });
-}
+      final response = await _apiService.getMyTeam();
+      debugPrint('Team API Response: $response');
 
+      if (response['success'] == true && response['data'] != null) {
+        setState(() {
+          _teamMembers = response['data'] as List<dynamic>;
+          _loadingTeam = false;
+          _selectedUserId = null;
+          _selectedUserLabel = "All";
+        });
 
- Future<void> _loadTeamData() async {
-  setState(() {
-    _loadingTeam = true;
-    _teamError = null;
-  });
+        _loadTabData();
 
-  try {
-    final response = await _apiService.getMyTeam();
-    debugPrint('Team API Response: $response');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          showTopToast(
+            AppLocalizations.of(context)!.teamDataLoadedSuccessfully,
+            background: Colors.green,
+          );
+        });
+      } else {
+        throw Exception(
+          response['message']?.toString() ??
+              AppLocalizations.of(context)!.failedToLoadTeamData,
+        );
+      }
+    } catch (e, st) {
+      debugPrint('[TEAM][ERROR] $e');
+      debugPrint('$st');
 
-    if (response['success'] == true && response['data'] != null) {
       setState(() {
-        _teamMembers = response['data'] as List<dynamic>;
+        _teamError = e.toString();
         _loadingTeam = false;
-        _selectedUserId = null;
-        _selectedUserLabel = "All";
       });
-
-      _loadTabData();
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         showTopToast(
-          AppLocalizations.of(context)!.teamDataLoadedSuccessfully,
-          background: Colors.green,
+          AppLocalizations.of(context)!.errorPrefix(e.toString()),
+          background: Colors.red,
         );
       });
-    } else {
-      throw Exception(
-        response['message']?.toString() ??
-            AppLocalizations.of(context)!.failedToLoadTeamData,
-      );
     }
-  } catch (e, st) {
-    debugPrint('[TEAM][ERROR] $e');
-    debugPrint('$st');
-
-    setState(() {
-      _teamError = e.toString();
-      _loadingTeam = false;
-    });
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      showTopToast(
-        AppLocalizations.of(context)!.errorPrefix(e.toString()),
-        background: Colors.red,
-      );
-    });
   }
-}
-
-
-
 
   String _getMemberName(Map<String, dynamic> member) {
     final fields = member['customfields'] ?? [];
@@ -609,7 +601,10 @@ void showTopToast(
         if (record is! Map<String, dynamic>) continue;
 
         final String? userId = record['user']?.toString();
-        final int? epf = record['epf'] as int?;
+        final dynamic epfRaw = record['epf'];
+        final int? epf = epfRaw == null
+            ? null
+            : (epfRaw is int ? epfRaw : int.tryParse(epfRaw.toString()));
 
         // Filter by selected user (if not "All")
         if (_selectedUserId != null && userId != _selectedUserId) {
@@ -753,281 +748,99 @@ void showTopToast(
     _loadMemberAttendance(); // Reload attendance for new month
   }
 
-  Future<void> _markAttendance(
-      String date, String checkIn, String checkOut) async {
+  Future<void> _approveLeave(String leaveId) async {
     try {
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (context) => const Center(
-            child: CupertinoActivityIndicator(
-                radius: 16.0, color: HRColors.darkOrangeColor)),
-      );
-
-      final response = await _apiService.markAttendance(
-          _selectedUserId!, date, checkIn, checkOut);
-      Navigator.pop(context);
-
-      if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: AutoSizeText('Attendance marked successfully'),
-              backgroundColor: Colors.green),
-        );
-        await _loadMemberAttendance();
-      } else {
-        throw Exception(response['message'] ?? 'Failed to mark attendance');
-      }
-    } catch (e, st) {
-      Navigator.pop(context);
-      debugPrint('[ATTENDANCE_MARK][ERROR] $e');
-      debugPrint('$st');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: AutoSizeText('Error: ${e.toString()}'),
-            backgroundColor: Colors.red),
-      );
-    }
-  }
-
-void _showMarkAttendanceDialog(Map<String, dynamic> attendanceRecord) {
-  final date = attendanceRecord['date'] ?? 0;
-  final formattedDate = FormatUtils.dateFromUnixSeconds(date);
-
-  _checkInController.clear();
-  _checkOutController.clear();
-
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext ctx) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(_g16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-
-              /// 🔥 Header
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: HRColors.orangeColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.access_time_rounded,
-                      color: HRColors.orangeColor,
-                    ),
-                  ),
-                  const SizedBox(width: _g12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        AutoSizeText(
-                          'Mark Attendance',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        AutoSizeText(
-                          formattedDate,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: _g16),
-
-              /// 🔥 Inputs
-              TextField(
-                controller: _checkInController,
-                decoration: InputDecoration(
-                  labelText: 'Check In Time *',
-                  hintText: '09:00',
-                  prefixIcon: const Icon(Icons.login),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: _g12),
-
-              TextField(
-                controller: _checkOutController,
-                decoration: InputDecoration(
-                  labelText: 'Check Out Time *',
-                  hintText: '17:00',
-                  prefixIcon: const Icon(Icons.logout),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: _g20),
-
-              /// 🔥 Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: _g12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: AutoSizeText('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: _g12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        final checkIn = _checkInController.text.trim();
-                        final checkOut = _checkOutController.text.trim();
-
-                        if (checkIn.isEmpty || checkOut.isEmpty) {
-                          showTopToast(
-                            'Please provide both times',
-                            background: Colors.red,
-                          );
-                          return;
-                        }
-
-                        Navigator.of(ctx).pop();
-                        _markAttendance(formattedDate, checkIn, checkOut);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: HRColors.orangeColor,
-                        padding: const EdgeInsets.symmetric(vertical: _g12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: AutoSizeText('Save'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          child: CupertinoActivityIndicator(
+            radius: 16.0,
+            color: HRColors.darkOrangeColor,
           ),
         ),
       );
-    },
-  );
-}
 
-Future<void> _approveLeave(String leaveId) async {
-  try {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CupertinoActivityIndicator(
-          radius: 16.0,
-          color: HRColors.darkOrangeColor,
-        ),
-      ),
-    );
+      final response = await _apiService.approveLeave(leaveId);
 
-    final response = await _apiService.approveLeave(leaveId);
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
 
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
+      if (response['success'] == true) {
+        showTopToast(
+          AppLocalizations.of(context)!.leaveApproved,
+          background: Colors.green,
+        );
+        await _loadMemberLeaves();
+      } else {
+        showTopToast(
+          response['message']?.toString() ??
+              AppLocalizations.of(context)!.leaveApproveFailed,
+          background: Colors.red,
+        );
+      }
+    } catch (e, st) {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
 
-    if (response['success'] == true) {
+      debugPrint('[APPROVE][ERROR] $e');
+      debugPrint('$st');
+
       showTopToast(
-        AppLocalizations.of(context)!.leaveApproved,
-        background: Colors.green,
-      );
-      await _loadMemberLeaves();
-    } else {
-      showTopToast(
-        response['message']?.toString() ??
-            AppLocalizations.of(context)!.leaveApproveFailed,
+        AppLocalizations.of(context)!.errorPrefix(e.toString()),
         background: Colors.red,
       );
     }
-  } catch (e, st) {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
-
-    debugPrint('[APPROVE][ERROR] $e');
-    debugPrint('$st');
-
-    showTopToast(
-      AppLocalizations.of(context)!.errorPrefix(e.toString()),
-      background: Colors.red,
-    );
   }
-}
 
-Future<void> _rejectLeave(String leaveId, String reason) async {
-  try {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CupertinoActivityIndicator(
-          radius: 16.0,
-          color: HRColors.darkOrangeColor,
+  Future<void> _rejectLeave(String leaveId, String reason) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CupertinoActivityIndicator(
+            radius: 16.0,
+            color: HRColors.darkOrangeColor,
+          ),
         ),
-      ),
-    );
-
-    final response = await _apiService.rejectLeave(leaveId, reason);
-
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
-
-    if (response['success'] == true) {
-      showTopToast(
-        AppLocalizations.of(context)!.leaveReject,
-        background: Colors.orange,
       );
-      await _loadMemberLeaves();
-    } else {
+
+      final response = await _apiService.rejectLeave(leaveId, reason);
+
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      if (response['success'] == true) {
+        showTopToast(
+          AppLocalizations.of(context)!.leaveReject,
+          background: Colors.orange,
+        );
+        await _loadMemberLeaves();
+      } else {
+        showTopToast(
+          response['message']?.toString() ??
+              AppLocalizations.of(context)!.leaveRejectFailed,
+          background: Colors.red,
+        );
+      }
+    } catch (e, st) {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      debugPrint('[REJECT][ERROR] $e');
+      debugPrint('$st');
+
       showTopToast(
-        response['message']?.toString() ??
-            AppLocalizations.of(context)!.leaveRejectFailed,
+        AppLocalizations.of(context)!.errorPrefix(e.toString()),
         background: Colors.red,
       );
     }
-  } catch (e, st) {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    }
-
-    debugPrint('[REJECT][ERROR] $e');
-    debugPrint('$st');
-
-    showTopToast(
-      AppLocalizations.of(context)!.errorPrefix(e.toString()),
-      background: Colors.red,
-    );
   }
-}
 
   void _showLeaveDetailsBottomSheet(Map<String, dynamic> leave) {
     final dates = leave['dates'] as List? ?? [];
@@ -1082,8 +895,9 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
       epf = '';
     }
 
+    final pageCtx = context;
     showModalBottomSheet(
-      context: context,
+      context: pageCtx,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
@@ -1106,7 +920,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 // Handle bar
                 Center(
                   child: Container(
-                    margin: const EdgeInsets.only( bottom: _g8),
+                    margin: const EdgeInsets.only(bottom: _g8),
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
@@ -1159,18 +973,24 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                 color: statusColor.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                            child: AutoSizeText(
-                            status == 'approved'
-                                ? AppLocalizations.of(context)!.approvedLable.toUpperCase()
-                                : status == 'rejected'
-                                    ? AppLocalizations.of(context)!.rejectedLable.toUpperCase()
-                                    : AppLocalizations.of(context)!.pendindingLable.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
-                            ),
-                          ),
+                              child: AutoSizeText(
+                                status == 'approved'
+                                    ? AppLocalizations.of(context)!
+                                        .approvedLable
+                                        .toUpperCase()
+                                    : status == 'rejected'
+                                        ? AppLocalizations.of(context)!
+                                            .rejectedLable
+                                            .toUpperCase()
+                                        : AppLocalizations.of(context)!
+                                            .pendindingLable
+                                            .toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: statusColor,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -1179,7 +999,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   ),
                 ),
 
-            //    const Divider(height: 1),
+                //    const Divider(height: 1),
 
                 // Employee info
                 Padding(
@@ -1280,113 +1100,101 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                       const SizedBox(height: _g12),
                       Row(
                         children: [
-
-
                           Expanded(
                             child: Container(
-                            padding: const EdgeInsets.all(_g12),
-                            decoration: BoxDecoration(
-                              color: _surface,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today,
-                                        size: 18, color: Colors.black54),
-                                    const SizedBox(width: _g12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          AutoSizeText(
-                                            AppLocalizations.of(context)!
-                                                .leaveDuration,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black54,
+                              padding: const EdgeInsets.all(_g12),
+                              decoration: BoxDecoration(
+                                color: _surface,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.calendar_today,
+                                          size: 18, color: Colors.black54),
+                                      const SizedBox(width: _g12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              AppLocalizations.of(context)!
+                                                  .leaveDuration,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: _g4),
-                                          AutoSizeText(
-                                            '${dates.length} ${dates.length > 1 ? AppLocalizations.of(context)!.daysLabel : AppLocalizations.of(context)!.days}',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
+                                            const SizedBox(height: _g4),
+                                            AutoSizeText(
+                                              '${dates.length} ${dates.length > 1 ? AppLocalizations.of(context)!.daysLabel : AppLocalizations.of(context)!.days}',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black87,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              
-                                             
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                          SizedBox(
+                            width: 20,
                           ),
-                          SizedBox(width: 20,),
-
-                                 Expanded(
-                                   child: Container(
-                                                               padding: const EdgeInsets.all(_g12),
-                                                               decoration: BoxDecoration(
-                                                                 color: _surface,
-                                                                 borderRadius: BorderRadius.circular(12),
-                                                               ),
-                                                               child: Column(
-                                                                 children: [
-                                                               Row(
-                                                                 children: [
-                                                                   const Icon(Icons.event_note,
-                                      size: 18, color: Colors.black54),
-                                                                   const SizedBox(width: _g12),
-                                                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        AutoSizeText(
-                                          AppLocalizations.of(context)!
-                                              .leaveTypeLabel,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.black54,
-                                          ),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(_g12),
+                              decoration: BoxDecoration(
+                                color: _surface,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.event_note,
+                                          size: 18, color: Colors.black54),
+                                      const SizedBox(width: _g12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AutoSizeText(
+                                              AppLocalizations.of(context)!
+                                                  .leaveTypeLabel,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                              ),
+                                            ),
+                                            const SizedBox(height: _g4),
+                                            AutoSizeText(
+                                              _getLeaveTypeLabel(context, type),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        const SizedBox(height: _g4),
-                                        AutoSizeText(
-                                          _getLeaveTypeLabel(context, type),
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                                                   ),
-                                                                 ],
-                                                               ), 
-                                                                   
-                                               
-                                                                 ],
-                                                               ),
-                                                             ),
-                                 ),
-                             
-                             
-                             
-                               ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-
-
-
-
                     ],
                   ),
                 ),
@@ -1487,14 +1295,17 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               Navigator.pop(context);
-                              _showRejectConfirmation(
-                                  context, leaveId, employeeName);
+                              final reason = await _showRejectConfirmation(
+                                  pageCtx, leaveId, employeeName);
+                              if (reason != null)
+                                await _rejectLeave(leaveId, reason);
                             },
                             icon: const Icon(Icons.close, size: 18),
                             label: AutoSizeText(
-                                AppLocalizations.of(context)!.rejectedLable ,),
+                              AppLocalizations.of(context)!.rejectedLable,
+                            ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),
@@ -1509,14 +1320,21 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                         const SizedBox(width: _g12),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               Navigator.pop(context);
-                              _showApproveConfirmation(
-                                  context, leaveId, employeeName);
+                              final confirmed = await _showApproveConfirmation(
+                                  pageCtx, leaveId, employeeName);
+                              if (confirmed == true)
+                                await _approveLeave(leaveId);
                             },
-                            icon: const Icon(Icons.check, size: 18 , color: Colors.white,),
+                            icon: const Icon(
+                              Icons.check,
+                              size: 18,
+                              color: Colors.white,
+                            ),
                             label: AutoSizeText(
-                                AppLocalizations.of(context)!.approvedLable,  style: TextStyle(color: Colors.white)),
+                                AppLocalizations.of(context)!.approvedLable,
+                                style: TextStyle(color: Colors.white)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green,
                               padding:
@@ -1541,9 +1359,9 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
     );
   }
 
-  void _showApproveConfirmation(
+  Future<bool?> _showApproveConfirmation(
       BuildContext context, String leaveId, String employeeName) {
-    showDialog(
+    return showDialog<bool>(
       context: context,
       builder: (BuildContext ctx) {
         return AlertDialog(
@@ -1554,7 +1372,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
             children: [
               const Icon(Icons.check_circle_outline, color: Colors.green),
               const SizedBox(width: 8),
-              AutoSizeText("Approve Leave",
+              Text("Approve Leave",
                   style: TextStyle(fontWeight: FontWeight.w700)),
             ],
           ),
@@ -1591,7 +1409,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
           actionsPadding: EdgeInsets.fromLTRB(_g12, 8, _g12, _g12),
           actions: [
             OutlinedButton(
-              onPressed: () => Navigator.of(ctx).pop(),
+              onPressed: () => Navigator.of(ctx).pop(false),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.grey[800],
                 side: BorderSide(color: Colors.grey.shade300),
@@ -1600,12 +1418,11 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              child: AutoSizeText('Cancel'),
+              child: Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(ctx).pop();
-                _approveLeave(leaveId);
+                Navigator.of(ctx).pop(true);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
@@ -1614,8 +1431,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child:
-                  AutoSizeText('Approve', style: TextStyle(color: Colors.white)),
+              child: Text('Approve', style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -1623,10 +1439,10 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
     );
   }
 
-  void _showRejectConfirmation(
+  Future<String?> _showRejectConfirmation(
       BuildContext context, String leaveId, String employeeName) {
     _reasonController.clear();
-    showDialog(
+    return showDialog<String>(
       context: context,
       builder: (BuildContext ctx) {
         return StatefulBuilder(
@@ -1641,7 +1457,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                 children: [
                   const Icon(Icons.cancel_outlined, color: Colors.red),
                   const SizedBox(width: 8),
-                  AutoSizeText("Reject Leave",
+                  Text("Reject Leave",
                       style: TextStyle(fontWeight: FontWeight.w700)),
                 ],
               ),
@@ -1700,7 +1516,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                       const SizedBox(height: _g8),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: AutoSizeText(
+                        child: Text(
                           '${_reasonController.text.trim().length}/300',
                           style:
                               const TextStyle(fontSize: 11, color: Colors.grey),
@@ -1722,14 +1538,13 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                   ),
-                  child: AutoSizeText('Cancel'),
+                  child: Text('Cancel'),
                 ),
                 ElevatedButton(
                   onPressed: isValid
                       ? () {
                           final reason = _reasonController.text.trim();
-                          Navigator.of(ctx).pop();
-                          _rejectLeave(leaveId, reason);
+                          Navigator.of(ctx).pop(reason);
                         }
                       : null,
                   style: ElevatedButton.styleFrom(
@@ -1740,8 +1555,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: AutoSizeText('Reject',
-                      style: TextStyle(color: Colors.white)),
+                  child: Text('Reject', style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -1844,176 +1658,188 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
           ),
         ],
       ),
-    child: ClipRRect(
-  borderRadius: BorderRadius.circular(15),
-  child: Slidable(
-    key: ValueKey(leaveId),
-    enabled: isPending,
-    startActionPane: isPending
-        ? ActionPane(
-            motion: const BehindMotion(),
-            extentRatio: 0.6,
-            dismissible: DismissiblePane(
-              confirmDismiss: () async {
-                _showApproveConfirmation(
-                  context,
-                  leaveId,
-                  employeeName,
-                );
-                return false;
-              },
-              onDismissed: () {},
-            ),
-            children: [
-              SlidableAction(
-                onPressed: (_) {},
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                icon: Icons.check,
-                label: l10n.approvedLable,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  bottomLeft: Radius.circular(15),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Slidable(
+          key: ValueKey(leaveId),
+          enabled: isPending,
+          startActionPane: isPending
+              ? ActionPane(
+                  motion: const BehindMotion(),
+                  extentRatio: 0.6,
+                  dismissible: DismissiblePane(
+                    confirmDismiss: () async {
+                      final confirmed = await _showApproveConfirmation(
+                          context, leaveId, employeeName);
+                      if (confirmed == true) await _approveLeave(leaveId);
+                      return false;
+                    },
+                    onDismissed: () {},
+                  ),
+                  children: [
+                    SlidableAction(
+                      onPressed: (_) async {
+                        Slidable.of(_)?.close();
+                        final confirmed = await _showApproveConfirmation(
+                          context,
+                          leaveId,
+                          employeeName,
+                        );
+                        if (confirmed == true) await _approveLeave(leaveId);
+                      },
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      icon: Icons.check,
+                      label: l10n.approvedLable,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        bottomLeft: Radius.circular(15),
+                      ),
+                    ),
+                  ],
+                )
+              : null,
+          endActionPane: isPending
+              ? ActionPane(
+                  motion: const BehindMotion(),
+                  extentRatio: 0.26,
+                  dismissible: DismissiblePane(
+                    confirmDismiss: () async {
+                      final reason = await _showRejectConfirmation(
+                          context, leaveId, employeeName);
+                      if (reason != null) await _rejectLeave(leaveId, reason);
+                      return false;
+                    },
+                    onDismissed: () {},
+                  ),
+                  children: [
+                    SlidableAction(
+                      onPressed: (_) async {
+                        Slidable.of(_)?.close();
+                        final reason = await _showRejectConfirmation(
+                          context,
+                          leaveId,
+                          employeeName,
+                        );
+                        if (reason != null) await _rejectLeave(leaveId, reason);
+                      },
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.close,
+                      label: l10n.rejectedLable,
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        bottomRight: Radius.circular(15),
+                      ),
+                    ),
+                  ],
+                )
+              : null,
+          child: Material(
+            color: _surface,
+            child: InkWell(
+              onTap: () => _showLeaveDetailsBottomSheet(leave),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
                 ),
-              ),
-            ],
-          )
-        : null,
-    endActionPane: isPending
-        ? ActionPane(
-            motion: const BehindMotion(),
-            extentRatio: 0.26,
-            dismissible: DismissiblePane(
-              confirmDismiss: () async {
-                 _showRejectConfirmation(
-                  context,
-                  leaveId,
-                  employeeName,
-                );
-                return false;
-              },
-              onDismissed: () {},
-            ),
-            children: [
-              SlidableAction(
-                onPressed: (_) {},
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                icon: Icons.close,
-                label: l10n.rejectedLable,
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
-                ),
-              ),
-            ],
-          )
-        : null,
-    child: Material(
-      color: _surface,
-      child: InkWell(
-        onTap: () => _showLeaveDetailsBottomSheet(leave),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 12,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AutoSizeText(
-                      _getLeaveTypeLabel(context, type),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AutoSizeText(
+                            _getLeaveTypeLabel(context, type),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (employeeName.isNotEmpty) ...[
+                            AutoSizeText(
+                              epf.isNotEmpty
+                                  ? '$employeeName ($epf)'
+                                  : employeeName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                          ],
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today_outlined,
+                                size: 13,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 5),
+                              AutoSizeText(
+                                dateText,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    if (employeeName.isNotEmpty) ...[
-                      AutoSizeText(
-                        epf.isNotEmpty
-                            ? '$employeeName ($epf)'
-                            : employeeName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                    ],
-                    Row(
+                    const SizedBox(width: 12),
+                    Column(
                       children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 13,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(width: 5),
-                        AutoSizeText(
-                          dateText,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            color: Colors.grey,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: AutoSizeText(
+                            status == 'approved'
+                                ? l10n.approvedLable.toUpperCase()
+                                : status == 'rejected'
+                                    ? l10n.rejectedLable.toUpperCase()
+                                    : l10n.pendindingLable.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: statusColor,
+                            ),
                           ),
                         ),
+                        if (isPending) ...[
+                          const SizedBox(height: 10),
+                          const Icon(
+                            Icons.swipe_left_rounded,
+                            color: Colors.grey,
+                            size: 18,
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 8),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: AutoSizeText(
-                      status == 'approved'
-                          ? l10n.approvedLable.toUpperCase()
-                          : status == 'rejected'
-                              ? l10n.rejectedLable.toUpperCase()
-                              : l10n.pendindingLable.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: statusColor,
-                      ),
-                    ),
-                  ),
-                  if (isPending) ...[
-                    const SizedBox(height: 10),
-                    const Icon(
-                      Icons.swipe_left_rounded,
-                      color: Colors.grey,
-                      size: 18,
-                    ),
-                  ],
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  ),
-),
     );
 
     if (animation != null && !animation.isDismissed) {
@@ -2041,184 +1867,170 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
     final date = attendance['date'] ?? 0;
     final checkIn = attendance['checkIn'] ?? '';
     final checkOut = attendance['checkOut'] ?? '';
-    final status = attendance['status'] ?? 'pending';
     final workHoursDisplay = attendance['workHoursDisplay'] ?? '';
     final memberName = attendance['memberName'] ?? '';
 
     final formattedDate = FormatUtils.dateFromUnixSeconds(date);
 
-    // Determine if it's truly pending or partially marked
+    // Determine status
     final bool hasCheckIn = checkIn.isNotEmpty;
     final bool hasCheckOut = checkOut.isNotEmpty;
     final bool isFullyPresent = hasCheckIn && hasCheckOut;
 
-    bool needsMarking = !isFullyPresent;
-
-   String statusText = 'PENDING';
     Color statusColor = Colors.orange;
     IconData statusIcon = Icons.edit_calendar;
 
     if (isFullyPresent) {
-      statusText = 'PRESENT';
       statusColor = Colors.green;
       statusIcon = Icons.check_circle_outline;
-      needsMarking = false;
     } else if (hasCheckIn && !hasCheckOut) {
-      statusText = 'IN ONLY';
       statusColor = Colors.orange.shade700;
       statusIcon = Icons.login;
     } else if (!hasCheckIn && hasCheckOut) {
-      statusText = 'OUT ONLY';
       statusColor = Colors.orange.shade700;
       statusIcon = Icons.logout;
     }
 
     // Card Content
-    Widget cardContent = GestureDetector(
-      onTap: needsMarking ? () => _showMarkAttendanceDialog(attendance) : null,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g6),
-        decoration: BoxDecoration(
-          color: _surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: needsMarking
-                ? Colors.orange.withOpacity(0.4)
-                : Colors.black.withOpacity(0.05),
-            width: needsMarking ? 1.5 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            )
-          ],
+    Widget cardContent = Container(
+      margin: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g6),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.black.withOpacity(0.05),
+          width: 1,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(_g12),
-          child: Row(
-            children: [
-              // Status Icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(statusIcon, color: statusColor, size: 20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(_g12),
+        child: Row(
+          children: [
+            // Status Icon
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              const SizedBox(width: _g12),
+              child: Icon(statusIcon, color: statusColor, size: 20),
+            ),
+            const SizedBox(width: _g12),
 
-              // Main Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Date + Member Name (when All selected)
+            // Main Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Date + Member Name (when All selected)
+                  AutoSizeText(
+                    _selectedUserId == null && memberName.isNotEmpty
+                        ? '$formattedDate • $memberName'
+                        : formattedDate,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: _g4),
+
+                  // Show IN / OUT if available (This is the main change you wanted)
+                  if (hasCheckIn || hasCheckOut)
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: [
+                        if (hasCheckIn)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: AutoSizeText(
+                              '${AppLocalizations.of(context)!.checkIn} $checkIn',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ),
+                        if (hasCheckOut)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: AutoSizeText(
+                              '${AppLocalizations.of(context)!.checkOut} $checkOut',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        if (workHoursDisplay.isNotEmpty && isFullyPresent)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: AutoSizeText(
+                              workHoursDisplay,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                      ],
+                    )
+                  else
                     AutoSizeText(
-                      _selectedUserId == null && memberName.isNotEmpty
-                          ? '$formattedDate • $memberName'
-                          : formattedDate,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                      'No records',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
                       ),
                     ),
-                    const SizedBox(height: _g4),
-
-                    // Show IN / OUT if available (This is the main change you wanted)
-                    if (hasCheckIn || hasCheckOut)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
-                        children: [
-                          if (hasCheckIn)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: AutoSizeText(
-                                '${AppLocalizations.of(context)!.checkIn} $checkIn',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.green,
-                                ),
-                              ),
-                            ),
-                          if (hasCheckOut)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: AutoSizeText(
-                                '${AppLocalizations.of(context)!.checkOut} $checkOut',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                          if (workHoursDisplay.isNotEmpty && isFullyPresent)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: AutoSizeText(
-                                workHoursDisplay,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ),
-                        ],
-                      )
-                    else
-                      AutoSizeText(
-                        'Tap to mark attendance',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.orange,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                  ],
-                ),
+                ],
               ),
+            ),
 
-              // Status Badge
-              // Container(
-              //   padding:
-              //       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              //   decoration: BoxDecoration(
-              //     color: statusColor.withOpacity(0.12),
-              //     borderRadius: BorderRadius.circular(20),
-              //   ),
-              //   child: AutoSizeText(
-              //     statusText,
-              //     style: TextStyle(
-              //       fontSize: 11,
-              //       fontWeight: FontWeight.w700,
-              //       color: statusColor,
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
+            // Status Badge
+            // Container(
+            //   padding:
+            //       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            //   decoration: BoxDecoration(
+            //     color: statusColor.withOpacity(0.12),
+            //     borderRadius: BorderRadius.circular(20),
+            //   ),
+            //   child: AutoSizeText(
+            //     statusText,
+            //     style: TextStyle(
+            //       fontSize: 11,
+            //       fontWeight: FontWeight.w700,
+            //       color: statusColor,
+            //     ),
+            //   ),
+            // ),
+          ],
         ),
       ),
     );
@@ -2383,7 +2195,13 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String?>(
-                      value: _selectedUserId,
+                      value: _selectedUserId == null
+                          ? null
+                          : (_teamMembers.any((m) =>
+                                  (m['_id'] ?? m['id'])?.toString() ==
+                                  _selectedUserId)
+                              ? _selectedUserId
+                              : null),
                       isExpanded: true,
                       dropdownColor: Colors.white,
                       borderRadius: BorderRadius.circular(14),
@@ -2420,8 +2238,9 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                     AutoSizeText(
-                                      AppLocalizations.of(context)!.allTeamMembers,
+                                    AutoSizeText(
+                                      AppLocalizations.of(context)!
+                                          .allTeamMembers,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
@@ -2444,7 +2263,10 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                           ),
 
                           // Selected view for each member
-                          ..._teamMembers.map<Widget>((member) {
+                          ..._teamMembers.where((member) {
+                            final m = member as Map<String, dynamic>;
+                            return (m['_id'] ?? m['id']) != null;
+                          }).map<Widget>((member) {
                             final m = member as Map<String, dynamic>;
                             final name = _getMemberName(m);
                             final epf = _getMemberEPF(m);
@@ -2517,7 +2339,7 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                               ? 'All'
                               : _getMemberName(
                                   (_teamMembers.firstWhere(
-                                    (m) => m['_id']?.toString() == selected,
+                                    (m) => (m['_id'] ?? m['id'])?.toString() == selected,
                                     orElse: () => <String, dynamic>{},
                                   ) as Map<String, dynamic>),
                                 );
@@ -2546,7 +2368,8 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AutoSizeText(
-                                      AppLocalizations.of(context)!.allTeamMembers,
+                                      AppLocalizations.of(context)!
+                                          .allTeamMembers,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 14,
@@ -2572,9 +2395,13 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
 
                         // Opened menu items for members
                         ..._teamMembers
-                            .map<DropdownMenuItem<String?>>((member) {
+                            .where((member) {
                           final m = member as Map<String, dynamic>;
-                          final id = m['_id']?.toString();
+                          final id = (m['_id'] ?? m['id'])?.toString();
+                          return id != null;
+                        }).map<DropdownMenuItem<String?>>((member) {
+                          final m = member as Map<String, dynamic>;
+                          final id = (m['_id'] ?? m['id'])?.toString();
                           final name = _getMemberName(m);
                           final epf = _getMemberEPF(m);
 
@@ -2667,19 +2494,21 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AutoSizeText(_leaveError!, style: const TextStyle(color: Colors.red)),
+            AutoSizeText(_leaveError!,
+                style: const TextStyle(color: Colors.red)),
             const SizedBox(height: _g12),
             ElevatedButton(
-                onPressed: _loadMemberLeaves,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: HRColors.orangeColor),
-                child: AutoSizeText(AppLocalizations.of(context)!.retryLabel),)
+              onPressed: _loadMemberLeaves,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: HRColors.orangeColor),
+              child: AutoSizeText(AppLocalizations.of(context)!.retryLabel),
+            )
           ],
         ),
       );
     }
     if (_leaveData.isEmpty) {
-      return  Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -2710,7 +2539,8 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AutoSizeText(_attendanceError!, style: const TextStyle(color: Colors.red)),
+            AutoSizeText(_attendanceError!,
+                style: const TextStyle(color: Colors.red)),
             const SizedBox(height: _g12),
             ElevatedButton(
               onPressed: _loadMemberAttendance,
@@ -2784,7 +2614,6 @@ Future<void> _rejectLeave(String leaveId, String reason) async {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                     
                     ],
                   ),
                 )
