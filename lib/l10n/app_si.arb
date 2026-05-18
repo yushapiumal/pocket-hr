@@ -194,6 +194,14 @@
   "copiedToClipboard": "පිටපත් කරන ලදී",
   "scanningError": "ස්කෑනර් දෝෂය",
   "qrValidatedTapToPunch": "Scan කිරිම සාර්ථකයි. තත්පර 20ක් තුළ  පැමිණීම/පිටවීම සටහන් කරන්න",
+  "qrValidClickButton": "QR සාර්ථකයි. තත්පර 5 ඇතුළත {button} ඔබන්න.",
+  "@qrValidClickButton": {
+    "placeholders": {
+      "button": {
+        "type": "String"
+      }
+    }
+  },
   "qrCannotPunchHere": "මෙම ස්ථානයේදී ඔබට පැමිණීම සටහන් කල නොහැක.කරුණාකර ඔබ ලියාපදිංචි ආයතනය අසලට පැමිණෙන්න.",
   "@qrCannotPunchHere": {
     "placeholders": {
@@ -212,6 +220,7 @@
   "sessionExpired": "සැසිය කල් ඉකුත් වී ඇත. කරුණාකර නැවත පිවිසෙන්න.",
   "filedToPerform": "පැමිනිම සටහන් කිරීම අසාර්ථකයි.",
   "activeRemoteCheking": "දුරස්ථ පැමිණීම සටහන් කිරීම සක්‍රීයයි. තත්පර 20ක් තුළ පැමිණීම/පිටවීම සටහන් කරන්න",
+  "remoteCheckClickButton": "දුරස්ථ පැමිණීම සක්‍රීයයි. තත්පර 5 ඇතුළත {button} ඔබන්න.",
   "approvedLable": "අනුමත",
   "pendindingLable": "අපේක්ෂිත",
   "rejectedLable": "ප්‍රතික්ෂේප",

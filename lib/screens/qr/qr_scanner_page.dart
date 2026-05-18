@@ -1,4 +1,4 @@
-import 'package:auto_size_text/auto_size_text.dart';
+import 'dart:async';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
   bool _torchOn = false;
   bool _isFrontCamera = false;
   final LocalStorage storage = LocalStorage('pocketHR');
-   static const Color _accent = Color(0xFFF59E0B);
+  static const Color _accent = Color(0xFFF59E0B);
 
   Future<void> _buzzOnScan() async {
     try {
@@ -107,7 +107,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
           if (!_scanned) {
             _scanned = true;
             _setMessage('QR accepted', isError: false);
-            // Stop controller before popping
             _controller.stop();
             Navigator.of(context).pop(trimmed);
           }
@@ -249,7 +248,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, right: 8.0 , bottom: 20 ),
+                padding:
+                    const EdgeInsets.only(top: 8.0, right: 8.0, bottom: 20),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -304,7 +304,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                       )
                     ],
                   ),
-                  child: AutoSizeText(
+                  child: Text(
                     _message!,
                     style: TextStyle(
                       color: _isError ? Colors.redAccent : Colors.green,
@@ -334,7 +334,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                     width: 1,
                   ),
                 ),
-                child: AutoSizeText(
+                child: Text(
                   AppLocalizations.of(context)!.scannText,
                   style: TextStyle(
                     color: Colors.black,
@@ -347,7 +347,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
                 ),
               ),
             ),
-            
+
             if (widget.showRemoteButton)
               Positioned(
                 bottom: 150,
@@ -355,18 +355,25 @@ class _QrScannerPageState extends State<QrScannerPage> {
                 right: 0,
                 child: Center(
                   child: ElevatedButton(
-                    onPressed: widget.onRemotePressed,
+                    onPressed: () {
+                      _controller.stop();
+                      widget.onRemotePressed?.call();
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:  HRColors.orangeColor,
-                     // foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      backgroundColor: HRColors.orangeColor,
+                      // foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child:  AutoSizeText(
-                         AppLocalizations.of(context)!.remoteChecking,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold , color: Colors.white),
+                    child: Text(
+                      AppLocalizations.of(context)!.remoteChecking,
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ),
                 ),

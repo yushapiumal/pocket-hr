@@ -540,6 +540,16 @@ class AppLocalizationsTa extends AppLocalizations {
       'QR சரிபார்க்கப்பட்டது. 20 வினாடிகளுக்குள் வருகை / வெளியேறு என்பதைத் தட்டவும்.';
 
   @override
+  String qrValidClickButton(String button) {
+    return 'QR சரி. 5 வினாடிகளுக்குள் $button தட்டவும்.';
+  }
+
+  @override
+  String remoteCheckClickButton(String button) {
+    return 'தொலைதூர வருகை இயக்கத்தில். 5 வினாடிகளுக்குள் $button தட்டவும்.';
+  }
+
+  @override
   String qrCannotPunchHere(String username) {
     return 'வணக்கம் $username, இந்த இடத்தில் உங்களால் வருகை/வெளியேற முடியாது.';
   }

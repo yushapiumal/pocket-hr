@@ -528,6 +528,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'QR validated. Tap Check-In / Check-Out within 20 seconds.';
 
   @override
+  String qrValidClickButton(String button) {
+    return 'QR valid. Click $button within 5 seconds.';
+  }
+
+  @override
+  String remoteCheckClickButton(String button) {
+    return 'Remote checking active. Click $button within 5 seconds.';
+  }
+
+  @override
   String qrCannotPunchHere(String username) {
     return 'Cannot check in/out in this location.';
   }

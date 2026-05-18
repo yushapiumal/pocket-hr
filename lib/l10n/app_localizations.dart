@@ -1120,6 +1120,18 @@ abstract class AppLocalizations {
   /// **'QR validated. Tap Check-In / Check-Out within 20 seconds.'**
   String get qrValidatedTapToPunch;
 
+  /// No description provided for @qrValidClickButton.
+  ///
+  /// In en, this message translates to:
+  /// **'QR valid. Click {button} within 5 seconds.'**
+  String qrValidClickButton(String button);
+
+  /// No description provided for @remoteCheckClickButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote checking active. Click {button} within 5 seconds.'**
+  String remoteCheckClickButton(String button);
+
   /// No description provided for @qrCannotPunchHere.
   ///
   /// In en, this message translates to:

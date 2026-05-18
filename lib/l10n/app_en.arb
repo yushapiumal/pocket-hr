@@ -190,6 +190,22 @@
   },
   "noInternetConnection": "No internet connection",
   "qrValidatedTapToPunch": "QR validated. Tap Check-In / Check-Out within 20 seconds.",
+  "qrValidClickButton": "QR valid. Click {button} within 5 seconds.",
+  "@qrValidClickButton": {
+    "placeholders": {
+      "button": {
+        "type": "String"
+      }
+    }
+  },
+  "remoteCheckClickButton": "Remote checking active. Click {button} within 5 seconds.",
+  "@remoteCheckClickButton": {
+    "placeholders": {
+      "button": {
+        "type": "String"
+      }
+    }
+  },
   "qrCannotPunchHere": "Cannot check in/out in this location.",
   "@qrCannotPunchHere": {
     "placeholders": {

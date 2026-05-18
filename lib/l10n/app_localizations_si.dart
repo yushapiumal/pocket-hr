@@ -531,6 +531,16 @@ class AppLocalizationsSi extends AppLocalizations {
       'Scan කිරිම සාර්ථකයි. තත්පර 20ක් තුළ  පැමිණීම/පිටවීම සටහන් කරන්න';
 
   @override
+  String qrValidClickButton(String button) {
+    return 'QR සාර්ථකයි. තත්පර 5 ඇතුළත $button ඔබන්න.';
+  }
+
+  @override
+  String remoteCheckClickButton(String button) {
+    return 'දුරස්ථ පැමිණීම සක්‍රීයයි. තත්පර 5 ඇතුළත $button ඔබන්න.';
+  }
+
+  @override
   String qrCannotPunchHere(String username) {
     return 'මෙම ස්ථානයේදී ඔබට පැමිණීම සටහන් කල නොහැක.කරුණාකර ඔබ ලියාපදිංචි ආයතනය අසලට පැමිණෙන්න.';
   }

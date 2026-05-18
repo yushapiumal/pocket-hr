@@ -194,6 +194,14 @@
   "copiedToClipboard": "நகலெடுக்கப்பட்டது",
   "scanningError": "ஸ்கேனர் பிழை",
   "qrValidatedTapToPunch": "QR சரிபார்க்கப்பட்டது. 20 வினாடிகளுக்குள் வருகை / வெளியேறு என்பதைத் தட்டவும்.",
+  "qrValidClickButton": "QR சரி. 5 வினாடிகளுக்குள் {button} தட்டவும்.",
+  "@qrValidClickButton": {
+    "placeholders": {
+      "button": {
+        "type": "String"
+      }
+    }
+  },
   "qrCannotPunchHere": "வணக்கம் {username}, இந்த இடத்தில் உங்களால் வருகை/வெளியேற முடியாது.",
   "@qrCannotPunchHere": {
     "placeholders": {
@@ -212,6 +220,7 @@
   "sessionExpired": "அமர்வு காலாவதி. தயவுசெய்து மீண்டும் உள்நுழைக.",
   "filedToPerform": "செயல்பாட்டை நிறைவேற்ற முடியவில்லை",
   "activeRemoteCheking": "தொலைதூர வருகைப் பதிவு இயக்கப்பட்டது. 20 வினாடிகளுக்குள் நுழைய/வெளியேற தட்டவும்.",
+  "remoteCheckClickButton": "தொலைதூர வருகை இயக்கத்தில். 5 வினாடிகளுக்குள் {button} தட்டவும்.",
   "approvedLable": "அனுமதிக்கப்பட்டது",
   "pendindingLable": "நிலுவையில்",
   "rejectedLable": "நிராகரிக்கப்பட்டது",

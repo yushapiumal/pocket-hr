@@ -74,6 +74,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   DateTime? _qrWindowEnd;
   int _qrSecondsLeft = 0;
   bool _qrBusy = false;
+  String? _qrActiveType; // 'checkin' or 'checkout'
 
   // Blink animation while QR window is active
   AnimationController? _blinkController;
@@ -568,8 +569,12 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       if (qr == 'remote') {
         _withinQrRadius = true;
         _isRemotePunch = true;
-        _startQrWindow(20);
-        showTopToast(AppLocalizations.of(context)!.activeRemoteCheking,
+        _startQrWindow(5);
+        final label = _qrActiveType == 'checkin'
+            ? AppLocalizations.of(context)!.checkIn
+            : AppLocalizations.of(context)!.checkOut;
+        showTopToast(
+            AppLocalizations.of(context)!.remoteCheckClickButton(label),
             background: Colors.green);
         return true;
       }
@@ -577,8 +582,11 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       // accepted by validator; start countdown
       _isRemotePunch = false;
       _withinQrRadius = true;
-      _startQrWindow(20);
-      showTopToast(AppLocalizations.of(context)!.qrValidatedTapToPunch,
+      _startQrWindow(5);
+      final label = _qrActiveType == 'checkin'
+          ? AppLocalizations.of(context)!.checkIn
+          : AppLocalizations.of(context)!.checkOut;
+      showTopToast(AppLocalizations.of(context)!.qrValidClickButton(label),
           background: Colors.green);
       return true;
     }
@@ -604,6 +612,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         _qrSecondsLeft = 0;
         _withinQrRadius = false;
         _qrWindowEnd = null;
+        _qrActiveType = null;
         t.cancel();
 
         // stop blinking
@@ -646,6 +655,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         _qrSecondsLeft = 0;
         _withinQrRadius = false;
         _isRemotePunch = false;
+        _qrActiveType = null;
 
         // stop blinking immediately after punch
         try {
@@ -660,6 +670,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       }
 
       // No active window => run validation.
+      _qrActiveType = type;
       final ok = await _ensureQrValidatedIfRequired();
       if (!ok) return;
       if (!_qrWindowActive) {
@@ -802,101 +813,126 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                             children: [
                               Expanded(
                                 flex: 2,
-                                child: Container(
-                                  margin: EdgeInsets.only(left: 10.0),
-                                  child: GestureDetector(
-                                    onTapDown: (_) =>
-                                        setState(() => _pressingCheckIn = true),
-                                    onTapUp: (_) async {
-                                      setState(() => _pressingCheckIn = false);
-                                      await _onCheckTap('checkin');
-                                    },
-                                    onTapCancel: () => setState(
-                                        () => _pressingCheckIn = false),
-                                    child: AnimatedScale(
-                                      scale: _pressingCheckIn ? 0.96 : 1.0,
-                                      duration:
-                                          const Duration(milliseconds: 120),
-                                      child: AnimatedContainer(
-                                        duration:
-                                            const Duration(milliseconds: 160),
-                                        curve: Curves.easeOut,
-                                        height: 50,
-                                        padding: const EdgeInsets.all(8.0),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              HRColors.blueColor,
-                                              HRColors.blueColor,
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(18),
-                                          boxShadow: _pressingCheckIn
-                                              ? [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 4,
-                                                    offset: Offset(0, 2),
-                                                  )
-                                                ]
-                                              : [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 10,
-                                                    offset: Offset(0, 6),
-                                                  )
+                                child: IgnorePointer(
+                                  ignoring: _qrActiveType == 'checkout',
+                                  child: Opacity(
+                                    opacity: _qrActiveType == 'checkout'
+                                        ? 0.35
+                                        : 1.0,
+                                    child: Container(
+                                      margin: EdgeInsets.only(left: 10.0),
+                                      child: GestureDetector(
+                                        onTapDown: (_) => setState(
+                                            () => _pressingCheckIn = true),
+                                        onTapUp: (_) async {
+                                          setState(
+                                              () => _pressingCheckIn = false);
+                                          await _onCheckTap('checkin');
+                                        },
+                                        onTapCancel: () => setState(
+                                            () => _pressingCheckIn = false),
+                                        child: AnimatedScale(
+                                          scale: _pressingCheckIn ? 0.96 : 1.0,
+                                          duration:
+                                              const Duration(milliseconds: 120),
+                                          child: AnimatedContainer(
+                                            duration: const Duration(
+                                                milliseconds: 160),
+                                            curve: Curves.easeOut,
+                                            height: 50,
+                                            padding: const EdgeInsets.all(8.0),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  HRColors.blueColor,
+                                                  HRColors.blueColor,
                                                 ],
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              AppLocalizations.of(context)!
-                                                  .checkIn,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
                                               ),
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                              boxShadow: _pressingCheckIn
+                                                  ? [
+                                                      BoxShadow(
+                                                        color: Colors.black26,
+                                                        blurRadius: 4,
+                                                        offset: Offset(0, 2),
+                                                      )
+                                                    ]
+                                                  : [
+                                                      BoxShadow(
+                                                        color: Colors.black26,
+                                                        blurRadius: 10,
+                                                        offset: Offset(0, 6),
+                                                      )
+                                                    ],
                                             ),
-                                            SizedBox(width: 6),
-                                            // Show countdown instead of icon while window is active
-                                            if (_qrWindowActive)
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.18),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                    color: Colors.white
-                                                        .withOpacity(0.55),
-                                                    width: 1,
+                                            alignment: Alignment.center,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    (_qrWindowActive &&
+                                                            _withinQrRadius &&
+                                                            _qrActiveType ==
+                                                                'checkin')
+                                                        ? AppLocalizations.of(
+                                                                context)!
+                                                            .confirmLabel
+                                                        : AppLocalizations.of(
+                                                                context)!
+                                                            .checkIn,
+                                                    textAlign: TextAlign.center,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
                                                   ),
                                                 ),
-                                                child: Text(
-                                                  '$_qrSecondsLeft',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w900,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              )
-                                            else
-                                              Icon(Icons.input,
-                                                  color: Colors.white),
-                                          ],
+                                                SizedBox(width: 6),
+                                                // Show countdown instead of icon while window is active
+                                                if (_qrWindowActive &&
+                                                    _qrActiveType == 'checkin')
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.18),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      border: Border.all(
+                                                        color: Colors.white
+                                                            .withOpacity(0.55),
+                                                        width: 1,
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      '$_qrSecondsLeft',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  )
+                                                else
+                                                  Icon(Icons.input,
+                                                      color: Colors.white),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -906,100 +942,125 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                               const SizedBox(width: 5),
                               Expanded(
                                 flex: 2,
-                                child: Container(
-                                  margin: const EdgeInsets.only(right: 12.0),
-                                  child: GestureDetector(
-                                    onTapDown: (_) => setState(
-                                        () => _pressingCheckOut = true),
-                                    onTapUp: (_) async {
-                                      setState(() => _pressingCheckOut = false);
-                                      await _onCheckTap('checkout');
-                                    },
-                                    onTapCancel: () => setState(
-                                        () => _pressingCheckOut = false),
-                                    child: AnimatedScale(
-                                      scale: _pressingCheckOut ? 0.96 : 1.0,
-                                      duration:
-                                          const Duration(milliseconds: 120),
-                                      child: AnimatedContainer(
-                                        duration:
-                                            const Duration(milliseconds: 160),
-                                        curve: Curves.easeOut,
-                                        height: 50,
-                                        padding: const EdgeInsets.all(8.0),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              HRColors.orangeColor,
-                                              HRColors.orangeColor,
-                                            ],
-                                            begin: Alignment.centerLeft,
-                                            end: Alignment.centerRight,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(18),
-                                          boxShadow: _pressingCheckOut
-                                              ? [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 4,
-                                                    offset: Offset(0, 2),
-                                                  )
-                                                ]
-                                              : [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 10,
-                                                    offset: Offset(0, 6),
-                                                  )
+                                child: IgnorePointer(
+                                  ignoring: _qrActiveType == 'checkin',
+                                  child: Opacity(
+                                    opacity:
+                                        _qrActiveType == 'checkin' ? 0.35 : 1.0,
+                                    child: Container(
+                                      margin:
+                                          const EdgeInsets.only(right: 12.0),
+                                      child: GestureDetector(
+                                        onTapDown: (_) => setState(
+                                            () => _pressingCheckOut = true),
+                                        onTapUp: (_) async {
+                                          setState(
+                                              () => _pressingCheckOut = false);
+                                          await _onCheckTap('checkout');
+                                        },
+                                        onTapCancel: () => setState(
+                                            () => _pressingCheckOut = false),
+                                        child: AnimatedScale(
+                                          scale: _pressingCheckOut ? 0.96 : 1.0,
+                                          duration:
+                                              const Duration(milliseconds: 120),
+                                          child: AnimatedContainer(
+                                            duration: const Duration(
+                                                milliseconds: 160),
+                                            curve: Curves.easeOut,
+                                            height: 50,
+                                            padding: const EdgeInsets.all(8.0),
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                colors: [
+                                                  HRColors.orangeColor,
+                                                  HRColors.orangeColor,
                                                 ],
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              AppLocalizations.of(context)!
-                                                  .checkOut,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 16,
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
                                               ),
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                              boxShadow: _pressingCheckOut
+                                                  ? [
+                                                      BoxShadow(
+                                                        color: Colors.black26,
+                                                        blurRadius: 4,
+                                                        offset: Offset(0, 2),
+                                                      )
+                                                    ]
+                                                  : [
+                                                      BoxShadow(
+                                                        color: Colors.black26,
+                                                        blurRadius: 10,
+                                                        offset: Offset(0, 6),
+                                                      )
+                                                    ],
                                             ),
-                                            SizedBox(width: 6),
-                                            if (_qrWindowActive)
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.18),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  border: Border.all(
-                                                    color: Colors.white
-                                                        .withOpacity(0.55),
-                                                    width: 1,
+                                            alignment: Alignment.center,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Flexible(
+                                                  child: Text(
+                                                    (_qrWindowActive &&
+                                                            _withinQrRadius &&
+                                                            _qrActiveType ==
+                                                                'checkout')
+                                                        ? AppLocalizations.of(
+                                                                context)!
+                                                            .confirmLabel
+                                                        : AppLocalizations.of(
+                                                                context)!
+                                                            .checkOut,
+                                                    textAlign: TextAlign.center,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                    ),
                                                   ),
                                                 ),
-                                                child: Text(
-                                                  '$_qrSecondsLeft',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w900,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              )
-                                            else
-                                              Icon(Icons.output,
-                                                  color: Colors.white),
-                                          ],
+                                                SizedBox(width: 6),
+                                                if (_qrWindowActive &&
+                                                    _qrActiveType == 'checkout')
+                                                  Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 4,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.18),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      border: Border.all(
+                                                        color: Colors.white
+                                                            .withOpacity(0.55),
+                                                        width: 1,
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      '$_qrSecondsLeft',
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  )
+                                                else
+                                                  Icon(Icons.output,
+                                                      color: Colors.white),
+                                              ],
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
