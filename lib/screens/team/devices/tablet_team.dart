@@ -644,7 +644,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
             child: CupertinoActivityIndicator(
                 radius: 16.0, color: HRColors.darkOrangeColor)),
       );
@@ -712,7 +712,8 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: AutoSizeText("Cancel", style: TextStyle(color: Colors.grey)),
+              child:
+                  AutoSizeText("Cancel", style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -745,7 +746,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
             child: CupertinoActivityIndicator(
                 radius: 16.0, color: HRColors.darkOrangeColor)),
       );
@@ -780,7 +781,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
             child: CupertinoActivityIndicator(
                 radius: 16.0, color: HRColors.darkOrangeColor)),
       );
@@ -940,18 +941,24 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                 color: statusColor.withOpacity(0.12),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                            child: AutoSizeText(
-                            status == 'approved'
-                                ? AppLocalizations.of(context)!.approvedLable.toUpperCase()
-                                : status == 'rejected'
-                                    ? AppLocalizations.of(context)!.rejectedLable.toUpperCase()
-                                    : AppLocalizations.of(context)!.pendindingLable.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
-                            ),
-                          ),
+                              child: AutoSizeText(
+                                status == 'approved'
+                                    ? AppLocalizations.of(context)!
+                                        .approvedLable
+                                        .toUpperCase()
+                                    : status == 'rejected'
+                                        ? AppLocalizations.of(context)!
+                                            .rejectedLable
+                                            .toUpperCase()
+                                        : AppLocalizations.of(context)!
+                                            .pendindingLable
+                                            .toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: statusColor,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -1362,8 +1369,8 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child:
-                  AutoSizeText('Approve', style: TextStyle(color: Colors.white)),
+              child: AutoSizeText('Approve',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -1788,7 +1795,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
 
     bool needsMarking = !isFullyPresent;
 
-   String statusText = 'PENDING';
+    String statusText = 'PENDING';
     Color statusColor = Colors.orange;
     IconData statusIcon = Icons.edit_calendar;
 
@@ -1981,7 +1988,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     Widget body;
 
     if (_loadingTeam) {
-      body = const Center(
+      body = Center(
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     } else if (_teamError != null) {
@@ -2033,13 +2040,14 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color:
+                            HRColors.flavorIconBackgroundColor ?? Colors.white,
                         borderRadius: BorderRadius.circular(40),
                         border:
                             Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                      child: const Icon(Icons.navigate_before,
-                          color: Colors.black87),
+                      child: Icon(Icons.navigate_before,
+                          color: HRColors.flavorIconColor),
                     ),
                   ),
                   const SizedBox(width: _g12),
@@ -2071,10 +2079,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                   indicatorPadding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   indicator: BoxDecoration(
-                    color: Colors.black.withOpacity(0.06),
+                    color: const Color(0xFF791b27),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: Colors.black87,
+                  labelColor: const Color(0xFFeed06e),
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.leaveText),
@@ -2154,8 +2162,9 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                     AutoSizeText(
-                                      AppLocalizations.of(context)!.allTeamMembers,
+                                    AutoSizeText(
+                                      AppLocalizations.of(context)!
+                                          .allTeamMembers,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
@@ -2280,7 +2289,8 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AutoSizeText(
-                                      AppLocalizations.of(context)!.allTeamMembers,
+                                      AppLocalizations.of(context)!
+                                          .allTeamMembers,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 14,
@@ -2392,7 +2402,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
 
   Widget _buildLeavesContent() {
     if (_loadingLeaves) {
-      return const Center(
+      return Center(
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     }
@@ -2401,7 +2411,8 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AutoSizeText(_leaveError!, style: const TextStyle(color: Colors.red)),
+            AutoSizeText(_leaveError!,
+                style: const TextStyle(color: Colors.red)),
             const SizedBox(height: _g12),
             ElevatedButton(
                 onPressed: _loadMemberLeaves,
@@ -2435,7 +2446,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
 
   Widget _buildAttendanceContent() {
     if (_loadingAttendance) {
-      return const Center(
+      return Center(
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     }
@@ -2444,7 +2455,8 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AutoSizeText(_attendanceError!, style: const TextStyle(color: Colors.red)),
+            AutoSizeText(_attendanceError!,
+                style: const TextStyle(color: Colors.red)),
             const SizedBox(height: _g12),
             ElevatedButton(
               onPressed: _loadMemberAttendance,
@@ -2518,7 +2530,6 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                         ),
                         textAlign: TextAlign.center,
                       ),
-                     
                     ],
                   ),
                 )

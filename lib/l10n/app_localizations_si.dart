@@ -553,6 +553,9 @@ class AppLocalizationsSi extends AppLocalizations {
   String get remoteChecking => 'දුරස්ථව පැමිණීම';
 
   @override
+  String get scanCheckInOut => 'QR ස්කෑන් කරන්න';
+
+  @override
   String get checkInSuccess => 'පැමිණීම සාර්ථකයි';
 
   @override

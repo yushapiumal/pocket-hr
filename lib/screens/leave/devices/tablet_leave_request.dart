@@ -154,12 +154,13 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                         redius: 40.0,
                         width: 50,
                         height: 50,
+                        backgroundColor: HRColors.flavorIconBackgroundColor,
                         child: Align(
                             alignment: Alignment.center,
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Icon(Icons.arrow_back_ios_sharp,
-                                  color: HRColors.black),
+                                  color: HRColors.flavorIconColor),
                             )))),
               ),
             ),
@@ -235,7 +236,9 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                     child: Container(
                         width: MediaQuery.of(context).size.width / 2.5,
                         decoration: DesignConfig.boxDecorationButtonColor(
-                            HRColors.blueColor, HRColors.blueColor, 25),
+                            HRColors.darkOrangeColor,
+                            HRColors.darkOrangeColor,
+                            25),
                         alignment: AlignmentDirectional.center,
                         margin: EdgeInsets.only(
                             left: 30.0,

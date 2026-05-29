@@ -214,6 +214,7 @@
   "qrCoordinatesMismatchMessage": "මෙම ස්ථානයේ Check-in/Check-out සටහන් කිරීම අවසර නැත.",
   "signIn": "පිවිසෙන්න",
   "remoteChecking": "දුරස්ථව පැමිණීම",
+  "scanCheckInOut": "QR ස්කෑන් කරන්න",
   "checkInSuccess": "පැමිණීම සාර්ථකයි",
   "checkOutSuccess": "පිටවීම සාර්ථකයි",
   "cantLocate": "ස්ථානය හෝ පරිශීලකයා හදුනාගත නොහැක.",

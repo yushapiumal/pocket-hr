@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1049172536794",
+    "project_id": "domex-go",
+    "storage_bucket": "domex-go.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1049172536794:android:bb1f279c3dc9225e2a24e3",
+        "android_client_info": {
+          "package_name": "io.digitable.go.domex.human"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdiBH_uJYTaDBEV5zP4JTOZF0oef1wrgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

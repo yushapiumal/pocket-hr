@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:io';
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/cupertino.dart';
@@ -22,11 +21,13 @@ class TabletSalarySlip extends StatefulWidget {
   State<TabletSalarySlip> createState() => _TabletSalarySlipState();
 }
 
-class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProviderStateMixin {
+class _TabletSalarySlipState extends State<TabletSalarySlip>
+    with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   AnimationController? _animationController;
- final APIService _api = APIService();
-  bool _shownSalaryMessage = false; // guard to show API message only once per page load
+  final APIService _api = APIService();
+  bool _shownSalaryMessage =
+      false; // guard to show API message only once per page load
 
   // Theme aligned with Attendance / Leave screens
   static const Color _pageBg = Colors.white;
@@ -80,7 +81,9 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
                 decoration: BoxDecoration(
                   color: background ?? const Color(0xFF323232),
                   borderRadius: BorderRadius.circular(8),
-                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8)],
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black26, blurRadius: 8)
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -117,7 +120,8 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 2000));
     // kick off load
     _loadSlips();
   }
@@ -140,12 +144,13 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: HRColors.flavorIconBackgroundColor ?? Colors.white,
                 borderRadius: BorderRadius.circular(40),
                 border: Border.all(color: Colors.black.withOpacity(0.06)),
               ),
-              child: const Center(
-                child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 18),
+              child: Center(
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    color: HRColors.flavorIconColor, size: 18),
               ),
             ),
           ),
@@ -154,19 +159,21 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
             style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
           ),
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+            onTap: () =>
+                Navigator.pushNamed(context, HRNotifications.routeName),
             child: Container(
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: HRColors.flavorIconBackgroundColor ?? Colors.white,
                 borderRadius: BorderRadius.circular(40),
                 border: Border.all(color: Colors.black.withOpacity(0.06)),
               ),
               child: Center(
                 child: SvgPicture.asset(
                   "assets/svg/notifications_icon.svg",
-                  colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                      HRColors.flavorIconColor, BlendMode.srcIn),
                 ),
               ),
             ),
@@ -198,7 +205,8 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
                           alignment: Alignment.centerLeft,
                           child: AutoSizeText(
                             AppLocalizations.of(context)!.salarySlipHistory,
-                            style: const TextStyle(fontSize: 16, fontWeight: _wBold),
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: _wBold),
                           ),
                         ),
                         const SizedBox(height: _g12),
@@ -222,15 +230,20 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
       future: _api.getSalarySlips(),
       builder: (context, snap) {
         if (!snap.hasData) {
-          return const Padding(padding: EdgeInsets.symmetric(vertical: 300),child: Center(child:CupertinoActivityIndicator(
-        color: HRColors.darkOrangeColor,
-        radius: 16.0,)));
+          return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 300),
+              child: Center(
+                  child: CupertinoActivityIndicator(
+                color: HRColors.darkOrangeColor,
+                radius: 16.0,
+              )));
         }
-        
+
         final data = snap.data!;
         final int statusCode = (data['statusCode'] ?? 200) as int;
         final String apiMsg = data['message']?.toString() ?? '';
-        final List<Map<String, dynamic>> items = (data['slips'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+        final List<Map<String, dynamic>> items =
+            (data['slips'] as List?)?.cast<Map<String, dynamic>>() ?? [];
 
         // Check for specific API Network Validation Bounds Mapping logic
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -238,18 +251,22 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
             String? toastMsg;
             if (statusCode == 401 || statusCode == 403) {
               toastMsg = AppLocalizations.of(context)!.sessionExpired;
-              if (apiMsg.isNotEmpty && apiMsg != 'serverError') toastMsg = apiMsg;
+              if (apiMsg.isNotEmpty && apiMsg != 'serverError')
+                toastMsg = apiMsg;
             } else if (statusCode >= 400) {
               // Convert mapped literal into actual locale context
-              toastMsg = apiMsg == 'serverError' 
-                  ? AppLocalizations.of(context)!.serverError 
-                  : (apiMsg.isNotEmpty ? apiMsg : AppLocalizations.of(context)!.serverError);
+              toastMsg = apiMsg == 'serverError'
+                  ? AppLocalizations.of(context)!.serverError
+                  : (apiMsg.isNotEmpty
+                      ? apiMsg
+                      : AppLocalizations.of(context)!.serverError);
             }
 
             if (toastMsg != null && toastMsg.isNotEmpty) {
               showTopToast(
                 toastMsg,
-                background: statusCode >= 400 ? Colors.red : HRColors.darkOrangeColor,
+                background:
+                    statusCode >= 400 ? Colors.red : HRColors.darkOrangeColor,
                 duration: const Duration(seconds: 4),
               );
             }
@@ -257,186 +274,192 @@ class _TabletSalarySlipState extends State<TabletSalarySlip> with TickerProvider
           }
         });
 
-        if (items.isEmpty) return Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)));
+        if (items.isEmpty)
+          return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                  child:
+                      AutoSizeText(AppLocalizations.of(context)!.noRecords)));
 
         // convert to _HomeItem list taking dynamic fields from the backend
         final list = items.map((m) {
-           final belongsToStr = (m['belongs_to'] ?? '').toString();
-           
-           String titleStr = AppLocalizations.of(context)!.salarySlips; // default title
-           String subStr = '';
+          final belongsToStr = (m['belongs_to'] ?? '').toString();
 
-           if (belongsToStr.isNotEmpty) {
-             final parts = belongsToStr.split('-');
-             if (parts.length == 2) {
-               try {
-                 final monthNum = int.parse(parts[0]);
-                 final dt = DateTime(2000, monthNum, 1);
-                 final formattedMonth = DateFormat('MMM').format(dt);
-                 titleStr = "$formattedMonth ${parts[1]}";
-                 subStr = AppLocalizations.of(context)!.salarySlipLabel;
-               } catch (_) {
-                 titleStr = belongsToStr;
-               }
-             } else {
-               titleStr = belongsToStr;
-             }
-           } else {
-             titleStr = (m['month'] ?? m['title'] ?? 'Salary Slip').toString();
-             subStr = (m['year'] ?? m['subtitle'] ?? 'Slip details').toString();
-             titleStr = "$titleStr $subStr".trim();
-             subStr = AppLocalizations.of(context)!.salarySlips;
-           }
+          String titleStr =
+              AppLocalizations.of(context)!.salarySlips; // default title
+          String subStr = '';
 
-           final netPay = (m['net_pay'] ?? 0).toString();
+          if (belongsToStr.isNotEmpty) {
+            final parts = belongsToStr.split('-');
+            if (parts.length == 2) {
+              try {
+                final monthNum = int.parse(parts[0]);
+                final dt = DateTime(2000, monthNum, 1);
+                final formattedMonth = DateFormat('MMM').format(dt);
+                titleStr = "$formattedMonth ${parts[1]}";
+                subStr = AppLocalizations.of(context)!.salarySlipLabel;
+              } catch (_) {
+                titleStr = belongsToStr;
+              }
+            } else {
+              titleStr = belongsToStr;
+            }
+          } else {
+            titleStr = (m['month'] ?? m['title'] ?? 'Salary Slip').toString();
+            subStr = (m['year'] ?? m['subtitle'] ?? 'Slip details').toString();
+            titleStr = "$titleStr $subStr".trim();
+            subStr = AppLocalizations.of(context)!.salarySlips;
+          }
 
-           return _HomeItem(
-              items.indexOf(m), 
-              titleStr, 
-              subStr, 
-              HRColors.darkOrangeColor, 
-              from: '', 
-              to: '', 
-              pdfUrl: (m['pdfUrl'] ?? '').toString(), 
-              id: (m['_id'] ?? m['id'] ?? '').toString(),
-              amountStr: AppLocalizations.of(context)!.rs + " $netPay",
-              rawData: m, // Pass the entire map as rawData
-            );
+          final netPay = (m['net_pay'] ?? 0).toString();
+
+          return _HomeItem(
+            items.indexOf(m),
+            titleStr,
+            subStr,
+            HRColors.darkOrangeColor,
+            from: '',
+            to: '',
+            pdfUrl: (m['pdfUrl'] ?? '').toString(),
+            id: (m['_id'] ?? m['id'] ?? '').toString(),
+            amountStr: AppLocalizations.of(context)!.rs + " $netPay",
+            rawData: m, // Pass the entire map as rawData
+          );
         }).toList();
-        
+
         return _buildListFromData(context, list);
       },
     );
   }
 
-Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
-  return ListView.builder(
-    padding: EdgeInsets.zero,
-    shrinkWrap: true,
-    itemCount: items.length,
-    physics: const NeverScrollableScrollPhysics(),
-    itemBuilder: (BuildContext context, int index) {
-      final it = items[index];
+  Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
+    return ListView.builder(
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      itemCount: items.length,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (BuildContext context, int index) {
+        final it = items[index];
 
-      return SlideAnimation(
-        position: index,
-        itemCount: items.length,
-        slideDirection: SlideDirection.fromLeft,
-        animationController: _animationController,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: _surface,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.black.withOpacity(0.05)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 6),
-                )
-              ],
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(14),
-              onTap: () async {
-                showTopToast(
-                  AppLocalizations.of(context)!.loading,
-                  background: HRColors.darkOrangeColor,
-                  duration: const Duration(seconds: 1),
-                );
+        return SlideAnimation(
+          position: index,
+          itemCount: items.length,
+          slideDirection: SlideDirection.fromLeft,
+          animationController: _animationController,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: _surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.black.withOpacity(0.05)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 6),
+                  )
+                ],
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () async {
+                  showTopToast(
+                    AppLocalizations.of(context)!.loading,
+                    background: HRColors.darkOrangeColor,
+                    duration: const Duration(seconds: 1),
+                  );
 
-                final resp = await _api.emailSalarySlip(it.id);
-                final status = resp['status'] ?? false;
-                final msg = resp['message'] ?? '';
-                final dataBytes = resp['data'] as List<int>?;
+                  final resp = await _api.emailSalarySlip(it.id);
+                  final status = resp['status'] ?? false;
+                  final msg = resp['message'] ?? '';
+                  final dataBytes = resp['data'] as List<int>?;
 
-                if (status && dataBytes != null) {
-                  try {
-                    final dir = await getTemporaryDirectory();
-                    final file = File('${dir.path}/salary_slip_${it.id}.pdf');
-                    await file.writeAsBytes(dataBytes);
+                  if (status && dataBytes != null) {
+                    try {
+                      final dir = await getTemporaryDirectory();
+                      final file = File('${dir.path}/salary_slip_${it.id}.pdf');
+                      await file.writeAsBytes(dataBytes);
 
-                    // showTopToast(
-                    //   "Downloaded successfully!",
-                    //   background: Colors.green,
-                    //   duration: const Duration(seconds: 3),
-                    // );
-                    
-                    await OpenFilex.open(file.path);
-                  } catch (e) {
+                      // showTopToast(
+                      //   "Downloaded successfully!",
+                      //   background: Colors.green,
+                      //   duration: const Duration(seconds: 3),
+                      // );
+
+                    //  await OpenFilex.open(file.path);
+                    } catch (e) {
+                      showTopToast(
+                        "Failed to save slip: $e",
+                        background: Colors.red,
+                        duration: const Duration(seconds: 3),
+                      );
+                    }
+                  } else {
                     showTopToast(
-                      "Failed to save slip: $e",
+                      msg.isEmpty ? "Failed to download" : msg,
                       background: Colors.red,
                       duration: const Duration(seconds: 3),
                     );
                   }
-                } else {
-                  showTopToast(
-                    msg.isEmpty ? "Failed to download" : msg,
-                    background: Colors.red,
-                    duration: const Duration(seconds: 3),
-                  );
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                },
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AutoSizeText(
+                              it.title,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: _wBold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            AutoSizeText(
+                              it.subtitle,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: _wSemi,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           AutoSizeText(
-                            it.title,
-                            style: const TextStyle(
+                            it.amountStr ?? '',
+                            style: TextStyle(
                               fontSize: 14,
-                              fontWeight: _wBold,
-                              color: Colors.black87,
+                              fontWeight: _wBlack,
+                              color: HRColors.darkOrangeColor,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          AutoSizeText(
-                            it.subtitle,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: _wSemi,
-                              color: Colors.black54,
-                            ),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.black26,
+                            size: 14,
                           ),
                         ],
                       ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        AutoSizeText(
-                          it.amountStr ?? '',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: _wBlack,
-                            color: HRColors.darkOrangeColor,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        const Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: Colors.black26,
-                          size: 14,
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   void _loadSlips() async {
     setState(() {});
@@ -453,7 +476,8 @@ Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
           alignment: Alignment.bottomCenter,
           child: Container(
             width: double.infinity,
-            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.65),
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.65),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -476,7 +500,13 @@ Widget _buildListFromData(BuildContext context, List<_HomeItem> items) {
 }
 
 class _HomeItem {
-  const _HomeItem(this.index, this.title, this.subtitle, this.color, {required this.from, required this.to, required this.pdfUrl, required this.id, this.amountStr, required this.rawData});
+  const _HomeItem(this.index, this.title, this.subtitle, this.color,
+      {required this.from,
+      required this.to,
+      required this.pdfUrl,
+      required this.id,
+      this.amountStr,
+      required this.rawData});
 
   final int index;
   final String id;

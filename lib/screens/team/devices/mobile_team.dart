@@ -753,7 +753,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: CupertinoActivityIndicator(
             radius: 16.0,
             color: HRColors.darkOrangeColor,
@@ -800,7 +800,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: CupertinoActivityIndicator(
             radius: 16.0,
             color: HRColors.darkOrangeColor,
@@ -2059,7 +2059,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     Widget body;
 
     if (_loadingTeam) {
-      body = const Center(
+      body = Center(
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     } else if (_teamError != null) {
@@ -2111,13 +2111,14 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color:
+                            HRColors.flavorIconBackgroundColor ?? Colors.white,
                         borderRadius: BorderRadius.circular(40),
                         border:
                             Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                      child: const Icon(Icons.navigate_before,
-                          color: Colors.black87),
+                      child: Icon(Icons.navigate_before,
+                          color: HRColors.flavorIconColor),
                     ),
                   ),
                   const SizedBox(width: _g12),
@@ -2149,10 +2150,10 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                   indicatorPadding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   indicator: BoxDecoration(
-                    color: Colors.black.withOpacity(0.06),
+                    color: const Color(0xFF791b27),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: Colors.black87,
+                  labelColor: const Color(0xFFeed06e),
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.leaveText),
@@ -2339,7 +2340,9 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                               ? 'All'
                               : _getMemberName(
                                   (_teamMembers.firstWhere(
-                                    (m) => (m['_id'] ?? m['id'])?.toString() == selected,
+                                    (m) =>
+                                        (m['_id'] ?? m['id'])?.toString() ==
+                                        selected,
                                     orElse: () => <String, dynamic>{},
                                   ) as Map<String, dynamic>),
                                 );
@@ -2394,8 +2397,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                         ),
 
                         // Opened menu items for members
-                        ..._teamMembers
-                            .where((member) {
+                        ..._teamMembers.where((member) {
                           final m = member as Map<String, dynamic>;
                           final id = (m['_id'] ?? m['id'])?.toString();
                           return id != null;
@@ -2485,7 +2487,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
 
   Widget _buildLeavesContent() {
     if (_loadingLeaves) {
-      return const Center(
+      return Center(
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     }
@@ -2530,7 +2532,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
 
   Widget _buildAttendanceContent() {
     if (_loadingAttendance) {
-      return const Center(
+      return Center(
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     }

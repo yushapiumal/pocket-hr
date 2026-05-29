@@ -562,6 +562,9 @@ class AppLocalizationsTa extends AppLocalizations {
   String get remoteChecking => 'தொலைதூர சரிபார்ப்பு';
 
   @override
+  String get scanCheckInOut => 'QR ஸ்கேன் செய்யுங்கள்';
+
+  @override
   String get checkInSuccess => 'வருகை வெற்றிகரமாக நடந்துவிட்டது';
 
   @override

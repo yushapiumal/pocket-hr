@@ -62,8 +62,8 @@ class _TabletAttendanceState extends State<TabletAttendance>
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    _animationController =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
+    _animationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 2000));
     // Default: load current month once storage is ready
     _initLoad();
   }
@@ -103,7 +103,10 @@ class _TabletAttendanceState extends State<TabletAttendance>
                 Expanded(
                   child: AutoSizeText(
                     msg,
-                    style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -151,12 +154,14 @@ class _TabletAttendanceState extends State<TabletAttendance>
     setState(() {
       String? payroll = type == 'cur'
           ? storage.getItem('payroll_active_tag')?.toString()
-          : (_selectedPayroll ?? storage.getItem('payroll_past_tag')?.toString());
+          : (_selectedPayroll ??
+              storage.getItem('payroll_past_tag')?.toString());
 
       // If storage does not have a payroll tag for current month, generate a sensible default
       if ((payroll == null || payroll.trim().isEmpty) && type == 'cur') {
         final now = DateTime.now();
-        payroll = '${now.month}-${now.year}'; // fallback format expected by backend (M-YYYY)
+        payroll =
+            '${now.month}-${now.year}'; // fallback format expected by backend (M-YYYY)
         print('[UI] fallback payroll tag for current month => $payroll');
       }
 
@@ -200,12 +205,16 @@ class _TabletAttendanceState extends State<TabletAttendance>
     final months = List<String>.generate(12, (i) {
       final dt = DateTime(now.year, i + 1, 1);
       var label = MaterialLocalizations.of(context).formatMonthYear(dt);
-      label = label.replaceAll(RegExp(r'\b\d{4}\b'), '').replaceAll(RegExp(r',[\s]*'), '').trim();
+      label = label
+          .replaceAll(RegExp(r'\b\d{4}\b'), '')
+          .replaceAll(RegExp(r',[\s]*'), '')
+          .trim();
       return label;
     });
 
     final years = List<int>.generate(11, (i) => now.year - 10 + i);
-    final monthController = FixedExtentScrollController(initialItem: selectedMonth - 1);
+    final monthController =
+        FixedExtentScrollController(initialItem: selectedMonth - 1);
     final yearController = FixedExtentScrollController(
       initialItem: years.indexOf(selectedYear).clamp(0, years.length - 1),
     );
@@ -217,11 +226,14 @@ class _TabletAttendanceState extends State<TabletAttendance>
       builder: (ctx) {
         return SafeArea(
           child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: _g16, vertical: _g12),
+            margin:
+                const EdgeInsets.symmetric(horizontal: _g16, vertical: _g12),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(22),
-              boxShadow: const [BoxShadow(color: Color(0x24000000), blurRadius: 24)],
+              boxShadow: const [
+                BoxShadow(color: Color(0x24000000), blurRadius: 24)
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -230,10 +242,12 @@ class _TabletAttendanceState extends State<TabletAttendance>
                 Container(
                   width: 34,
                   height: 34,
-                  decoration: const BoxDecoration(color: HRColors.orangeColor, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                      color: HRColors.orangeColor, shape: BoxShape.circle),
                   child: IconButton(
                     padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                    icon:
+                        const Icon(Icons.close, color: Colors.white, size: 18),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ),
@@ -263,12 +277,15 @@ class _TabletAttendanceState extends State<TabletAttendance>
                               magnification: 1.05,
                               useMagnifier: true,
                               selectionOverlay: const SizedBox.shrink(),
-                              onSelectedItemChanged: (i) => selectedMonth = i + 1,
+                              onSelectedItemChanged: (i) =>
+                                  selectedMonth = i + 1,
                               children: months
                                   .map((m) => Center(
                                         child: AutoSizeText(
                                           m,
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600),
                                         ),
                                       ))
                                   .toList(),
@@ -281,12 +298,15 @@ class _TabletAttendanceState extends State<TabletAttendance>
                               magnification: 1.05,
                               useMagnifier: true,
                               selectionOverlay: const SizedBox.shrink(),
-                              onSelectedItemChanged: (i) => selectedYear = years[i],
+                              onSelectedItemChanged: (i) =>
+                                  selectedYear = years[i],
                               children: years
                                   .map((y) => Center(
                                         child: AutoSizeText(
                                           y.toString(),
-                                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                          style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600),
                                         ),
                                       ))
                                   .toList(),
@@ -306,12 +326,15 @@ class _TabletAttendanceState extends State<TabletAttendance>
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: HRColors.orangeColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18)),
                       ),
-                      onPressed: () => Navigator.pop(ctx, DateTime(selectedYear, selectedMonth, 1)),
+                      onPressed: () => Navigator.pop(
+                          ctx, DateTime(selectedYear, selectedMonth, 1)),
                       child: AutoSizeText(
                         AppLocalizations.of(context)!.confirmLabel,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w800),
                       ),
                     ),
                   ),
@@ -324,13 +347,15 @@ class _TabletAttendanceState extends State<TabletAttendance>
                     height: 48,
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18)),
                         side: BorderSide(color: Colors.black.withOpacity(0.06)),
                       ),
                       onPressed: () => Navigator.pop(ctx),
-                      child:  AutoSizeText(
-                      AppLocalizations.of(context)!.cancelLabel,
-                        style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w700),
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.cancelLabel,
+                        style: TextStyle(
+                            color: Colors.black87, fontWeight: FontWeight.w700),
                       ),
                     ),
                   ),
@@ -371,38 +396,39 @@ class _TabletAttendanceState extends State<TabletAttendance>
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: HRColors.flavorIconBackgroundColor ?? Colors.white,
                 borderRadius: BorderRadius.circular(40),
                 border: Border.all(color: Colors.black.withOpacity(0.06)),
               ),
               child: Center(
                 child: SvgPicture.asset(
                   "assets/svg/drawer_icon.svg",
-                  colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                      HRColors.flavorIconColor, BlendMode.srcIn),
                 ),
               ),
             ),
           ),
-
           AutoSizeText(
             AppLocalizations.of(context)!.attendanceText,
             style: _title24,
           ),
-
           GestureDetector(
-            onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+            onTap: () =>
+                Navigator.pushNamed(context, HRNotifications.routeName),
             child: Container(
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: HRColors.flavorIconBackgroundColor ?? Colors.white,
                 borderRadius: BorderRadius.circular(40),
                 border: Border.all(color: Colors.black.withOpacity(0.06)),
               ),
               child: Center(
                 child: SvgPicture.asset(
                   "assets/svg/notifications_icon.svg",
-                  colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                      HRColors.flavorIconColor, BlendMode.srcIn),
                 ),
               ),
             ),
@@ -413,8 +439,10 @@ class _TabletAttendanceState extends State<TabletAttendance>
   }
 
   Widget _monthTabs() {
-    final thisMonthLabel = storage.getItem('payroll_active_tag')?.toString() ?? AppLocalizations.of(context)!.thisMonthLabel;
-    final pastMonthLabel = storage.getItem('payroll_past_tag')?.toString() ?? AppLocalizations.of(context)!.pastMonthLabel;
+    final thisMonthLabel = storage.getItem('payroll_active_tag')?.toString() ??
+        AppLocalizations.of(context)!.thisMonthLabel;
+    final pastMonthLabel = storage.getItem('payroll_past_tag')?.toString() ??
+        AppLocalizations.of(context)!.pastMonthLabel;
 
     return Container(
       margin: const EdgeInsets.only(top: _g12),
@@ -433,7 +461,9 @@ class _TabletAttendanceState extends State<TabletAttendance>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _tabType == 'cur' ? Colors.black.withOpacity(0.06) : Colors.transparent,
+                  color: _tabType == 'cur'
+                      ? Colors.black.withOpacity(0.06)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
@@ -443,7 +473,8 @@ class _TabletAttendanceState extends State<TabletAttendance>
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: _wBold,
-                      color: _tabType == 'cur' ? Colors.black87 : Colors.black54,
+                      color:
+                          _tabType == 'cur' ? Colors.black87 : Colors.black54,
                     ),
                   ),
                 ),
@@ -458,17 +489,22 @@ class _TabletAttendanceState extends State<TabletAttendance>
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: _tabType == 'prv' ? Colors.black.withOpacity(0.06) : Colors.transparent,
+                  color: _tabType == 'prv'
+                      ? Colors.black.withOpacity(0.06)
+                      : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
                   child: AutoSizeText(
-                    _tabType == 'prv' && _selectedPayroll != null ? _selectedPayroll! : pastMonthLabel,
+                    _tabType == 'prv' && _selectedPayroll != null
+                        ? _selectedPayroll!
+                        : pastMonthLabel,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: _wBold,
-                      color: _tabType == 'prv' ? Colors.black87 : Colors.black54,
+                      color:
+                          _tabType == 'prv' ? Colors.black87 : Colors.black54,
                     ),
                   ),
                 ),
@@ -553,30 +589,35 @@ class _TabletAttendanceState extends State<TabletAttendance>
     final absents = 0;
     final late = 0;
     final present = (total - absents).clamp(0, total);
-   
-       int totalSeconds = 0;
+
+    int totalSeconds = 0;
     for (final it in items) {
       final b = it.boilerPlate;
-      totalSeconds += _toInt(b['workedSeconds'] ?? b['worked_seconds'] ?? b['worked_hours'] ?? 0);
+      totalSeconds += _toInt(
+          b['workedSeconds'] ?? b['worked_seconds'] ?? b['worked_hours'] ?? 0);
     }
     final totalWorked = totalSeconds > 0
         ? _formatDurationSeconds(totalSeconds)
         : (items.isNotEmpty
-            ? (items.first.boilerPlate['wrkd_hours_fmtd']?.toString() ?? '0h 0m')
+            ? (items.first.boilerPlate['wrkd_hours_fmtd']?.toString() ??
+                '0h 0m')
             : '0h 0m');
-
-
 
     Widget tile(String label, String value, Color bg, Color fg) {
       return Expanded(
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
+          decoration:
+              BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
           child: Column(
             children: [
-              AutoSizeText(label, style: TextStyle(color: fg, fontWeight: _wBold, fontSize: 10)),
+              AutoSizeText(label,
+                  style:
+                      TextStyle(color: fg, fontWeight: _wBold, fontSize: 10)),
               const SizedBox(height: 6),
-              AutoSizeText(value, style: TextStyle(color: fg, fontWeight: _wBlack, fontSize: 12)),
+              AutoSizeText(value,
+                  style:
+                      TextStyle(color: fg, fontWeight: _wBlack, fontSize: 12)),
             ],
           ),
         ),
@@ -589,7 +630,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-          //  AutoSizeText(AppLocalizations.of(context)!.attendanceForThisMonth, style: _label14),
+            //  AutoSizeText(AppLocalizations.of(context)!.attendanceForThisMonth, style: _label14),
             // Container(
             //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             //   decoration: BoxDecoration(
@@ -603,14 +644,23 @@ class _TabletAttendanceState extends State<TabletAttendance>
         const SizedBox(height: 10),
         Row(
           children: [
-            tile(AppLocalizations.of(context)!.presentLabel, present.toString(), const Color(0xFFEAF7EE), const Color(0xFF2E7D32)),
+            tile(AppLocalizations.of(context)!.presentLabel, present.toString(),
+                const Color(0xFFEAF7EE), const Color(0xFF2E7D32)),
             const SizedBox(width: 10),
-            tile(AppLocalizations.of(context)!.absentsLabel, absents.toString().padLeft(2, '0'), const Color(0xFFFFEBEE), const Color(0xFFE53935)),
+            tile(
+                AppLocalizations.of(context)!.absentsLabel,
+                absents.toString().padLeft(2, '0'),
+                const Color(0xFFFFEBEE),
+                const Color(0xFFE53935)),
             const SizedBox(width: 10),
-            tile(AppLocalizations.of(context)!.lateInLabel, late.toString().padLeft(2, '0'), const Color(0xFFFFF7E6), const Color(0xFFF59E0B)),
+            tile(
+                AppLocalizations.of(context)!.lateInLabel,
+                late.toString().padLeft(2, '0'),
+                const Color(0xFFFFF7E6),
+                const Color(0xFFF59E0B)),
             const SizedBox(width: 10),
-            tile(AppLocalizations.of(context)!.workingHrs, totalWorked, const Color(0xFFFFF7E6), const Color(0xFFF59E0B)),
-
+            tile(AppLocalizations.of(context)!.workingHrs, totalWorked,
+                const Color(0xFFFFF7E6), const Color(0xFFF59E0B)),
           ],
         ),
       ],
@@ -620,13 +670,13 @@ class _TabletAttendanceState extends State<TabletAttendance>
   // ===== list =====
 
   Widget _attendanceList() {
-    return FutureBuilder<List<AttendanceModel>>( 
+    return FutureBuilder<List<AttendanceModel>>(
       future: attendanceFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.connectionState == ConnectionState.active) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 40),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
             child: Center(
               child: CupertinoActivityIndicator(
                 color: HRColors.orangeColor,
@@ -644,8 +694,8 @@ class _TabletAttendanceState extends State<TabletAttendance>
         }
 
         if (!snapshot.hasData) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 40),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40),
             child: Center(
               child: CupertinoActivityIndicator(
                 color: HRColors.orangeColor,
@@ -657,27 +707,29 @@ class _TabletAttendanceState extends State<TabletAttendance>
 
         var data = snapshot.data!;
 
-  
         int? statusCode;
         if (data.isNotEmpty) {
           try {
             final bp = data.first.boilerPlate;
             final scAny = bp['statusCode'] ?? bp['status'] ?? bp['code'];
-            statusCode = (scAny is int) ? scAny : int.tryParse(scAny?.toString() ?? '');
+            statusCode =
+                (scAny is int) ? scAny : int.tryParse(scAny?.toString() ?? '');
           } catch (_) {}
         }
 
         // 1. If statusCode is 500+, show server error
         if (statusCode != null && statusCode >= 500) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _showTopToast(AppLocalizations.of(context)!.serverError);
+            if (mounted)
+              _showTopToast(AppLocalizations.of(context)!.serverError);
           });
           return const SizedBox.shrink();
         }
         // 2. If statusCode is 401/403/404, show mapped message
         if (statusCode == 401 || statusCode == 403 || statusCode == 404) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _showTopToast(_attendanceErrorMessageFromStatus(statusCode));
+            if (mounted)
+              _showTopToast(_attendanceErrorMessageFromStatus(statusCode));
           });
           return const SizedBox.shrink();
         }
@@ -691,7 +743,8 @@ class _TabletAttendanceState extends State<TabletAttendance>
         // 4. If statusCode is not 200 and not handled above, show generic server error
         if (statusCode != null && statusCode != 200 && data.isEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _showTopToast(AppLocalizations.of(context)!.serverError);
+            if (mounted)
+              _showTopToast(AppLocalizations.of(context)!.serverError);
           });
           return const SizedBox.shrink();
         }
@@ -700,7 +753,9 @@ class _TabletAttendanceState extends State<TabletAttendance>
         if (data.isNotEmpty) {
           final bp0 = data.first.boilerPlate;
           final loc = bp0['location']?.toString();
-          if ((_resolvedLocation == null || _resolvedLocation!.isEmpty) && loc != null && loc.isNotEmpty) {
+          if ((_resolvedLocation == null || _resolvedLocation!.isEmpty) &&
+              loc != null &&
+              loc.isNotEmpty) {
             _resolvedLocation = loc;
           }
           // fallback user label
@@ -713,15 +768,18 @@ class _TabletAttendanceState extends State<TabletAttendance>
         // Sort first date -> last date (ascending)
         data = List<AttendanceModel>.from(data)
           ..sort((a, b) {
-            final ta = _toInt(a.boilerPlate['firstCheckIn'] ?? a.boilerPlate['time'] ?? 0);
-            final tb = _toInt(b.boilerPlate['firstCheckIn'] ?? b.boilerPlate['time'] ?? 0);
+            final ta = _toInt(
+                a.boilerPlate['firstCheckIn'] ?? a.boilerPlate['time'] ?? 0);
+            final tb = _toInt(
+                b.boilerPlate['firstCheckIn'] ?? b.boilerPlate['time'] ?? 0);
             return ta.compareTo(tb);
           });
 
         if (data.isEmpty) {
-          return  Padding(
+          return Padding(
             padding: EdgeInsets.symmetric(vertical: 40),
-            child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
+            child: Center(
+                child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
           );
         }
 
@@ -756,231 +814,251 @@ class _TabletAttendanceState extends State<TabletAttendance>
     final String over = bp['over']?.toString() ?? ' - ';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: _surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.black.withOpacity(0.05)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 6),
-            )
-          ],
-        ),
-        child: ExpandableNotifier(
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              AutoSizeText(
-                                "$dow $day",
-                                style: const TextStyle(fontSize: 15, color: Color(0xff676767), fontWeight: _wMedium),
-                              ),
-                              AutoSizeText(
-                                data.isOffday ? AppLocalizations.of(context)!.dayOffLabel : AppLocalizations.of(context)!.shiftLabel,
-                                style: TextStyle(
-                                  fontWeight: _wSemi,
-                                  color: data.isOffday ? HRColors.dutyOff : HRColors.shift,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: _surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.black.withOpacity(0.05)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 6),
+              )
+            ],
+          ),
+          child: ExpandableNotifier(
+            child: Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Flexible(
-                                        child: AutoSizeText(
-                                          AppLocalizations.of(context)!.inLabel,
-                                          style: TextStyle(fontWeight: _wMedium),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Flexible(
-                                        child: AutoSizeText(
-                                          inTime,
-                                          style: _valueBold,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                AutoSizeText(
+                                  "$dow $day",
+                                  style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Color(0xff676767),
+                                      fontWeight: _wMedium),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Flexible(
-                                        child: AutoSizeText(
-                                          AppLocalizations.of(context)!.outLabel,
-                                          style: TextStyle(fontWeight: _wMedium),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Flexible(
-                                        child: AutoSizeText(
-                                          outTime,
-                                          style: _valueBold,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
+                                AutoSizeText(
+                                  data.isOffday
+                                      ? AppLocalizations.of(context)!
+                                          .dayOffLabel
+                                      : AppLocalizations.of(context)!
+                                          .shiftLabel,
+                                  style: TextStyle(
+                                    fontWeight: _wSemi,
+                                    color: data.isOffday
+                                        ? HRColors.dutyOff
+                                        : HRColors.shift,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Divider(thickness: 1.5),
-              ),
-
-              ExpandablePanel(
-                header: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: AutoSizeText(AppLocalizations.of(context)!.viewDetails, style: const TextStyle(fontWeight: _wBold)),
-                ),
-                collapsed: const SizedBox.shrink(),
-                expanded: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Table(
-                    border: TableBorder.symmetric(inside: const BorderSide(width: 1)),
-                    children: [
-                      _tableRow(AppLocalizations.of(context)!.workedHeader, AppLocalizations.of(context)!.lateHeader, AppLocalizations.of(context)!.overHeader, header: true),
-                      _tableRow(wrkd, late, over),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-    ));
-    }
-
-    TableRow _tableRow(String a, String b, String c, {bool header = false}) {
-      return TableRow(
-        decoration: header ? BoxDecoration(color: Colors.grey[350]) : null,
-        children: [
-          _cell(a, header),
-          _cell(b, header),
-          _cell(c, header),
-        ],
-      );
-    }
-
-    Widget _cell(String text, bool header) {
-      return Padding(
-        padding: const EdgeInsets.all(6),
-        child: AutoSizeText(
-          text,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: header ? _wBold : _wRegular),
-        ),
-      );
-    }
-
-    // ===== screen =====
-
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        key: _scaffoldKey,
-        drawer: Drawer(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: DesignConfig.drawerContent(_scaffoldKey, context),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _topActions(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 12),
-                      _monthTabs(),
-
-                      FutureBuilder<List<AttendanceModel>>(
-                        future: attendanceFuture,
-                        builder: (context, snap) {
-                          final list = snap.data ?? const <AttendanceModel>[];
-                          return Column(
-                            children: [
-                             // _shiftCard(list),
-                              const SizedBox(height: 14),
-                              _monthSummary(list),
-                            ],
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-
-                // History / details
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            AutoSizeText(
-                              AppLocalizations.of(context)!.attendanceText,
-                              style: _label14,
-                            ),
-                            TextButton(
-                              onPressed: () => _loadAttendance(_tabType),
-                              child:  AutoSizeText(AppLocalizations.of(context)!.refresh, style: TextStyle(color: Colors.black87, fontWeight: _wBold)),
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: AutoSizeText(
+                                            AppLocalizations.of(context)!
+                                                .inLabel,
+                                            style:
+                                                TextStyle(fontWeight: _wMedium),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: AutoSizeText(
+                                            inTime,
+                                            style: _valueBold,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Flexible(
+                                          child: AutoSizeText(
+                                            AppLocalizations.of(context)!
+                                                .outLabel,
+                                            style:
+                                                TextStyle(fontWeight: _wMedium),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: AutoSizeText(
+                                            outTime,
+                                            style: _valueBold,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      _attendanceList(),
-                      const SizedBox(height: 20),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Divider(thickness: 1.5),
+                ),
+                ExpandablePanel(
+                  header: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: AutoSizeText(
+                        AppLocalizations.of(context)!.viewDetails,
+                        style: const TextStyle(fontWeight: _wBold)),
+                  ),
+                  collapsed: const SizedBox.shrink(),
+                  expanded: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Table(
+                      border: TableBorder.symmetric(
+                          inside: const BorderSide(width: 1)),
+                      children: [
+                        _tableRow(
+                            AppLocalizations.of(context)!.workedHeader,
+                            AppLocalizations.of(context)!.lateHeader,
+                            AppLocalizations.of(context)!.overHeader,
+                            header: true),
+                        _tableRow(wrkd, late, over),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ),
-        backgroundColor: _pageBg,
-      );
-    }
+        ));
   }
+
+  TableRow _tableRow(String a, String b, String c, {bool header = false}) {
+    return TableRow(
+      decoration: header ? BoxDecoration(color: Colors.grey[350]) : null,
+      children: [
+        _cell(a, header),
+        _cell(b, header),
+        _cell(c, header),
+      ],
+    );
+  }
+
+  Widget _cell(String text, bool header) {
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: AutoSizeText(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: header ? _wBold : _wRegular),
+      ),
+    );
+  }
+
+  // ===== screen =====
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: DesignConfig.drawerContent(_scaffoldKey, context),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _topActions(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    _monthTabs(),
+                    FutureBuilder<List<AttendanceModel>>(
+                      future: attendanceFuture,
+                      builder: (context, snap) {
+                        final list = snap.data ?? const <AttendanceModel>[];
+                        return Column(
+                          children: [
+                            // _shiftCard(list),
+                            const SizedBox(height: 14),
+                            _monthSummary(list),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+
+              // History / details
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          AutoSizeText(
+                            AppLocalizations.of(context)!.attendanceText,
+                            style: _label14,
+                          ),
+                          TextButton(
+                            onPressed: () => _loadAttendance(_tabType),
+                            child: AutoSizeText(
+                                AppLocalizations.of(context)!.refresh,
+                                style: TextStyle(
+                                    color: Colors.black87, fontWeight: _wBold)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _attendanceList(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: _pageBg,
+    );
+  }
+}

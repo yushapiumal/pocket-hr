@@ -1150,6 +1150,12 @@ abstract class AppLocalizations {
   /// **'Remote Checking'**
   String get remoteChecking;
 
+  /// No description provided for @scanCheckInOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Check-In/Out'**
+  String get scanCheckInOut;
+
   /// No description provided for @checkInSuccess.
   ///
   /// In en, this message translates to:

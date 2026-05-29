@@ -2,6 +2,7 @@ plugins {
     id "com.android.application"
     id "org.jetbrains.kotlin.android"   
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
 
 
@@ -49,6 +50,7 @@ android {
     buildToolsVersion "33.0.3"
     
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
@@ -72,6 +74,25 @@ android {
         multiDexEnabled true
     }
 
+    flavorDimensions "tenant"
+    productFlavors {
+        digitable {
+            dimension "tenant"
+            applicationId "asia.ceynet.human.pocket"
+            resValue "string", "app_name", "Pocket HR"
+        }
+        domex {
+            dimension "tenant"
+            applicationId "io.digitable.go.domex.human"
+            resValue "string", "app_name", "DomEx Go"
+        }
+        mahajana {
+            dimension "tenant"
+            applicationId "com.mahajana.human.pocket"
+            resValue "string", "app_name", "Mahajana HR"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -86,6 +107,7 @@ flutter {
 }
 
 dependencies { 
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     // implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.20" 
     // implementation 'androidx.multidex:multidex:2.0.0'
     // implementation platform('com.google.firebase:firebase-bom:32.2.2')

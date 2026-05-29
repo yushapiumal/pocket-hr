@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cn_pocket_hr/api/api_client.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/models/hr/debt_model.dart';
 import 'package:flutter/foundation.dart';
 
@@ -9,7 +10,7 @@ class DebtService {
       final uid = await ApiClient.getResolvedUserId();
       if (uid == null || uid.isEmpty) throw Exception('Missing user id');
 
-      final url = 'https://api.human.go.digitable.io/human/v2/api/debts/$uid';
+      final url = '${FlavorConfig.instance.apiBaseUrl}/debts/$uid';
       final res = await ApiClient.get(url);
 
       if (res.statusCode < 200 || res.statusCode >= 300) {

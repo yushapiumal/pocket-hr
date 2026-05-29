@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/services/debt_service.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
+import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 // filepath: /home/akesh/Work/new_hr/cn_pocket_hr/lib/Screens/debtsAndLoans/devices/MobileDebtsAndLoansScreen.dart
 import 'package:flutter/material.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
@@ -318,13 +319,14 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color:
+                            HRColors.flavorIconBackgroundColor ?? Colors.white,
                         borderRadius: BorderRadius.circular(40),
                         border:
                             Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                      child: const Icon(Icons.navigate_before,
-                          color: Colors.black87),
+                      child: Icon(Icons.navigate_before,
+                          color: HRColors.flavorIconColor),
                     ),
                   ),
                   const SizedBox(width: _g12),
@@ -362,10 +364,10 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.all(6),
                   indicator: BoxDecoration(
-                    color: Colors.black.withOpacity(0.06),
+                    color: const Color(0xFF791b27),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: Colors.black87,
+                  labelColor: const Color(0xFFeed06e),
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(

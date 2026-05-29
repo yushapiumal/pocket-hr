@@ -4,10 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
-  audioplayers_windows
   battery_plus
   connectivity_plus
-  file_selector_windows
+  firebase_core
   flutter_localization
   flutter_secure_storage_windows
   geolocator_windows

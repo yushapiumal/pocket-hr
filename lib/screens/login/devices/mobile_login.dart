@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:cn_pocket_hr/providers/connection_provider.dart';
 
@@ -14,6 +15,8 @@ import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:cn_pocket_hr/services/sso_service.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
 import 'package:cn_pocket_hr/screens/login/otp_page.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 
 class MobileLogin extends StatefulWidget {
   const MobileLogin({Key? key}) : super(key: key);
@@ -22,11 +25,12 @@ class MobileLogin extends StatefulWidget {
   State<MobileLogin> createState() => _MobileLoginState();
 }
 
-class _MobileLoginState extends State<MobileLogin> {
-   final email = TextEditingController();
-   final password = TextEditingController();
-   final company = TextEditingController();
-   final nicController = TextEditingController();
+class _MobileLoginState extends State<MobileLogin>
+    with TickerProviderStateMixin {
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final company = TextEditingController();
+  final nicController = TextEditingController();
 
   // Focus nodes to support Next/Done keyboard actions
   final FocusNode _companyFocus = FocusNode();
@@ -48,14 +52,79 @@ class _MobileLoginState extends State<MobileLogin> {
 
   bool _obscure = true;
 
-  static const Color _accent = Color(0xFFF59E0B); // close to HRColors.orangeColor
+  late AnimationController _animController;
+  late Animation<double> _logoScale;
+  late Animation<double> _bottomFade;
+  late Animation<Offset> _bottomSlide;
+
+  late AnimationController _floatController;
+  late Animation<double> _floatOffset;
+
+  String _appVersion = '';
+  String _appName = '';
+
+  static const Color _accent =
+      Color(0xFFF59E0B); // close to HRColors.orangeColor
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _logoScale = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.0, 0.55, curve: Curves.elasticOut),
+    );
+
+    _bottomFade = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.55, 1.0, curve: Curves.easeOut),
+    );
+
+    _bottomSlide = Tween<Offset>(
+      begin: const Offset(0, 0.5),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.55, 1.0, curve: Curves.easeOut),
+    ));
+
+    // Floating up/down loop — starts after scale animation finishes
+    _floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    );
+    _floatOffset = Tween<double>(begin: -9.0, end: 9.0).animate(
+      CurvedAnimation(parent: _floatController, curve: Curves.easeInOut),
+    );
+    _animController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && mounted) {
+        _floatController.repeat(reverse: true);
+      }
+    });
+
+    _loadVersionAndStartAnimation();
     _autoLoginIfPossible();
+  }
+
+  Future<void> _loadVersionAndStartAnimation() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (mounted)
+        setState(() {
+          _appVersion = 'v${info.version}';
+          _appName = FlavorConfig.instance.appName;
+        });
+    } catch (_) {
+      if (mounted) setState(() => _appName = FlavorConfig.instance.appName);
+    }
+    if (mounted) _animController.forward();
   }
 
   Future<void> _autoLoginIfPossible() async {
@@ -68,7 +137,6 @@ class _MobileLoginState extends State<MobileLogin> {
           await storage.setItem('access_token', '');
           await storage.setItem('refresh_token', '');
           await storage.setItem('tenant', '');
-
         } catch (_) {}
         if (mounted) setState(() => _autoRedirecting = false);
         return;
@@ -97,6 +165,8 @@ class _MobileLoginState extends State<MobileLogin> {
 
   @override
   void dispose() {
+    _animController.dispose();
+    _floatController.dispose();
     _companyFocus.dispose();
     _emailFocus.dispose();
     _passwordFocus.dispose();
@@ -140,23 +210,31 @@ class _MobileLoginState extends State<MobileLogin> {
           elevation: 0,
           backgroundColor: _surface,
           foregroundColor: Colors.black87,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
-        child: AutoSizeText(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: AutoSizeText(label,
+            style: const TextStyle(fontWeight: FontWeight.w800)),
       ),
     );
   }
 
-  InputDecoration _fieldDecoration({required String label, required String hint, required IconData icon, Widget? suffix}) {
+  InputDecoration _fieldDecoration(
+      {required String label,
+      required String hint,
+      required IconData icon,
+      Widget? suffix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.w800),
+      labelStyle: const TextStyle(
+          color: Colors.black54, fontSize: 12, fontWeight: FontWeight.w800),
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black38, fontSize: 12, fontWeight: FontWeight.w600),
+      hintStyle: const TextStyle(
+          color: Colors.black38, fontSize: 12, fontWeight: FontWeight.w600),
       prefixIcon: Icon(icon, color: Colors.black45, size: 20),
       suffixIcon: suffix,
       filled: true,
-      fillColor: _surface,
+      fillColor:_accent ,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -175,9 +253,11 @@ class _MobileLoginState extends State<MobileLogin> {
 
   Widget inputTenant() {
     // Formatter to force lowercase
-    final lowerCaseFormatter = TextInputFormatter.withFunction((oldValue, newValue) {
+    final lowerCaseFormatter =
+        TextInputFormatter.withFunction((oldValue, newValue) {
       final text = newValue.text.toLowerCase();
-      return TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+      return TextEditingValue(
+          text: text, selection: TextSelection.collapsed(offset: text.length));
     });
 
     return Padding(
@@ -186,9 +266,11 @@ class _MobileLoginState extends State<MobileLogin> {
         controller: company,
         focusNode: _companyFocus,
         textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
+        onFieldSubmitted: (_) =>
+            FocusScope.of(context).requestFocus(_emailFocus),
         onChanged: (_) => setState(() => _validateCompany = false),
-        style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
+        style: const TextStyle(
+            color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
         cursorColor: _accent,
         inputFormatters: [
           lowerCaseFormatter,
@@ -277,7 +359,9 @@ class _MobileLoginState extends State<MobileLogin> {
       padding: const EdgeInsets.only(top: 6),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: AutoSizeText(text, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w700)),
+        child: AutoSizeText(text,
+            style: const TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.w700)),
       ),
     );
   }
@@ -290,7 +374,10 @@ class _MobileLoginState extends State<MobileLogin> {
     });
     if (_validateCompany || _validateEmail) return;
 
-    setState(() { isLoading = true; buttonDisable = true; });
+    setState(() {
+      isLoading = true;
+      buttonDisable = true;
+    });
     try {
       storage.setItem('company', company.text);
       storage.setItem('email', email.text);
@@ -302,7 +389,8 @@ class _MobileLoginState extends State<MobileLogin> {
         final details = await dsvc.collectAll();
         final dev = details['device'] as Map<String, dynamic>? ?? {};
         deviceInfo['model_number'] = (dev['model'] ?? '').toString();
-        deviceInfo['device_id'] = (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
+        deviceInfo['device_id'] =
+            (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
         deviceInfo['ip_address'] = (details['ip'] ?? '').toString();
       } catch (_) {}
 
@@ -315,7 +403,8 @@ class _MobileLoginState extends State<MobileLogin> {
       //   return;
       // }
 
-      final otp = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
+      final otp = await Navigator.of(context)
+          .push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
       if (otp == null || otp.isEmpty) return;
 
       // final verify = await apiService.verifyAuthPinMobile(tenant: tenantName, nic: nic, pin: otp, deviceInfo: deviceInfo);
@@ -331,9 +420,13 @@ class _MobileLoginState extends State<MobileLogin> {
       debugPrint(st.toString());
       apiService.showToast('Failed to login.');
     } finally {
-      if (mounted) setState(() { isLoading = false; buttonDisable = false; });
+      if (mounted)
+        setState(() {
+          isLoading = false;
+          buttonDisable = false;
+        });
     }
-   }
+  }
 
   Future<void> _ssoLogin() async {
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
@@ -347,7 +440,7 @@ class _MobileLoginState extends State<MobileLogin> {
     });
 
     try {
-      final tenantName = company.text.trim();
+      final tenantName = FlavorConfig.instance.tenant ?? company.text.trim();
       if (tenantName.isEmpty) {
         setState(() {
           _validateCompany = true;
@@ -362,7 +455,6 @@ class _MobileLoginState extends State<MobileLogin> {
       storage.setItem('refresh_token', result.refreshToken);
       storage.setItem('tenant', tenantName);
 
-
       // Ensure uid is derived from access token for later API calls (e.g., QR locations-by-userid)
       try {
         final ensuredUid = await apiService.ensureUidFromAccessToken();
@@ -370,6 +462,8 @@ class _MobileLoginState extends State<MobileLogin> {
           await storage.setItem('uid', ensuredUid);
         }
       } catch (_) {}
+
+      FCMService.sendTokenToBackend();
 
       setState(() {
         isLoading = false;
@@ -391,256 +485,155 @@ class _MobileLoginState extends State<MobileLogin> {
 
   @override
   Widget build(BuildContext context) {
-    if (_autoRedirecting) {
-      return const Scaffold(body:Center(child:  CupertinoActivityIndicator(
+ if (_autoRedirecting) {
+  return Scaffold(
+    backgroundColor: HRColors.splashbackgroundColor,
+    body: Center(
+      child: CupertinoActivityIndicator(
         color: HRColors.darkOrangeColor,
         radius: 16.0,
-      )));
-    }
+      ),
+    ),
+  );
+}
+
+    final primary = FlavorConfig.instance.primaryColor;
+    final size = MediaQuery.of(context).size;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: Stack(
-          children: [
-            // Top header image
-            Positioned.fill(
-              child: Container(color: Colors.white),
-            ),
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: MediaQuery.of(context).size.height * 0.52,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(48),
-                  bottomRight: Radius.circular(48),
-                ),
-                child: Image.asset(
-                  'assets/images/login.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            // slight dark overlay for readability
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: MediaQuery.of(context).size.height * 0.82,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(48),
-                    bottomRight: Radius.circular(48),
-                  ),
-                  color: Colors.black.withOpacity(0.10),
-                ),
-              ),
-            ),
-
-            // White bottom sheet
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(
-                  left: 22,
-                  right: 22,
-                  top: 18,
-                  bottom: 18 + MediaQuery.of(context).padding.bottom,
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(34),
-                    topRight: Radius.circular(34),
-                  ),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 6),
-                        AutoSizeText(
-                          AppLocalizations.of(context)!.signIn,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.black.withOpacity(0.8),
-                          ),
+        backgroundColor:HRColors.splashbackgroundColor,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // ── Logo: slightly above center, scale + float animations ────
+              Align(
+                alignment: const Alignment(0, -0.35),
+                child: ScaleTransition(
+                  scale: _logoScale,
+                  child: AnimatedBuilder(
+                    animation: _floatOffset,
+                    builder: (_, child) => Transform.translate(
+                      offset: Offset(0, _floatOffset.value),
+                      child: child,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(28),
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 1.8,
                         ),
-                        const SizedBox(height: 12),
-
-                        inputTenant(),
-                        _errorText(_validateCompany, AppLocalizations.of(context)!.tenantValidation),
-                        // NIC instead of email/password for first step
-                        // inputNic(),
-                        // _errorText(_validateEmail, 'Please enter NIC'),
-
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                // Checkbox(
-                                //   value: _rememberMe,
-                                //   onChanged: (v) => setState(() => _rememberMe = v ?? true),
-                                //   activeColor: _accent,
-                                //   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                // ),
-                                // AutoSizeText(
-                                //   'Remember Me',
-                                //   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black54),
-                                // ),
-                              ],
-                            ),
-                            TextButton(
-                              onPressed: () => apiService.showToast('Coming soon'),
-                              child:  AutoSizeText(
-                               AppLocalizations.of(context)!.forgetPw,
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _accent),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        if (isLoading)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child:Center(child: CupertinoActivityIndicator(
-        color: HRColors.darkOrangeColor,
-        radius: 16.0,
-      ),),
-                          ),
-
-                        const SizedBox(height: 4),
-                        // SizedBox(
-                        //   width: double.infinity,
-                        //   height: 48,
-                        //   child: ElevatedButton(
-                        //     onPressed: buttonDisable ? null : () async {
-                        //       // Validate company and NIC
-                        //       setState(() {
-                        //         _validateCompany = company.text.isEmpty;
-                        //         _validateEmail = nicController.text.isEmpty;
-                        //       });
-                        //       if (_validateCompany || _validateEmail) return;
-
-                        //       setState(() { isLoading = true; buttonDisable = true; });
-                        //       try {
-                        //         // collect minimal device info
-                        //         Map<String, String> deviceInfo = {};
-                        //         try {
-                        //           final dsvc = DeviceDetailsService();
-                        //           final details = await dsvc.collectAll();
-                        //           final dev = details['device'] as Map<String, dynamic>? ?? {};
-                        //           deviceInfo['model_number'] = (dev['model'] ?? '').toString();
-                        //           deviceInfo['device_id'] = (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
-                        //           deviceInfo['ip_address'] = (details['ip'] ?? '').toString();
-                        //         } catch (_) {}
-
-                        //         final tenantName = company.text.trim();
-                        //         final nic = nicController.text.trim();
-
-                        //         // Request OTP
-                        //         final req = await apiService.sendAuthPinMobile(tenant: tenantName, nic: nic, deviceInfo: deviceInfo);
-                        //         if (req['status'] == false) {
-                        //           apiService.showToast(req['message'] ?? 'Failed to request OTP');
-                        //           return;
-                        //         }
-
-                        //         // Open OTP page
-                        //         final otp = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
-                        //         if (otp == null || otp.isEmpty) return;
-
-                        //         // Verify OTP
-                        //         final verify = await apiService.verifyAuthPinMobile(tenant: tenantName, nic: nic, pin: otp, deviceInfo: deviceInfo);
-                        //         if (verify['status'] == false) {
-                        //           apiService.showToast(verify['message'] ?? 'OTP verification failed');
-                        //           return;
-                        //         }
-
-                        //         // verification success: redirect to main
-                        //         if (!mounted) return;
-                        //         Navigator.pushReplacementNamed(context, HRMain.routeName);
-                        //       } catch (e, st) {
-                        //         debugPrint('[LOGIN][OTP] ERROR: $e');
-                        //         debugPrint(st.toString());
-                        //         apiService.showToast('Something went wrong. Please try again');
-                        //       } finally {
-                        //         if (mounted) setState(() { isLoading = false; buttonDisable = false; });
-                        //       }
-                        //     },
-                        //     style: ElevatedButton.styleFrom(
-                        //       backgroundColor: _accent,
-                        //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        //       elevation: 0,
-                        //     ),
-                        //     child: AutoSizeText(AppLocalizations.of(context)!.nextText, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900)),
-                        //   ),
-                        // ),
-
-                        const SizedBox(height: 18),
-
-                        SizedBox(
-                          width: double.infinity,
-                          height: 46,
-                          child: ElevatedButton(
-                          onPressed: buttonDisable ? null : _ssoLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _accent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                            elevation: 0,
-                          ),
-                            child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AutoSizeText(
-                              AppLocalizations.of(context)!.continueText,
-                              style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
-                            ],
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-                        // Center(
-                        //   child: Wrap(
-                        //     spacing: 4,
-                        //     children: [
-                        //       AutoSizeText("Don't have an Account?", style: TextStyle(color: Colors.black.withOpacity(0.45), fontWeight: FontWeight.w700, fontSize: 12)),
-                        //       TextButton(
-                        //          onPressed: () => apiService.showToast('Coming soon'),
-                        //         child: AutoSizeText('Sign up', style: TextStyle(fontWeight: FontWeight.w900, color: Color.fromARGB(255, 243, 241, 238))),
-                        //       )
-                        //     ],
-                        //   ),
-                        // ),
-
-                        langPicker(),
-                         const SizedBox(height: 20),
-                      ],
-                      
+                      ),
+                      child: Image.asset(
+                        FlavorConfig.instance.splashLogoAsset,
+                        width: size.width * 0.38,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+
+              // ── Bottom panel: slides + fades in after logo ───────────────
+              Align(
+                alignment: const Alignment(0, 0.95),
+                child: FadeTransition(
+                  opacity: _bottomFade,
+                  child: SlideTransition(
+                    position: _bottomSlide,
+                    child: Padding(
+                      padding:
+                          EdgeInsets.fromLTRB(24, 0, 24, 28 + bottomPadding),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // SSO Login button — centered, wide
+                          SizedBox(
+                            width: size.width * 0.90,
+                            height: 52,
+                            child: ElevatedButton(
+                              onPressed: buttonDisable ? null : _ssoLogin,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primary,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 28, vertical: 14),
+                              ),
+                              child: isLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                HRColors.splashYellow),
+                                      ),
+                                    )
+                                  : Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        AutoSizeText(
+                                          AppLocalizations.of(context)!
+                                              .continueText,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                              fontSize: 16),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Icon(Icons.arrow_forward_rounded,
+                                            color: Colors.white, size: 22),
+                                      ],
+                                    ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 18),
+
+                          // Language picker
+                          langPicker(),
+
+                          const SizedBox(height: 16),
+
+                          // App name + version — centered at bottom
+                          Center(
+                            child: Text(
+                              [_appName, _appVersion]
+                                  .where((s) => s.isNotEmpty)
+                                  .join('  •  '),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black54,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+// "lat":6.887676381202608,"lng":79.85718849559953,
+// lat: 6.887523333333333, lng: 79.857135
+//  lat: 6.887676381202608, lng: 79.85718849559953,    bkend 
+// lat: 6.8875253, lng: 79.8571109, body 
 
+
+ //lat: 6.8875595, lng: 79.8571119

@@ -262,12 +262,13 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                         redius: 40.0,
                         width: 50,
                         height: 50,
+                        backgroundColor: HRColors.flavorIconBackgroundColor,
                         child: Align(
                             alignment: Alignment.center,
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: Icon(Icons.arrow_back_ios_sharp,
-                                  color: HRColors.black),
+                                  color: HRColors.flavorIconColor),
                             )))),
               ),
             ),
@@ -348,7 +349,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
 
                 if (loader)
                   CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(const Color.fromARGB(255, 243, 145, 33)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        const Color.fromARGB(255, 243, 145, 33)),
                   ),
 
                 GestureDetector(
@@ -358,7 +360,9 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
                     child: Container(
                       width: MediaQuery.of(context).size.width / 2.5,
                       decoration: DesignConfig.boxDecorationButtonColor(
-                          HRColors.blueColor, HRColors.blueColor, 25),
+                          HRColors.darkOrangeColor,
+                          HRColors.darkOrangeColor,
+                          25),
                       alignment: AlignmentDirectional.center,
                       margin: EdgeInsets.only(
                           left: 30.0,
@@ -469,7 +473,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         style: TextStyle(color: HRColors.black),
         cursorColor: HRColors.black,
         decoration: InputDecoration(
-          hintText: '${AppLocalizations.of(context)!.fromToDescription} (${AppLocalizations.of(context)!.optional})',
+          hintText:
+              '${AppLocalizations.of(context)!.fromToDescription} (${AppLocalizations.of(context)!.optional})',
           hintStyle: Theme.of(context).textTheme.titleSmall!.merge(TextStyle(
               fontWeight: FontWeight.normal,
               fontSize: 18,
@@ -516,7 +521,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: reasonList.map<DropdownMenuItem<String>>((String value) {
           if (value == "Select Leave Reason") {
             return DropdownMenuItem<String>(
-              child: AutoSizeText(value, style: const TextStyle(color: Colors.grey)),
+              child: AutoSizeText(value,
+                  style: const TextStyle(color: Colors.grey)),
               value: value,
               onTap: () => null,
               enabled: false, // disable this item
@@ -571,7 +577,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: leaveTypeList.map<DropdownMenuItem<String>>((String value) {
           if (value == 'Select Leave Type') {
             return DropdownMenuItem<String>(
-              child: AutoSizeText(value, style: const TextStyle(color: Colors.grey)),
+              child: AutoSizeText(value,
+                  style: const TextStyle(color: Colors.grey)),
               value: value,
               onTap: () => null,
               enabled: false, // disable this item

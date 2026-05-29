@@ -214,6 +214,7 @@
   "qrCoordinatesMismatchMessage": "இந்த இடத்தில் Check-in/Check-out செய்ய அனுமதி இல்லை.",
   "signIn" :"உள்நுழைய",
   "remoteChecking": "தொலைதூர சரிபார்ப்பு",
+  "scanCheckInOut": "QR ஸ்கேன் செய்யுங்கள்",
   "checkInSuccess": "வருகை வெற்றிகரமாக நடந்துவிட்டது",
   "checkOutSuccess": "வெளியேறல் வெற்றிகரமாக நடந்துவிட்டது",
   "cantLocate": "இடம் அல்லது பயனரை அடையாளம் காண முடியாது.",

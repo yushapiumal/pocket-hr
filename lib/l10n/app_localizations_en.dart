@@ -550,6 +550,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remoteChecking => 'Remote Checking';
 
   @override
+  String get scanCheckInOut => 'Scan Check-In/Out';
+
+  @override
   String get checkInSuccess => 'CheckIn is successful';
 
   @override

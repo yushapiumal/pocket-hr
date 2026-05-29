@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -10,39 +11,35 @@ import 'package:localstorage/localstorage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cn_pocket_hr/helpers/api_config.dart';
 import 'package:cn_pocket_hr/api/config.dart';
-import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/models/hr/attendance_model.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/models/hr/me_model.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
+// import 'package:cn_pocket_hr/services/fcm_service.dart';
+// import 'package:package_info_plus/package_info_plus.dart';
 
 class APIService {
   final LocalStorage storage = LocalStorage('pocketHR');
   final APIConfig api = APIConfig();
-
-  // Prefer AppConfig.baseUrl for v2 endpoints; keep api.api() as legacy fallback where needed.
   String get baseUrl => AppConfig.baseUrl;
-
-  // Hard-coded toggle to globally enable/disable QR-based gating.
-  // When set to false, getTenantCoordinateFromQr will act as if no
-  // locations are configured (i.e. QR gating disabled).
   bool qrEnable = true;
-  
+
   // remoteEnable is now fetched entirely dynamically through fetchMeProfileWithBearer and retrieved globally.
+
   bool get remoteEnable {
     final cached = storage.getItem('me_profile');
     if (cached != null && cached is Map) {
       final dataAny = cached['data'] ?? cached['result'] ?? cached['user'];
       if (dataAny is Map && dataAny.containsKey('remote')) {
-         final isR = dataAny['remote'];
-         return isR == true || isR == 'true';
+        final isR = dataAny['remote'];
+        return isR == true || isR == 'true';
       }
     }
     return false; // Default fallback if no ME profile fetched yet
   }
 
-
-  Future<void> showToast(dynamic text) async {
+  Future<void> showToast(dynamic text, {bool isError = true}) async {
     String msg;
     try {
       if (text is List) {
@@ -79,17 +76,22 @@ class APIService {
       toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 4,
-      backgroundColor: HRColors.darkOrangeColor,
+      backgroundColor: isError ? Colors.red.shade700 : Colors.green.shade600,
       textColor: Colors.white,
       fontSize: 14.0,
     );
   }
 
-
-
   Future checkInCheckout(date, type,
-      {String? latitude, String? longitude, String? address, bool isRemotePunch = false}) async {
+      {String? latitude,
+      String? longitude,
+      String? address,
+      String? accuracy,
+      bool isRemotePunch = false}) async {
     await storage.ready;
+
+    // Silently refresh token if expired before making the request.
+    await _ensureValidToken();
 
     String url = "${baseUrl}/attendance/check-in";
     String uid = storage.getItem('uid')?.toString() ?? '';
@@ -144,6 +146,8 @@ class APIService {
       data['lng'] = longitude;
     }
     if (address != null && address.isNotEmpty) data['address'] = address;
+    if (accuracy != null && accuracy.isNotEmpty)
+      data['location_accuracy'] = accuracy;
     try {
       final deviceService = DeviceDetailsService();
       final details = await deviceService.collectAll();
@@ -188,22 +192,25 @@ class APIService {
       headers['Oauth-Token'] = oauthToken;
     if (accessToken != null && accessToken.isNotEmpty)
       headers['Authorization'] = 'Bearer $accessToken';
+    // headers['app_version'] = await _getAppVersion();
     try {
       print('[CHECK] POST $url');
       print('[CHECK] headers => ' + headers.toString());
       print('[CHECK] body => ' + data.toString());
     } catch (_) {}
 
-      try {
+    try {
       final response = await http.post(Uri.parse(url),
-          headers: headers, body: data.map((k, v) => MapEntry(k, v)), encoding: Encoding.getByName("utf-8"));
+          headers: headers,
+          body: data.map((k, v) => MapEntry(k, v)),
+          encoding: Encoding.getByName("utf-8"));
       final values = json.decode(response.body);
       print('[CHECK] response => ' + response.body);
       print('[CHECK] status ${response.statusCode}');
-      
+
       if (values is Map && values.containsKey('message'))
         print(values['message']);
-      
+
       // Inject the status code so the UI can check it explicitly
       if (values is Map) {
         final out = Map<String, dynamic>.from(values);
@@ -269,7 +276,8 @@ class APIService {
         "Content-Type": "application/x-www-form-urlencoded",
       };
       // Include both auth forms when available: Bearer for access_token, Oauth-Token for legacy oauth token
-      if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
+      if (accessToken.isNotEmpty)
+        headers['Authorization'] = 'Bearer $accessToken';
       if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
       if (tenant != null && tenant.isNotEmpty) headers['Tenant'] = tenant;
 
@@ -279,9 +287,7 @@ class APIService {
       debugPrint('[LEAVE] body => $data');
 
       final response = await http.post(Uri.parse(url),
-          headers: headers,
-          body: data,
-          encoding: Encoding.getByName("utf-8"));
+          headers: headers, body: data, encoding: Encoding.getByName("utf-8"));
 
       debugPrint('[LEAVE] response => ${response.body}');
       final values = json.decode(response.body);
@@ -318,7 +324,8 @@ class APIService {
       final headers = <String, String>{
         'Accept': 'application/json',
       };
-      if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
+      if (accessToken.isNotEmpty)
+        headers['Authorization'] = 'Bearer $accessToken';
       if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
 
       final response = await http.get(uri, headers: headers);
@@ -365,176 +372,15 @@ class APIService {
     }
   }
 
-  Future<List<MyLeavesModel>> getMyLeaves() async {
-  try {
-    await storage.ready;
-
-    final uidStr = storage.getItem('uid')?.toString() ?? '';
-    final accessToken = storage.getItem('access_token')?.toString() ?? '';
-    final oauthToken = storage.getItem('token')?.toString() ?? '';
-
-    // Use correct endpoint (no /list)
-    final String url = '${baseUrl}/leave';
-
-    // Provide a reasonable window if the UI doesn't pass dates.
-    // Backend expects epoch seconds.
-    // final now = DateTime.now().toUtc();
-    // final start = DateTime.utc(now.year, now.month, 1);
-    // final end = DateTime.utc(now.year, now.month + 1, 0, 23, 59, 59);
-    // final startSec = (start.millisecondsSinceEpoch ~/ 1000).toString();
-    // final endSec = (end.millisecondsSinceEpoch ~/ 1000).toString();
-
-    final qParams = <String, String>{
-      // 'startDate': startSec,
-      // 'endDate': endSec,
-      'userIds': uidStr,
-    };
-
-    final uri = Uri.parse(url).replace(queryParameters: qParams);
-
-    final headers = <String, String>{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-    if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
-    if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
-
-    // tenant is required by some deployments
-    final tenant = await _resolveTenant();
-    if (tenant != null && tenant.isNotEmpty) {
-      headers['Tenant'] = tenant;
-    }
-
-    debugPrint('[LEAVE] GET $uri');
-    debugPrint('[LEAVE] headers => $headers');
-
-    final response = await http.get(uri, headers: headers);
-
-    debugPrint('[LEAVE] status=${response.statusCode}');
-    debugPrint('[LEAVE] body=${response.body}');
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      return [];
-    }
-
-    final decoded = jsonDecode(response.body);
-    if (decoded is! Map) return [];
-
-    final map = Map<String, dynamic>.from(decoded);
-    if (map['success'] != true) return [];
-
-    final dataAny = map['data'];
-    if (dataAny is! List) return [];
-
-    // `MyLeavesModel.fromJson` in your app expects a specific shape (old API).
-    // Normalize the new API shape into a minimal compatible map.
-    final out = <MyLeavesModel>[];
-    for (final item in dataAny) {
-      if (item is! Map) continue;
-      final it = Map<String, dynamic>.from(item);
-
-      // dates are epoch seconds in an array
-      final dateSecs = <int>[];
-      try {
-        final dates = it['dates'];
-        if (dates is List) {
-          for (final d in dates) {
-            final sec = (d is int) ? d : int.tryParse(d.toString());
-            if (sec != null) dateSecs.add(sec);
-          }
-        }
-      } catch (_) {}
-
-      int? fromSec;
-      int? toSec;
-      if (dateSecs.isNotEmpty) {
-        dateSecs.sort();
-        fromSec = dateSecs.first;
-        toSec = dateSecs.last;
-      }
-
-      // Provide formatted dates that UI expects (dd/MM/yyyy)
-      String? fmtDdMmYyyy(int? sec) {
-        if (sec == null) return null;
-        try {
-          final dt = DateTime.fromMillisecondsSinceEpoch(sec * 1000);
-          final dd = dt.day.toString().padLeft(2, '0');
-          final mm = dt.month.toString().padLeft(2, '0');
-          final yy = dt.year.toString();
-          return '$dd/$mm/$yy';
-        } catch (_) {
-          return null;
-        }
-      }
-
-      final fromStr = fmtDdMmYyyy(fromSec);
-      final toStr = fmtDdMmYyyy(toSec);
-
-      final reason = (it['reason'] ?? it['title'] ?? it['leave_title'] ?? '').toString();
-      final type = (it['type'] ?? '').toString();
-      final status = (it['status'] ?? '').toString();
-
-      final normalized = <String, dynamic>{
-        // keep id for details
-        '_id': (it['_id'] ?? it['id'] ?? '').toString(),
-        'id': (it['_id'] ?? it['id'] ?? '').toString(),
-
-        // common fields used by leave UI
-        'status': status,
-        'type': type,
-        'leave_type': type,
-        'leaveTitle': reason,
-        'leave_title': reason,
-        'reason': reason,
-        'description': reason,
-
-        // date range
-        'fromDate': fromStr,
-        'toDate': toStr,
-        'from_date': fromStr,
-        'to_date': toStr,
-
-        // raw dates available if model needs them
-        'dates': dateSecs,
-
-        // Safety defaults for bool fields expected by legacy models
-        'autoGenerated': (it['autoGenerated'] ?? it['auto_generated'] ?? false) == true,
-        'auto_generated': (it['coveringEmployee'] ?? it['covering_employee'] ?? false) == true,
-        'removed': (it['removed'] ?? false) == true,
-        'isHoliday': (it['isHoliday'] ?? (it['slot'] is Map ? (it['slot']['isHoliday'] ?? false) : false)) == true,
-        'isOffday': (it['isOffday'] ?? (it['slot'] is Map ? (it['slot']['isOffday'] ?? false) : false)) == true,
-       'coveringEmployee': (it['coveringEmployee'] ?? it['covering_employee'] ?? false) == true,
-       'covering_employee': (it['coveringEmployee'] ?? it['covering_employee'] ?? false) == true,
-
-        // extra pass-through
-        'employeeName': it['employeeName'],
-        'userId': it['userId'],
-        'slot': it['slot'],
-      };
-
-      try {
-        out.add(MyLeavesModel.fromJson(normalized));
-      } catch (e) {
-        // If parsing fails, log and continue so we can see the error in console.
-        debugPrint('[LEAVE] MyLeavesModel.fromJson failed: $e');
-        debugPrint('[LEAVE] normalized item: $normalized');
-      }
-    }
-
-    debugPrint('[LEAVE] parsed leaves count=${out.length}');
-    return out;
-  } catch (e, st) {
-    debugPrint('[LEAVE] getMyLeaves ERROR => $e');
-    debugPrint(st.toString());
-    return [];
-  }
-  }
-
-  Future<Map<String, dynamic>?> fetchMeProfileWithBearer({bool forceRefresh = false}) async {
+  Future<Map<String, dynamic>?> fetchMeProfileWithBearer(
+      {bool forceRefresh = false}) async {
     try {
       await storage.ready;
 
-      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+      // Ensure a valid (non-expired) access token before calling /auth/me.
+      await _ensureValidToken();
+
+      String accessToken = storage.getItem('access_token')?.toString() ?? '';
       if (accessToken.isEmpty) {
         print('[ME] Missing access_token in storage');
         return null;
@@ -574,14 +420,24 @@ class APIService {
       final baseUrl = "${this.baseUrl}/auth/me";
       final uri = await _uriWithTenant(baseUrl);
 
-      final headers = {
+      Map<String, String> headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
       };
       if (tenant.isNotEmpty) headers['Tenant'] = tenant;
 
-      final response = await http.get(uri, headers: headers);
+      var response = await http.get(uri, headers: headers);
+
+      // If 401 here, try refreshing once and retry.
+      if (response.statusCode == 401) {
+        final refreshed = await _refreshAccessToken();
+        if (refreshed) {
+          accessToken = storage.getItem('access_token')?.toString() ?? '';
+          headers['Authorization'] = 'Bearer $accessToken';
+          response = await http.get(uri, headers: headers);
+        }
+      }
 
       print('[ME] GET ${uri.toString()} status=${response.statusCode}');
       print('[ME] body=${response.body}');
@@ -665,6 +521,185 @@ class APIService {
     }
   }
 
+  Future<List<MyLeavesModel>> getMyLeaves() async {
+    try {
+      await storage.ready;
+
+      final uidStr = storage.getItem('uid')?.toString() ?? '';
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+      final oauthToken = storage.getItem('token')?.toString() ?? '';
+      final String url = '${baseUrl}/leave';
+
+      final qParams = <String, String>{
+        // 'startDate': startSec,
+        // 'endDate': endSec,
+        'userIds': uidStr,
+      };
+
+      final uri = Uri.parse(url).replace(queryParameters: qParams);
+
+      final headers = <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
+      if (accessToken.isNotEmpty)
+        headers['Authorization'] = 'Bearer $accessToken';
+
+      // tenant is required by some deployments
+      final tenant = await _resolveTenant();
+      if (tenant != null && tenant.isNotEmpty) {
+        headers['Tenant'] = tenant;
+      }
+
+      debugPrint('[LEAVE] GET $uri');
+      debugPrint('[LEAVE] headers => $headers');
+
+      final response = await http.get(uri, headers: headers);
+
+      debugPrint('[LEAVE] status=${response.statusCode}');
+      String prettyJson;
+      try {
+        final decodedJson = jsonDecode(response.body);
+        prettyJson = const JsonEncoder.withIndent('  ').convert(decodedJson);
+      } catch (e) {
+        prettyJson = response.body;
+      }
+      debugPrint('[ME] Response Body:\n$prettyJson');
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        return [];
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map) return [];
+
+      final map = Map<String, dynamic>.from(decoded);
+      if (map['success'] != true) return [];
+
+      final dataAny = map['data'];
+      if (dataAny is! List) return [];
+
+      // `MyLeavesModel.fromJson` in your app expects a specific shape (old API).
+      // Normalize the new API shape into a minimal compatible map.
+      final out = <MyLeavesModel>[];
+      for (final item in dataAny) {
+        if (item is! Map) continue;
+        final it = Map<String, dynamic>.from(item);
+
+        // dates are epoch seconds in an array
+        final dateSecs = <int>[];
+        try {
+          final dates = it['dates'];
+          if (dates is List) {
+            for (final d in dates) {
+              final sec = (d is int) ? d : int.tryParse(d.toString());
+              if (sec != null) dateSecs.add(sec);
+            }
+          }
+        } catch (_) {}
+
+        int? fromSec;
+        int? toSec;
+        if (dateSecs.isNotEmpty) {
+          dateSecs.sort();
+          fromSec = dateSecs.first;
+          toSec = dateSecs.last;
+        }
+
+        // Provide formatted dates that UI expects (dd/MM/yyyy)
+        String? fmtDdMmYyyy(int? sec) {
+          if (sec == null) return null;
+          try {
+            final dt = DateTime.fromMillisecondsSinceEpoch(sec * 1000);
+            final dd = dt.day.toString().padLeft(2, '0');
+            final mm = dt.month.toString().padLeft(2, '0');
+            final yy = dt.year.toString();
+            return '$dd/$mm/$yy';
+          } catch (_) {
+            return null;
+          }
+        }
+
+        final fromStr = fmtDdMmYyyy(fromSec);
+        final toStr = fmtDdMmYyyy(toSec);
+
+        final reason =
+            (it['reason'] ?? it['title'] ?? it['leave_title'] ?? '').toString();
+        final type = (it['type'] ?? '').toString();
+        final status = (it['status'] ?? '').toString();
+
+        final normalized = <String, dynamic>{
+          // keep id for details
+          '_id': (it['_id'] ?? it['id'] ?? '').toString(),
+          'id': (it['_id'] ?? it['id'] ?? '').toString(),
+
+          // common fields used by leave UI
+          'status': status,
+          'type': type,
+          'leave_type': type,
+          'leaveTitle': reason,
+          'leave_title': reason,
+          'reason': reason,
+          'description': reason,
+
+          // date range
+          'fromDate': fromStr,
+          'toDate': toStr,
+          'from_date': fromStr,
+          'to_date': toStr,
+
+          // raw dates available if model needs them
+          'dates': dateSecs,
+
+          // Safety defaults for bool fields expected by legacy models
+          'autoGenerated':
+              (it['autoGenerated'] ?? it['auto_generated'] ?? false) == true,
+          'auto_generated':
+              (it['coveringEmployee'] ?? it['covering_employee'] ?? false) ==
+                  true,
+          'removed': (it['removed'] ?? false) == true,
+          'isHoliday': (it['isHoliday'] ??
+                  (it['slot'] is Map
+                      ? (it['slot']['isHoliday'] ?? false)
+                      : false)) ==
+              true,
+          'isOffday': (it['isOffday'] ??
+                  (it['slot'] is Map
+                      ? (it['slot']['isOffday'] ?? false)
+                      : false)) ==
+              true,
+          'coveringEmployee':
+              (it['coveringEmployee'] ?? it['covering_employee'] ?? false) ==
+                  true,
+          'covering_employee':
+              (it['coveringEmployee'] ?? it['covering_employee'] ?? false) ==
+                  true,
+
+          // extra pass-through
+          'employeeName': it['employeeName'],
+          'userId': it['userId'],
+          'slot': it['slot'],
+        };
+
+        try {
+          out.add(MyLeavesModel.fromJson(normalized));
+        } catch (e) {
+          // If parsing fails, log and continue so we can see the error in console.
+          debugPrint('[LEAVE] MyLeavesModel.fromJson failed: $e');
+          debugPrint('[LEAVE] normalized item: $normalized');
+        }
+      }
+
+      debugPrint('[LEAVE] parsed leaves count=${out.length}');
+      return out;
+    } catch (e, st) {
+      debugPrint('[LEAVE] getMyLeaves ERROR => $e');
+      debugPrint(st.toString());
+      return [];
+    }
+  }
+
   Future<List<dynamic>> fetchVariablesForUser(String userId) async {
     await storage.ready;
 
@@ -678,7 +713,7 @@ class APIService {
     final res = await http.get(uri, headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      //'Authorization': 'Bearer $accessToken',
+      'Authorization': 'Bearer $accessToken',
     });
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -726,8 +761,7 @@ class APIService {
 
         if (includeAccess && (accessToken != null && accessToken.isNotEmpty)) {
           h['Authorization'] = 'Bearer $accessToken';
-          print(
-              '[DEBT] Using Access Token: ${accessToken.substring(0, 8)}...');
+          print('[DEBT] Using Access Token: ${accessToken.substring(0, 8)}...');
         }
 
         if (includeOauth && oauthToken.isNotEmpty) {
@@ -867,6 +901,13 @@ class APIService {
 
   // Resolve tenant from storage or access token payload
   Future<String?> _resolveTenant() async {
+    // Check flavor-level hardcoded tenant first
+    try {
+      final flavorTenant = FlavorConfig.instance.tenant;
+      if (flavorTenant != null && flavorTenant.isNotEmpty) {
+        return flavorTenant;
+      }
+    } catch (_) {}
     try {
       await storage.ready;
       String tenant = storage.getItem('tenant')?.toString() ?? '';
@@ -948,11 +989,139 @@ class APIService {
       }
 
       if (token.isEmpty) return false;
-      return !_isJwtExpired(token);
+      if (!_isJwtExpired(token)) return true;
+      // Token is expired — try a silent refresh before declaring invalid.
+      return await _refreshAccessToken();
     } catch (_) {
       return false;
     }
   }
+
+  // ── Token-refresh machinery ──────────────────────────────────────────────
+
+  bool _isRefreshing = false;
+  Completer<bool>? _refreshCompleter;
+
+  /// Silently exchanges the stored refresh_token for a new access_token.
+  /// Returns true when new tokens have been persisted, false otherwise.
+  Future<bool> _refreshAccessToken() async {
+    // Serialise concurrent refresh attempts — let the first one run and
+    // return its result to everyone else waiting.
+    if (_isRefreshing) {
+      return _refreshCompleter?.future ?? Future.value(false);
+    }
+    _isRefreshing = true;
+    _refreshCompleter = Completer<bool>();
+
+    try {
+      await storage.ready;
+
+      // --- Retrieve refresh token (secure storage first, then local storage)
+      String refreshToken = '';
+      try {
+        const secure = FlutterSecureStorage();
+        refreshToken = (await secure.read(key: 'refresh_token')) ?? '';
+      } catch (_) {}
+      if (refreshToken.isEmpty) {
+        refreshToken = storage.getItem('refresh_token')?.toString() ?? '';
+      }
+      if (refreshToken.isEmpty) {
+        debugPrint('[TokenRefresh] No refresh_token — cannot refresh.');
+        _refreshCompleter!.complete(false);
+        return false;
+      }
+
+      // --- Extract client_id from the current access token JWT payload
+      String clientId = '';
+      final currentToken = storage.getItem('access_token')?.toString() ?? '';
+      if (currentToken.isNotEmpty) {
+        clientId =
+            _decodeJwtPayload(currentToken)?['client_id']?.toString() ?? '';
+      }
+      if (clientId.isEmpty) {
+        debugPrint('[TokenRefresh] No client_id in JWT — cannot refresh.');
+        _refreshCompleter!.complete(false);
+        return false;
+      }
+
+      debugPrint('[TokenRefresh] Refreshing access token...');
+      final res = await http.post(
+        Uri.parse('https://accounts.go.digitable.io/token'),
+        headers: const {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'grant_type': 'refresh_token',
+          'refresh_token': refreshToken,
+          'client_id': clientId,
+        }),
+      );
+
+      debugPrint('[TokenRefresh] status=${res.statusCode}');
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        debugPrint('[TokenRefresh] Failed: ${res.body}');
+        _refreshCompleter!.complete(false);
+        return false;
+      }
+
+      final data = jsonDecode(res.body);
+      final newAccess = data['access_token']?.toString() ?? '';
+      final newRefresh = data['refresh_token']?.toString() ?? refreshToken;
+
+      if (newAccess.isEmpty) {
+        debugPrint('[TokenRefresh] Response missing access_token.');
+        _refreshCompleter!.complete(false);
+        return false;
+      }
+
+      // --- Persist both tokens
+      await storage.setItem('access_token', newAccess);
+      await storage.setItem('refresh_token', newRefresh);
+      try {
+        const secure = FlutterSecureStorage();
+        await secure.write(key: 'access_token', value: newAccess);
+        await secure.write(key: 'refresh_token', value: newRefresh);
+      } catch (_) {}
+
+      debugPrint('[TokenRefresh] Tokens refreshed and stored.');
+      _refreshCompleter!.complete(true);
+      return true;
+    } catch (e) {
+      debugPrint('[TokenRefresh] Exception: $e');
+      _refreshCompleter?.complete(false);
+      return false;
+    } finally {
+      _isRefreshing = false;
+      _refreshCompleter = null;
+    }
+  }
+
+  /// Ensures a non-expired access token is available.  Silently refreshes
+  /// using the refresh token when the current token has expired.
+  /// Returns true when a valid (or freshly refreshed) token exists.
+  Future<bool> _ensureValidToken() async {
+    try {
+      await storage.ready;
+      String token = storage.getItem('access_token')?.toString() ?? '';
+      if (token.isEmpty) {
+        try {
+          const secure = FlutterSecureStorage();
+          final s = await secure.read(key: 'access_token');
+          if (s != null && s.isNotEmpty) {
+            token = s;
+            await storage.setItem('access_token', token);
+          }
+        } catch (_) {}
+      }
+      if (token.isEmpty) return false;
+      if (!_isJwtExpired(token)) return true;
+      debugPrint('[TokenRefresh] Token expired — refreshing proactively...');
+      return await _refreshAccessToken();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  // ── End token-refresh machinery ─────────────────────────────────────────
 
   Future<String?> ensureUidFromAccessToken() async {
     await storage.ready;
@@ -971,9 +1140,6 @@ class APIService {
     await storage.setItem('uid', uid);
     return uid;
   }
-
-
-
 
   Future<List<AttendanceModel>> getAttendanceForUserMonth(
       {String? userId, String? payroll}) async {
@@ -1011,16 +1177,15 @@ class APIService {
       final tenant = await _resolveTenant() ?? '';
       String baseUrl;
       if (tenant.isNotEmpty) {
-        baseUrl =
-            '${this.baseUrl}/attendance/user/$tenant/$uid/';
+        baseUrl = '${this.baseUrl}/attendance/user/$tenant/$uid/';
       } else {
-        baseUrl =
-            '${this.baseUrl}/attendance/user/$uid/';
+        baseUrl = '${this.baseUrl}/attendance/user/$uid/';
       }
       final p = (payroll ?? '').trim();
       final qParams = <String, String>{};
       if (p.isNotEmpty) qParams['payroll'] = p;
       if (tenant.isNotEmpty) qParams['tenant'] = tenant;
+      qParams['mobile'] = 'true';
 
       final uri = await _uriWithTenant(baseUrl, qParams);
       final token = storage.getItem('token')?.toString() ?? '';
@@ -1043,7 +1208,7 @@ class APIService {
           if (err is Map && (err['message']?.toString().isNotEmpty ?? false)) {
             showToast(err['message'].toString());
           } else {
-           // showToast('Failed to load attendance');
+            // showToast('Failed to load attendance');
           }
         } catch (_) {
           //showToast('Failed to load attendance');
@@ -1099,6 +1264,37 @@ class APIService {
     return await getAttendanceForUserMonth(userId: userId);
   }
 
+  int _toSeconds(int epoch) => epoch > 100000000000 ? epoch ~/ 1000 : epoch;
+
+  String _fmtWorked(String raw, {int? fallbackSeconds}) {
+    final s = raw.trim();
+    if (s.isNotEmpty && s != '-' && s != ' - ') {
+      // Already "Xh Ym"
+      if (RegExp(r'^\d+\s*h\s*(\d+\s*m?)?$').hasMatch(s)) return s;
+      // "HH:MM:SS" or "HH:MM"
+      final colonParts = s.split(':');
+      if (colonParts.length >= 2) {
+        final h = int.tryParse(colonParts[0]) ?? 0;
+        final m = int.tryParse(colonParts[1]) ?? 0;
+        return '${h}h ${m}m';
+      }
+      // Decimal hours ("8.5") or whole-hour string ("8")
+      final d = double.tryParse(s);
+      if (d != null) {
+        final h = d.floor();
+        final m = ((d - h) * 60).round();
+        return '${h}h ${m}m';
+      }
+    }
+    // Fall back to computed seconds
+    if (fallbackSeconds != null && fallbackSeconds > 0) {
+      final h = fallbackSeconds ~/ 3600;
+      final m = (fallbackSeconds % 3600) ~/ 60;
+      return '${h}h ${m}m';
+    }
+    return '';
+  }
+
   Map<String, dynamic> _normalizeAttendanceV2Record(Map<String, dynamic> r) {
     final att = (r['attendance'] is List)
         ? List<dynamic>.from(r['attendance'])
@@ -1110,12 +1306,31 @@ class APIService {
       if (p is! Map) continue;
       final type = (p['type'] ?? '').toString();
       final t = p['time'];
-      final epoch = (t is int)
+      int? raw = (t is int)
           ? t
           : (t is num ? t.toInt() : int.tryParse(t?.toString() ?? ''));
-      if (epoch == null) continue;
-      if (type == 'in' && inEpoch == null) inEpoch = epoch;
-      if (type == 'out') outEpoch = epoch;
+      if (raw == null) continue;
+      final epoch = _toSeconds(raw);
+      if (type == 'in' && inEpoch == null) inEpoch = epoch; // first check-in
+      if (type == 'out') outEpoch = epoch; // keep overwriting → last check-out
+    }
+
+    // Also accept direct fields when attendance punch array is absent
+    if (inEpoch == null) {
+      final t = r['in_time'] ?? r['check_in'] ?? r['punch_in'];
+      if (t != null) {
+        final raw =
+            t is int ? t : (t is num ? t.toInt() : int.tryParse(t.toString()));
+        if (raw != null) inEpoch = _toSeconds(raw);
+      }
+    }
+    if (outEpoch == null) {
+      final t = r['out_time'] ?? r['check_out'] ?? r['punch_out'];
+      if (t != null) {
+        final raw =
+            t is int ? t : (t is num ? t.toInt() : int.tryParse(t.toString()));
+        if (raw != null) outEpoch = _toSeconds(raw);
+      }
     }
 
     DateTime? base;
@@ -1139,9 +1354,19 @@ class APIService {
     final dayStr = base != null ? fmtDate(base) : '';
     final dowStr = base != null ? fmtDow(base) : '';
 
-    final worked = (r['workedHours'] ?? r['worked_hours'] ?? '').toString();
+    final workedRaw = (r['workedHours'] ?? r['worked_hours'] ?? '').toString();
     final workedSeconds =
         (r['workedSeconds'] ?? r['worked_seconds'] ?? r['worked_hours']);
+
+    // Compute seconds from punch timestamps when available
+    int? computedWorkedSeconds;
+    if (inEpoch != null && outEpoch != null && outEpoch > inEpoch) {
+      computedWorkedSeconds = outEpoch - inEpoch;
+    }
+
+    // Normalise to "Xh Ym" — prefer API string, fall back to computed seconds
+    final wrkdFmtd =
+        _fmtWorked(workedRaw, fallbackSeconds: computedWorkedSeconds);
 
     // Try extract a location label from punch meta
     String? sensorPool;
@@ -1164,7 +1389,7 @@ class APIService {
       'id': (r['id'] ?? r['_id'] ?? '').toString(),
       'day': dayStr,
       'dow': dowStr,
-      'workedHours': worked,
+      'workedHours': wrkdFmtd,
 
       // Provide boilerPlate used by UI
       'boilerPlate': <String, dynamic>{
@@ -1172,9 +1397,9 @@ class APIService {
         'dow': dowStr,
         'in_time_only': inEpoch != null ? fmtTime(inEpoch) : null,
         'out_time_only': outEpoch != null ? fmtTime(outEpoch) : null,
-        'wrkd_hours_fmtd': worked.isNotEmpty ? worked : null,
-        'workedSeconds': workedSeconds,
-        'worked_hours': workedSeconds,
+        'wrkd_hours_fmtd': wrkdFmtd.isNotEmpty ? wrkdFmtd : null,
+        'workedSeconds': computedWorkedSeconds ?? workedSeconds,
+        'worked_hours': computedWorkedSeconds ?? workedSeconds,
         'location': sensorPool,
         'late': null,
         'over': null,
@@ -1182,7 +1407,165 @@ class APIService {
     };
   }
 
+  Future<String?> getProfilePhotoUrl({String size = '150-150'}) async {
+    try {
+      await storage.ready;
 
+      // Get UID and filename from storage
+      final uid = storage.getItem('uid')?.toString() ?? '';
+      final fileName =
+          storage.getItem('profile_photo_filename')?.toString() ?? '';
+
+      debugPrint('[PHOTO] UID: $uid');
+      debugPrint('[PHOTO] Filename: $fileName');
+
+      if (uid.isEmpty || fileName.isEmpty) {
+        debugPrint('[PHOTO] ❌ Missing UID or filename');
+        return null;
+      }
+      // Compute document base by removing only a trailing `/api` path segment
+      String documentBaseUrl = baseUrl;
+      try {
+        final parsed = Uri.parse(baseUrl);
+        final segments = List<String>.from(parsed.pathSegments);
+        if (segments.isNotEmpty && segments.last == 'api')
+          segments.removeLast();
+        final baseUri = Uri(
+          scheme: parsed.scheme,
+          userInfo: parsed.userInfo,
+          host: parsed.host,
+          port: parsed.hasPort ? parsed.port : null,
+          pathSegments: segments,
+        );
+        documentBaseUrl = baseUri.toString().replaceAll(RegExp(r'\/$'), '');
+      } catch (e) {
+        documentBaseUrl = baseUrl.replaceAll(RegExp(r'\/api$'), '');
+      }
+
+      // Build URL: {BASE}/documents/view/{userId}/{fileName}?size=150-150
+      final url = '$documentBaseUrl/documents/view/$uid/$fileName?size=$size';
+
+      debugPrint('[PHOTO] ✅ Generated URL: $url');
+      return url;
+    } catch (e, st) {
+      debugPrint('[PHOTO] ❌ Error: $e');
+      debugPrint('[PHOTO] Stack trace: $st');
+      return null;
+    }
+  }
+
+  /// Public helper that attempts multiple URL patterns and returns the first
+  /// working profile photo URL (performs HEAD checks).
+  Future<String?> getResolvedProfilePhotoUrl({String size = '150-150'}) async {
+    try {
+      await storage.ready;
+      final uid = storage.getItem('uid')?.toString() ?? '';
+      final fileName =
+          storage.getItem('profile_photo_filename')?.toString() ?? '';
+      if (uid.isEmpty || fileName.isEmpty) return null;
+      final resolved = await _tryMultipleUrlPatterns(uid, fileName, size);
+      return resolved;
+    } catch (e) {
+      debugPrint('[PHOTO] ❌ getResolvedProfilePhotoUrl error: $e');
+      return null;
+    }
+  }
+
+  /// Try different URL patterns to find the correct one
+  Future<String?> _tryMultipleUrlPatterns(
+      String uid, String fileName, String size) async {
+    // Compute a clean base URL and a document base (without final '/api')
+    final cleanBaseUrl = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
+    String documentBase = cleanBaseUrl;
+    try {
+      final parsed = Uri.parse(cleanBaseUrl);
+      final segs = List<String>.from(parsed.pathSegments);
+      if (segs.isNotEmpty && segs.last == 'api') segs.removeLast();
+      final baseUri = Uri(
+        scheme: parsed.scheme,
+        userInfo: parsed.userInfo,
+        host: parsed.host,
+        port: parsed.hasPort ? parsed.port : null,
+        pathSegments: segs,
+      );
+      documentBase = baseUri.toString().replaceAll(RegExp(r'\/$'), '');
+    } catch (e) {
+      documentBase = cleanBaseUrl.replaceAll(RegExp(r'\/api$'), '');
+    }
+
+    // Try different URL patterns
+    final urlPatterns = [
+      // Pattern 1: baseUrl/documents/view/uid/filename?size=150-150
+      '$cleanBaseUrl/documents/view/$uid/$fileName?size=$size',
+
+      // Pattern 2: documentBase/documents/view/uid/filename?size=150-150
+      if (documentBase.isNotEmpty)
+        '$documentBase/documents/view/$uid/$fileName?size=$size',
+
+      // Pattern 3: baseUrl/uploads/profile/uid/filename?size=150-150
+      '$cleanBaseUrl/uploads/profile/$uid/$fileName?size=$size',
+
+      // Pattern 4: Try with thumb_image if available (both bases)
+      '$cleanBaseUrl/documents/view/$uid/${fileName.replaceAll('.png', '.png-thumb.png')}?size=$size',
+      if (documentBase.isNotEmpty)
+        '$documentBase/documents/view/$uid/${fileName.replaceAll('.png', '.png-thumb.png')}?size=$size',
+    ];
+
+    for (final url in urlPatterns) {
+      debugPrint('[PHOTO] 🔍 Trying URL: $url');
+
+      try {
+        // Test if URL is accessible
+        final uri = Uri.parse(url);
+        // Resolve tenant header if available
+        final tenant = await _resolveTenant() ?? '';
+        final headers = {
+          'Accept': 'image/*',
+          if (storage.getItem('token')?.toString().isNotEmpty ?? false)
+            'Oauth-Token': storage.getItem('token').toString(),
+          if (storage.getItem('access_token')?.toString().isNotEmpty ?? false)
+            'Authorization':
+                'Bearer ${storage.getItem('access_token').toString()}',
+          if (tenant.isNotEmpty) 'Tenant': tenant,
+        };
+
+        final request = await http.Client().head(uri, headers: headers);
+
+        if (request.statusCode == 200) {
+          debugPrint('[PHOTO] ✅ Found working URL: $url');
+          return url;
+        } else {
+          debugPrint('[PHOTO] ❌ URL returned ${request.statusCode}: $url');
+        }
+      } catch (e) {
+        debugPrint('[PHOTO] ❌ URL failed: $url - $e');
+      }
+    }
+
+    // If no URL works, return the first pattern as default
+    debugPrint('[PHOTO] ⚠️ No working URL found, using fallback pattern');
+    // Prefer the documentBase pattern if available, otherwise return the first pattern
+    try {
+      final parsed = Uri.parse(cleanBaseUrl);
+      final segs = List<String>.from(parsed.pathSegments);
+      if (segs.isNotEmpty && segs.last == 'api') segs.removeLast();
+      final baseUri = Uri(
+        scheme: parsed.scheme,
+        userInfo: parsed.userInfo,
+        host: parsed.host,
+        port: parsed.hasPort ? parsed.port : null,
+        pathSegments: segs,
+      );
+      final documentBase = baseUri.toString().replaceAll(RegExp(r'\/$'), '');
+      if (documentBase.isNotEmpty) {
+        return '$documentBase/documents/view/$uid/$fileName?size=$size';
+      }
+    } catch (_) {}
+
+    return urlPatterns[0];
+  }
 
   Future<Map<String, dynamic>> getSalarySlips() async {
     try {
@@ -1204,11 +1587,15 @@ class APIService {
 
       if (uid.isEmpty) {
         print('[SLIPS] missing uid, cannot fetch slips');
-        return {'slips': [], 'statusCode': 400, 'message': 'Missing user session'};
+        return {
+          'slips': [],
+          'statusCode': 400,
+          'message': 'Missing user session'
+        };
       }
 
       final url = '${baseUrl}/payroll/salary-slips/user/$uid';
-      
+
       final tenant = await _resolveTenant() ?? '';
       final qParams = <String, String>{};
       if (tenant.isNotEmpty) qParams['tenant'] = tenant;
@@ -1223,7 +1610,8 @@ class APIService {
         'Content-Type': 'application/json',
       };
       if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
-      if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
+      if (accessToken.isNotEmpty)
+        headers['Authorization'] = 'Bearer $accessToken';
 
       print('[SLIPS] GET $uri');
       final res = await http.get(uri, headers: headers);
@@ -1235,24 +1623,28 @@ class APIService {
 
       // Handle explicit error responses correctly and return status mappings rather than strictly throwing UI toasts directly from the service layer
       if (res.statusCode >= 400) {
-        return {'slips': [], 'statusCode': res.statusCode, 'message': 'serverError'};
+        return {
+          'slips': [],
+          'statusCode': res.statusCode,
+          'message': 'serverError'
+        };
       }
 
       List<Map<String, dynamic>> out = <Map<String, dynamic>>[];
-      
+
       // Parse the new standard response structure
       if (decoded is Map && decoded['success'] == true) {
         final dataAny = decoded['data'];
         if (dataAny is Map && dataAny['items'] is List) {
-           out = (dataAny['items'] as List).map((e) {
-             if (e is Map) return Map<String, dynamic>.from(e);
-             return <String, dynamic>{'raw': e};
-           }).toList();
+          out = (dataAny['items'] as List).map((e) {
+            if (e is Map) return Map<String, dynamic>.from(e);
+            return <String, dynamic>{'raw': e};
+          }).toList();
         } else if (dataAny is Map && dataAny['data'] is List) {
-           out = (dataAny['data'] as List).map((e) {
-             if (e is Map) return Map<String, dynamic>.from(e);
-             return <String, dynamic>{'raw': e};
-           }).toList();
+          out = (dataAny['data'] as List).map((e) {
+            if (e is Map) return Map<String, dynamic>.from(e);
+            return <String, dynamic>{'raw': e};
+          }).toList();
         }
       } else if (decoded is List) {
         out = decoded.map((e) {
@@ -1277,7 +1669,7 @@ class APIService {
 
       // Standard API URL string structure
       final url = '${baseUrl}/payroll/salary-slips/$id';
-      
+
       final tenant = await _resolveTenant() ?? '';
       final qParams = <String, String>{};
       if (tenant.isNotEmpty) qParams['tenant'] = tenant;
@@ -1292,7 +1684,8 @@ class APIService {
         'Content-Type': 'application/json',
       };
       if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
-      if (accessToken.isNotEmpty) headers['Authorization'] = 'Bearer $accessToken';
+      if (accessToken.isNotEmpty)
+        headers['Authorization'] = 'Bearer $accessToken';
 
       final res = await http.get(uri, headers: headers);
       print('[SLIP DETAIL] GET $uri status=${res.statusCode}');
@@ -1306,26 +1699,26 @@ class APIService {
 
       if (res.statusCode >= 200 && res.statusCode < 300) {
         if (decoded is Map && decoded['success'] == true) {
-            final dataMap = decoded['data'];
-            // Check if standard detailed map is returned directly in data
-            if (dataMap is Map) {
-               if (dataMap.containsKey('items')) {
-                 final items = dataMap['items'];
-                 if (items is List && items.isNotEmpty) {
-                   final outM = Map<String, dynamic>.from(items[0]);
-                   outM['statusCode'] = res.statusCode;
-                   return outM;
-                 }
-               }
-               // Check if the data block itself is exactly the object payload!
-               final outM2 = Map<String, dynamic>.from(dataMap);
-               outM2['statusCode'] = res.statusCode;
-               return outM2;
-            } else if (dataMap is List && dataMap.isNotEmpty) {
-               final outM3 = Map<String, dynamic>.from(dataMap[0]);
-               outM3['statusCode'] = res.statusCode;
-               return outM3;
+          final dataMap = decoded['data'];
+          // Check if standard detailed map is returned directly in data
+          if (dataMap is Map) {
+            if (dataMap.containsKey('items')) {
+              final items = dataMap['items'];
+              if (items is List && items.isNotEmpty) {
+                final outM = Map<String, dynamic>.from(items[0]);
+                outM['statusCode'] = res.statusCode;
+                return outM;
+              }
             }
+            // Check if the data block itself is exactly the object payload!
+            final outM2 = Map<String, dynamic>.from(dataMap);
+            outM2['statusCode'] = res.statusCode;
+            return outM2;
+          } else if (dataMap is List && dataMap.isNotEmpty) {
+            final outM3 = Map<String, dynamic>.from(dataMap[0]);
+            outM3['statusCode'] = res.statusCode;
+            return outM3;
+          }
         }
       }
       return {'statusCode': res.statusCode};
@@ -1338,7 +1731,7 @@ class APIService {
   Future<Map<String, dynamic>> emailSalarySlip(String id) async {
     try {
       await storage.ready;
-     
+
       // Updated download endpoint structure
       final url = '${baseUrl}/payroll/salary-slips/$id/download';
       final oauthToken = storage.getItem('token')?.toString() ?? '';
@@ -1384,12 +1777,17 @@ class APIService {
         return {
           'status': true,
           'message': 'Success',
-          'data': res.bodyBytes, // This returns raw bytes, which can be handled by the UI to save/share
+          'data': res
+              .bodyBytes, // This returns raw bytes, which can be handled by the UI to save/share
         };
       }
 
       // Non-2xx response
-      return {'status': false, 'message': 'serverError', 'statusCode': res.statusCode};
+      return {
+        'status': false,
+        'message': 'serverError',
+        'statusCode': res.statusCode
+      };
     } catch (e, st) {
       print('[SLIP] EXCEPTION: $e');
       print('[SLIP] STACKTRACE: $st');
@@ -1398,266 +1796,359 @@ class APIService {
     }
   }
 
+  Future<List<UserLocation>> getTenantCoordinateFromQr(
+    String userId, {
+    String? tenant,
+  }) async {
+    try {
+      await storage.ready;
 
-
-Future<List<UserLocation>> getTenantCoordinateFromQr(
-  String userId, {
-  String? tenant,
-}) async {
-  try {
-    await storage.ready;
-
-    // 🔹 Ensure userId
-    if (userId.isEmpty) {
-      userId = storage.getItem('uid')?.toString() ?? '';
-    }
-
-    if (userId.isEmpty) {
-      final ensured = await ensureUidFromAccessToken();
-      if (ensured != null && ensured.isNotEmpty) {
-        userId = ensured;
-        await storage.setItem('uid', userId);
+      // 🔹 Ensure userId
+      if (userId.isEmpty) {
+        userId = storage.getItem('uid')?.toString() ?? '';
       }
-    }
 
-    if (userId.isEmpty) {
-      print('[QR] Missing userId');
+      if (userId.isEmpty) {
+        final ensured = await ensureUidFromAccessToken();
+        if (ensured != null && ensured.isNotEmpty) {
+          userId = ensured;
+          await storage.setItem('uid', userId);
+        }
+      }
+
+      if (userId.isEmpty) {
+        print('[QR] Missing userId');
+        return [];
+      }
+
+      // 🔹 Build URL
+      final endpoint = '${baseUrl}/teams/locations-by-userid/$userId';
+      final uri = Uri.parse(endpoint);
+
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+
+      final headers = <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+
+      if (accessToken.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $accessToken';
+      }
+
+      final resolvedTenant = tenant ?? await _resolveTenant();
+      if (resolvedTenant != null && resolvedTenant.isNotEmpty) {
+        headers['Tenant'] = resolvedTenant;
+      }
+
+      print('[API] GET $uri');
+
+      final response = await http.get(uri, headers: headers);
+
+      print('[API] Status: ${response.statusCode}');
+      print('[API] Body: ${response.body}');
+
+      if (response.statusCode != 200) {
+        return [];
+      }
+
+      final decoded = jsonDecode(response.body);
+
+      if (decoded['success'] != true) {
+        return [];
+      }
+
+      final nestedData = decoded['data'];
+
+      if (nestedData == null || nestedData['success'] != true) {
+        return [];
+      }
+
+      final List<dynamic> locationList = nestedData['data'] ?? [];
+
+      final List<UserLocation> result = locationList
+          .map((e) => UserLocation.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+      print(locationList);
+      return result;
+    } catch (e, stack) {
+      print('[API ERROR] $e');
+      print(stack);
       return [];
     }
-
-    // 🔹 Build URL
-    final endpoint = '${baseUrl}/teams/locations-by-userid/$userId';
-    final uri = Uri.parse(endpoint);
-
-    final accessToken =
-        storage.getItem('access_token')?.toString() ?? '';
-
-    final headers = <String, String>{
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    };
-
-    if (accessToken.isNotEmpty) {
-      headers['Authorization'] = 'Bearer $accessToken';
-    }
-
-    final resolvedTenant = tenant ?? await _resolveTenant();
-    if (resolvedTenant != null && resolvedTenant.isNotEmpty) {
-      headers['Tenant'] = resolvedTenant;
-    }
-
-    print('[API] GET $uri');
-
-    final response = await http.get(uri, headers: headers);
-
-    print('[API] Status: ${response.statusCode}');
-    print('[API] Body: ${response.body}');
-
-    if (response.statusCode != 200) {
-      return [];
-    }
-
-    final decoded = jsonDecode(response.body);
-
-    if (decoded['success'] != true) {
-      return [];
-    }
-
-    final nestedData = decoded['data'];
-
-    if (nestedData == null || nestedData['success'] != true) {
-      return [];
-    }
-
-    final List<dynamic> locationList =
-        nestedData['data'] ?? [];
-
-    final List<UserLocation> result = locationList
-        .map((e) =>
-            UserLocation.fromJson(Map<String, dynamic>.from(e)))
-        .toList();
-   print(locationList);
-    return result;
-  } catch (e, stack) {
-    print('[API ERROR] $e');
-    print(stack);
-    return [];
   }
-}
 
+  Future<Map<String, dynamic>> getMyTeam() async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
 
-Future<Map<String, dynamic>> getMyTeam() async {
-  await storage.ready;
-  final accessToken = storage.getItem('access_token')?.toString() ?? '';
-  final tenant = storage.getItem('tenant')?.toString() ?? '';
+    final url = '$baseUrl/teams/my-team?tenant=$tenant';
 
-  final url = '$baseUrl/teams/my-team?tenant=$tenant';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
 
-  final response = await http.get(
-    Uri.parse(url),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-    },
-  );
+    return _handleApiResponse(response, 'getMyTeam');
+  }
 
-  return _handleApiResponse(response, 'getMyTeam');
-}
+  Future<Map<String, dynamic>> getTeamMemberLeaves(String userId) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
 
+    final url = '${baseUrl}/teams/my-team/leaves?tenant=$tenant';
 
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
 
+    return _handleApiResponse(response, 'getTeamMemberLeaves');
+  }
 
-Future<Map<String, dynamic>> getTeamMemberLeaves(String userId) async {
-  await storage.ready;
-  final accessToken = storage.getItem('access_token')?.toString() ?? '';
-  final tenant = storage.getItem('tenant')?.toString() ?? '';
+  Future<Map<String, dynamic>> approveLeave(String leaveId) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
 
-  final url = '${baseUrl}/teams/my-team/leaves?tenant=$tenant';
+    final url = '${baseUrl}/leave/$leaveId/approve?tenant=$tenant';
 
-  final response = await http.get(
-    Uri.parse(url),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-    },
-  );
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+    );
 
-  return _handleApiResponse(response, 'getTeamMemberLeaves');
-}
+    return _handleApiResponse(response, 'approveLeave');
+  }
 
+  Future<Map<String, dynamic>> rejectLeave(
+      String leaveId, String reason) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
 
+    final url = '${baseUrl}/leave/$leaveId/reject?tenant=$tenant';
 
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'reason': reason}),
+    );
 
+    return _handleApiResponse(response, 'rejectLeave');
+  }
 
-Future<Map<String, dynamic>> approveLeave(String leaveId) async {
-  await storage.ready;
-  final accessToken = storage.getItem('access_token')?.toString() ?? '';
-  final tenant = storage.getItem('tenant')?.toString() ?? '';
+  Future<Map<String, dynamic>> markAttendance(
+      String userId, String date, String checkIn, String checkOut) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
 
-  final url = '${baseUrl}/leave/$leaveId/approve?tenant=$tenant';
+    final url = '${baseUrl}/attendance/mark?tenant=$tenant';
 
-  final response = await http.post(
-    Uri.parse(url),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json',
-    },
-  );
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'userId': userId,
+        'date': date,
+        'checkIn': checkIn,
+        'checkOut': checkOut,
+      }),
+    );
 
-  return _handleApiResponse(response, 'approveLeave');
-}
+    return _handleApiResponse(response, 'markAttendance');
+  }
 
+  Future<Map<String, dynamic>> getTeamMemberAttendance(String userId) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
 
+    final url = '${baseUrl}/teams/my-team/attendance?tenant=$tenant';
 
-Future<Map<String, dynamic>> rejectLeave(String leaveId, String reason) async {
-  await storage.ready;
-  final accessToken = storage.getItem('access_token')?.toString() ?? '';
-  final tenant = storage.getItem('tenant')?.toString() ?? '';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
 
-  final url = '${baseUrl}/leave/$leaveId/reject?tenant=$tenant';
+    return _handleApiResponse(response, 'getTeamMemberAttendance');
+  }
 
-  final response = await http.post(
-    Uri.parse(url),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode({'reason': reason}),
-  );
+  Future<Map<String, dynamic>> _handleApiResponse(
+      http.Response response, String apiName) async {
+    debugPrint('[$apiName] Status Code: ${response.statusCode}');
+    debugPrint(
+        '[$apiName] Response Body: ${response.body.length > 500 ? response.body.substring(0, 500) + '...' : response.body}');
 
-  return _handleApiResponse(response, 'rejectLeave');
-}
+    // If not successful status code
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      String errorMsg = 'HTTP ${response.statusCode} Error in $apiName';
+      try {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map && decoded['message'] != null) {
+          errorMsg = decoded['message'].toString();
+        }
+      } catch (_) {
+        // If not JSON, show raw body (this prevents the <!DOCTYPE html> crash)
+        errorMsg = response.body;
+      }
+      throw Exception(errorMsg);
+    }
 
-
-
-
-
-Future<Map<String, dynamic>> markAttendance(String userId, String date, String checkIn, String checkOut) async {
-  await storage.ready;
-  final accessToken = storage.getItem('access_token')?.toString() ?? '';
-  final tenant = storage.getItem('tenant')?.toString() ?? '';
-
-  final url = '${baseUrl}/attendance/mark?tenant=$tenant';
-
-  final response = await http.post(
-    Uri.parse(url),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode({
-      'userId': userId,
-      'date': date,
-      'checkIn': checkIn,
-      'checkOut': checkOut,
-    }),
-  );
-
-  return _handleApiResponse(response, 'markAttendance');
-}
-
-
-
-Future<Map<String, dynamic>> getTeamMemberAttendance(String userId) async {
-  await storage.ready;
-  final accessToken = storage.getItem('access_token')?.toString() ?? '';
-  final tenant = storage.getItem('tenant')?.toString() ?? '';
-
-  final url = '${baseUrl}/teams/my-team/attendance?tenant=$tenant';
-
-  final response = await http.get(
-    Uri.parse(url),
-    headers: {
-      'Accept': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-    },
-  );
-
-  return _handleApiResponse(response, 'getTeamMemberAttendance');
-}
-
-
-
-
-Future<Map<String, dynamic>> _handleApiResponse(http.Response response, String apiName) async {
-  debugPrint('[$apiName] Status Code: ${response.statusCode}');
-  debugPrint('[$apiName] Response Body: ${response.body.length > 500 ? response.body.substring(0, 500) + '...' : response.body}');
-
-  // If not successful status code
-  if (response.statusCode < 200 || response.statusCode >= 300) {
-    String errorMsg = 'HTTP ${response.statusCode} Error in $apiName';
+    // Try to decode JSON
     try {
       final decoded = jsonDecode(response.body);
-      if (decoded is Map && decoded['message'] != null) {
-        errorMsg = decoded['message'].toString();
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      } else {
+        throw Exception('Invalid response format from $apiName');
       }
-    } catch (_) {
-      // If not JSON, show raw body (this prevents the <!DOCTYPE html> crash)
-      errorMsg = response.body;
+    } catch (e) {
+      throw Exception('Failed to parse JSON from $apiName: ${response.body}');
     }
-    throw Exception(errorMsg);
   }
 
-  // Try to decode JSON
-  try {
-    final decoded = jsonDecode(response.body);
-    if (decoded is Map<String, dynamic>) {
-      return decoded;
-    } else {
-      throw Exception('Invalid response format from $apiName');
-    }
-  } catch (e) {
-    throw Exception('Failed to parse JSON from $apiName: ${response.body}');
-  }
+  // ── App version & force-update machinery ────────────────────────────────
+
+  // static String? _cachedAppVersion;
+  // static bool _forceUpdateShown = false;
+
+  // Future<String> _getAppVersion() async {
+  //   if (_cachedAppVersion != null) return _cachedAppVersion!;
+  //   try {
+  //     final info = await PackageInfo.fromPlatform();
+  //     _cachedAppVersion = info.buildNumber.isNotEmpty
+  //         ? '${info.version}+${info.buildNumber}'
+  //         : info.version;
+  //     return _cachedAppVersion!;
+  //   } catch (_) {
+  //     _cachedAppVersion = '1.0.0';
+  //     return _cachedAppVersion!;
+  //   }
+  // }
+
+  // Future<Map<String, String>> _injectAppVersion(
+  //     Map<String, String> headers) async {
+  //   final version = await _getAppVersion();
+  //   return {...headers, 'app_version': version};
+  // }
+
+  // void _check426(http.Response response) {
+  //   if (response.statusCode != 426) return;
+  //   try {
+  //     final body = jsonDecode(response.body);
+  //     if (body is Map && body['error_code'] == 'APP_UPDATE_REQUIRED') {
+  //       _handleForceUpdate(body['message']?.toString());
+  //     }
+  //   } catch (_) {}
+  // }
+
+  // void _handleForceUpdate(String? message) {
+  //   if (_forceUpdateShown) return;
+  //   _forceUpdateShown = true;
+
+  //   final ctx = FCMService.navigatorKey.currentContext;
+  //   if (ctx == null) {
+  //     _clearUserData().then((_) {
+  //       FCMService.navigatorKey.currentState
+  //           ?.pushNamedAndRemoveUntil('/login', (route) => false);
+  //     });
+  //     return;
+  //   }
+
+  //   showDialog(
+  //     context: ctx,
+  //     barrierDismissible: false,
+  //     builder: (dialogCtx) => PopScope(
+  //       canPop: false,
+  //       child: AlertDialog(
+  //         title: const Text(
+  //           'Update Required',
+  //           style: TextStyle(fontWeight: FontWeight.bold),
+  //         ),
+  //         content: Text(
+  //           message ??
+  //               'Please update your app to the latest version to continue.',
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               // Navigate first (context is guaranteed mounted at tap time),
+  //               // then clear data in background so reactive storage updates
+  //               // cannot unmount the context before navigation runs.
+  //               Navigator.of(dialogCtx, rootNavigator: true)
+  //                   .pushNamedAndRemoveUntil('/login', (route) => false);
+  //               _clearUserData();
+  //             },
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  // Future<void> _clearUserData() async {
+  //   try {
+  //     await storage.ready;
+  //     final savedLang = storage.getItem('lang')?.toString();
+  //     await storage.clear();
+  //     if (savedLang != null && savedLang.isNotEmpty) {
+  //       await storage.setItem('lang', savedLang);
+  //     }
+  //   } catch (_) {}
+  //   try {
+  //     const secure = FlutterSecureStorage();
+  //     await secure.deleteAll();
+  //   } catch (_) {}
+  // }
+
+  // /// HTTP GET wrapper — auto-injects [app_version] header and checks for 426.
+  // Future<http.Response> _httpGet(Uri uri,
+  //     {Map<String, String>? headers}) async {
+  //   final h = await _injectAppVersion(headers ?? {});
+  //   debugPrint('[HTTP] GET ${uri.path}');
+  //   debugPrint('[HTTP] headers => $h');
+  //   final response = await http.get(uri, headers: h);
+  //   _check426(response);
+  //   return response;
+  // }
+
+  // /// HTTP POST wrapper — auto-injects [app_version] header and checks for 426.
+  // Future<http.Response> _httpPost(Uri uri,
+  //     {Map<String, String>? headers, Object? body, Encoding? encoding}) async {
+  //   final h = await _injectAppVersion(headers ?? {});
+  //   debugPrint('[HTTP] POST ${uri.path}');
+  //   debugPrint('[HTTP] headers => $h');
+  //   final response =
+  //       await http.post(uri, headers: h, body: body, encoding: encoding);
+  //   _check426(response);
+  //   return response;
+  // }
+
+  // // ── End app version machinery ────────────────────────────────────────────
 }
-
-}
-
-
-
-
-
-

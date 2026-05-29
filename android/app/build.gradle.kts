@@ -3,6 +3,7 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -11,6 +12,7 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -37,8 +39,30 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    // Each Flutter --flavor maps to one of these Android product flavors.
+    // Place the matching google-services.json in android/app/src/<flavor>/google-services.json
+    flavorDimensions += "tenant"
+    productFlavors {
+        create("domex") {
+            dimension = "tenant"
+            applicationId = "asia.ceynet.human.pocket.domex"
+        }
+        create("digitable") {
+            dimension = "tenant"
+            applicationId = "asia.ceynet.human.pocket"
+        }
+        create("mahajana") {
+            dimension = "tenant"
+            applicationId = "com.mahajana.human.pocket"
+        }
+    }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

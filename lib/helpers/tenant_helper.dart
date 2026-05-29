@@ -18,8 +18,9 @@ class TenantHelper {
   static const Map<String, _TenantConfig> _tenants = {
     'domex': _TenantConfig(
       logoPath: 'assets/images/domex-logo.png',
-      // logoBorderColor: Color(0xFF8B1414), // dark red from Domex logo
-      // logoFillColor: Color(0xFF8B1414), // same dark red as fill
+      logoBorderColor:
+          Color(0xFF8B1818), // matches logout button / primary color
+      logoFillColor: Color(0xFF8B1818), // dark crimson red background
     ),
     'mahajana': _TenantConfig(logoPath: 'assets/images/mahajana-logo.png'),
   };

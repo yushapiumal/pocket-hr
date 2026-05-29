@@ -10,6 +10,7 @@ import 'package:cn_pocket_hr/screens/home/home_screen.dart';
 import 'package:cn_pocket_hr/screens/leave/leave_screen.dart';
 import 'package:cn_pocket_hr/screens/profile/profile_screen.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/liquid_side_menu.dart';
 
@@ -82,17 +83,24 @@ class _HRMainState extends State<HRMain> {
                     color: Colors.grey.withOpacity(0.6),
                     borderRadius: BorderRadius.circular(22),
                     boxShadow: const [
-                      BoxShadow(color: Color(0x24000000), blurRadius: 24, offset: Offset(0, 10)),
+                      BoxShadow(
+                          color: Color(0x24000000),
+                          blurRadius: 24,
+                          offset: Offset(0, 10)),
                     ],
                   ),
                   child: Stack(
                     children: [
                       Row(
                         children: [
-                          _navItem(Icons.home_outlined, AppLocalizations.of(context)!.homeText, 0),
-                          _navItem(Icons.event_busy, AppLocalizations.of(context)!.leaveText, 1),
-                          _navItem(Icons.event_rounded, AppLocalizations.of(context)!.attendanceText, 2),
-                          _navItem(Icons.person_outline, AppLocalizations.of(context)!.profileText, 3),
+                          _navItem(Icons.home_outlined,
+                              AppLocalizations.of(context)!.homeText, 0),
+                          _navItem(Icons.event_busy,
+                              AppLocalizations.of(context)!.leaveText, 1),
+                          _navItem(Icons.event_rounded,
+                              AppLocalizations.of(context)!.attendanceText, 2),
+                          _navItem(Icons.person_outline,
+                              AppLocalizations.of(context)!.profileText, 3),
                         ],
                       ),
                     ],
@@ -127,17 +135,21 @@ class _HRMainState extends State<HRMain> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOut,
-                    transform: Matrix4.translationValues(0, isSelected ? -4.0 : 0.0, 0),
+                    transform: Matrix4.translationValues(
+                        0, isSelected ? -4.0 : 0.0, 0),
                     height: 40,
                     width: 40,
                     decoration: BoxDecoration(
-                      color: isSelected ? HRColors.lightOrangeColor : Colors.transparent,
+                      color: isSelected
+                          ? const Color(0xFF791b27)
+                          : Colors.transparent,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       icon,
                       size: 22,
-                      color: isSelected ? HRColors.darkOrangeColor : Colors.white,
+                      color:
+                          isSelected ? const Color(0xFFeed06e) : Colors.white,
                     ),
                   ),
                 ),
@@ -149,10 +161,10 @@ class _HRMainState extends State<HRMain> {
                     maxLines: 1,
                     minFontSize: 9,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: isSelected ? HRColors.darkOrangeColor : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                 ),

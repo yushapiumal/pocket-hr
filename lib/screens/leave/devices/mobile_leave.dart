@@ -65,7 +65,11 @@ class MobileLeaveState extends State<MobileLeave>
   static const FontWeight _wBold = FontWeight.w700;
   static const FontWeight _wBlack = FontWeight.w900;
 
-  Widget _leaveBalanceChip({required String label, required String value, required Color bg, required Color fg}) {
+  Widget _leaveBalanceChip(
+      {required String label,
+      required String value,
+      required Color bg,
+      required Color fg}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
@@ -76,7 +80,8 @@ class MobileLeaveState extends State<MobileLeave>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AutoSizeText(label, style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
+          AutoSizeText(label,
+              style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -84,7 +89,8 @@ class MobileLeaveState extends State<MobileLeave>
               color: HRColors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: AutoSizeText(value, style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
+            child: AutoSizeText(value,
+                style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
           ),
         ],
       ),
@@ -93,7 +99,7 @@ class MobileLeaveState extends State<MobileLeave>
 
   Widget _leaveBalanceSummary() {
     if (_leaveBalances == null) return const SizedBox();
-    
+
     String buildVal(String type) {
       final quota = _leaveBalances!['quota']?[type] ?? 0;
       final used = _leaveBalances!['used']?[type] ?? 0;
@@ -108,23 +114,42 @@ class MobileLeaveState extends State<MobileLeave>
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: HRColors.black.withOpacity(0.05)),
         boxShadow: [
-          BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 6)),
+          BoxShadow(
+              color: HRColors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 6)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AutoSizeText(AppLocalizations.of(context)!.leaveBalanceTitle, style: const TextStyle(fontSize: 14, fontWeight: _wBlack, color: HRColors.darkFontColor)),
+          AutoSizeText(AppLocalizations.of(context)!.leaveBalanceTitle,
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: _wBlack,
+                  color: HRColors.darkFontColor)),
           const SizedBox(height: 10),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _leaveBalanceChip(label: AppLocalizations.of(context)!.annualLabel, value: buildVal('annual'), bg: const Color(0xFFFFF7E6), fg: HRColors.darkOrangeColor),
+                _leaveBalanceChip(
+                    label: AppLocalizations.of(context)!.annualLabel,
+                    value: buildVal('annual'),
+                    bg: const Color(0xFFFFF7E6),
+                    fg: HRColors.darkOrangeColor),
                 const SizedBox(width: 10),
-                _leaveBalanceChip(label: AppLocalizations.of(context)!.casualLabel, value: buildVal('casual'), bg: const Color(0xFFEFF6FF), fg: HRColors.blueColor),
+                _leaveBalanceChip(
+                    label: AppLocalizations.of(context)!.casualLabel,
+                    value: buildVal('casual'),
+                    bg: const Color(0xFFEFF6FF),
+                    fg: HRColors.blueColor),
                 const SizedBox(width: 10),
-                _leaveBalanceChip(label: AppLocalizations.of(context)!.medicalLabel, value: buildVal('medical'), bg: const Color(0xFFEAF7EE), fg: HRColors.green),
+                _leaveBalanceChip(
+                    label: AppLocalizations.of(context)!.medicalLabel,
+                    value: buildVal('medical'),
+                    bg: const Color(0xFFEAF7EE),
+                    fg: HRColors.green),
               ],
             ),
           ),
@@ -189,7 +214,7 @@ class MobileLeaveState extends State<MobileLeave>
       });
     }
   }
-  
+
   getMyLeaves() async {
     setState(() {
       isLoading = true;
@@ -377,14 +402,17 @@ class MobileLeaveState extends State<MobileLeave>
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: HRColors.flavorIconBackgroundColor ??
+                              Colors.white,
                           borderRadius: BorderRadius.circular(40),
-                          border: Border.all(color: Colors.black.withOpacity(0.06)),
+                          border:
+                              Border.all(color: Colors.black.withOpacity(0.06)),
                         ),
                         child: Center(
                           child: SvgPicture.asset(
                             "assets/svg/drawer_icon.svg",
-                            colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                                HRColors.flavorIconColor, BlendMode.srcIn),
                           ),
                         ),
                       ),
@@ -394,19 +422,23 @@ class MobileLeaveState extends State<MobileLeave>
                       style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
+                      onTap: () => Navigator.pushNamed(
+                          context, HRNotifications.routeName),
                       child: Container(
                         width: 42,
                         height: 42,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: HRColors.flavorIconBackgroundColor ??
+                              Colors.white,
                           borderRadius: BorderRadius.circular(40),
-                          border: Border.all(color: Colors.black.withOpacity(0.06)),
+                          border:
+                              Border.all(color: Colors.black.withOpacity(0.06)),
                         ),
                         child: Center(
                           child: SvgPicture.asset(
                             "assets/svg/notifications_icon.svg",
-                            colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                                HRColors.flavorIconColor, BlendMode.srcIn),
                           ),
                         ),
                       ),
@@ -422,10 +454,14 @@ class MobileLeaveState extends State<MobileLeave>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    AutoSizeText(AppLocalizations.of(context)!.leaveHistory, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+                    AutoSizeText(AppLocalizations.of(context)!.leaveHistory,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w800)),
                     TextButton(
                       onPressed: () => getMyLeaves(),
-                      child: AutoSizeText(AppLocalizations.of(context)!.refresh, style: const TextStyle(color: Colors.black87, fontWeight: _wBold)),
+                      child: AutoSizeText(AppLocalizations.of(context)!.refresh,
+                          style: const TextStyle(
+                              color: Colors.black87, fontWeight: _wBold)),
                     ),
                   ],
                 ),
@@ -449,10 +485,10 @@ class MobileLeaveState extends State<MobileLeave>
                     indicatorPadding: const EdgeInsets.all(6),
                     labelPadding: const EdgeInsets.only(left: 23, right: 23),
                     indicator: BoxDecoration(
-                      color: Colors.black.withOpacity(0.06),
+                      color: const Color(0xFF791b27),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    labelColor: Colors.black87,
+                    labelColor: const Color(0xFFeed06e),
                     unselectedLabelColor: Colors.black54,
                     tabs: [
                       Tab(text: AppLocalizations.of(context)!.allLabel),
@@ -512,7 +548,8 @@ class MobileLeaveState extends State<MobileLeave>
 
                   await Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const MobileLeaveRequestPage(isEdit: false, initial: null),
+                      builder: (_) => const MobileLeaveRequestPage(
+                          isEdit: false, initial: null),
                     ),
                   );
 
@@ -566,8 +603,8 @@ class MobileLeaveState extends State<MobileLeave>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.connectionState == ConnectionState.active) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 90),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 90),
             child: Center(
                 child: CupertinoActivityIndicator(
               color: HRColors.orangeColor,
@@ -588,46 +625,49 @@ class MobileLeaveState extends State<MobileLeave>
           );
         }
 
-         if (snapshot.hasData) {
-           final all = snapshot.data ?? <MyLeavesModel>[];
-           List<MyLeavesModel> filtered = all;
-           if (_historyFilter != 'all') {
-             filtered = all.where((e) {
-               final status = e.status.toString().toLowerCase();
-               if (_historyFilter == 'approved') return status == 'approved';
-               if (_historyFilter == 'pending') return status == 'pending' || status == 'requested';
-               if (_historyFilter == 'rejected') return status == 'rejected';
-               return true;
-             }).toList();
-           }
-           _leaveListCount = filtered.length;
+        if (snapshot.hasData) {
+          final all = snapshot.data ?? <MyLeavesModel>[];
+          List<MyLeavesModel> filtered = all;
+          if (_historyFilter != 'all') {
+            filtered = all.where((e) {
+              final status = e.status.toString().toLowerCase();
+              if (_historyFilter == 'approved') return status == 'approved';
+              if (_historyFilter == 'pending')
+                return status == 'pending' || status == 'requested';
+              if (_historyFilter == 'rejected') return status == 'rejected';
+              return true;
+            }).toList();
+          }
+          _leaveListCount = filtered.length;
 
-           if (_leaveListCount == 0) {
-             return Padding(
-               padding: const EdgeInsets.symmetric(vertical: 40),
-               child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
-             );
-           }
+          if (_leaveListCount == 0) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                  child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
+            );
+          }
 
-           return SlideAnimation(
-             position: 4,
-             itemCount: _leaveListCount > 6 ? 6 : _leaveListCount,
-             slideDirection: SlideDirection.fromLeft,
-             animationController: _animationController,
-             child: ListView.builder(
-               padding: EdgeInsets.zero,
-               shrinkWrap: true,
-               physics: const NeverScrollableScrollPhysics(),
-               itemCount: _leaveListCount,
-               itemBuilder: (_, i) => _leaveHistoryCard(filtered[i], direction),
-             ),
-           );
-         }
+          return SlideAnimation(
+            position: 4,
+            itemCount: _leaveListCount > 6 ? 6 : _leaveListCount,
+            slideDirection: SlideDirection.fromLeft,
+            animationController: _animationController,
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _leaveListCount,
+              itemBuilder: (_, i) => _leaveHistoryCard(filtered[i], direction),
+            ),
+          );
+        }
 
         // Future completed but returned null (should not happen) => empty state
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 40),
-          child: Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
+          child: Center(
+              child: AutoSizeText(AppLocalizations.of(context)!.noRecords)),
         );
       },
     );
@@ -649,10 +689,12 @@ class MobileLeaveState extends State<MobileLeave>
       child: Container(
         height: iconOnly ? 56 : 52,
         width: iconOnly ? 56 : null,
-        padding: iconOnly ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 18),
+        padding: iconOnly
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
-          gradient: const LinearGradient(
+          gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
             colors: [HRColors.orangeColor, HRColors.orangeColor],
@@ -697,53 +739,81 @@ class MobileLeaveState extends State<MobileLeave>
     if (s == 'pending') step = 1;
     if (s == 'approved' || s == 'rejected') step = 2;
 
-    final createColor = HRColors.black;
-    final reviewColor = HRColors.black;
+    // Create/Review always use the same grey as the date text.
+    // After approve/reject they fade out so only the final label stands out.
+    const dateColor = Colors.grey;
     final approvedColor = HRColors.green;
     final rejectedColor = HRColors.red;
     final endColor = s == 'rejected' ? rejectedColor : approvedColor;
+    final isFinal = step >= 2;
 
     // Localize end status label
     final endLabel = s == 'rejected'
         ? AppLocalizations.of(context)!.rejectedLable
         : AppLocalizations.of(context)!.approvedLable;
 
-    Widget dot(bool active, Color color) {
-      return Container(
-        width: 10,
-        height: 10,
-        decoration: BoxDecoration(
-          color: active ? color : color.withOpacity(0.25),
-          shape: BoxShape.circle,
+    Widget dot(Color color, double opacity) {
+      return Opacity(
+        opacity: opacity,
+        child: Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
         ),
       );
     }
 
-    Widget item(String label, bool active, Color color) {
-      return Row(
-        children: [
-          dot(active, color),
-          const SizedBox(width: 6),
-          AutoSizeText(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: _wBold,
-              color: active ? color : HRColors.grayColor,
+    Widget stepItem(String label, Color color,
+        {bool bold = false, double opacity = 1.0}) {
+      return Opacity(
+        opacity: opacity,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            dot(color, 1.0),
+            const SizedBox(width: 6),
+            AutoSizeText(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: bold ? _wBold : FontWeight.w500,
+                color: color,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
     }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        item(AppLocalizations.of(context)!.create, true, createColor),
+        // Create: always grey; faded when final
+        stepItem(
+          AppLocalizations.of(context)!.create,
+          dateColor,
+          bold: false,
+          opacity: isFinal ? 0.35 : 0.75,
+        ),
         const SizedBox(width: 14),
-        item(AppLocalizations.of(context)!.review, step >= 1, reviewColor),
+        // Review: grey; active at step>=1; faded when final
+        stepItem(
+          AppLocalizations.of(context)!.review,
+          dateColor,
+          bold: step >= 1 && !isFinal,
+          opacity: isFinal ? 0.35 : (step >= 1 ? 0.9 : 0.5),
+        ),
         const SizedBox(width: 14),
-        item(endLabel, step >= 2, endColor),
+        // Final label: full bold color only when finalised
+        stepItem(
+          endLabel,
+          step >= 2 ? endColor : dateColor,
+          bold: step >= 2,
+          opacity: step >= 2 ? 1.0 : 0.45,
+        ),
       ],
     );
   }
@@ -770,8 +840,6 @@ class MobileLeaveState extends State<MobileLeave>
     final to = model.toDate.toString();
 
     final status = model.status.toString().toLowerCase();
-    final bool isFinal = status == 'approved' || status == 'rejected';
-
     IconData trailingIcon;
     Color trailingBg;
     Color trailingFg;
@@ -790,7 +858,8 @@ class MobileLeaveState extends State<MobileLeave>
     }
 
     return Container(
-      margin: const EdgeInsets.only(left: 4.0, right: 4.0, top: 10.0, bottom: 5.0),
+      margin:
+          const EdgeInsets.only(left: 4.0, right: 4.0, top: 10.0, bottom: 5.0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: const BorderRadius.all(Radius.circular(15.0)),
@@ -835,7 +904,9 @@ class MobileLeaveState extends State<MobileLeave>
                         const SizedBox(width: 4),
                         Expanded(
                           child: AutoSizeText(
-                            (from.isNotEmpty && to.isNotEmpty) ? '$from  -  $to' : (from.isNotEmpty ? from : ''),
+                            (from.isNotEmpty && to.isNotEmpty)
+                                ? '$from  -  $to'
+                                : (from.isNotEmpty ? from : ''),
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 13,
@@ -849,10 +920,9 @@ class MobileLeaveState extends State<MobileLeave>
                     AutoSizeText(
                       typeLabel,
                       style: const TextStyle(
-                        fontSize: 12, 
-                        color: Color(0xFFF59E0B), 
-                        fontWeight: FontWeight.w700
-                      ),
+                          fontSize: 12,
+                          color: Color(0xFFF59E0B),
+                          fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 8),
                     _historyStepsRow(model.status),
@@ -881,4 +951,3 @@ class MobileLeaveState extends State<MobileLeave>
     );
   }
 }
-

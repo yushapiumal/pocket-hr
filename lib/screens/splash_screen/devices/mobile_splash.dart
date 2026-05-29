@@ -8,7 +8,7 @@ import 'package:cn_pocket_hr/screens/main/main_screen.dart';
 import 'package:cn_pocket_hr/screens/splash_screen/hr_introduction.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
-import 'package:cn_pocket_hr/helpers/hr_constant.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +26,7 @@ class _MobileSplashState extends State<MobileSplash>
   APIService apiService = APIService();
 
   late final AnimationController _controller = AnimationController(
-    duration: const Duration(milliseconds: 2000),
+    duration: const Duration(milliseconds: 5000),
     vsync: this,
   )..forward();
 
@@ -130,7 +130,7 @@ class _MobileSplashState extends State<MobileSplash>
       child: Scaffold(
         backgroundColor: HRColors.splashbackgroundColor,
         body: Container(
-          color: HRColors.white,
+          color: HRColors.splashbackgroundColor,
           alignment: Alignment.center,
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -152,7 +152,7 @@ class _MobileSplashState extends State<MobileSplash>
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(24),
                   child: Image.asset(
-                    HrConstant.getImagePath('app_logo.png'),
+                    FlavorConfig.instance.splashLogoAsset,
                     width: MediaQuery.of(context).size.width / 3.4,
                     fit: BoxFit.cover,
                   ),

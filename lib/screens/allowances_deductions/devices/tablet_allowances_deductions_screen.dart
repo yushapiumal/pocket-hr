@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
+import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/api/api_client.dart';
 import 'package:flutter/material.dart';
 import 'package:localstorage/localstorage.dart';
@@ -9,10 +10,12 @@ import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 
 class TabletAllowancesDeductionsScreen extends StatefulWidget {
   @override
-  State<TabletAllowancesDeductionsScreen> createState() => _TabletAllowancesDeductionsScreenState();
+  State<TabletAllowancesDeductionsScreen> createState() =>
+      _TabletAllowancesDeductionsScreenState();
 }
 
-class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeductionsScreen>
+class _TabletAllowancesDeductionsScreenState
+    extends State<TabletAllowancesDeductionsScreen>
     with SingleTickerProviderStateMixin {
   final _api = APIService();
   final _storage = LocalStorage('pocketHR');
@@ -46,8 +49,6 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
     super.dispose();
   }
 
-  
-
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -80,15 +81,12 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
     }
   }
 
-  
-
-  
-
   Widget _itemCard(VariableItem item) {
     final isAllowance = item.type.toLowerCase() == 'allowance';
     final amountColor = isAllowance ? Colors.green.shade800 : Colors.black87;
     final sign = isAllowance ? '+' : '-';
-    final icon = isAllowance ? Icons.add_circle_outline : Icons.remove_circle_outline;
+    final icon =
+        isAllowance ? Icons.add_circle_outline : Icons.remove_circle_outline;
     final iconColor = isAllowance ? Colors.green.shade700 : Colors.red.shade700;
 
     return Padding(
@@ -152,23 +150,28 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
                   const SizedBox(height: _g8),
                   Row(
                     children: [
-                      Icon(Icons.calendar_month, size: 14, color: Colors.black54),
+                      Icon(Icons.calendar_month,
+                          size: 14, color: Colors.black54),
                       const SizedBox(width: 6),
                       Expanded(
                         child: AutoSizeText(
                           FormatUtils.dateFromUnixSeconds(item.issuedDate),
-                          style: const TextStyle(color: Colors.black54, fontSize: 11),
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: 11),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 5),
                         decoration: BoxDecoration(
                           color: (item.processed ? Colors.green : Colors.orange)
                               .withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: AutoSizeText(
-                          item.processed ? AppLocalizations.of(context)!.processedLabel : AppLocalizations.of(context)!.pendindingLable,
+                          item.processed
+                              ? AppLocalizations.of(context)!.processedLabel
+                              : AppLocalizations.of(context)!.pendindingLable,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -192,8 +195,10 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
   @override
   Widget build(BuildContext context) {
     final allItems = _items;
-    final allowances = _items.where((e) => e.type.toLowerCase() == 'allowance').toList();
-    final deductions = _items.where((e) => e.type.toLowerCase() == 'deduction').toList();
+    final allowances =
+        _items.where((e) => e.type.toLowerCase() == 'allowance').toList();
+    final deductions =
+        _items.where((e) => e.type.toLowerCase() == 'deduction').toList();
 
     List<VariableItem> filter(List<VariableItem> list) {
       if (_query.isEmpty) return list;
@@ -217,7 +222,10 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
             children: [
               AutoSizeText(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
+              ElevatedButton(
+                  onPressed: _load,
+                  child:
+                      AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
             ],
           ),
         ),
@@ -233,7 +241,10 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
                 ? ListView(
                     children: [
                       const SizedBox(height: 60),
-                      Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
+                      Center(
+                          child: AutoSizeText(
+                              AppLocalizations.of(context)!.noRecords,
+                              style: const TextStyle(color: Colors.black54))),
                     ],
                   )
                 : ListView.builder(
@@ -249,7 +260,8 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: AutoSizeText(AppLocalizations.of(context)!.noAllowancesFound,
+                        child: AutoSizeText(
+                            AppLocalizations.of(context)!.noAllowancesFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -267,7 +279,8 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: AutoSizeText(AppLocalizations.of(context)!.noDeductionsFound,
+                        child: AutoSizeText(
+                            AppLocalizations.of(context)!.noDeductionsFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -300,11 +313,14 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color:
+                            HRColors.flavorIconBackgroundColor ?? Colors.white,
                         borderRadius: BorderRadius.circular(40),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                        border:
+                            Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                      child: const Icon(Icons.navigate_before, color: Colors.black87),
+                      child: Icon(Icons.navigate_before,
+                          color: HRColors.flavorIconColor),
                     ),
                   ),
                   const SizedBox(width: _g12),
@@ -356,10 +372,10 @@ class _TabletAllowancesDeductionsScreenState extends State<TabletAllowancesDeduc
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.all(6),
                   indicator: BoxDecoration(
-                    color: Colors.black.withOpacity(0.06),
+                    color: const Color(0xFF791b27),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: Colors.black87,
+                  labelColor: const Color(0xFFeed06e),
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.allLabel),

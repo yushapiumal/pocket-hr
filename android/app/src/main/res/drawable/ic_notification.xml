@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Monochrome notification small-icon for DomEx.
+  Must be white paths on transparent background — Android 5+ masks all
+  small notification icons to white silhouette automatically.
+  Design: clean hollow "D" lettermark.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+  <!-- Left vertical bar of the D -->
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M2,2 h4 v20 h-4 z"/>
+
+  <!-- Hollow arch — outer D curve + inner cutout traced as one closed shape -->
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M6,2 h3 C17,2 20,6 20,12 C20,18 17,22 9,22 h-3 v-4 h3 C14,18 16,15.5 16,12 C16,8.5 14,6 9,6 h-3 z"/>
+</vector>

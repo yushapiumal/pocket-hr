@@ -14,12 +14,14 @@ import 'package:cn_pocket_hr/services/offline_attendance_service.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:cn_pocket_hr/constants/slideanimation.dart';
 import 'package:cn_pocket_hr/screens/notifications/notifications.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:cn_pocket_hr/screens/qr/qr_scanner_page.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/controllers/controller.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/glass_box.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/custom_blur_hash.dart';
 import 'package:cn_pocket_hr/models/slider_model.dart';
 import 'package:cn_pocket_hr/models/hr/check_in_check_out_model.dart';
@@ -28,7 +30,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:cn_pocket_hr/providers/connection_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 
 class MobileHome extends StatefulWidget {
   const MobileHome({Key? key}) : super(key: key);
@@ -42,18 +44,18 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   AnimationController? _animationController;
   PageController? _controller;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late AudioPlayer _audioPlayer;
+  //late AudioPlayer _audioPlayer;
 
   String morningBg =
-      "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
+      "https://domex.lk/public/image/main-banner3.jpg";
 
   String afternoonBg =
-      "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
+      "https://domex.lk/public/image/main-banner3.jpg";
 
   String eveningBg =
-      "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/sunset-quotes-21-1586531574.jpg";
+      "https://domex.lk/public/image/main-banner3.jpg";
 
-  String nightBg = "https://wallpaperaccess.com/full/2113857.jpg";
+  String nightBg = "https://domex.lk/public/image/main-banner3.jpg";
 
   late String bgImg;
   String? _dateTime;
@@ -63,18 +65,11 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   LocalStorage storage = LocalStorage('pocketHR');
   APIService apiService = APIService();
   HRController controller = HRController();
-  bool _pressingCheckIn = false;
-  bool _pressingCheckOut = false;
-  bool _withinQrRadius =
-      false; // true when last scanned QR was within allowed radius
-  bool _isRemotePunch = false; // true when punch triggered via remote button
-
-  // --- QR gating window (10s) ---
-  Timer? _qrWindowTimer;
-  DateTime? _qrWindowEnd;
-  int _qrSecondsLeft = 0;
   bool _qrBusy = false;
-  String? _qrActiveType; // 'checkin' or 'checkout'
+
+  // Brief cooldown after punch (prevents double-punch)
+  bool _punchCooldown = false;
+  Timer? _cooldownTimer;
 
   // Blink animation while QR window is active
   AnimationController? _blinkController;
@@ -174,21 +169,33 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
     );
     // audio player for countdown sound
-    _audioPlayer = AudioPlayer();
-    _audioPlayer.setReleaseMode(ReleaseMode.stop);
+    //_audioPlayer = AudioPlayer();
+   // _audioPlayer.setReleaseMode(ReleaseMode.stop);
+
+    // Refresh profile from API if storage was cleared (e.g. after logout+login).
+    // Runs after the first frame so the UI appears immediately, then updates.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await storage.ready;
+        if (storage.getItem('me_profile') == null) {
+          await apiService.fetchMeProfileWithBearer();
+          if (mounted) setState(() {});
+        }
+      } catch (_) {}
+    });
   }
 
   @override
   void dispose() {
     try {
-      _qrWindowTimer?.cancel();
+      _cooldownTimer?.cancel();
     } catch (_) {}
     try {
       _blinkController?.dispose();
     } catch (_) {}
     try {
-      _audioPlayer.stop();
-      _audioPlayer.dispose();
+   //   _audioPlayer.stop();
+    //  _audioPlayer.dispose();
     } catch (_) {}
     _timer.cancel();
     streamSubscription.cancel();
@@ -227,6 +234,7 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
     final latStr = (latitude != null) ? latitude.toString() : null;
     final lngStr = (longitude != null) ? longitude.toString() : null;
     final addr = (address != null) ? address.toString() : null;
+    final accStr = (accuracy != null) ? accuracy.toString() : null;
 
     // If offline, save immediately and avoid calling remote API (prevents socket errors)
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
@@ -274,6 +282,7 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
         latitude: latStr,
         longitude: lngStr,
         address: addr,
+        accuracy: accStr,
         isRemotePunch: isRemote,
       );
     } catch (_) {
@@ -323,7 +332,12 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
         msg = type == 'checkout'
             ? AppLocalizations.of(context)!.checkOutSuccess
             : AppLocalizations.of(context)!.checkInSuccess;
-        bg = type == 'checkout' ? HRColors.orangeColor : HRColors.blueColor;
+        bg = Colors.green;
+        _cooldownTimer?.cancel();
+        _cooldownTimer = Timer(const Duration(seconds: 5), () {
+          if (mounted) setState(() => _punchCooldown = false);
+        });
+        if (mounted) setState(() => _punchCooldown = true);
       } else if (statusCode == 400) {
         msg = AppLocalizations.of(context)!.cantLocate;
         bg = Colors.red;
@@ -367,6 +381,7 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   var latitude;
   var longitude;
   var address;
+  var accuracy;
   late StreamSubscription<Position> streamSubscription;
 
   getLocation() async {
@@ -393,6 +408,7 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
         Geolocator.getPositionStream().listen((Position position) {
       latitude = position.latitude;
       longitude = position.longitude;
+      accuracy = position.accuracy;
       getAddressFromLatLang(position);
     });
   }
@@ -421,34 +437,31 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
     return R * c;
   }
 
-  Future<bool> _ensureQrValidatedIfRequired() async {
-    if (!apiService.qrEnable) {
-      _withinQrRadius = true;
-      return true;
-    }
+  // ── NEW: Scan → bottom sheet flow ───────────────────────────────────────
 
-    if (_qrWindowActive && _withinQrRadius) return true;
+  Future<void> _onScanTap() async {
+    if (_punchCooldown || _qrBusy) return;
+    _qrBusy = true;
+    try {
+      if (!apiService.qrEnable) {
+        // QR not required — go straight to punch selection
+        _showPunchBottomSheet(isRemote: false);
+        return;
+      }
 
-    // Fetch location config to decide whether QR is enabled.
-    final userId = storage.getItem('uid')?.toString() ?? '';
-    final locations = await apiService.getTenantCoordinateFromQr(userId);
-
-    while (true) {
+      final userId = storage.getItem('uid')?.toString() ?? '';
+      final locations = await apiService.getTenantCoordinateFromQr(userId);
       final usernameForQr = (storage.getItem('name') ??
               storage.getItem('username') ??
               storage.getItem('userName') ??
               '')
           .toString();
-      final bool isRemoteAllowed = apiService.remoteEnable;
 
       final qr = await Navigator.of(context).push<String>(
         MaterialPageRoute(
           builder: (_) => QrScannerPage(
             username: usernameForQr,
-            showRemoteButton: isRemoteAllowed,
-            onRemotePressed: () {
-              Navigator.of(context).pop('remote');
-            },
+            showRemoteButton: false,
             validator: (raw) {
               double? qlat;
               double? qlng;
@@ -476,31 +489,25 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                 return AppLocalizations.of(context)!.qrNoCoordinates;
               }
 
-              // Exact match check across array of allowed locations
               dynamic matchedLocation;
               for (var loc in locations) {
-                // Determine raw values as safely parsed doubles by bypassing nested types
                 dynamic rawLat;
                 dynamic rawLng;
                 try {
                   rawLat = loc.lat;
                   rawLng = loc.lng;
                 } catch (_) {}
-
-                double currentLat = 0.0;
-                double currentLng = 0.0;
+                double currentLat = 0.0, currentLng = 0.0;
                 if (rawLat is num) {
                   currentLat = rawLat.toDouble();
                 } else if (rawLat != null) {
                   currentLat = double.tryParse(rawLat.toString()) ?? 0.0;
                 }
-
                 if (rawLng is num) {
                   currentLng = rawLng.toDouble();
                 } else if (rawLng != null) {
                   currentLng = double.tryParse(rawLng.toString()) ?? 0.0;
                 }
-
                 if (qlat == currentLat && qlng == currentLng) {
                   matchedLocation = loc;
                   break;
@@ -512,177 +519,164 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                     .qrCoordinatesMismatchMessage;
               }
 
-              // Get radius specifically for the matched location
-              double allowedRadiusMeters = 500.0;
+              double allowedRadius = 50.0;
               try {
-                final dynamic anyLoc = matchedLocation;
-                dynamic r;
-                try {
-                  r = anyLoc.radius ?? anyLoc.radiusMeters ?? anyLoc.range;
-                } catch (_) {}
-                if (r is num) {
-                  allowedRadiusMeters = r.toDouble();
-                } else if (r is String) {
-                  allowedRadiusMeters = double.tryParse(r) ?? 500.0;
-                }
+                final dynamic r = matchedLocation.radius ??
+                    matchedLocation.radiusMeters ??
+                    matchedLocation.range;
+                if (r is num) allowedRadius = r.toDouble();
+                if (r is String) allowedRadius = double.tryParse(r) ?? 50.0;
               } catch (_) {}
 
-              // After scan: validate device location within allowed radius
               final double? dlat = (latitude is num)
                   ? (latitude as num).toDouble()
                   : double.tryParse(latitude?.toString() ?? '');
-
-              // final double? dlat = 6.927079;
-              // final double? dlng = 79.861244;
-
               final double? dlng = (longitude is num)
                   ? (longitude as num).toDouble()
                   : double.tryParse(longitude?.toString() ?? '');
 
-              if (dlat == null || dlng == null) {
-                return 'Location not available';
-              }
-              final deviceDist = _distanceBetween(dlat, dlng, qlat, qlng);
-              if (deviceDist > allowedRadiusMeters) {
-                final username = (storage.getItem('name') ??
+              if (dlat == null || dlng == null) return 'Location not available';
+
+              final dist = _distanceBetween(dlat, dlng, qlat, qlng);
+              if (dist > allowedRadius) {
+                final uname = (storage.getItem('name') ??
                         storage.getItem('username') ??
                         '')
                     .toString();
-                final baseMsg = AppLocalizations.of(context)!.qrCannotPunchHere(
-                  username.isNotEmpty ? username : 'User',
-                );
-                final extra =
-                    ' (Distance: ${deviceDist.toStringAsFixed(0)}m, Allowed: ${allowedRadiusMeters.toStringAsFixed(0)}m)';
-                return baseMsg + extra;
+                return AppLocalizations.of(context)!.qrCannotPunchHere(
+                      uname.isNotEmpty ? uname : 'User',
+                    ) +
+                    ' (${dist.toStringAsFixed(0)}m / ${allowedRadius.toStringAsFixed(0)}m)';
               }
-
-              return null; // accept
+              return null;
             },
           ),
         ),
       );
 
-      // user cancelled or scan was successful
-      if (qr == null || qr.trim().isEmpty) return false;
-
-      // check if it's the remote button override
-      if (qr == 'remote') {
-        _withinQrRadius = true;
-        _isRemotePunch = true;
-        _startQrWindow(5);
-        final label = _qrActiveType == 'checkin'
-            ? AppLocalizations.of(context)!.checkIn
-            : AppLocalizations.of(context)!.checkOut;
-        showTopToast(
-            AppLocalizations.of(context)!.remoteCheckClickButton(label),
-            background: Colors.green);
-        return true;
-      }
-
-      // accepted by validator; start countdown
-      _isRemotePunch = false;
-      _withinQrRadius = true;
-      _startQrWindow(5);
-      final label = _qrActiveType == 'checkin'
-          ? AppLocalizations.of(context)!.checkIn
-          : AppLocalizations.of(context)!.checkOut;
-      showTopToast(AppLocalizations.of(context)!.qrValidClickButton(label),
-          background: Colors.green);
-      return true;
-    }
-  }
-
-  bool get _qrWindowActive {
-    if (_qrWindowEnd == null) return false;
-    return DateTime.now().isBefore(_qrWindowEnd!);
-  }
-
-  void _startQrWindow(int seconds) {
-    _qrWindowTimer?.cancel();
-    _qrWindowEnd = DateTime.now().add(Duration(seconds: seconds));
-    _qrSecondsLeft = seconds;
-    _qrWindowTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      final end = _qrWindowEnd;
-      if (end == null) {
-        t.cancel();
-        return;
-      }
-      final left = end.difference(DateTime.now()).inSeconds;
-      if (left <= 0) {
-        _qrSecondsLeft = 0;
-        _withinQrRadius = false;
-        _qrWindowEnd = null;
-        _qrActiveType = null;
-        t.cancel();
-
-        // stop blinking
-        try {
-          _blinkController?.stop();
-          _blinkController?.value = 1.0;
-        } catch (_) {}
-        // stop audio playback when window ends
-        try {
-          _audioPlayer.stop();
-        } catch (_) {}
-      } else {
-        _qrSecondsLeft = left;
-      }
-      if (mounted) setState(() {});
-    });
-
-    // start blinking (full container) while timer is active
-    try {
-      _blinkController?.reset();
-      _blinkController?.repeat(reverse: true);
-    } catch (_) {}
-    // start looping countdown audio (asset path: assets/sounds/countdown.mp3)
-    try {
-      _audioPlayer.setReleaseMode(ReleaseMode.loop);
-      _audioPlayer.play(AssetSource('sounds/clock.wav'));
-    } catch (_) {}
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _onCheckTap(String type) async {
-    if (_qrBusy) return;
-    _qrBusy = true;
-    try {
-      // If already validated and inside countdown window => punch now.
-      if (_qrWindowActive && _withinQrRadius) {
-        await checkinCheckout(type, isRemote: _isRemotePunch);
-        _qrWindowTimer?.cancel();
-        _qrWindowEnd = null;
-        _qrSecondsLeft = 0;
-        _withinQrRadius = false;
-        _isRemotePunch = false;
-        _qrActiveType = null;
-
-        // stop blinking immediately after punch
-        try {
-          _blinkController?.stop();
-          _blinkController?.value = 1.0;
-        } catch (_) {}
-        // stop audio when punch occurs
-        try {
-          _audioPlayer.stop();
-        } catch (_) {}
-        return;
-      }
-
-      // No active window => run validation.
-      _qrActiveType = type;
-      final ok = await _ensureQrValidatedIfRequired();
-      if (!ok) return;
-      if (!_qrWindowActive) {
-        await checkinCheckout(type, isRemote: _isRemotePunch);
-        _isRemotePunch = false;
-        return;
-      }
+      if (!mounted || qr == null || qr.trim().isEmpty) return;
+      _showPunchBottomSheet(isRemote: false);
     } finally {
       _qrBusy = false;
       if (mounted) setState(() {});
     }
   }
+
+  void _onRemoteTap() {
+    if (_punchCooldown) return;
+    _showPunchBottomSheet(isRemote: true);
+  }
+
+  void _showPunchBottomSheet({required bool isRemote}) {
+    final primary = FlavorConfig.instance.primaryColor;
+    final secondary = FlavorConfig.instance.secondaryColor;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: EdgeInsets.fromLTRB(
+              24, 16, 24, 32 + MediaQuery.of(ctx).padding.bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // drag handle
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: Colors.black12,
+                    borderRadius: BorderRadius.circular(2)),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                isRemote
+                    ? AppLocalizations.of(context)!.remoteChecking
+                    : 'Select Action',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: _punchSheetButton(
+                      label: AppLocalizations.of(context)!.checkIn,
+                      icon: Icons.input,
+                      color: primary,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        checkinCheckout('checkin', isRemote: isRemote);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _punchSheetButton(
+                      label: AppLocalizations.of(context)!.checkOut,
+                      icon: Icons.output,
+                      color: secondary,
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        checkinCheckout('checkout', isRemote: isRemote);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _punchSheetButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+                color: color.withOpacity(0.35),
+                blurRadius: 10,
+                offset: const Offset(0, 4))
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(label,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── End new methods ──────────────────────────────────────────────────────
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -846,322 +840,159 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                         flex: 4,
                         child: Padding(
                           padding: EdgeInsets.only(top: 12.0),
-                          child: AnimatedBuilder(
-                            animation:
-                                _blinkController ?? kAlwaysDismissedAnimation,
-                            builder: (context, child) {
-                              final t = (_blinkController?.value ?? 0.0);
-                              final blinkOpacity = 1.0 - (t * 0.65);
-                              final opacity =
-                                  _qrWindowActive ? blinkOpacity : 1.0;
-                              return Opacity(opacity: opacity, child: child);
-                            },
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 20.0),
-                                    child: Text(
-                                      _dateTime ?? "loading...",
-                                      style: TextStyle(
-                                        color: HRColors.black,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                ),
-                                Flexible(
-                                  child: SingleChildScrollView(
-                                    child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                          left: 20.0,
-                                          top: 1.0,
-                                        ),
-                                        child: Text(
-                                          address ?? "loading...",
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontSize: 15,
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Row(
+                          child: Column(
                             children: [
-                              Expanded(
-                                flex: 2,
-                                child: IgnorePointer(
-                                  ignoring: _qrActiveType == 'checkout',
-                                  child: Opacity(
-                                    opacity: _qrActiveType == 'checkout'
-                                        ? 0.35
-                                        : 1.0,
-                                    child: Container(
-                                      margin: EdgeInsets.only(left: 10.0),
-                                      child: GestureDetector(
-                                        onTapDown: (_) => setState(
-                                            () => _pressingCheckIn = true),
-                                        onTapUp: (_) async {
-                                          setState(
-                                              () => _pressingCheckIn = false);
-                                          await _onCheckTap('checkin');
-                                        },
-                                        onTapCancel: () => setState(
-                                            () => _pressingCheckIn = false),
-                                        child: AnimatedScale(
-                                          scale: _pressingCheckIn ? 0.96 : 1.0,
-                                          duration:
-                                              const Duration(milliseconds: 120),
-                                          child: AnimatedContainer(
-                                            duration: const Duration(
-                                                milliseconds: 160),
-                                            curve: Curves.easeOut,
-                                            height: 50,
-                                            padding: const EdgeInsets.all(8.0),
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  HRColors.blueColor,
-                                                  HRColors.blueColor,
-                                                ],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(18),
-                                              boxShadow: _pressingCheckIn
-                                                  ? [
-                                                      BoxShadow(
-                                                        color: Colors.black26,
-                                                        blurRadius: 4,
-                                                        offset: Offset(0, 2),
-                                                      )
-                                                    ]
-                                                  : [
-                                                      BoxShadow(
-                                                        color: Colors.black26,
-                                                        blurRadius: 10,
-                                                        offset: Offset(0, 6),
-                                                      )
-                                                    ],
-                                            ),
-                                            alignment: Alignment.center,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    (_qrWindowActive &&
-                                                            _withinQrRadius &&
-                                                            _qrActiveType ==
-                                                                'checkin')
-                                                        ? AppLocalizations.of(
-                                                                context)!
-                                                            .confirmLabel
-                                                        : AppLocalizations.of(
-                                                                context)!
-                                                            .checkIn,
-                                                    textAlign: TextAlign.center,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 6),
-                                                // Show countdown instead of icon while window is active
-                                                if (_qrWindowActive &&
-                                                    _qrActiveType == 'checkin')
-                                                  Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white
-                                                          .withOpacity(0.18),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      border: Border.all(
-                                                        color: Colors.white
-                                                            .withOpacity(0.55),
-                                                        width: 1,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      '$_qrSecondsLeft',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w900,
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                  )
-                                                else
-                                                  Icon(Icons.input,
-                                                      color: Colors.white),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 20.0),
+                                  child: Text(
+                                    _dateTime ?? "loading...",
+                                    style: TextStyle(
+                                      color: HRColors.black,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.normal,
                                     ),
+                                    textAlign: TextAlign.left,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 5),
-                              Expanded(
-                                flex: 2,
-                                child: IgnorePointer(
-                                  ignoring: _qrActiveType == 'checkin',
-                                  child: Opacity(
-                                    opacity:
-                                        _qrActiveType == 'checkin' ? 0.35 : 1.0,
-                                    child: Container(
-                                      margin:
-                                          const EdgeInsets.only(right: 12.0),
-                                      child: GestureDetector(
-                                        onTapDown: (_) => setState(
-                                            () => _pressingCheckOut = true),
-                                        onTapUp: (_) async {
-                                          setState(
-                                              () => _pressingCheckOut = false);
-                                          await _onCheckTap('checkout');
-                                        },
-                                        onTapCancel: () => setState(
-                                            () => _pressingCheckOut = false),
-                                        child: AnimatedScale(
-                                          scale: _pressingCheckOut ? 0.96 : 1.0,
-                                          duration:
-                                              const Duration(milliseconds: 120),
-                                          child: AnimatedContainer(
-                                            duration: const Duration(
-                                                milliseconds: 160),
-                                            curve: Curves.easeOut,
-                                            height: 50,
-                                            padding: const EdgeInsets.all(8.0),
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                colors: [
-                                                  HRColors.orangeColor,
-                                                  HRColors.orangeColor,
-                                                ],
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(18),
-                                              boxShadow: _pressingCheckOut
-                                                  ? [
-                                                      BoxShadow(
-                                                        color: Colors.black26,
-                                                        blurRadius: 4,
-                                                        offset: Offset(0, 2),
-                                                      )
-                                                    ]
-                                                  : [
-                                                      BoxShadow(
-                                                        color: Colors.black26,
-                                                        blurRadius: 10,
-                                                        offset: Offset(0, 6),
-                                                      )
-                                                    ],
-                                            ),
-                                            alignment: Alignment.center,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Flexible(
-                                                  child: Text(
-                                                    (_qrWindowActive &&
-                                                            _withinQrRadius &&
-                                                            _qrActiveType ==
-                                                                'checkout')
-                                                        ? AppLocalizations.of(
-                                                                context)!
-                                                            .confirmLabel
-                                                        : AppLocalizations.of(
-                                                                context)!
-                                                            .checkOut,
-                                                    textAlign: TextAlign.center,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 6),
-                                                if (_qrWindowActive &&
-                                                    _qrActiveType == 'checkout')
-                                                  Container(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white
-                                                          .withOpacity(0.18),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      border: Border.all(
-                                                        color: Colors.white
-                                                            .withOpacity(0.55),
-                                                        width: 1,
-                                                      ),
-                                                    ),
-                                                    child: Text(
-                                                      '$_qrSecondsLeft',
-                                                      style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.w900,
-                                                        fontSize: 14,
-                                                      ),
-                                                    ),
-                                                  )
-                                                else
-                                                  Icon(Icons.output,
-                                                      color: Colors.white),
-                                              ],
-                                            ),
-                                          ),
+                              Flexible(
+                                child: SingleChildScrollView(
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        left: 20.0,
+                                        top: 1.0,
+                                      ),
+                                      child: Text(
+                                        address ?? "loading...",
+                                        style: TextStyle(
+                                          color: HRColors.black,
+                                          fontSize: 15,
                                         ),
+                                        textAlign: TextAlign.left,
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: IgnorePointer(
+                            ignoring: _punchCooldown || _qrBusy,
+                            child: Opacity(
+                              opacity: (_punchCooldown || _qrBusy) ? 0.45 : 1.0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // ── Scan Check-In/Out button ────────────
+                                  Flexible(
+                                    child: GestureDetector(
+                                      onTap: _onScanTap,
+                                      child: AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 160),
+                                        curve: Curves.easeOut,
+                                        height: 50,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        decoration: BoxDecoration(
+                                          color: FlavorConfig
+                                              .instance.primaryColor,
+                                          borderRadius:
+                                              BorderRadius.circular(18),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 10,
+                                              offset: Offset(0, 6),
+                                            )
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.qr_code_scanner,
+                                                color: Colors.white, size: 18),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              AppLocalizations.of(context)!
+                                                  .scanCheckInOut,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // ── Remote button (only for remote-enabled users) ──
+                                  if (apiService.remoteEnable) ...[
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: GestureDetector(
+                                        onTap: _onRemoteTap,
+                                        child: AnimatedContainer(
+                                          duration:
+                                              const Duration(milliseconds: 160),
+                                          curve: Curves.easeOut,
+                                          height: 50,
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          decoration: BoxDecoration(
+                                            color: FlavorConfig
+                                                .instance.secondaryColor,
+                                            borderRadius:
+                                                BorderRadius.circular(18),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius: 10,
+                                                offset: Offset(0, 6),
+                                              )
+                                            ],
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(Icons.wifi_tethering,
+                                                  color: Colors.white,
+                                                  size: 18),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                AppLocalizations.of(context)!
+                                                    .remoteChecking,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -1214,11 +1045,12 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                   redius: 40.0,
                   width: 50,
                   height: 50,
+                  backgroundColor: HRColors.flavorIconBackgroundColor,
                   child: Align(
                     alignment: Alignment.center,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Icon(Icons.sync, color: Colors.white),
+                      child: Icon(Icons.sync, color: HRColors.flavorIconColor),
                     ),
                   ),
                 ),
@@ -1226,23 +1058,60 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
             ),
 
             GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, HRNotifications.routeName);
+              onTap: () async {
+                await Navigator.pushNamed(context, HRNotifications.routeName);
+                await FCMService.loadUnreadCount();
               },
               child: Container(
                 padding: EdgeInsets.all(5.0),
                 alignment: Alignment.center,
-                child: GlassBox(
-                  redius: 40.0,
-                  width: 50,
-                  height: 50,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child:
-                          SvgPicture.asset("assets/svg/notifications_icon.svg"),
-                    ),
+                child: ValueListenableBuilder<int>(
+                  valueListenable: FCMService.unreadCount,
+                  builder: (context, count, _) => Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      GlassBox(
+                        redius: 40.0,
+                        width: 50,
+                        height: 50,
+                        backgroundColor: HRColors.flavorIconBackgroundColor,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: SvgPicture.asset(
+                                'assets/svg/notifications_icon.svg',
+                                colorFilter: ColorFilter.mode(
+                                    HRColors.flavorIconColor, BlendMode.srcIn)),
+                          ),
+                        ),
+                      ),
+                      if (count > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              count > 99 ? '99+' : '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -1262,11 +1131,14 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                 redius: 40.0,
                 width: 50,
                 height: 50,
+                backgroundColor: HRColors.flavorIconBackgroundColor,
                 child: Align(
                   alignment: Alignment.center,
                   child: Padding(
                     padding: EdgeInsets.all(10.0),
-                    child: SvgPicture.asset("assets/svg/drawer_icon.svg"),
+                    child: SvgPicture.asset("assets/svg/drawer_icon.svg",
+                        colorFilter: ColorFilter.mode(
+                            HRColors.flavorIconColor, BlendMode.srcIn)),
                   ),
                 ),
               ),

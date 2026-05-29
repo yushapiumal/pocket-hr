@@ -1,8 +1,8 @@
 import 'dart:ui' show Color;
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:flutter/material.dart';
 
 class HRColors {
-
   static const Color shift = Color.fromRGBO(67, 160, 71, 1);
   static const Color dutyOff = Color.fromRGBO(249, 168, 37, 1);
 
@@ -18,10 +18,20 @@ class HRColors {
   static const Color green = Color(0xff00d285);
   static const Color darkFontColor = Color(0xff565759);
   static const Color lightFontColor = Color(0xff939495);
-  static const Color darkOrangeColor = Color(0xffFF6F00);
-  static const Color lightOrangeColor = Color(0xffFEE8C6);
-  static const Color gradientOneColor = Color(0xffFEC230);
-  static const Color gradientTwoColor = Color(0xffF9A825);
+
+  // These three return the active flavor's primary color so every screen
+  // automatically matches the current tenant's brand.
+  static Color get darkOrangeColor => FlavorConfig.instance.primaryColor;
+  static Color get lightOrangeColor =>
+      FlavorConfig.instance.primaryColor.withOpacity(0.18);
+  static Color get orangeColor => FlavorConfig.instance.primaryColor;
+
+  /// Tenant-specific icon foreground color.
+  static Color get flavorIconColor => FlavorConfig.instance.iconColor;
+
+  /// Tenant-specific icon background color (null = use default glass style).
+  static Color? get flavorIconBackgroundColor =>
+      FlavorConfig.instance.iconBackgroundColor;
 
   static const Color intro1Sed1Color = Color(0xfffedd8c);
   static const Color intro1Sed2Color = Color(0xfff7c361);
@@ -45,14 +55,15 @@ class HRColors {
   static const Color intro3buttonTextColor = Color(0xff3db9b2);
   static const Color backgroundColor = Color(0xfffff9ef);
   static const Color grayColor = Color(0xff939495);
-  static const Color orangeColor = Color(0xffff6f00);
+  // orangeColor is defined as a getter above; this duplicate is removed.
   static const Color continueShoppingGradient1Color = Color(0xfffec230);
   static const Color continueShoppingGradient2Color = Color(0xfff9a825);
   static const Color backButtonBoxColor = Color(0x80000000);
   static const Color containerShadowColor = Color(0xffffe8b7);
   static const Color lightWhiteColor = Color(0xfffee8c6);
   static const Color grayTabColor = Color(0xffa1a1a1);
-  static const Color splashbackgroundColor = Color(0xfff5f2da);
+  static const Color splashYellow = Color(0xffffcc09);// #eed06e
+  static const Color splashbackgroundColor = splashYellow;
   static const Color blackTransparentColor = Color(0x80000000);
 
   static const MaterialColor appcolor_material = const MaterialColor(
@@ -71,3 +82,8 @@ class HRColors {
     },
   );
 }
+
+
+// #791b27
+
+// #eed06e. 

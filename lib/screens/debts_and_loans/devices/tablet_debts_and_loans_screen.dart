@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/services/debt_service.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
+import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/api/api_client.dart';
 // filepath: /home/akesh/Work/new_hr/cn_pocket_hr/lib/Screens/debtsAndLoans/devices/MobileDebtsAndLoansScreen.dart
 import 'package:flutter/material.dart';
@@ -11,7 +12,8 @@ import 'package:cn_pocket_hr/models/hr/debt_model.dart';
 
 class TabletDebtsAndLoansScreen extends StatefulWidget {
   @override
-  State<TabletDebtsAndLoansScreen> createState() => _TabletDebtsAndLoansScreenState();
+  State<TabletDebtsAndLoansScreen> createState() =>
+      _TabletDebtsAndLoansScreenState();
 }
 
 class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
@@ -48,8 +50,6 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
     super.dispose();
   }
 
-  
-
   Future<void> _load() async {
     setState(() {
       _loading = true;
@@ -71,9 +71,6 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
       });
     }
   }
-
-  
-  
 
   Widget _itemCard(DebtItem item) {
     final isDebt = item.type.toLowerCase() == 'debt';
@@ -146,23 +143,28 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                   const SizedBox(height: _g8),
                   Row(
                     children: [
-                      Icon(Icons.calendar_month, size: 14, color: Colors.black54),
+                      Icon(Icons.calendar_month,
+                          size: 14, color: Colors.black54),
                       const SizedBox(width: 6),
                       Expanded(
                         child: AutoSizeText(
                           FormatUtils.dateFromUnixSeconds(item.issuedDate),
-                          style: const TextStyle(color: Colors.black54, fontSize: 11),
+                          style: const TextStyle(
+                              color: Colors.black54, fontSize: 11),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 5),
                         decoration: BoxDecoration(
                           color: (item.collected ? Colors.green : Colors.orange)
                               .withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: AutoSizeText(
-                          item.collected ? AppLocalizations.of(context)!.collectedLabel : AppLocalizations.of(context)!.pendingLabel,
+                          item.collected
+                              ? AppLocalizations.of(context)!.collectedLabel
+                              : AppLocalizations.of(context)!.pendingLabel,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -191,8 +193,13 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
     List<DebtItem> filter(List<DebtItem> list) {
       if (_query.isEmpty) return list;
       final q = _query.toLowerCase();
-      return list.where((e) => ((e.description ?? (e.type == 'debt' ? 'Debt' : 'Loan')).toLowerCase().contains(q))).toList();
+      return list
+          .where((e) => ((e.description ?? (e.type == 'debt' ? 'Debt' : 'Loan'))
+              .toLowerCase()
+              .contains(q)))
+          .toList();
     }
+
     final filteredAll = filter(allItems);
     final filteredDebts = filter(debts);
     final filteredLoans = filter(loans);
@@ -208,7 +215,10 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
             children: [
               AutoSizeText(_error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: _load, child: AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
+              ElevatedButton(
+                  onPressed: _load,
+                  child:
+                      AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
             ],
           ),
         ),
@@ -223,7 +233,10 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                 ? ListView(
                     children: [
                       const SizedBox(height: 60),
-                      Center(child: AutoSizeText(AppLocalizations.of(context)!.noRecords, style: const TextStyle(color: Colors.black54))),
+                      Center(
+                          child: AutoSizeText(
+                              AppLocalizations.of(context)!.noRecords,
+                              style: const TextStyle(color: Colors.black54))),
                     ],
                   )
                 : ListView.builder(
@@ -239,7 +252,8 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: AutoSizeText(AppLocalizations.of(context)!.noDebtsFound,
+                        child: AutoSizeText(
+                            AppLocalizations.of(context)!.noDebtsFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -257,7 +271,8 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                     children: [
                       const SizedBox(height: 60),
                       Center(
-                        child: AutoSizeText(AppLocalizations.of(context)!.noLoansFound,
+                        child: AutoSizeText(
+                            AppLocalizations.of(context)!.noLoansFound,
                             style: const TextStyle(color: Colors.black54)),
                       )
                     ],
@@ -288,17 +303,22 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color:
+                            HRColors.flavorIconBackgroundColor ?? Colors.white,
                         borderRadius: BorderRadius.circular(40),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                        border:
+                            Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                      child: const Icon(Icons.navigate_before, color: Colors.black87),
+                      child: Icon(Icons.navigate_before,
+                          color: HRColors.flavorIconColor),
                     ),
                   ),
                   const SizedBox(width: _g12),
                   Expanded(
                     child: AutoSizeText(
-                      AppLocalizations.of(context)!.debtsLabel + ' & ' + AppLocalizations.of(context)!.loansLabel,
+                      AppLocalizations.of(context)!.debtsLabel +
+                          ' & ' +
+                          AppLocalizations.of(context)!.loansLabel,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -327,10 +347,10 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.all(6),
                   indicator: BoxDecoration(
-                    color: Colors.black.withOpacity(0.06),
+                    color: const Color(0xFF791b27),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: Colors.black87,
+                  labelColor: const Color(0xFFeed06e),
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.allLabel),

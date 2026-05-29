@@ -216,6 +216,7 @@
   },
   "qrCoordinatesMismatchMessage": "Check-in/out is not allowed at this location.",
   "remoteChecking": "Remote Checking",
+  "scanCheckInOut": "Scan Check-In/Out",
   "checkInSuccess": "CheckIn is successful",
   "checkOutSuccess": "Checkout is successful",
   "cantLocate" : "Cannot locate or User Not Found.",

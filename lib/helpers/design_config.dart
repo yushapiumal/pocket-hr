@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:ui';
 import 'package:cn_pocket_hr/contact_us.dart/contact_us.dart';
-import 'package:cn_pocket_hr/helpers/logout.dart';
 import 'package:cn_pocket_hr/screens/allowances_deductions/allowance.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +14,8 @@ import 'package:cn_pocket_hr/screens/debts_and_loans/debts_and_loans_screen.dart
 import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/tenant_helper.dart';
+import 'package:cn_pocket_hr/helpers/logout.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DesignConfig {
@@ -174,19 +175,20 @@ class DesignConfig {
                       final fillColor = TenantHelper.getLogoFillColor(tenant);
                       final logo = Image.asset(
                         path,
-                        height: 20,
-                        width: 70,
+                        height: 24,
+                        width: 80,
                         fit: BoxFit.contain,
                       );
                       if (borderColor != null || fillColor != null) {
                         return Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: fillColor,
                             border: borderColor != null
                                 ? Border.all(color: borderColor, width: 2)
                                 : null,
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: logo,
                         );
@@ -208,8 +210,19 @@ class DesignConfig {
                     visualDensity:
                         const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(context, '/team'),
-                    leading:
-                        const Icon(Icons.people_alt, color: HRColors.black),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.people_alt,
+                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+                      ),
+                    ),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.myTeam,
                       style:
@@ -222,8 +235,19 @@ class DesignConfig {
                         const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () =>
                         Navigator.pushNamed(context, HRSalarySlips.routeName),
-                    leading:
-                        const Icon(Icons.receipt_long, color: HRColors.black),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.receipt_long,
+                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+                      ),
+                    ),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.salarySlips,
                       style:
@@ -236,8 +260,19 @@ class DesignConfig {
                         const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () => Navigator.pushNamed(
                         context, HRAllowancesDeductions.routeName),
-                    leading: const Icon(Icons.account_balance_wallet_outlined,
-                        color: HRColors.black),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.account_balance_wallet_outlined,
+                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+                      ),
+                    ),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.allowanceDeductions,
                       style:
@@ -250,8 +285,19 @@ class DesignConfig {
                         const VisualDensity(horizontal: 1, vertical: -2),
                     onTap: () =>
                         Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
-                    leading: const Icon(Icons.payments_outlined,
-                        color: HRColors.black),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.payments_outlined,
+                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+                      ),
+                    ),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.debtLoans,
                       style:
@@ -287,62 +333,66 @@ class DesignConfig {
             Container(
               padding: EdgeInsets.fromLTRB(
                 16,
-                16,
+                12,
                 16,
                 16 + MediaQuery.of(context).padding.bottom,
               ),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: HRColors.white,
               ),
-              child: FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
-                builder: (context, snapshot) {
-                  String version = "1.0.0";
-                  if (snapshot.hasData) {
-                    version = snapshot.data!.version;
-                    if (snapshot.data!.buildNumber != null &&
-                        snapshot.data!.buildNumber!.isNotEmpty) {
-                      version =
-                          "${snapshot.data!.version}+${snapshot.data!.buildNumber}";
-                    }
-                  }
-
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => LogoutHelper.logout(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Logout button styled like check-in/check-out
+                  GestureDetector(
+                    onTap: () => LogoutHelper.logout(context),
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: FlavorConfig.instance.primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.logout,
+                              color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          AutoSizeText(
+                            AppLocalizations.of(context)!.logoutText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.logout_rounded, size: 20),
-                              const SizedBox(width: 8),
-                              AutoSizeText(
-                                AppLocalizations.of(context)!.logoutText,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w500),
-                              ),
-                            ],
-                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<PackageInfo>(
+                    future: PackageInfo.fromPlatform(),
+                    builder: (context, snapshot) {
+                      String version = "1.0.0";
+                      if (snapshot.hasData) {
+                        version = snapshot.data!.version;
+                        if (snapshot.data!.buildNumber.isNotEmpty) {
+                          version =
+                              "${snapshot.data!.version}+${snapshot.data!.buildNumber}";
+                        }
+                      }
+                      return Center(
+                        child: AutoSizeText(
+                          'App Version $version',
+                          style:
+                              TextStyle(fontSize: 12, color: Colors.grey[600]),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      AutoSizeText(
-                        'App Version $version',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
-                  );
-                },
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],
@@ -527,9 +577,22 @@ class __RefreshListTileState extends State<_RefreshListTile>
       dense: true,
       visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
       onTap: _isRefreshing ? null : _onTap,
-      leading: RotationTransition(
-        turns: _spinController,
-        child: const Icon(Icons.refresh, color: HRColors.black, size: 24),
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.black.withOpacity(0.06)),
+        ),
+        child: Center(
+          child: RotationTransition(
+            turns: _spinController,
+            child: Icon(Icons.refresh,
+              color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black,
+              size: 24),
+          ),
+        ),
       ),
       title: AutoSizeText(
         _isRefreshing

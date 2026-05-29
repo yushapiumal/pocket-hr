@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 
 class MobileLeaveRequestPage extends StatefulWidget {
   final bool isEdit;
@@ -24,9 +25,9 @@ class MobileLeaveRequestPage extends StatefulWidget {
 }
 
 class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
-  static const Color _accent = HRColors.orangeColor;
-  static const Color _pageBg =  Colors.white;
-  static const Color _surface =  Color.fromARGB(255, 248, 250, 252);
+  static Color get _accent => HRColors.orangeColor;
+  static const Color _pageBg = Colors.white;
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
   static const Color _textDark = Color(0xFF1F2937);
   static const Color _textMuted = Color(0xFF6B7280);
 
@@ -36,12 +37,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
     "annual",
     "casual",
     "medical",
-   
   ];
 
   String? typeValue = "annual";
   String? leaveTypeValue = "full_day";
-  String? shortLeaveSession = "morning"; 
+  String? shortLeaveSession = "morning";
+  String? halfDaySession = "morning";
   final TextEditingController description = TextEditingController();
 
   DateTime fDate = DateTime.now();
@@ -65,8 +66,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
     if (m != null) {
       final rawType = m.leaveType.toString().trim().toLowerCase();
       final fallbackType = m.type.toString().trim().toLowerCase();
-      final candidate =
-          rawType.isNotEmpty ? rawType : (fallbackType.isNotEmpty ? fallbackType : 'annual');
+      final candidate = rawType.isNotEmpty
+          ? rawType
+          : (fallbackType.isNotEmpty ? fallbackType : 'annual');
 
       typeValue = leaveTypeList.contains(candidate) ? candidate : 'annual';
       description.text = m.description.toString();
@@ -111,7 +113,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
   DateTime _startOfWeek(DateTime d) {
     final int weekday = d.weekday;
-    return DateTime(d.year, d.month, d.day).subtract(Duration(days: weekday - 1));
+    return DateTime(d.year, d.month, d.day)
+        .subtract(Duration(days: weekday - 1));
   }
 
   @override
@@ -129,7 +132,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
     final overlay = Overlay.of(context);
     final topPadding = MediaQuery.of(context).padding.top + 10.0;
-    final bg = error ? Colors.red.shade600 : HRColors.darkOrangeColor;
+    final bg = error ? Colors.red.shade600 : Colors.green.shade600;
 
     late final OverlayEntry entry;
     entry = OverlayEntry(
@@ -158,7 +161,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               child: Row(
                 children: [
                   Icon(
-                    error ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
+                    error
+                        ? Icons.error_outline_rounded
+                        : Icons.check_circle_outline_rounded,
                     color: Colors.white,
                     size: 18,
                   ),
@@ -180,7 +185,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                         entry.remove();
                       } catch (_) {}
                     },
-                    child: const Icon(Icons.close_rounded, color: Colors.white, size: 16),
+                    child: const Icon(Icons.close_rounded,
+                        color: Colors.white, size: 16),
                   ),
                 ],
               ),
@@ -200,12 +206,15 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
   bool _isDefaultFromTo() => fromText == 'From' || toText == 'To';
 
   Future<DateTime?> _pickWheelDate({required DateTime initial}) async {
-        final months = List<String>.generate(12, (i) {
+    final months = List<String>.generate(12, (i) {
       final dt = DateTime(DateTime.now().year, i + 1, 1);
       // Use Flutter's MaterialLocalizations to get a localized "Month Year" string,
       // then strip the year to keep only the localized month name.
       var label = MaterialLocalizations.of(context).formatMonthYear(dt);
-      label = label.replaceAll(RegExp(r'\b\d{4}\b'), '').replaceAll(RegExp(r',[\s]*'), '').trim();
+      label = label
+          .replaceAll(RegExp(r'\b\d{4}\b'), '')
+          .replaceAll(RegExp(r',[\s]*'), '')
+          .trim();
       return label;
     });
     final years = List<int>.generate(30, (i) => DateTime.now().year - 10 + i);
@@ -213,7 +222,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
     int selYear = initial.year;
     int selDay = initial.day;
 
-    final monthController = FixedExtentScrollController(initialItem: selMonth -1);
+    final monthController =
+        FixedExtentScrollController(initialItem: selMonth - 1);
     final yearController = FixedExtentScrollController(
       initialItem: years.indexOf(selYear).clamp(0, years.length - 1),
     );
@@ -249,8 +259,10 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     selectionOverlay: Container(
                       decoration: BoxDecoration(
                         border: Border(
-                          top: BorderSide(color: Colors.black.withOpacity(0.08)),
-                          bottom: BorderSide(color: Colors.black.withOpacity(0.08)),
+                          top:
+                              BorderSide(color: Colors.black.withOpacity(0.08)),
+                          bottom:
+                              BorderSide(color: Colors.black.withOpacity(0.08)),
                         ),
                       ),
                     ),
@@ -294,13 +306,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                       child: Container(
                         width: 26,
                         height: 26,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: _accent,
                           shape: BoxShape.circle,
                         ),
                         child: IconButton(
                           padding: EdgeInsets.zero,
-                          icon: const Icon(Icons.close, size: 16, color: Colors.white),
+                          icon: const Icon(Icons.close,
+                              size: 16, color: Colors.white),
                           onPressed: () => Navigator.pop(ctx),
                         ),
                       ),
@@ -315,7 +328,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           onSelected: (i) {
                             setLocal(() {
                               selMonth = i + 1;
-                              final dim = DateUtils.getDaysInMonth(selYear, selMonth);
+                              final dim =
+                                  DateUtils.getDaysInMonth(selYear, selMonth);
                               if (selDay > dim) {
                                 selDay = dim;
                                 dayController.jumpToItem(selDay - 1);
@@ -336,7 +350,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           onSelected: (i) {
                             setLocal(() {
                               selYear = years[i];
-                              final dim = DateUtils.getDaysInMonth(selYear, selMonth);
+                              final dim =
+                                  DateUtils.getDaysInMonth(selYear, selMonth);
                               if (selDay > dim) {
                                 selDay = dim;
                                 dayController.jumpToItem(selDay - 1);
@@ -367,7 +382,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           try {
                             yearController.dispose();
                           } catch (_) {}
-                          Navigator.pop(ctx, DateTime(selYear, selMonth, selDay));
+                          Navigator.pop(
+                              ctx, DateTime(selYear, selMonth, selDay));
                         },
                         child: AutoSizeText(
                           AppLocalizations.of(context)!.confirmLabel,
@@ -387,7 +403,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
                           ),
-                          side: BorderSide(color: HRColors.black.withOpacity(0.10)),
+                          side: BorderSide(
+                              color: HRColors.black.withOpacity(0.10)),
                         ),
                         onPressed: () {
                           try {
@@ -425,35 +442,35 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
     final String label = title == 'Half Day'
         ? AppLocalizations.of(context)!.halfDay
-        : (title == 'Full Day' ? AppLocalizations.of(context)!.fullDay
-        : (title == 'Short Leave'? AppLocalizations.of(context)!.shortLeave: title));
+        : (title == 'Full Day'
+            ? AppLocalizations.of(context)!.fullDay
+            : (title == 'Short Leave'
+                ? AppLocalizations.of(context)!.shortLeave
+                : title));
 
     return Expanded(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
         child: InkWell(
-          onTap: widget.isEdit ? null : () => setState(() => leaveTypeValue = value),
+          onTap: widget.isEdit
+              ? null
+              : () => setState(() => leaveTypeValue = value),
           borderRadius: BorderRadius.circular(14),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              gradient: isSelected
-                  ? const LinearGradient(
-                      colors: [Color(0xFFFFA54A), Color(0xFFFF8A1F)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : null,
-              color: isSelected ? null : const Color(0xFFF9FAFB),
+              color: isSelected
+                  ? const Color(0xFF791b27)
+                  : const Color(0xFFF9FAFB),
               border: Border.all(
                 color: isSelected ? Colors.transparent : Colors.grey.shade300,
               ),
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: _accent.withOpacity(0.18),
+                        color: const Color(0xFF791b27).withOpacity(0.25),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -465,14 +482,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? Colors.white : _accent,
+                  color: isSelected ? const Color(0xFFeed06e) : _accent,
                 ),
                 const SizedBox(height: 5),
                 AutoSizeText(
                   label,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : _textDark,
+                    color: isSelected ? const Color(0xFFeed06e) : _textDark,
                     fontWeight: FontWeight.w700,
                     fontSize: 10.5,
                   ),
@@ -510,7 +527,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                 color: _accent.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.calendar_month_rounded, color: _accent, size: 16),
+              child:
+                  Icon(Icons.calendar_month_rounded, color: _accent, size: 16),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -524,7 +542,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                 ),
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 11, color: _textMuted),
+            const Icon(Icons.arrow_forward_ios_rounded,
+                size: 11, color: _textMuted),
           ],
         ),
       ),
@@ -593,8 +612,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       width: double.infinity,
       height: 48,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFA54A), Color(0xFFFF8A1F)],
+        gradient: LinearGradient(
+          colors: [_accent, _accent],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -612,7 +631,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
           onTap: _confirmAndSubmit,
-          child:  Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
@@ -647,7 +666,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       );
       return;
     }
-    
+
     // Prevent selecting past dates on submission
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -659,7 +678,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       );
       return;
     }
-    
+
     final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
     final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
     if (tDateOnly.isBefore(fDateOnly)) {
@@ -676,45 +695,62 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       'to_date': DateFormat('yyyy-MM-dd').format(tDate),
       'leave_type': typeValue,
       'type': leaveTypeValue ?? 'full_day',
-      // Pass the shortLeaveSession conditionally
-      'session': leaveTypeValue == 'short_leave' ? shortLeaveSession : (leaveTypeValue ?? 'full_day'),
+      // Pass the session conditionally
+      'session': leaveTypeValue == 'short_leave'
+          ? shortLeaveSession
+          : (leaveTypeValue == 'half'
+              ? halfDaySession
+              : (leaveTypeValue ?? 'full_day')),
       'description': description.text,
     });
 
     try {
-      final statusCode = (res is Map && res.containsKey('statusCode')) ? res['statusCode'] : 500;
-      
+      final statusCode = (res is Map && res.containsKey('statusCode'))
+          ? res['statusCode']
+          : 500;
+
       if (statusCode == 200 || statusCode == 201) {
         // If it's a "success": true response, maybe the inner 'data' payload has success: false (Backend validation)
-        if (res['data'] is Map && (res['data']['success'] == false || res['data']['success'] == 'false')) {
-          String errMsg = 'Your leave quota is over. Contact your merchant.'; // generic message mapped
-          if (res['data']['errors'] != null && res['data']['errors'].toString().isNotEmpty) {
-             errMsg = res['data']['errors'].toString();
+        if (res['data'] is Map &&
+            (res['data']['success'] == false ||
+                res['data']['success'] == 'false')) {
+          String errMsg =
+              'Your leave quota is over. Contact your merchant.'; // generic message mapped
+          if (res['data']['errors'] != null &&
+              res['data']['errors'].toString().isNotEmpty) {
+            errMsg = res['data']['errors'].toString();
           }
           await _showTopMessage(errMsg, error: true);
           return;
         }
 
-        await _showTopMessage(AppLocalizations.of(context)!.leaveAppliedSuccessfully, error: false);
+        await _showTopMessage(
+            AppLocalizations.of(context)!.leaveAppliedSuccessfully,
+            error: false);
         if (mounted) Navigator.pop(context, true);
         return;
-      } 
-      
-      if (statusCode == 401 || statusCode == 403) {
-        await _showTopMessage(AppLocalizations.of(context)!.sessionExpired, error: true);
-        return;
-      } 
-      
-      if (statusCode == 400 || statusCode == 422) {
-         await _showTopMessage(AppLocalizations.of(context)!.invalidDetailsPleaseCheckYourForm, error: true);
-         return;
       }
 
-      await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave, error: true);
+      if (statusCode == 401 || statusCode == 403) {
+        await _showTopMessage(AppLocalizations.of(context)!.sessionExpired,
+            error: true);
+        return;
+      }
+
+      if (statusCode == 400 || statusCode == 422) {
+        await _showTopMessage(
+            AppLocalizations.of(context)!.invalidDetailsPleaseCheckYourForm,
+            error: true);
+        return;
+      }
+
+      await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave,
+          error: true);
       return;
     } catch (_) {}
 
-    await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave, error: true);
+    await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave,
+        error: true);
   }
 
   Widget _infoRow(String title, String value) {
@@ -796,7 +832,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           color: _accent.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.assignment_turned_in_rounded,
                           color: _accent,
                           size: 26,
@@ -929,7 +965,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       );
       return;
     }
-    
+
     // Prevent selecting past dates on submission confirmation
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -941,7 +977,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       );
       return;
     }
-    
+
     final fDateOnlyConfirm = DateTime(fDate.year, fDate.month, fDate.day);
     final tDateOnlyConfirm = DateTime(tDate.year, tDate.month, tDate.day);
     if (tDateOnlyConfirm.isBefore(fDateOnlyConfirm)) {
@@ -956,11 +992,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       final balanceData = await _leaveBalanceFuture;
       if (balanceData != null && balanceData['balance'] != null) {
         final currentType = typeValue!.toLowerCase();
-        
+
         // Skip balance check for unpaid/no-pay leave types
         if (currentType != 'nopay' && currentType != 'unpaid') {
           final bal = balanceData['balance'][currentType];
-          final num availableBalance = (bal is num) ? bal : num.tryParse(bal?.toString() ?? '') ?? 0;
+          final num availableBalance =
+              (bal is num) ? bal : num.tryParse(bal?.toString() ?? '') ?? 0;
 
           if (availableBalance <= 0) {
             await _showTopMessage(
@@ -1025,9 +1062,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       future: _combinedFuture,
       builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
+          return Center(
             child: Padding(
-              padding: EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20.0),
               child: CupertinoActivityIndicator(
                 color: _accent,
                 radius: 16.0,
@@ -1043,10 +1080,11 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         final leavesData = snapshot.data?[0] as List<MyLeavesModel>? ?? [];
         final balanceData = snapshot.data?[1] as Map<String, dynamic>?;
 
-        final pendingLeavesCount = leavesData.where((l) => 
-          l.status.trim().toLowerCase() == 'pending' || 
-          l.status.trim().toLowerCase() == 'requested'
-        ).length;
+        final pendingLeavesCount = leavesData
+            .where((l) =>
+                l.status.trim().toLowerCase() == 'pending' ||
+                l.status.trim().toLowerCase() == 'requested')
+            .length;
 
         final totalLeavesCount = leavesData.length;
 
@@ -1072,11 +1110,17 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                 children: [
                   AutoSizeText(
                     '${_getLeaveTypeLabel(key.toLowerCase())}: ',
-                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600),
                   ),
                   AutoSizeText(
                     value.toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w900),
                   ),
                 ],
               ),
@@ -1088,15 +1132,18 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
           margin: const EdgeInsets.only(bottom: 20, top: 10),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFFA54A), Color(0xFFFF8A1F)],
+            gradient: LinearGradient(
+              colors: [
+                FlavorConfig.instance.secondaryColor,
+                FlavorConfig.instance.secondaryColor.withOpacity(0.75),
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color:_surface,
+                color: FlavorConfig.instance.secondaryColor.withOpacity(0.28),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               )
@@ -1125,7 +1172,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                         AutoSizeText(
+                        AutoSizeText(
                           AppLocalizations.of(context)!.leaveSummary,
                           style: TextStyle(
                             fontSize: 14,
@@ -1133,7 +1180,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                         SizedBox(height: 4),
+                        SizedBox(height: 4),
                         AutoSizeText(
                           "${AppLocalizations.of(context)!.totalRequests}: $totalLeavesCount • ${AppLocalizations.of(context)!.pendindingLable}: $pendingLeavesCount",
                           style: TextStyle(
@@ -1149,9 +1196,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               ),
               if (balanceChips.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                Container(width: double.infinity, height: 1, color: Colors.white.withOpacity(0.2)),
+                Container(
+                    width: double.infinity,
+                    height: 1,
+                    color: Colors.white.withOpacity(0.2)),
                 const SizedBox(height: 8),
-                 AutoSizeText(
+                AutoSizeText(
                   AppLocalizations.of(context)!.availableBalance,
                   style: TextStyle(
                     fontSize: 11,
@@ -1234,7 +1284,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                       value: typeValue,
                       iconEnabledColor: _textDark,
                       isExpanded: true,
-                      onChanged: readOnly ? null : (v) => setState(() => typeValue = v),
+                      onChanged: readOnly
+                          ? null
+                          : (v) => setState(() => typeValue = v),
                       items: leaveTypeList.map((v) {
                         return DropdownMenuItem<String>(
                           value: v,
@@ -1256,14 +1308,15 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     children: [
                       _modeButton('Half Day', 'half', Icons.timelapse_rounded),
                       const SizedBox(width: 8),
-                      _modeButton('Full Day', 'full_day', Icons.wb_sunny_outlined),
+                      _modeButton(
+                          'Full Day', 'full_day', Icons.wb_sunny_outlined),
                       const SizedBox(width: 8),
-                      _modeButton('Short Leave', 'short_leave', Icons.access_time_rounded),
+                      _modeButton('Short Leave', 'short_leave',
+                          Icons.access_time_rounded),
                     ],
                   ),
-                  
+
                   // Show dropdown only if Short Leave is selected
-           
 
                   const SizedBox(height: 20),
                   _sectionHeader(
@@ -1279,12 +1332,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           onTap: readOnly
                               ? null
                               : () async {
-                                  final picked = await _pickWheelDate(initial: fDate);
+                                  final picked =
+                                      await _pickWheelDate(initial: fDate);
                                   if (picked == null) return;
 
                                   setState(() {
                                     fDate = picked;
-                                    fromText = DateFormat('dd/MM/yyyy').format(picked);
+                                    fromText =
+                                        DateFormat('dd/MM/yyyy').format(picked);
                                   });
                                 },
                         ),
@@ -1296,12 +1351,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           onTap: readOnly
                               ? null
                               : () async {
-                                  final picked = await _pickWheelDate(initial: tDate);
+                                  final picked =
+                                      await _pickWheelDate(initial: tDate);
                                   if (picked == null) return;
 
                                   setState(() {
                                     tDate = picked;
-                                    toText = DateFormat('dd/MM/yyyy').format(picked);
+                                    toText =
+                                        DateFormat('dd/MM/yyyy').format(picked);
                                   });
                                 },
                         ),
@@ -1309,36 +1366,78 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                     ],
                   ),
 
-                         if (leaveTypeValue == 'short_leave') ...[
+                  if (leaveTypeValue == 'short_leave') ...[
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF9FAFB),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: Colors.grey.shade300),
                       ),
-                      child: DropdownButton<String>(
-                        underline: const SizedBox.shrink(),
-                        dropdownColor: HRColors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        value: shortLeaveSession,
-                        iconEnabledColor: _textDark,
-                        isExpanded: true,
-                        onChanged: readOnly ? null : (v) => setState(() => shortLeaveSession = v),
-                        items:  [
-                          DropdownMenuItem<String>(
-                            value: 'morning',
-                            child: AutoSizeText(
-                              AppLocalizations.of(context)!.morning,
-                              style: TextStyle(fontWeight: FontWeight.w700, color: _textDark, fontSize: 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: readOnly
+                                  ? null
+                                  : () => setState(
+                                      () => shortLeaveSession = 'morning'),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: shortLeaveSession == 'morning'
+                                      ? const Color(0xFF791b27)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: AutoSizeText(
+                                    AppLocalizations.of(context)!.morning,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: shortLeaveSession == 'morning'
+                                          ? const Color(0xFFeed06e)
+                                          : _textDark,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                          DropdownMenuItem<String>(
-                            value: 'evening',
-                            child: AutoSizeText(
-                              AppLocalizations.of(context)!.evening,
-                              style: TextStyle(fontWeight: FontWeight.w700, color: _textDark, fontSize: 12),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: InkWell(
+                              onTap: readOnly
+                                  ? null
+                                  : () => setState(
+                                      () => shortLeaveSession = 'evening'),
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: shortLeaveSession == 'evening'
+                                      ? const Color(0xFF791b27)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: AutoSizeText(
+                                    AppLocalizations.of(context)!.evening,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                      color: shortLeaveSession == 'evening'
+                                          ? const Color(0xFFeed06e)
+                                          : _textDark,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -1348,7 +1447,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                   const SizedBox(height: 16),
                   const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9FAFB),
                       borderRadius: BorderRadius.circular(14),

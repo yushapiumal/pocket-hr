@@ -18,7 +18,8 @@ class ComingSoonScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: HRColors.black),
         title: AutoSizeText(
           title,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: HRColors.black),
+          style: const TextStyle(
+              fontSize: 24, fontWeight: FontWeight.w900, color: HRColors.black),
         ),
       ),
       body: Center(
@@ -30,7 +31,10 @@ class ComingSoonScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: HRColors.black.withOpacity(0.05)),
             boxShadow: [
-              BoxShadow(color: HRColors.black.withOpacity(0.04), blurRadius: 14, offset: const Offset(0, 8)),
+              BoxShadow(
+                  color: HRColors.black.withOpacity(0.04),
+                  blurRadius: 14,
+                  offset: const Offset(0, 8)),
             ],
           ),
           child: Column(
@@ -43,19 +47,26 @@ class ComingSoonScreen extends StatelessWidget {
                   color: HRColors.lightOrangeColor,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(Icons.hourglass_bottom_rounded, color: HRColors.darkOrangeColor, size: 30),
+                child: Icon(Icons.hourglass_bottom_rounded,
+                    color: HRColors.darkOrangeColor, size: 30),
               ),
               const SizedBox(height: 12),
               AutoSizeText(
                 '$title is coming soon',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: HRColors.darkFontColor),
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: HRColors.darkFontColor),
               ),
               const SizedBox(height: 6),
               AutoSizeText(
                 'We are working on this feature and will release it in a future update.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: HRColors.lightFontColor),
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: HRColors.lightFontColor),
               ),
             ],
           ),

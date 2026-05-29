@@ -14,8 +14,10 @@ import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:cn_pocket_hr/services/sso_service.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
 import 'package:cn_pocket_hr/screens/login/otp_page.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 
-class  TabletLogin extends StatefulWidget {
+class TabletLogin extends StatefulWidget {
   const TabletLogin({Key? key}) : super(key: key);
 
   @override
@@ -23,10 +25,10 @@ class  TabletLogin extends StatefulWidget {
 }
 
 class _TabletLoginState extends State<TabletLogin> {
-   final email = TextEditingController();
-   final password = TextEditingController();
-   final company = TextEditingController();
-   final nicController = TextEditingController();
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final company = TextEditingController();
+  final nicController = TextEditingController();
 
   // Focus nodes to support Next/Done keyboard actions
   final FocusNode _companyFocus = FocusNode();
@@ -48,7 +50,8 @@ class _TabletLoginState extends State<TabletLogin> {
 
   bool _obscure = true;
 
-  static const Color _accent = Color(0xFFF59E0B); // close to HRColors.orangeColor
+  static const Color _accent =
+      Color(0xFFF59E0B); // close to HRColors.orangeColor
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
   @override
@@ -68,7 +71,6 @@ class _TabletLoginState extends State<TabletLogin> {
           await storage.setItem('access_token', '');
           await storage.setItem('refresh_token', '');
           await storage.setItem('tenant', '');
-
         } catch (_) {}
         if (mounted) setState(() => _autoRedirecting = false);
         return;
@@ -140,19 +142,27 @@ class _TabletLoginState extends State<TabletLogin> {
           elevation: 0,
           backgroundColor: _surface,
           foregroundColor: Colors.black87,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
-        child: AutoSizeText(label, style: const TextStyle(fontWeight: FontWeight.w800)),
+        child: AutoSizeText(label,
+            style: const TextStyle(fontWeight: FontWeight.w800)),
       ),
     );
   }
 
-  InputDecoration _fieldDecoration({required String label, required String hint, required IconData icon, Widget? suffix}) {
+  InputDecoration _fieldDecoration(
+      {required String label,
+      required String hint,
+      required IconData icon,
+      Widget? suffix}) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.black54, fontSize: 12, fontWeight: FontWeight.w800),
+      labelStyle: const TextStyle(
+          color: Colors.black54, fontSize: 12, fontWeight: FontWeight.w800),
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.black38, fontSize: 12, fontWeight: FontWeight.w600),
+      hintStyle: const TextStyle(
+          color: Colors.black38, fontSize: 12, fontWeight: FontWeight.w600),
       prefixIcon: Icon(icon, color: Colors.black45, size: 20),
       suffixIcon: suffix,
       filled: true,
@@ -175,9 +185,11 @@ class _TabletLoginState extends State<TabletLogin> {
 
   Widget inputTenant() {
     // Formatter to force lowercase
-    final lowerCaseFormatter = TextInputFormatter.withFunction((oldValue, newValue) {
+    final lowerCaseFormatter =
+        TextInputFormatter.withFunction((oldValue, newValue) {
       final text = newValue.text.toLowerCase();
-      return TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+      return TextEditingValue(
+          text: text, selection: TextSelection.collapsed(offset: text.length));
     });
 
     return Padding(
@@ -186,9 +198,11 @@ class _TabletLoginState extends State<TabletLogin> {
         controller: company,
         focusNode: _companyFocus,
         textInputAction: TextInputAction.next,
-        onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_emailFocus),
+        onFieldSubmitted: (_) =>
+            FocusScope.of(context).requestFocus(_emailFocus),
         onChanged: (_) => setState(() => _validateCompany = false),
-        style: const TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
+        style: const TextStyle(
+            color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w700),
         cursorColor: _accent,
         inputFormatters: [
           lowerCaseFormatter,
@@ -277,7 +291,9 @@ class _TabletLoginState extends State<TabletLogin> {
       padding: const EdgeInsets.only(top: 6),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: AutoSizeText(text, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.w700)),
+        child: AutoSizeText(text,
+            style: const TextStyle(
+                color: Colors.red, fontSize: 12, fontWeight: FontWeight.w700)),
       ),
     );
   }
@@ -290,7 +306,10 @@ class _TabletLoginState extends State<TabletLogin> {
     });
     if (_validateCompany || _validateEmail) return;
 
-    setState(() { isLoading = true; buttonDisable = true; });
+    setState(() {
+      isLoading = true;
+      buttonDisable = true;
+    });
     try {
       storage.setItem('company', company.text);
       storage.setItem('email', email.text);
@@ -302,7 +321,8 @@ class _TabletLoginState extends State<TabletLogin> {
         final details = await dsvc.collectAll();
         final dev = details['device'] as Map<String, dynamic>? ?? {};
         deviceInfo['model_number'] = (dev['model'] ?? '').toString();
-        deviceInfo['device_id'] = (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
+        deviceInfo['device_id'] =
+            (dev['androidId'] ?? dev['identifierForVendor'] ?? '').toString();
         deviceInfo['ip_address'] = (details['ip'] ?? '').toString();
       } catch (_) {}
 
@@ -315,7 +335,8 @@ class _TabletLoginState extends State<TabletLogin> {
       //   return;
       // }
 
-      final otp = await Navigator.of(context).push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
+      final otp = await Navigator.of(context)
+          .push<String>(MaterialPageRoute(builder: (_) => const OtpPage()));
       if (otp == null || otp.isEmpty) return;
 
       // final verify = await apiService.verifyAuthPinMobile(tenant: tenantName, nic: nic, pin: otp, deviceInfo: deviceInfo);
@@ -331,9 +352,13 @@ class _TabletLoginState extends State<TabletLogin> {
       debugPrint(st.toString());
       apiService.showToast('Failed to login.');
     } finally {
-      if (mounted) setState(() { isLoading = false; buttonDisable = false; });
+      if (mounted)
+        setState(() {
+          isLoading = false;
+          buttonDisable = false;
+        });
     }
-   }
+  }
 
   Future<void> _ssoLogin() async {
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
@@ -347,7 +372,7 @@ class _TabletLoginState extends State<TabletLogin> {
     });
 
     try {
-      final tenantName = company.text.trim();
+      final tenantName = FlavorConfig.instance.tenant ?? company.text.trim();
       if (tenantName.isEmpty) {
         setState(() {
           _validateCompany = true;
@@ -362,7 +387,6 @@ class _TabletLoginState extends State<TabletLogin> {
       storage.setItem('refresh_token', result.refreshToken);
       storage.setItem('tenant', tenantName);
 
-
       // Ensure uid is derived from access token for later API calls (e.g., QR locations-by-userid)
       try {
         final ensuredUid = await apiService.ensureUidFromAccessToken();
@@ -370,6 +394,8 @@ class _TabletLoginState extends State<TabletLogin> {
           await storage.setItem('uid', ensuredUid);
         }
       } catch (_) {}
+
+      FCMService.sendTokenToBackend();
 
       setState(() {
         isLoading = false;
@@ -392,7 +418,9 @@ class _TabletLoginState extends State<TabletLogin> {
   @override
   Widget build(BuildContext context) {
     if (_autoRedirecting) {
-      return const Scaffold(body:Center(child:  CupertinoActivityIndicator(
+      return Scaffold(
+          body: Center(
+              child: CupertinoActivityIndicator(
         color: HRColors.darkOrangeColor,
         radius: 16.0,
       )));
@@ -477,47 +505,17 @@ class _TabletLoginState extends State<TabletLogin> {
                         ),
                         const SizedBox(height: 12),
 
-                        inputTenant(),
-                        _errorText(_validateCompany, AppLocalizations.of(context)!.tenantValidation),
-                        // NIC instead of email/password for first step
-                        // inputNic(),
-                        // _errorText(_validateEmail, 'Please enter NIC'),
-
                         const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                // Checkbox(
-                                //   value: _rememberMe,
-                                //   onChanged: (v) => setState(() => _rememberMe = v ?? true),
-                                //   activeColor: _accent,
-                                //   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                // ),
-                                // AutoSizeText(
-                                //   'Remember Me',
-                                //   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black54),
-                                // ),
-                              ],
-                            ),
-                            TextButton(
-                              onPressed: () => apiService.showToast('Coming soon'),
-                              child:  AutoSizeText(
-                               AppLocalizations.of(context)!.forgetPw,
-                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _accent),
-                              ),
-                            ),
-                          ],
-                        ),
 
                         if (isLoading)
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child:Center(child: CupertinoActivityIndicator(
-        color: HRColors.darkOrangeColor,
-        radius: 16.0,
-      ),),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Center(
+                              child: CupertinoActivityIndicator(
+                                color: HRColors.darkOrangeColor,
+                                radius: 16.0,
+                              ),
+                            ),
                           ),
 
                         const SizedBox(height: 4),
@@ -593,23 +591,27 @@ class _TabletLoginState extends State<TabletLogin> {
                           width: double.infinity,
                           height: 46,
                           child: ElevatedButton(
-                          onPressed: buttonDisable ? null : _ssoLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _accent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                            elevation: 0,
-                          ),
+                            onPressed: buttonDisable ? null : _ssoLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _accent,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14)),
+                              elevation: 0,
+                            ),
                             child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AutoSizeText(
-                              AppLocalizations.of(context)!.continueText,
-                              style: const TextStyle(fontWeight: FontWeight.w900, color: Colors.white),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
-                            ],
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AutoSizeText(
+                                  AppLocalizations.of(context)!.continueText,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_forward_rounded,
+                                    color: Colors.white, size: 22),
+                              ],
                             ),
                           ),
                         ),
@@ -629,9 +631,8 @@ class _TabletLoginState extends State<TabletLogin> {
                         // ),
 
                         langPicker(),
-                         const SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
-                      
                     ),
                   ),
                 ),
@@ -643,4 +644,3 @@ class _TabletLoginState extends State<TabletLogin> {
     );
   }
 }
-

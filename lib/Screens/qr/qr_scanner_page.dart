@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,8 +36,6 @@ class _QrScannerPageState extends State<QrScannerPage> {
   bool _torchOn = false;
   bool _isFrontCamera = false;
   final LocalStorage storage = LocalStorage('pocketHR');
-  static const Color _accent = Color(0xFFF59E0B);
-
   Future<void> _buzzOnScan() async {
     try {
       final hasVibrator = await Vibration.hasVibrator();

@@ -7,7 +7,7 @@ import 'package:cn_pocket_hr/screens/main/main_screen.dart';
 import 'package:cn_pocket_hr/screens/splash_screen/hr_introduction.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
-import 'package:cn_pocket_hr/helpers/hr_constant.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -118,7 +118,7 @@ class _TabletSplashState extends State<TabletSplash>
             child: SizeTransition(
               sizeFactor: _animation,
               child: Image.asset(
-                HrConstant.getImagePath('app_logo.png'),
+                FlavorConfig.instance.splashLogoAsset,
                 width: MediaQuery.of(context).size.width / 3.4,
               ),
             ),

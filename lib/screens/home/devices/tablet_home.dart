@@ -14,12 +14,14 @@ import 'package:cn_pocket_hr/services/offline_attendance_service.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:cn_pocket_hr/constants/slideanimation.dart';
 import 'package:cn_pocket_hr/screens/notifications/notifications.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:cn_pocket_hr/screens/qr/qr_scanner_page.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/controllers/controller.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/glass_box.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/custom_blur_hash.dart';
 import 'package:cn_pocket_hr/models/slider_model.dart';
 import 'package:cn_pocket_hr/models/hr/check_in_check_out_model.dart';
@@ -28,7 +30,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:cn_pocket_hr/providers/connection_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 
 class TabletHome extends StatefulWidget {
   const TabletHome({Key? key}) : super(key: key);
@@ -42,7 +44,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   AnimationController? _animationController;
   PageController? _controller;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late AudioPlayer _audioPlayer;
+ // late AudioPlayer _audioPlayer;
 
   String morningBg =
       "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
@@ -75,6 +77,10 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   int _qrSecondsLeft = 0;
   bool _qrBusy = false;
   String? _qrActiveType; // 'checkin' or 'checkout'
+
+  // Brief cooldown after punch (prevents double-punch)
+  bool _punchCooldown = false;
+  Timer? _cooldownTimer;
 
   // Blink animation while QR window is active
   AnimationController? _blinkController;
@@ -174,8 +180,19 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1500),
     );
     // audio player for countdown sound
-    _audioPlayer = AudioPlayer();
-    _audioPlayer.setReleaseMode(ReleaseMode.stop);
+    // _audioPlayer = AudioPlayer();
+    // _audioPlayer.setReleaseMode(ReleaseMode.stop);
+
+    // Refresh profile from API if storage was cleared (e.g. after logout+login).
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await storage.ready;
+        if (storage.getItem('me_profile') == null) {
+          await apiService.fetchMeProfileWithBearer();
+          if (mounted) setState(() {});
+        }
+      } catch (_) {}
+    });
   }
 
   @override
@@ -184,11 +201,14 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       _qrWindowTimer?.cancel();
     } catch (_) {}
     try {
+      _cooldownTimer?.cancel();
+    } catch (_) {}
+    try {
       _blinkController?.dispose();
     } catch (_) {}
     try {
-      _audioPlayer.stop();
-      _audioPlayer.dispose();
+    //  _audioPlayer.stop();
+    //  _audioPlayer.dispose();
     } catch (_) {}
     _timer.cancel();
     streamSubscription.cancel();
@@ -227,6 +247,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     final latStr = (latitude != null) ? latitude.toString() : null;
     final lngStr = (longitude != null) ? longitude.toString() : null;
     final addr = (address != null) ? address.toString() : null;
+    final accStr = (accuracy != null) ? accuracy.toString() : null;
 
     // If offline, save immediately and avoid calling remote API (prevents socket errors)
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
@@ -274,6 +295,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         latitude: latStr,
         longitude: lngStr,
         address: addr,
+        accuracy: accStr,
         isRemotePunch: isRemote,
       );
     } catch (_) {
@@ -323,7 +345,12 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         msg = type == 'checkout'
             ? AppLocalizations.of(context)!.checkOutSuccess
             : AppLocalizations.of(context)!.checkInSuccess;
-        bg = type == 'checkout' ? HRColors.orangeColor : HRColors.blueColor;
+        bg = Colors.green;
+        _cooldownTimer?.cancel();
+        _cooldownTimer = Timer(const Duration(seconds: 5), () {
+          if (mounted) setState(() => _punchCooldown = false);
+        });
+        if (mounted) setState(() => _punchCooldown = true);
       } else if (statusCode == 400) {
         msg = AppLocalizations.of(context)!.cantLocate;
         bg = Colors.red;
@@ -367,6 +394,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   var latitude;
   var longitude;
   var address;
+  var accuracy;
   late StreamSubscription<Position> streamSubscription;
 
   getLocation() async {
@@ -393,6 +421,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         Geolocator.getPositionStream().listen((Position position) {
       latitude = position.latitude;
       longitude = position.longitude;
+      accuracy = position.accuracy;
       getAddressFromLatLang(position);
     });
   }
@@ -622,7 +651,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         } catch (_) {}
         // stop audio playback when window ends
         try {
-          _audioPlayer.stop();
+        //  _audioPlayer.stop();
         } catch (_) {}
       } else {
         _qrSecondsLeft = left;
@@ -637,13 +666,14 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     } catch (_) {}
     // start looping countdown audio (asset path: assets/sounds/countdown.mp3)
     try {
-      _audioPlayer.setReleaseMode(ReleaseMode.loop);
-      _audioPlayer.play(AssetSource('sounds/clock.wav'));
+    //  _audioPlayer.setReleaseMode(ReleaseMode.loop);
+   //   _audioPlayer.play(AssetSource('sounds/clock.wav'));
     } catch (_) {}
     if (mounted) setState(() {});
   }
 
   Future<void> _onCheckTap(String type) async {
+    if (_punchCooldown) return;
     if (_qrBusy) return;
     _qrBusy = true;
     try {
@@ -664,7 +694,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         } catch (_) {}
         // stop audio when punch occurs
         try {
-          _audioPlayer.stop();
+      //    _audioPlayer.stop();
         } catch (_) {}
         return;
       }
@@ -672,7 +702,10 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
       // No active window => run validation.
       _qrActiveType = type;
       final ok = await _ensureQrValidatedIfRequired();
-      if (!ok) return;
+      if (!ok) {
+        _qrActiveType = null; // clear so the other button is not left disabled
+        return;
+      }
       if (!_qrWindowActive) {
         await checkinCheckout(type, isRemote: _isRemotePunch);
         _isRemotePunch = false;
@@ -814,9 +847,11 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                               Expanded(
                                 flex: 2,
                                 child: IgnorePointer(
-                                  ignoring: _qrActiveType == 'checkout',
+                                  ignoring: _qrActiveType == 'checkout' ||
+                                      _punchCooldown,
                                   child: Opacity(
-                                    opacity: _qrActiveType == 'checkout'
+                                    opacity: (_qrActiveType == 'checkout' ||
+                                            _punchCooldown)
                                         ? 0.35
                                         : 1.0,
                                     child: Container(
@@ -844,8 +879,10 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  HRColors.blueColor,
-                                                  HRColors.blueColor,
+                                                  FlavorConfig
+                                                      .instance.primaryColor,
+                                                  FlavorConfig
+                                                      .instance.primaryColor,
                                                 ],
                                                 begin: Alignment.centerLeft,
                                                 end: Alignment.centerRight,
@@ -943,10 +980,13 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                               Expanded(
                                 flex: 2,
                                 child: IgnorePointer(
-                                  ignoring: _qrActiveType == 'checkin',
+                                  ignoring: _qrActiveType == 'checkin' ||
+                                      _punchCooldown,
                                   child: Opacity(
-                                    opacity:
-                                        _qrActiveType == 'checkin' ? 0.35 : 1.0,
+                                    opacity: (_qrActiveType == 'checkin' ||
+                                            _punchCooldown)
+                                        ? 0.35
+                                        : 1.0,
                                     child: Container(
                                       margin:
                                           const EdgeInsets.only(right: 12.0),
@@ -973,8 +1013,10 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                                             decoration: BoxDecoration(
                                               gradient: LinearGradient(
                                                 colors: [
-                                                  HRColors.orangeColor,
-                                                  HRColors.orangeColor,
+                                                  FlavorConfig
+                                                      .instance.secondaryColor,
+                                                  FlavorConfig
+                                                      .instance.secondaryColor,
                                                 ],
                                                 begin: Alignment.centerLeft,
                                                 end: Alignment.centerRight,
@@ -1120,11 +1162,12 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                   redius: 40.0,
                   width: 50,
                   height: 50,
+                  backgroundColor: HRColors.flavorIconBackgroundColor,
                   child: Align(
                     alignment: Alignment.center,
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Icon(Icons.sync, color: Colors.white),
+                      child: Icon(Icons.sync, color: HRColors.flavorIconColor),
                     ),
                   ),
                 ),
@@ -1132,23 +1175,60 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
             ),
 
             GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, HRNotifications.routeName);
+              onTap: () async {
+                await Navigator.pushNamed(context, HRNotifications.routeName);
+                await FCMService.loadUnreadCount();
               },
               child: Container(
                 padding: EdgeInsets.all(5.0),
                 alignment: Alignment.center,
-                child: GlassBox(
-                  redius: 40.0,
-                  width: 50,
-                  height: 50,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child:
-                          SvgPicture.asset("assets/svg/notifications_icon.svg"),
-                    ),
+                child: ValueListenableBuilder<int>(
+                  valueListenable: FCMService.unreadCount,
+                  builder: (context, count, _) => Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      GlassBox(
+                        redius: 40.0,
+                        width: 50,
+                        height: 50,
+                        backgroundColor: HRColors.flavorIconBackgroundColor,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: SvgPicture.asset(
+                                'assets/svg/notifications_icon.svg',
+                                colorFilter: ColorFilter.mode(
+                                    HRColors.flavorIconColor, BlendMode.srcIn)),
+                          ),
+                        ),
+                      ),
+                      if (count > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              count > 99 ? '99+' : '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -1168,11 +1248,14 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                 redius: 40.0,
                 width: 50,
                 height: 50,
+                backgroundColor: HRColors.flavorIconBackgroundColor,
                 child: Align(
                   alignment: Alignment.center,
                   child: Padding(
                     padding: EdgeInsets.all(10.0),
-                    child: SvgPicture.asset("assets/svg/drawer_icon.svg"),
+                    child: SvgPicture.asset("assets/svg/drawer_icon.svg",
+                        colorFilter: ColorFilter.mode(
+                            HRColors.flavorIconColor, BlendMode.srcIn)),
                   ),
                 ),
               ),
