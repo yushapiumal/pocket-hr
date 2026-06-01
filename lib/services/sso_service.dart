@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:app_links/app_links.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
 
 class SsoResult {
@@ -112,11 +113,8 @@ class SsoService {
     await _writeSecure(key: _kTenantKey, value: tenant);
     debugPrint('[SSO] stored verifier/state/tenant');
 
-    debugPrint('[SSO] opening authUrl');
-    await _openAuthUrl(authUrl);
-    debugPrint('[SSO] authUrl opened, waiting for redirect...');
-
-    final redirect = await _awaitRedirect(expectedState: state);
+    debugPrint('[SSO] opening authUrl (in-app secure browser)');
+    final redirect = await _openAuthUrl(authUrl, state);
     debugPrint('[SSO] redirect received: ${redirect.toString()}');
 
     final code = redirect.queryParameters['code'];
@@ -238,73 +236,29 @@ print(body);
     return decoded;
   }
 
-  Future<void> _openAuthUrl(String authUrl) async {
-    final uri = Uri.parse(authUrl);
-    debugPrint('[SSO] launchUrl: $uri');
-
-    final ok = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
-
-    if (!ok) {
-      debugPrint('[SSO][ERROR] launchUrl failed');
-      throw Exception('Could not open authUrl');
-    }
-  }
-
-  Future<Uri> _awaitRedirect({required String expectedState}) async {
-    debugPrint('[SSO] awaiting redirect (expected state=$expectedState)');
-    debugPrint('[SSO] expected redirect example: $expectedRedirectExample');
-
-    // Try initial/cold-start link.
+  Future<Uri> _openAuthUrl(String authUrl, String expectedState) async {
+    debugPrint('[SSO] openAuthUrl using FlutterWebAuth: $authUrl');
+    String callbackScheme = 'humanmahajana';
     try {
-      final initial = await _appLinks.getInitialLink();
-      if (initial != null) {
-        debugPrint('[SSO] initialLink: $initial');
-        debugPrint('[SSO] initialLink params: ${initial.queryParameters}');
-        final st = initial.queryParameters['state'];
-        if (st == expectedState && initial.queryParameters['code'] != null) {
-          debugPrint('[SSO] initialLink matched expected state');
-          return initial;
-        }
+      final parsed = Uri.parse(authUrl);
+      final redirectParam = parsed.queryParameters['redirect_uri'] ?? '';
+      if (redirectParam.isNotEmpty) {
+        final r = Uri.parse(redirectParam);
+        if (r.scheme.isNotEmpty) callbackScheme = r.scheme;
       }
+    } catch (_) {}
+
+    try {
+      final result = await FlutterWebAuth2.authenticate(
+        url: authUrl,
+        callbackUrlScheme: callbackScheme,
+      );
+      final redirected = Uri.parse(result);
+      return redirected;
     } catch (e) {
-      debugPrint('[SSO] getInitialLink error: $e');
+      debugPrint('[SSO][ERROR] FlutterWebAuth failed: $e');
+      rethrow;
     }
-
-    final completer = Completer<Uri>();
-    StreamSubscription<Uri>? sub;
-
-    sub = _appLinks.uriLinkStream.listen(
-      (uri) {
-        debugPrint('[SSO] uriLinkStream event: $uri');
-        debugPrint('[SSO] uriLinkStream params: ${uri.queryParameters}');
-        final st = uri.queryParameters['state'];
-        final code = uri.queryParameters['code'];
-        if (st == expectedState && code != null && code.isNotEmpty) {
-          debugPrint('[SSO] redirect matched expected state');
-          if (!completer.isCompleted) completer.complete(uri);
-          sub?.cancel();
-        }
-      },
-      onError: (err) {
-        debugPrint('[SSO][ERROR] uriLinkStream error: $err');
-        if (!completer.isCompleted) {
-          completer.completeError(err);
-        }
-        sub?.cancel();
-      },
-    );
-
-    return completer.future.timeout(
-      const Duration(minutes: 2),
-      onTimeout: () {
-        debugPrint('[SSO][ERROR] redirect wait timeout');
-        sub?.cancel();
-        throw Exception('SSO timed out');
-      },
-    );
   }
 
   @visibleForTesting

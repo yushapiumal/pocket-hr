@@ -27,9 +27,9 @@ Future<void> main() async {
 
   // 3. Define branding/config
   const Color primary = Color(0xFF8B1818); // Domex dark crimson red
-  const Color secondary = Color(0xFFE8B84B); // Domex gold
+  const Color secondary = Color(0xffffcc09); // Domex gold
   const Color iconFg = Color(0xFF000000); 
-  const Color iconBg = Color(0xFFEED06E);
+  const Color iconBg = Color(0xffffcc09);
 
   FlavorConfig.init(
     flavor: Flavor.domex,

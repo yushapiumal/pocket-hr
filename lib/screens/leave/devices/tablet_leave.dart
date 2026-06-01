@@ -101,9 +101,51 @@ class TabletLeaveState extends State<TabletLeave>
     if (_leaveBalances == null) return const SizedBox();
 
     String buildVal(String type) {
-      final quota = _leaveBalances!['quota']?[type] ?? 0;
-      final used = _leaveBalances!['used']?[type] ?? 0;
-      return '$used/$quota';
+      final quotaMap = (_leaveBalances!['quota'] ?? _leaveBalances!['leave_quota']) as Map?;
+      final usedMap = (_leaveBalances!['used'] ?? _leaveBalances!['taken'] ?? _leaveBalances!['leave_used'] ?? _leaveBalances!['leave_taken']) as Map?;
+      final balanceMap = (_leaveBalances!['balance'] ?? _leaveBalances!['leave_balance'] ?? _leaveBalances!['remaining']) as Map?;
+
+      num toNum(dynamic v) {
+        if (v == null) return 0;
+        if (v is num) return v;
+        return num.tryParse(v.toString()) ?? 0;
+      }
+
+      dynamic find(Map? m, String k) {
+        if (m == null) return null;
+        if (m.containsKey(k)) return m[k];
+        final lowerK = k.toLowerCase();
+        for (var entry in m.entries) {
+          final sk = entry.key.toString().toLowerCase();
+          if (sk == lowerK || sk == '${lowerK}_leave' || sk == 'leave_$lowerK') return entry.value;
+        }
+        return null;
+      }
+
+      var quota = find(quotaMap, type);
+      var used = find(usedMap, type);
+
+      // Fallback: If not in maps, maybe they are top-level keys like "annual_quota"
+      quota ??= find(_leaveBalances, '${type}_quota') ?? find(_leaveBalances, 'quota_$type');
+      used ??= find(_leaveBalances, '${type}_used') ?? find(_leaveBalances, 'used_$type') ?? find(_leaveBalances, '${type}_taken');
+
+      if (used == null && balanceMap != null) {
+        final bal = find(balanceMap, type);
+        if (bal != null && quota != null) {
+          used = toNum(quota) - toNum(bal);
+        }
+      }
+
+      // Final fallbacks from LocalStorage
+      quota ??= storage.getItem('${type}Quota') ?? storage.getItem('${type}_quota');
+      if (used == null) {
+        final storageBal = storage.getItem('leave${type[0].toUpperCase()}${type.substring(1)}') ?? storage.getItem('leave_$type');
+        if (storageBal != null && quota != null) {
+          used = toNum(quota) - toNum(storageBal);
+        }
+      }
+
+      return '${toNum(used)}/${toNum(quota)}';
     }
 
     return Container(
@@ -220,6 +262,9 @@ class TabletLeaveState extends State<TabletLeave>
       isLoading = true;
       myLeaves = LeaveService.getMyLeaves();
     });
+
+    // Refresh balance too
+    _loadBalance();
 
     try {
       final value = await myLeaves;
@@ -458,7 +503,10 @@ class TabletLeaveState extends State<TabletLeave>
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w800)),
                     TextButton(
-                      onPressed: () => getMyLeaves(),
+                      onPressed: () {
+                        _loadBalance();
+                        getMyLeaves();
+                      },
                       child: AutoSizeText(AppLocalizations.of(context)!.refresh,
                           style: const TextStyle(
                               color: Colors.black87, fontWeight: _wBold)),
@@ -488,7 +536,7 @@ class TabletLeaveState extends State<TabletLeave>
                       color: const Color(0xFF791b27),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    labelColor: const Color(0xFFeed06e),
+                    labelColor: HRColors.secondaryColor,
                     unselectedLabelColor: Colors.black54,
                     tabs: [
                       Tab(text: AppLocalizations.of(context)!.allLabel),

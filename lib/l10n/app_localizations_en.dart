@@ -618,6 +618,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get evening => ' Two hours in the Evening';
 
   @override
+  String get morningLabel => 'Morning';
+
+  @override
+  String get eveningLabel => 'Evening';
+
+  @override
   String get workingHrs => 'Total Hrs';
 
   @override

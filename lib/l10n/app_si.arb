@@ -289,7 +289,9 @@
   "saturday": "සෙනසුරාදා",
   "saturdayHours": "පෙ.ව. 8:30 – ප.ව. 1:30",
   "sunday": "ඉරිදා",
-  "closed": "වසා ඇත"
+  "closed": "වසා ඇත",
+  "morningLabel": "උදෑසන",
+  "eveningLabel": "සවස"
   
 
 

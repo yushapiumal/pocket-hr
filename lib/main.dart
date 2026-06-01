@@ -1,9 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cn_pocket_hr/Screens/login/login_screen.dart';
 import 'package:cn_pocket_hr/config/firebase_options_digitable.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
+import 'package:cn_pocket_hr/screens/login/login_screen.dart';
 import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

@@ -492,7 +492,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                     style: TextStyle(
                       fontWeight: _wBold,
                       color: _tabType == 'cur'
-                          ? const Color(0xFFeed06e)
+                          ? HRColors.secondaryColor
                           : Colors.black54,
                     ),
                   ),
@@ -523,7 +523,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                     style: TextStyle(
                       fontWeight: _wBold,
                       color: _tabType == 'prv'
-                          ? const Color(0xFFeed06e)
+                          ? HRColors.secondaryColor
                           : Colors.black54,
                     ),
                   ),

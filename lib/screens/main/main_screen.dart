@@ -149,7 +149,7 @@ class _HRMainState extends State<HRMain> {
                       icon,
                       size: 22,
                       color:
-                          isSelected ? const Color(0xFFeed06e) : Colors.white,
+                          isSelected ? HRColors.secondaryColor : Colors.white,
                     ),
                   ),
                 ),

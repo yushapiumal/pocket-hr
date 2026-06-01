@@ -11,7 +11,7 @@ class HRColors {
   static const Color bottomColor = Color(0xFFFED130);
   static const Color lableColor = Color(0xFF29D2C8);
   static const Color blueColor = Color(0xFF2D67CC);
-  static const Color yellow = Color(0xffF4C90F);
+  static const Color yellow = Color(0xffffcc09);
 
   static const Color white = Color(0xFFffffff);
   static const Color black = Color(0xFF000000);
@@ -25,6 +25,13 @@ class HRColors {
   static Color get lightOrangeColor =>
       FlavorConfig.instance.primaryColor.withOpacity(0.18);
   static Color get orangeColor => FlavorConfig.instance.primaryColor;
+
+  /// Active flavor's secondary color (usually yellow/gold for Domex)
+  static Color get secondaryColor => FlavorConfig.instance.secondaryColor;
+
+  /// Active flavor's icon background color
+  static Color get iconBackgroundColor =>
+      FlavorConfig.instance.iconBackgroundColor ?? const Color(0xffffcc09);
 
   /// Tenant-specific icon foreground color.
   static Color get flavorIconColor => FlavorConfig.instance.iconColor;
@@ -62,7 +69,7 @@ class HRColors {
   static const Color containerShadowColor = Color(0xffffe8b7);
   static const Color lightWhiteColor = Color(0xfffee8c6);
   static const Color grayTabColor = Color(0xffa1a1a1);
-  static const Color splashYellow = Color(0xffffcc09);// #eed06e
+  static const Color splashYellow = Color(0xffffcc09);
   static const Color splashbackgroundColor = splashYellow;
   static const Color blackTransparentColor = Color(0x80000000);
 
@@ -86,4 +93,4 @@ class HRColors {
 
 // #791b27
 
-// #eed06e. 
+// . 

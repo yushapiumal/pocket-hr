@@ -621,6 +621,12 @@ class AppLocalizationsSi extends AppLocalizations {
   String get evening => 'සවස පැය 2ක්';
 
   @override
+  String get morningLabel => 'උදෑසන';
+
+  @override
+  String get eveningLabel => 'සවස';
+
+  @override
   String get workingHrs => 'මුළු කාලය ';
 
   @override

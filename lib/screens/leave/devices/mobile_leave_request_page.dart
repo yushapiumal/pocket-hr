@@ -24,7 +24,8 @@ class MobileLeaveRequestPage extends StatefulWidget {
   State<MobileLeaveRequestPage> createState() => _MobileLeaveRequestPageState();
 }
 
-class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
+class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
+    with TickerProviderStateMixin {
   static Color get _accent => HRColors.orangeColor;
   static const Color _pageBg = Colors.white;
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
@@ -103,8 +104,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
 
     if (m == null) {
       final today = DateTime.now();
-      final startWeek = _startOfWeek(today);
-      fDate = startWeek;
+      fDate = today; // Default to today instead of start of week for better UX
       tDate = today;
       fromText = DateFormat('dd/MM/yyyy').format(fDate);
       toText = DateFormat('dd/MM/yyyy').format(tDate);
@@ -455,7 +455,17 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
         child: InkWell(
           onTap: widget.isEdit
               ? null
-              : () => setState(() => leaveTypeValue = value),
+              : () {
+                  final now = DateTime.now();
+                  final today = DateTime(now.year, now.month, now.day);
+                  setState(() {
+                    leaveTypeValue = value;
+                    fDate = today;
+                    tDate = today;
+                    fromText = DateFormat('dd/MM/yyyy').format(fDate);
+                    toText = DateFormat('dd/MM/yyyy').format(tDate);
+                  });
+                },
           borderRadius: BorderRadius.circular(14),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
@@ -693,7 +703,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
       'leave_title': 'Leave Request',
       'from_date': DateFormat('yyyy-MM-dd').format(fDate),
       'to_date': DateFormat('yyyy-MM-dd').format(tDate),
-      'leave_type': typeValue,
+      'leave_type': leaveTypeValue == 'short_leave' ? 'short_leave' : typeValue,
       'type': leaveTypeValue ?? 'full_day',
       // Pass the session conditionally
       'session': leaveTypeValue == 'short_leave'
@@ -858,11 +868,15 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                       ),
                       _infoRow(
                         AppLocalizations.of(context)!.daysLabel,
-                        '$days',
+                        leaveTypeValue == 'short_leave'
+                            ? AppLocalizations.of(context)!.shortLeave
+                            : (leaveTypeValue == 'half' ? '0.5' : '$days'),
                       ),
                       _infoRow(
                         AppLocalizations.of(context)!.leaveTypeLabel,
-                        (typeValue ?? '').toString(),
+                        leaveTypeValue == 'short_leave'
+                            ? AppLocalizations.of(context)!.shortLeave
+                            : (typeValue ?? '').toString(),
                       ),
                       if (description.text.trim().isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -1132,18 +1146,11 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
           margin: const EdgeInsets.only(bottom: 20, top: 10),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                FlavorConfig.instance.secondaryColor,
-                FlavorConfig.instance.secondaryColor.withOpacity(0.75),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: HRColors.secondaryColor,  
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: FlavorConfig.instance.secondaryColor.withOpacity(0.28),
+                color: HRColors.secondaryColor.withOpacity(0.28),
                 blurRadius: 14,
                 offset: const Offset(0, 6),
               )
@@ -1269,41 +1276,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: DropdownButton<String>(
-                      underline: const SizedBox.shrink(),
-                      dropdownColor: HRColors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      value: typeValue,
-                      iconEnabledColor: _textDark,
-                      isExpanded: true,
-                      onChanged: readOnly
-                          ? null
-                          : (v) => setState(() => typeValue = v),
-                      items: leaveTypeList.map((v) {
-                        return DropdownMenuItem<String>(
-                          value: v,
-                          child: AutoSizeText(
-                            _getLeaveTypeLabel(v),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: _textDark,
-                              fontSize: 12,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
+                  // Move Leave Mode selection to the top
                   Row(
                     children: [
                       _modeButton('Half Day', 'half', Icons.timelapse_rounded),
@@ -1315,59 +1289,167 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                           Icons.access_time_rounded),
                     ],
                   ),
-
-                  // Show dropdown only if Short Leave is selected
-
                   const SizedBox(height: 20),
+
+                  // Show Leave Type dropdown only for Half Day or Full Day
+                  if (leaveTypeValue != 'short_leave') ...[
+                    _sectionHeader(
+                      AppLocalizations.of(context)!.leaveTypeLabel,
+                      Icons.category_rounded,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: DropdownButton<String>(
+                        underline: const SizedBox.shrink(),
+                        dropdownColor: HRColors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        value: typeValue,
+                        iconEnabledColor: _textDark,
+                        isExpanded: true,
+                        onChanged: readOnly
+                            ? null
+                            : (v) => setState(() => typeValue = v),
+                        items: leaveTypeList.map((v) {
+                          return DropdownMenuItem<String>(
+                            value: v,
+                            child: AutoSizeText(
+                              _getLeaveTypeLabel(v),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: _textDark,
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+
                   _sectionHeader(
-                    AppLocalizations.of(context)!.fromToLabel,
+                    leaveTypeValue == 'full_day'
+                        ? AppLocalizations.of(context)!.fromToLabel
+                        : "Date",
                     Icons.date_range_rounded,
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDateField(
-                          text: fromText,
-                          onTap: readOnly
-                              ? null
-                              : () async {
-                                  final picked =
-                                      await _pickWheelDate(initial: fDate);
-                                  if (picked == null) return;
+                  if (leaveTypeValue == 'full_day')
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDateField(
+                            text: fromText,
+                            onTap: readOnly
+                                ? null
+                                : () async {
+                                    final picked =
+                                        await _pickWheelDate(initial: fDate);
+                                    if (picked == null) return;
 
-                                  setState(() {
-                                    fDate = picked;
-                                    fromText =
-                                        DateFormat('dd/MM/yyyy').format(picked);
-                                  });
-                                },
+                                    setState(() {
+                                      fDate = picked;
+                                      fromText = DateFormat('dd/MM/yyyy')
+                                          .format(picked);
+                                    });
+                                  },
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: _buildDateField(
-                          text: toText,
-                          onTap: readOnly
-                              ? null
-                              : () async {
-                                  final picked =
-                                      await _pickWheelDate(initial: tDate);
-                                  if (picked == null) return;
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: _buildDateField(
+                            text: toText,
+                            onTap: readOnly
+                                ? null
+                                : () async {
+                                    final picked =
+                                        await _pickWheelDate(initial: tDate);
+                                    if (picked == null) return;
 
-                                  setState(() {
-                                    tDate = picked;
-                                    toText =
-                                        DateFormat('dd/MM/yyyy').format(picked);
-                                  });
-                                },
+                                    setState(() {
+                                      tDate = picked;
+                                      toText = DateFormat('dd/MM/yyyy')
+                                          .format(picked);
+                                    });
+                                  },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    )
+                  else
+                    _buildDateField(
+                      text: fromText,
+                      onTap: readOnly
+                          ? null
+                          : () async {
+                              final picked =
+                                  await _pickWheelDate(initial: fDate);
+                              if (picked == null) return;
 
+                              setState(() {
+                                fDate = picked;
+                                tDate = picked; // Sync To date for single day
+                                fromText =
+                                    DateFormat('dd/MM/yyyy').format(picked);
+                                toText =
+                                    DateFormat('dd/MM/yyyy').format(picked);
+                              });
+                            },
+                    ),
+
+                  // Half Day Session Selection (Tab style)
+                  if (leaveTypeValue == 'half') ...[
+                    const SizedBox(height: 20),
+                    _sectionHeader(
+                      "Session",
+                      Icons.access_time_filled_rounded,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _tabButton(
+                              label: AppLocalizations.of(context)!.morningLabel,
+                              isSelected: halfDaySession == 'morning',
+                              onTap: () =>
+                                  setState(() => halfDaySession = 'morning'),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: _tabButton(
+                              label: AppLocalizations.of(context)!.eveningLabel,
+                              isSelected: halfDaySession == 'evening',
+                              onTap: () =>
+                                  setState(() => halfDaySession = 'evening'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Short Leave Session Selection
                   if (leaveTypeValue == 'short_leave') ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
+                    _sectionHeader(
+                      "Session",
+                      Icons.timer_outlined,
+                    ),
+                    const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
@@ -1398,9 +1480,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                                     AppLocalizations.of(context)!.morning,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       color: shortLeaveSession == 'morning'
-                                          ? const Color(0xFFeed06e)
+                                          ? HRColors.secondaryColor
                                           : _textDark,
                                     ),
                                   ),
@@ -1430,9 +1512,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                                     AppLocalizations.of(context)!.evening,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 12,
+                                      fontSize: 11,
                                       color: shortLeaveSession == 'evening'
-                                          ? const Color(0xFFeed06e)
+                                          ? HRColors.secondaryColor
                                           : _textDark,
                                     ),
                                   ),
@@ -1444,6 +1526,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
                       ),
                     ),
                   ],
+
                   const SizedBox(height: 16),
                   const SizedBox(height: 20),
                   Container(
@@ -1485,6 +1568,44 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tabButton({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: widget.isEdit ? null : onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF791b27) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF791b27).withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
+        ),
+        child: Center(
+          child: AutoSizeText(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 12,
+              color: isSelected ? const Color(0xFFeed06e) : _textDark,
+            ),
+          ),
         ),
       ),
     );

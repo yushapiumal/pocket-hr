@@ -476,7 +476,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get processedLabel => 'செயலாக்கப்பட்டது';
 
   @override
-  String get pendingLabel => 'நிலுவையில்';
+  String get pendingLabel => 'நிலுவை';
 
   @override
   String get retryLabel => 'மீண்டும் முயற்சிக்கவும்';
@@ -559,10 +559,10 @@ class AppLocalizationsTa extends AppLocalizations {
       'இந்த இடத்தில் Check-in/Check-out செய்ய அனுமதி இல்லை.';
 
   @override
-  String get remoteChecking => 'தொலைதூர சரிபார்ப்பு';
+  String get remoteChecking => 'தொலைநிலை பதிவு';
 
   @override
-  String get scanCheckInOut => 'QR ஸ்கேன் செய்யுங்கள்';
+  String get scanCheckInOut => 'ஸ்கேன் உள்/வெளி';
 
   @override
   String get checkInSuccess => 'வருகை வெற்றிகரமாக நடந்துவிட்டது';
@@ -584,13 +584,13 @@ class AppLocalizationsTa extends AppLocalizations {
       'தொலைதூர வருகைப் பதிவு இயக்கப்பட்டது. 20 வினாடிகளுக்குள் நுழைய/வெளியேற தட்டவும்.';
 
   @override
-  String get approvedLable => 'அனுமதிக்கப்பட்டது';
+  String get approvedLable => 'அனுமதி';
 
   @override
   String get pendindingLable => 'நிலுவையில்';
 
   @override
-  String get rejectedLable => 'நிராகரிக்கப்பட்டது';
+  String get rejectedLable => 'நிராகரி';
 
   @override
   String get loadedLeaveLable => 'மொத்த விடுப்பு எண்ணிக்கை';
@@ -632,6 +632,12 @@ class AppLocalizationsTa extends AppLocalizations {
   String get evening => 'மாலை 2 மணி நேரம்';
 
   @override
+  String get morningLabel => 'காலை';
+
+  @override
+  String get eveningLabel => 'மாலை';
+
+  @override
   String get workingHrs => 'மொத்த நேரம்';
 
   @override
@@ -654,10 +660,10 @@ class AppLocalizationsTa extends AppLocalizations {
   String get loading => 'ஏற்றப்படுகிறது....';
 
   @override
-  String get create => 'கோரிக்கை';
+  String get create => 'உருவாக்கு';
 
   @override
-  String get review => 'காண்க';
+  String get review => 'பரிசீல்';
 
   @override
   String get nopayLabel => 'ஊதியம் இல்லை';

@@ -238,6 +238,8 @@
   "shortLeave": "Short Leave",
   "morning": " Two hours in morning",
   "evening": " Two hours in the Evening",
+  "morningLabel": "Morning",
+  "eveningLabel": "Evening",
   "workingHrs": "Total Hrs",
   "refresh": "Refresh",
   "refreshSuccess": "Refresh successful",

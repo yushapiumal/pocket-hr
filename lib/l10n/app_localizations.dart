@@ -1282,6 +1282,18 @@ abstract class AppLocalizations {
   /// **' Two hours in the Evening'**
   String get evening;
 
+  /// No description provided for @morningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get morningLabel;
+
+  /// No description provided for @eveningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get eveningLabel;
+
   /// No description provided for @workingHrs.
   ///
   /// In en, this message translates to:

@@ -2153,7 +2153,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                     color: const Color(0xFF791b27),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: const Color(0xFFeed06e),
+                  labelColor: HRColors.secondaryColor,
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.leaveText),
