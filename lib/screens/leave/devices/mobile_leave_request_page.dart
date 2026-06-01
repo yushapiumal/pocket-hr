@@ -703,7 +703,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       'leave_title': 'Leave Request',
       'from_date': DateFormat('yyyy-MM-dd').format(fDate),
       'to_date': DateFormat('yyyy-MM-dd').format(tDate),
-      'leave_type': leaveTypeValue == 'short_leave' ? 'short_leave' : typeValue,
+      // Always send the user-selected leave type (annual/casual/medical)
+      'leave_type': typeValue,
       'type': leaveTypeValue ?? 'full_day',
       // Pass the session conditionally
       'session': leaveTypeValue == 'short_leave'
@@ -874,9 +875,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                       ),
                       _infoRow(
                         AppLocalizations.of(context)!.leaveTypeLabel,
-                        leaveTypeValue == 'short_leave'
-                            ? AppLocalizations.of(context)!.shortLeave
-                            : (typeValue ?? '').toString(),
+                        _getLeaveTypeLabel(typeValue ?? ''),
                       ),
                       if (description.text.trim().isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -1291,47 +1290,45 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                   ),
                   const SizedBox(height: 20),
 
-                  // Show Leave Type dropdown only for Half Day or Full Day
-                  if (leaveTypeValue != 'short_leave') ...[
-                    _sectionHeader(
-                      AppLocalizations.of(context)!.leaveTypeLabel,
-                      Icons.category_rounded,
+                  // Show Leave Type dropdown for all modes (Half Day, Full Day, Short Leave)
+                  _sectionHeader(
+                    AppLocalizations.of(context)!.leaveTypeLabel,
+                    Icons.category_rounded,
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey.shade300),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: DropdownButton<String>(
-                        underline: const SizedBox.shrink(),
-                        dropdownColor: HRColors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        value: typeValue,
-                        iconEnabledColor: _textDark,
-                        isExpanded: true,
-                        onChanged: readOnly
-                            ? null
-                            : (v) => setState(() => typeValue = v),
-                        items: leaveTypeList.map((v) {
-                          return DropdownMenuItem<String>(
-                            value: v,
-                            child: AutoSizeText(
-                              _getLeaveTypeLabel(v),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: _textDark,
-                                fontSize: 12,
-                              ),
+                    child: DropdownButton<String>(
+                      underline: const SizedBox.shrink(),
+                      dropdownColor: HRColors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      value: typeValue,
+                      iconEnabledColor: _textDark,
+                      isExpanded: true,
+                      onChanged: readOnly
+                          ? null
+                          : (v) => setState(() => typeValue = v),
+                      items: leaveTypeList.map((v) {
+                        return DropdownMenuItem<String>(
+                          value: v,
+                          child: AutoSizeText(
+                            _getLeaveTypeLabel(v),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: _textDark,
+                              fontSize: 12,
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    const SizedBox(height: 20),
-                  ],
+                  ),
+                  const SizedBox(height: 20),
 
                   _sectionHeader(
                     leaveTypeValue == 'full_day'
