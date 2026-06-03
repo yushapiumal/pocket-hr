@@ -60,7 +60,7 @@ local.properties
 **/android/app/build/
 **/build/
 /android/local.properties
-/android/key.properties
+
 
 # Flutter specific
 .flutter-plugins
