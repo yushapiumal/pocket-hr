@@ -7,6 +7,7 @@ import 'package:cn_pocket_hr/screens/home/home_screen.dart';
 import 'package:cn_pocket_hr/screens/leave/leave_screen.dart';
 import 'package:cn_pocket_hr/screens/leave/request_leave_screen.dart';
 import 'package:cn_pocket_hr/screens/login/login_screen.dart';
+import 'package:cn_pocket_hr/screens/location/location_permission_gate.dart';
 import 'package:cn_pocket_hr/screens/main/main_screen.dart';
 import 'package:cn_pocket_hr/screens/notifications/notifications.dart';
 import 'package:cn_pocket_hr/screens/profile/profile_screen.dart';
@@ -19,6 +20,7 @@ final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => SplashScreen(),
   HRIntroduction.routeName: (context) => HRIntroduction(),
   HRLogin.routeName: (context) => HRLogin(),
+  LocationPermissionGate.routeName: (context) => const LocationPermissionGate(),
   HRMain.routeName: (context) => HRMain(),
   HRHome.routeName: (context) => HRHome(),
   HRProfile.routeName: (context) => HRProfile(),

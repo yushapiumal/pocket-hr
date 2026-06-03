@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/screens/main/main_screen.dart';
-import 'package:cn_pocket_hr/screens/splash_screen/hr_introduction.dart';
+import 'package:cn_pocket_hr/screens/login/login_screen.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
+import 'package:cn_pocket_hr/screens/location/location_permission_dialog.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,6 @@ class TabletSplash extends StatefulWidget {
 
 class _TabletSplashState extends State<TabletSplash>
     with TickerProviderStateMixin {
-  AnimationController? _animationController;
   LocalStorage storage = LocalStorage('pocketHR');
   APIService apiService = APIService();
 
@@ -36,8 +36,6 @@ class _TabletSplashState extends State<TabletSplash>
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 2000));
     startTime();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
@@ -63,10 +61,21 @@ class _TabletSplashState extends State<TabletSplash>
     await storage.ready;
     saveLang = storage.getItem('lang');
     setLanguage(saveLang);
+
+    // Domex: require location permission before proceeding.
+  //   if (FlavorConfig.instance.tenant.toString().toLowerCase() == 'domex') {
+  // final granted = await showLocationPermissionDialog(context);
+  // if (granted != true) return;
+  //   }
+
+    // Require both saved tenant + access token
+    final savedTenant = (storage.getItem('tenant') ?? '').toString();
+    final hasSavedTenant = savedTenant.trim().isNotEmpty;
+
     // Try access token first
     try {
       final hasToken = await apiService.hasValidAccessToken();
-      if (hasToken) {
+      if (hasSavedTenant && hasToken) {
         final me = await apiService.fetchMeProfileWithBearer();
         if (me != null) {
           Navigator.pushNamed(context, HRMain.routeName);
@@ -75,9 +84,9 @@ class _TabletSplashState extends State<TabletSplash>
       }
     } catch (_) {}
 
-    // Fallback: navigate to introduction/login
+    // Fallback: login
     storage.clear();
-    Navigator.pushNamed(context, HRIntroduction.routeName);
+    Navigator.pushNamed(context, HRLogin.routeName);
   }
 
   setLanguage(saveLang) async {
@@ -98,7 +107,7 @@ class _TabletSplashState extends State<TabletSplash>
   void autoLogin(email, pin, epf) async {
     // Legacy auto login removed. Proceed to introduction/login.
     storage.clear();
-    Navigator.pushNamed(context, HRIntroduction.routeName);
+  Navigator.pushNamed(context, HRLogin.routeName);
   }
 
   @override

@@ -3,7 +3,6 @@ import 'package:cn_pocket_hr/config/firebase_options_digitable.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
-import 'package:cn_pocket_hr/screens/login/login_screen.dart';
 import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -91,7 +90,7 @@ class PocketHR extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
             ],
             debugShowCheckedModeBanner: false,
-            initialRoute: HRLogin.routeName,
+            initialRoute: SplashScreen.routeName,
             routes: routes,
             builder: (context, widget) {
               return Stack(

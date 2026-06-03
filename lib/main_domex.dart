@@ -36,7 +36,7 @@ Future<void> main() async {
     appName: 'DomEx Go',
     apiBaseUrl: 'https://api.human.go.digitable.io/human/v2/api',
     packageName: 'io.digitable.go.domex.human',
-    splashLogoAsset: 'assets/images/domex_app_logo.png',
+    splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',
     primaryColor: primary,
     secondaryColor: secondary,
     iconColor: iconFg,

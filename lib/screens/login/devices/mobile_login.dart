@@ -519,21 +519,10 @@ class _MobileLoginState extends State<MobileLogin>
                       offset: Offset(0, _floatOffset.value),
                       child: child,
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(
-                          color: Colors.black,
-                          width: 1.8,
-                        ),
-                      ),
-                      child: Image.asset(
+                    child: Image.asset(
                         FlavorConfig.instance.splashLogoAsset,
-                        width: size.width * 0.38,
+                        width: size.width * 0.98,
                       ),
-                    ),
                   ),
                 ),
               ),

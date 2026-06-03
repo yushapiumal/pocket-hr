@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/screens/main/main_screen.dart';
-import 'package:cn_pocket_hr/screens/splash_screen/hr_introduction.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
+import 'package:cn_pocket_hr/screens/location/location_permission_dialog.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +21,6 @@ class MobileSplash extends StatefulWidget {
 
 class _MobileSplashState extends State<MobileSplash>
     with TickerProviderStateMixin {
-  AnimationController? _animationController;
   LocalStorage storage = LocalStorage('pocketHR');
   APIService apiService = APIService();
 
@@ -49,8 +48,6 @@ class _MobileSplashState extends State<MobileSplash>
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 5000));
     startTime();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
@@ -76,10 +73,22 @@ class _MobileSplashState extends State<MobileSplash>
     await storage.ready;
     saveLang = storage.getItem('lang');
     setLanguage(saveLang);
+
+    // Domex: require location permission before proceeding.
+    // This doesn't change app routes; it's just a startup gate.
+    if (FlavorConfig.instance.tenant.toString().toLowerCase() == 'domex') {
+  final granted = await showLocationPermissionDialog(context);
+  if (granted != true) return;
+    }
+
+    // Require both saved tenant + access token
+    final savedTenant = (storage.getItem('tenant') ?? '').toString();
+    final hasSavedTenant = savedTenant.trim().isNotEmpty;
+
     // Try auto-login via valid access token
     try {
       final hasToken = await apiService.hasValidAccessToken();
-      if (hasToken) {
+      if (hasSavedTenant && hasToken) {
         final me = await apiService.fetchMeProfileWithBearer();
         if (me != null) {
           Navigator.pushNamed(context, HRMain.routeName);
@@ -127,41 +136,31 @@ class _MobileSplashState extends State<MobileSplash>
       onWillPop: () {
         return true as Future<bool>;
       },
-      child: Scaffold(
-        backgroundColor: HRColors.splashbackgroundColor,
-        body: Container(
-          color: HRColors.splashbackgroundColor,
-          alignment: Alignment.center,
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Container(
-                width: MediaQuery.of(context).size.width / 3.4,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.15),
-                      blurRadius: 24,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(
-                    FlavorConfig.instance.splashLogoAsset,
-                    width: MediaQuery.of(context).size.width / 3.4,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+   child: Scaffold(
+  backgroundColor: HRColors.splashbackgroundColor,
+  body: Container(
+    color: HRColors.splashbackgroundColor,
+    alignment: Alignment.center,
+    child: FadeTransition(
+      opacity: _fadeAnimation,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          width: MediaQuery.of(context).size.width / 1.6, // Changed from 3.4 to 2.2 (larger)
+        
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              FlavorConfig.instance.splashLogoAsset,
+              width: MediaQuery.of(context).size.width / 1,
+              fit: BoxFit.cover,
             ),
           ),
         ),
       ),
+    ),
+  ),
+),
     );
   }
 }
