@@ -165,37 +165,37 @@ class DesignConfig {
                         fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
-                  FutureBuilder<String?>(
-                    future: TenantHelper.getCurrentTenant(),
-                    builder: (context, snapshot) {
-                      final tenant = snapshot.data;
-                      final path = TenantHelper.getLogoForTenant(tenant);
-                      final borderColor =
-                          TenantHelper.getLogoBorderColor(tenant);
-                      final fillColor = TenantHelper.getLogoFillColor(tenant);
-                      final logo = Image.asset(
-                        path,
-                        height: 24,
-                        width: 80,
-                        fit: BoxFit.contain,
-                      );
-                      if (borderColor != null || fillColor != null) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: fillColor,
-                            border: borderColor != null
-                                ? Border.all(color: borderColor, width: 2)
-                                : null,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: logo,
-                        );
-                      }
-                      return logo;
-                    },
-                  ),
+                  // FutureBuilder<String?>(
+                  //   future: TenantHelper.getCurrentTenant(),
+                  //   builder: (context, snapshot) {
+                  //     final tenant = snapshot.data;
+                  //     final path = TenantHelper.getLogoForTenant(tenant);
+                  //     final borderColor =
+                  //         TenantHelper.getLogoBorderColor(tenant);
+                  //     final fillColor = TenantHelper.getLogoFillColor(tenant);
+                  //     final logo = Image.asset(
+                  //       path,
+                  //       height: 24,
+                  //       width: 80,
+                  //       fit: BoxFit.contain,
+                  //     );
+                  //     if (borderColor != null || fillColor != null) {
+                  //       return Container(
+                  //         padding: const EdgeInsets.symmetric(
+                  //             horizontal: 10, vertical: 6),
+                  //         decoration: BoxDecoration(
+                  //           color: fillColor,
+                  //           border: borderColor != null
+                  //               ? Border.all(color: borderColor, width: 2)
+                  //               : null,
+                  //           borderRadius: BorderRadius.circular(10),
+                  //         ),
+                  //         child: logo,
+                  //       );
+                  //     }
+                  //     return logo;
+                  //   },
+                  // ),
                 ],
               ),
             ),

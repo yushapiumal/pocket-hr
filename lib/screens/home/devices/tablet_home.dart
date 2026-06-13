@@ -476,6 +476,13 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
           builder: (_) => QrScannerPage(
             username: usernameForQr,
             showRemoteButton: isRemoteAllowed,
+            onLocationUpdated: (pos) {
+              setState(() {
+                latitude = pos.latitude;
+                longitude = pos.longitude;
+                accuracy = pos.accuracy;
+              });
+            },
             onRemotePressed: () {
               Navigator.of(context).pop('remote');
             },

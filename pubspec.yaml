@@ -1,7 +1,7 @@
 name: cn_pocket_hr
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.2.2+4
+version: 1.2.3+8
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -44,7 +44,8 @@ dependencies:
   firebase_messaging: ^15.1.3
   flutter_local_notifications: ^18.0.0
   vibration: ^3.1.8
-  flutter_web_auth_2: ^5.0.2
+  flutter_inappwebview: ^6.1.5
+  open_app_file: ^4.0.4
 
 dev_dependencies:
   flutter_test:
@@ -100,16 +101,5 @@ flutter:
           weight: 500
           style: italic
 
-flutter_native_splash:
-  color: "#ffcc09"
-  image: assets/images/bg_remove_domex_app_logo.png
 
-  android: true
-  ios: true
-
-  fullscreen: true
-
-  android_12:
-    color: "#ffcc09"
-    image: assets/images/bg_remove_domex_app_logo.png 
     

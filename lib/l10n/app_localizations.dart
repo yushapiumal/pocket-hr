@@ -595,7 +595,7 @@ abstract class AppLocalizations {
   /// No description provided for @scannText.
   ///
   /// In en, this message translates to:
-  /// **'please keep the QR code in the center of the square.It will be scenned automatically.'**
+  /// **'please keep the QR code in the center of the square.It will be scanned automatically.'**
   String get scannText;
 
   /// No description provided for @salarySlips.
@@ -1587,6 +1587,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Closed'**
   String get closed;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to login. Please try again.'**
+  String get loginFailed;
+
+  /// No description provided for @ssoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'SSO Login failed. Please try again.'**
+  String get ssoFailed;
+
+  /// No description provided for @locationAccuracyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are too far..'**
+  String get locationAccuracyTitle;
+
+  /// No description provided for @locationAccuracyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Go closer to the QR scanning point and try again.'**
+  String get locationAccuracyMessage;
+
+  /// No description provided for @findingSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding satellite...'**
+  String get findingSatellite;
+
+  /// No description provided for @currentAccuracyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy: {accuracy}m'**
+  String currentAccuracyLabel(String accuracy);
 }
 
 class _AppLocalizationsDelegate

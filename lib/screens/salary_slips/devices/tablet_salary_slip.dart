@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:open_app_file/open_app_file.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart' show AppLocalizations;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -381,13 +382,13 @@ class _TabletSalarySlipState extends State<TabletSalarySlip>
                       final file = File('${dir.path}/salary_slip_${it.id}.pdf');
                       await file.writeAsBytes(dataBytes);
 
-                      // showTopToast(
-                      //   "Downloaded successfully!",
-                      //   background: Colors.green,
-                      //   duration: const Duration(seconds: 3),
-                      // );
+                      showTopToast(
+                        "Downloaded successfully!",
+                        background: Colors.green,
+                        duration: const Duration(seconds: 3),
+                      );
 
-                    //  await OpenFilex.open(file.path);
+                      await OpenAppFile.open(file.path);
                     } catch (e) {
                       showTopToast(
                         "Failed to save slip: $e",

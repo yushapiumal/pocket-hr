@@ -12,8 +12,10 @@ Future<void> main() async {
   setupHttpOverride();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  await Firebase.initializeApp(
-      options: DigitableFirebaseOptions.currentPlatform);
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+        options: DigitableFirebaseOptions.currentPlatform);
+  }
 
   const Color primary = Color(0xFF2D67CC); // Digitable blue
   const Color secondary = Color(0xFFFF6F00); // Digitable orange
@@ -26,6 +28,11 @@ Future<void> main() async {
     splashLogoAsset: 'assets/images/app_logo.png',
     primaryColor: primary,
     secondaryColor: secondary,
+    backgroundColor: const Color(0xFFF4F7FC),
+    containerShadowColor: const Color(0xFFE2E8F0),
+    lightWhiteColor: const Color(0xFFEBF2FC),
+    splashBackgroundColor: const Color(0xFF2D67CC),
+    tenant: '',
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,

@@ -81,7 +81,7 @@
   "december": "December",
   "leaveApprove": "Leave Approve",
   "leaveReject": "Leave Reject",
-  "scannText": "please keep the QR code in the center of the square.It will be scenned automatically.",
+  "scannText": "please keep the QR code in the center of the square.It will be scanned automatically.",
   "salarySlips": "Salary Slips",
   "salarySlipHistory": "Salary Slip History",
   "salarySlipLabel": "Salary Slip",
@@ -297,9 +297,18 @@
   "saturday": "Saturday",
   "saturdayHours": "8:30 AM – 1:30 PM",
   "sunday": "Sunday",
-  "closed": "Closed"
-
-
-
-
+  "closed": "Closed",
+  "loginFailed": "Failed to login. Please try again.",
+  "ssoFailed": "SSO Login failed. Please try again.",
+  "locationAccuracyTitle": "You are too far..",
+  "locationAccuracyMessage": "Go closer to the QR scanning point and try again.",
+  "findingSatellite": "Finding satellite...",
+  "currentAccuracyLabel": "Accuracy: {accuracy}m",
+  "@currentAccuracyLabel": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  }
 } 

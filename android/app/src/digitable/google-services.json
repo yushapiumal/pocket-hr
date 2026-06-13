@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "444016119144",
+    "project_id": "pocket-hr-4ca30",
+    "storage_bucket": "pocket-hr-4ca30.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444016119144:android:5802859fd5c6c78aee5add",
+        "android_client_info": {
+          "package_name": "asia.ceynet.human.pocket"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs2jL8Lox1iJIifbEgZ3GolyiZmlBknlw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

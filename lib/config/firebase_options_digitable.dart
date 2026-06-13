@@ -28,19 +28,19 @@ class DigitableFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'REPLACE_DIGITABLE_ANDROID_API_KEY',
-    appId: 'REPLACE_DIGITABLE_ANDROID_APP_ID',
-    messagingSenderId: 'REPLACE_DIGITABLE_SENDER_ID',
-    projectId: 'REPLACE_DIGITABLE_PROJECT_ID',
-    storageBucket: 'REPLACE_DIGITABLE_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAs2jL8Lox1iJIifbEgZ3GolyiZmlBknlw',
+    appId: '1:444016119144:android:5802859fd5c6c78aee5add',
+    messagingSenderId: '444016119144',
+    projectId: 'pocket-hr-4ca30',
+    storageBucket: 'pocket-hr-4ca30.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'REPLACE_DIGITABLE_IOS_API_KEY',
-    appId: 'REPLACE_DIGITABLE_IOS_APP_ID',
-    messagingSenderId: 'REPLACE_DIGITABLE_SENDER_ID',
-    projectId: 'REPLACE_DIGITABLE_PROJECT_ID',
-    storageBucket: 'REPLACE_DIGITABLE_STORAGE_BUCKET',
-    iosBundleId: 'REPLACE_DIGITABLE_IOS_BUNDLE_ID',
+    apiKey: 'AIzaSyChHGzYofdgILci5bPdCpFMBclhbESBwT0',
+    appId: '1:912364213375:ios:54c08693da5a2a7b8f5b4a',
+    messagingSenderId: '912364213375',
+    projectId: 'dsspa-73a47',
+    storageBucket: 'dsspa-73a47.appspot.com',
+    iosBundleId: 'com.example.statelink',
   );
 }

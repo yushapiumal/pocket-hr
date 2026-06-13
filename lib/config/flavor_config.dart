@@ -31,6 +31,12 @@ class FlavorConfig {
   /// on the login screen and uses this value everywhere (API headers, SSO, etc.).
   final String? tenant;
 
+  /// Styling overrides for different tenants
+  final Color backgroundColor;
+  final Color containerShadowColor;
+  final Color lightWhiteColor;
+  final Color splashBackgroundColor;
+
   static FlavorConfig? _instance;
 
   FlavorConfig._({
@@ -45,6 +51,10 @@ class FlavorConfig {
     this.iconBackgroundColor,
     required this.theme,
     this.tenant,
+    this.backgroundColor = const Color(0xfffff9ef),
+    this.containerShadowColor = const Color(0xffffe8b7),
+    this.lightWhiteColor = const Color(0xfffee8c6),
+    this.splashBackgroundColor = const Color(0xff7a1b28),
   });
 
   static void init({
@@ -59,6 +69,10 @@ class FlavorConfig {
     Color? iconBackgroundColor,
     required ThemeData theme,
     String? tenant,
+    Color backgroundColor = const Color(0xfffff9ef),
+    Color containerShadowColor = const Color(0xffffe8b7),
+    Color lightWhiteColor = const Color(0xfffee8c6),
+    Color splashBackgroundColor = const Color(0xff7a1b28),
   }) {
     _instance = FlavorConfig._(
       flavor: flavor,
@@ -72,6 +86,10 @@ class FlavorConfig {
       iconBackgroundColor: iconBackgroundColor,
       theme: theme,
       tenant: tenant,
+      backgroundColor: backgroundColor,
+      containerShadowColor: containerShadowColor,
+      lightWhiteColor: lightWhiteColor,
+      splashBackgroundColor: splashBackgroundColor,
     );
   }
 

@@ -775,4 +775,25 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get closed => 'වසා ඇත';
+
+  @override
+  String get loginFailed => 'පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.';
+
+  @override
+  String get ssoFailed => 'SSO පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.';
+
+  @override
+  String get locationAccuracyTitle => 'ඔබ බොහෝ දුරින් සිටී..';
+
+  @override
+  String get locationAccuracyMessage =>
+      'ස්කෑන් කිරීමේ ස්ථානයට ළං වී නැවත උත්සාහ කරන්න.';
+
+  @override
+  String get findingSatellite => 'චන්ද්‍රිකාව සොයමින්...';
+
+  @override
+  String currentAccuracyLabel(String accuracy) {
+    return 'නිරවද්‍යතාවය: මීටර් $accuracy';
+  }
 }

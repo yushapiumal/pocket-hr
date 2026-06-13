@@ -291,16 +291,18 @@
   "sunday": "ඉරිදා",
   "closed": "වසා ඇත",
   "morningLabel": "උදෑසන",
-  "eveningLabel": "සවස"
-  
-
-
+  "eveningLabel": "සවස",
+  "loginFailed": "පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "ssoFailed": "SSO පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.",
+  "locationAccuracyTitle": "ඔබ බොහෝ දුරින් සිටී..",
+  "locationAccuracyMessage": "ස්කෑන් කිරීමේ ස්ථානයට ළං වී නැවත උත්සාහ කරන්න.",
+  "findingSatellite": "චන්ද්‍රිකාව සොයමින්...",
+  "currentAccuracyLabel": "නිරවද්‍යතාවය: මීටර් {accuracy}",
+  "@currentAccuracyLabel": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  }
 }
-
-
-
-
-
-
-
-  

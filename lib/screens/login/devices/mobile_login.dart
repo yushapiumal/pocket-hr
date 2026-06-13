@@ -234,7 +234,7 @@ class _MobileLoginState extends State<MobileLogin>
       prefixIcon: Icon(icon, color: Colors.black45, size: 20),
       suffixIcon: suffix,
       filled: true,
-      fillColor:_accent ,
+      fillColor: _accent,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -418,7 +418,7 @@ class _MobileLoginState extends State<MobileLogin>
     } catch (e, st) {
       debugPrint('[SUBMIT][OTP] ERROR: $e');
       debugPrint(st.toString());
-      apiService.showToast('Failed to login.');
+      apiService.showToast(AppLocalizations.of(context)!.loginFailed);
     } finally {
       if (mounted)
         setState(() {
@@ -450,7 +450,7 @@ class _MobileLoginState extends State<MobileLogin>
         return;
       }
 
-      final result = await _ssoService.signIn(tenant: tenantName);
+     final result = await _ssoService.signIn(tenant: tenantName, context: context);
       storage.setItem('access_token', result.accessToken);
       storage.setItem('refresh_token', result.refreshToken);
       storage.setItem('tenant', tenantName);
@@ -475,7 +475,7 @@ class _MobileLoginState extends State<MobileLogin>
     } catch (e, st) {
       debugPrint('[SSO][UI][ERROR] $e');
       debugPrint(st.toString());
-      apiService.showToast(e.toString());
+      apiService.showToast(AppLocalizations.of(context)!.ssoFailed);
       setState(() {
         isLoading = false;
         buttonDisable = false;
@@ -485,17 +485,17 @@ class _MobileLoginState extends State<MobileLogin>
 
   @override
   Widget build(BuildContext context) {
- if (_autoRedirecting) {
-  return Scaffold(
-    backgroundColor: HRColors.splashbackgroundColor,
-    body: Center(
-      child: CupertinoActivityIndicator(
-        color: HRColors.darkOrangeColor,
-        radius: 16.0,
-      ),
-    ),
-  );
-}
+    if (_autoRedirecting) {
+      return Scaffold(
+        backgroundColor: HRColors.splashbackgroundColor,
+        body: Center(
+          child: CupertinoActivityIndicator(
+            color: HRColors.darkOrangeColor,
+            radius: 16.0,
+          ),
+        ),
+      );
+    }
 
     final primary = FlavorConfig.instance.primaryColor;
     final size = MediaQuery.of(context).size;
@@ -504,7 +504,7 @@ class _MobileLoginState extends State<MobileLogin>
     return WillPopScope(
       onWillPop: () async => true,
       child: Scaffold(
-        backgroundColor:HRColors.splashbackgroundColor,
+        backgroundColor: HRColors.splashbackgroundColor,
         body: SafeArea(
           child: Stack(
             children: [
@@ -520,9 +520,10 @@ class _MobileLoginState extends State<MobileLogin>
                       child: child,
                     ),
                     child: Image.asset(
-                        FlavorConfig.instance.splashLogoAsset,
-                        width: size.width * 0.98,
-                      ),
+                      FlavorConfig.instance.splashLogoAsset,
+                      width: 192.0,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
               ),
@@ -550,20 +551,26 @@ class _MobileLoginState extends State<MobileLogin>
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primary,
                                 shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16)),
-                                elevation: 0,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 4, // 👈 small shadow
+                                shadowColor: Colors.black
+                                    .withOpacity(0.9), // 👈 soft shadow
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 28, vertical: 14),
+                                  horizontal: 28,
+                                  vertical: 14,
+                                ),
                               ),
                               child: isLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       width: 22,
                                       height: 22,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2.5,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                HRColors.splashYellow),
+                                          HRColors.splashred,
+                                        ),
                                       ),
                                     )
                                   : Row(
@@ -573,13 +580,17 @@ class _MobileLoginState extends State<MobileLogin>
                                           AppLocalizations.of(context)!
                                               .continueText,
                                           style: const TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              color: Colors.white,
-                                              fontSize: 16),
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
                                         ),
                                         const SizedBox(width: 8),
-                                        const Icon(Icons.arrow_forward_rounded,
-                                            color: Colors.white, size: 22),
+                                        const Icon(
+                                          Icons.arrow_forward_rounded,
+                                          color: Colors.white,
+                                          size: 22,
+                                        ),
                                       ],
                                     ),
                             ),
@@ -598,9 +609,9 @@ class _MobileLoginState extends State<MobileLogin>
                               [_appName, _appVersion]
                                   .where((s) => s.isNotEmpty)
                                   .join('  •  '),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.black54,
+                                color: HRColors.textYellow,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.4,
                               ),

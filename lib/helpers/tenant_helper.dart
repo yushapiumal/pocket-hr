@@ -17,7 +17,7 @@ class TenantHelper {
   /// Tenant registry — add new tenants here as keys (lowercase).
   static const Map<String, _TenantConfig> _tenants = {
     'domex': _TenantConfig(
-      logoPath: 'assets/images/domex-logo.png',
+      logoPath: 'assets/images/bg_remove_domex_app_logo.png',
       logoBorderColor:
           Color(0xFF8B1818), // matches logout button / primary color
       logoFillColor: Color(0xFF8B1818), // dark crimson red background

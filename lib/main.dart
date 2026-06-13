@@ -35,6 +35,10 @@ Future<void> main() async {
       splashLogoAsset: 'assets/images/app_logo.png',
       primaryColor: primary,
       secondaryColor: secondary,
+      backgroundColor: const Color(0xFFF4F7FC),
+      containerShadowColor: const Color(0xFFE2E8F0),
+      lightWhiteColor: const Color(0xFFEBF2FC),
+      splashBackgroundColor: const Color(0xFF2D67CC),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: primary,

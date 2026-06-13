@@ -1,5 +1,6 @@
 import 'package:cn_pocket_hr/config/firebase_options_domex.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
+import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
 import 'package:cn_pocket_hr/main.dart'; // Ensure this points to your app widget
 import 'package:cn_pocket_hr/services/fcm_service.dart';
@@ -26,14 +27,14 @@ Future<void> main() async {
   }
 
   // 3. Define branding/config
-  const Color primary = Color(0xFF8B1818); // Domex dark crimson red
+  const Color primary = Color(0xFF6A1311); // Domex dark crimson red
   const Color secondary = Color(0xffffcc09); // Domex gold
-  const Color iconFg = Color(0xFF000000); 
-  const Color iconBg = Color(0xffffcc09);
+  const Color iconFg = secondary; 
+  const Color iconBg = Color(0xFF6A1311);
 
   FlavorConfig.init(
     flavor: Flavor.domex,
-    appName: 'DomEx Go',
+    appName: 'My Domex',
     apiBaseUrl: 'https://api.human.go.digitable.io/human/v2/api',
     packageName: 'io.digitable.go.domex.human',
     splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
+ import 'package:geolocator/geolocator.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/services/offline_attendance_service.dart';
 import 'package:octo_image/octo_image.dart';
@@ -462,6 +462,13 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
           builder: (_) => QrScannerPage(
             username: usernameForQr,
             showRemoteButton: false,
+            onLocationUpdated: (pos) {
+              setState(() {
+                latitude = pos.latitude;
+                longitude = pos.longitude;
+                accuracy = pos.accuracy;
+              });
+            },
             validator: (raw) {
               double? qlat;
               double? qlng;

@@ -234,7 +234,7 @@ class _MobileProfileState extends State<MobileProfile> {
                 'assets/images/img/notification.png',
                 errorBuilder: (_, __, ___) => const Icon(
                   Icons.notifications_none_rounded,
-                  color: Colors.black87,
+                  color: Color(0xffffcc09),
                 ),
               ),
             ),

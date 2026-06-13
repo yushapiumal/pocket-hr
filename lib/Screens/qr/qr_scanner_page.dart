@@ -7,6 +7,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:vibration/vibration.dart';
 import 'dart:math' as math;
+import 'package:geolocator/geolocator.dart';
 
 class QrScannerPage extends StatefulWidget {
   final String? expectedValue;
@@ -14,6 +15,7 @@ class QrScannerPage extends StatefulWidget {
   final String? username;
   final bool showRemoteButton;
   final VoidCallback? onRemotePressed;
+  final Function(Position position)? onLocationUpdated;
 
   const QrScannerPage({
     Key? key,
@@ -22,13 +24,14 @@ class QrScannerPage extends StatefulWidget {
     this.username,
     this.showRemoteButton = false,
     this.onRemotePressed,
+    this.onLocationUpdated,
   }) : super(key: key);
 
   @override
   State<QrScannerPage> createState() => _QrScannerPageState();
 }
 
-class _QrScannerPageState extends State<QrScannerPage> {
+class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProviderStateMixin {
   bool _scanned = false;
   final MobileScannerController _controller = MobileScannerController();
   String? _message;
@@ -36,6 +39,142 @@ class _QrScannerPageState extends State<QrScannerPage> {
   bool _torchOn = false;
   bool _isFrontCamera = false;
   final LocalStorage storage = LocalStorage('pocketHR');
+
+  StreamSubscription<Position>? _positionStream;
+  int _locationAttempts = 0;
+  bool _accuracyAchieved = false;
+  double? _currentAccuracy;
+  late AnimationController _satelliteAnimationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _satelliteAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _startLocationListening();
+  }
+
+  void _startLocationListening() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        await Geolocator.openLocationSettings();
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        setState(() {
+          _accuracyAchieved = true;
+        });
+        return;
+      }
+
+      final LocationSettings locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.best,
+        distanceFilter: 5,
+      );
+
+      _positionStream = Geolocator.getPositionStream(
+        locationSettings: locationSettings,
+      ).listen((Position? position) {
+        if (position != null) {
+          _handleNewLocation(position);
+        }
+      });
+    } catch (_) {
+      setState(() {
+        _accuracyAchieved = true;
+      });
+    }
+  }
+
+  void _handleNewLocation(Position position) {
+    if (!mounted) return;
+    debugPrint('[Location] New coordinate: lat=${position.latitude}, lng=${position.longitude}, accuracy=${position.accuracy}m');
+    widget.onLocationUpdated?.call(position);
+    setState(() {
+      _currentAccuracy = position.accuracy;
+    });
+
+    if (position.accuracy <= 5.0) {
+      setState(() {
+        _accuracyAchieved = true;
+      });
+      _positionStream?.cancel();
+    } else {
+      _locationAttempts++;
+      if (_locationAttempts >= 2) {
+        _positionStream?.cancel();
+        _showAccuracyDialog();
+      }
+    }
+  }
+
+  void _showAccuracyDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        final local = AppLocalizations.of(context)!;
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            local.locationAccuracyTitle,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            local.locationAccuracyMessage,
+            style: const TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (mounted) {
+                  setState(() {
+                    _locationAttempts = 0;
+                    _accuracyAchieved = false;
+                  });
+                  _startLocationListening();
+                }
+              },
+              child: Text(
+                local.retryLabel,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (mounted) {
+                  setState(() {
+                    _accuracyAchieved = true;
+                  });
+                }
+              },
+              child: Text(
+                local.continueText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _buzzOnScan() async {
     try {
       final hasVibrator = await Vibration.hasVibrator();
@@ -67,6 +206,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
   @override
   void dispose() {
+    _positionStream?.cancel();
+    _satelliteAnimationController.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -84,7 +225,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
     void handleDetect(BarcodeCapture capture) {
       try {
-        if (_scanned) return;
+        if (!_accuracyAchieved || _scanned) return;
         final barcodes = capture.barcodes;
         if (barcodes.isEmpty) return;
         final b = barcodes.first;
@@ -225,6 +366,63 @@ class _QrScannerPageState extends State<QrScannerPage> {
                             bottomRight: true,
                           ),
                         ),
+
+                        if (!_accuracyAchieved)
+                          Container(
+                            color: Colors.black.withOpacity(0.85),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AnimatedBuilder(
+                                    animation: _satelliteAnimationController,
+                                    builder: (context, child) {
+                                      return Opacity(
+                                        opacity: 0.5 + (_satelliteAnimationController.value * 0.5),
+                                        child: Transform.scale(
+                                          scale: 1.0 + (_satelliteAnimationController.value * 0.15),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: const Icon(
+                                      Icons.satellite_alt_outlined,
+                                      color: Colors.white,
+                                      size: 48,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    AppLocalizations.of(context)!.findingSatellite,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (_currentAccuracy != null) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      AppLocalizations.of(context)!.currentAccuracyLabel(_currentAccuracy!.toStringAsFixed(1)),
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.7),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

@@ -382,7 +382,7 @@ class _TabletLoginState extends State<TabletLogin> {
         return;
       }
 
-      final result = await _ssoService.signIn(tenant: tenantName);
+      final result = await _ssoService.signIn(tenant: tenantName, context: context);
       storage.setItem('access_token', result.accessToken);
       storage.setItem('refresh_token', result.refreshToken);
       storage.setItem('tenant', tenantName);

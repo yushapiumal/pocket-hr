@@ -8,10 +8,12 @@ class HRColors {
 
   static const Color red = Color(0xFFD32F2F);
   static const Color iconColor = Color(0xFF88959d);
-  static const Color bottomColor = Color(0xFFFED130);
+  static Color get bottomColor => FlavorConfig.isDomex
+      ? const Color(0xFFFED130)
+      : FlavorConfig.instance.primaryColor;
   static const Color lableColor = Color(0xFF29D2C8);
   static const Color blueColor = Color(0xFF2D67CC);
-  static const Color yellow = Color(0xffffcc09);
+  static Color get yellow => FlavorConfig.instance.secondaryColor;
 
   static const Color white = Color(0xFFffffff);
   static const Color black = Color(0xFF000000);
@@ -60,18 +62,25 @@ class HRColors {
   static const Color intro2buttonTextColor = Color(0xffec849f);
   static const Color intro3buttonColor = Color(0x5238a7a6);
   static const Color intro3buttonTextColor = Color(0xff3db9b2);
-  static const Color backgroundColor = Color(0xfffff9ef);
+  static Color get backgroundColor => FlavorConfig.instance.backgroundColor;
   static const Color grayColor = Color(0xff939495);
   // orangeColor is defined as a getter above; this duplicate is removed.
-  static const Color continueShoppingGradient1Color = Color(0xfffec230);
-  static const Color continueShoppingGradient2Color = Color(0xfff9a825);
+  static Color get continueShoppingGradient1Color => FlavorConfig.isDomex
+      ? const Color(0xfffec230)
+      : FlavorConfig.instance.primaryColor;
+  static Color get continueShoppingGradient2Color => FlavorConfig.isDomex
+      ? const Color(0xfff9a825)
+      : FlavorConfig.instance.primaryColor.withOpacity(0.8);
   static const Color backButtonBoxColor = Color(0x80000000);
-  static const Color containerShadowColor = Color(0xffffe8b7);
-  static const Color lightWhiteColor = Color(0xfffee8c6);
+  static Color get containerShadowColor => FlavorConfig.instance.containerShadowColor;
+  static Color get lightWhiteColor => FlavorConfig.instance.lightWhiteColor;
   static const Color grayTabColor = Color(0xffa1a1a1);
-  static const Color splashYellow = Color(0xffffcc09);
-  static const Color splashbackgroundColor = splashYellow;
+  static Color get splashred => FlavorConfig.instance.splashBackgroundColor;
+  static Color get splashbackgroundColor => splashred;
   static const Color blackTransparentColor = Color(0x80000000);
+
+  static Color get textYellow => FlavorConfig.instance.secondaryColor;
+  // static const Color splashbackgroundColor = splashYellow;
 
   static const MaterialColor appcolor_material = const MaterialColor(
     0xFFFE724C,

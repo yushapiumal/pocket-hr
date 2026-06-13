@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/services/leave_service.dart';
 import 'dart:async';
 import 'dart:ui';
@@ -742,11 +743,19 @@ class TabletLeaveState extends State<TabletLeave>
             : const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [HRColors.orangeColor, HRColors.orangeColor],
-          ),
+          color: FlavorConfig.isDomex
+              ? (HRColors.flavorIconBackgroundColor ?? Colors.white)
+              : null,
+          gradient: FlavorConfig.isDomex
+              ? null
+              : LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [HRColors.orangeColor, HRColors.orangeColor],
+                ),
+          border: FlavorConfig.isDomex
+              ? Border.all(color: Colors.black.withOpacity(0.06))
+              : null,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.18),
@@ -757,7 +766,11 @@ class TabletLeaveState extends State<TabletLeave>
         ),
         child: Center(
           child: iconOnly
-              ? const Icon(Icons.add_rounded, color: HRColors.white, size: 28)
+              ? Icon(
+                  Icons.add_rounded,
+                  color: FlavorConfig.isDomex ? const Color(0xFFF9A825) : HRColors.white,
+                  size: 28,
+                )
               : Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -765,14 +778,17 @@ class TabletLeaveState extends State<TabletLeave>
                     children: [
                       AutoSizeText(
                         label,
-                        style: const TextStyle(
-                          color: HRColors.white,
+                        style: TextStyle(
+                          color: FlavorConfig.isDomex ? const Color(0xFFF9A825) : HRColors.white,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.0,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Icon(Icons.chevron_right, color: HRColors.white),
+                      Icon(
+                        Icons.chevron_right,
+                        color: FlavorConfig.isDomex ? const Color(0xFFF9A825) : HRColors.white,
+                      ),
                     ],
                   ),
                 ),

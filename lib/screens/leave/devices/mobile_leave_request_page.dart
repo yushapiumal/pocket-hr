@@ -102,6 +102,10 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       typeValue = 'annual';
     }
 
+    if (leaveTypeValue == 'short_leave') {
+      typeValue = 'casual';
+    }
+
     if (m == null) {
       final today = DateTime.now();
       fDate = today; // Default to today instead of start of week for better UX
@@ -464,6 +468,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                     tDate = today;
                     fromText = DateFormat('dd/MM/yyyy').format(fDate);
                     toText = DateFormat('dd/MM/yyyy').format(tDate);
+                    if (value == 'short_leave') {
+                      typeValue = 'casual';
+                    }
                   });
                 },
           borderRadius: BorderRadius.circular(14),
@@ -1310,7 +1317,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                       value: typeValue,
                       iconEnabledColor: _textDark,
                       isExpanded: true,
-                      onChanged: readOnly
+                      onChanged: (readOnly || leaveTypeValue == 'short_leave')
                           ? null
                           : (v) => setState(() => typeValue = v),
                       items: leaveTypeList.map((v) {

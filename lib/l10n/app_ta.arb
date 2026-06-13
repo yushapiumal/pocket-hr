@@ -291,7 +291,18 @@
   "saturday": "சனி",
   "saturdayHours": "காலை 8:30 – பிற்பகல் 1:30",
   "sunday": "ஞாயிறு",
-  "closed": "மூடப்பட்டுள்ளது"
-
-
+  "closed": "மூடப்பட்டுள்ளது",
+  "loginFailed": "உள்நுழைய முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.",
+  "ssoFailed": "SSO உள்நுழைவு தோல்வியடைந்தது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.",
+  "locationAccuracyTitle": "நீங்கள் மிகவும் தொலைவில் உள்ளீர்கள்..",
+  "locationAccuracyMessage": "QR ஸ்கேன் செய்யும் இடத்திற்கு அருகில் சென்று மீண்டும் முயற்சிக்கவும்.",
+  "findingSatellite": "செயற்கைக்கோளைத் தேடுகிறது...",
+  "currentAccuracyLabel": "துல்லியம்: {accuracy}மீ",
+  "@currentAccuracyLabel": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  }
 }

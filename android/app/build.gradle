@@ -84,7 +84,7 @@ android {
         domex {
             dimension "tenant"
             applicationId "io.digitable.go.domex.human"
-            resValue "string", "app_name", "DomEx Go"
+            resValue "string", "app_name", "My Domex"
         }
         mahajana {
             dimension "tenant"

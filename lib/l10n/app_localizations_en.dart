@@ -256,7 +256,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scannText =>
-      'please keep the QR code in the center of the square.It will be scenned automatically.';
+      'please keep the QR code in the center of the square.It will be scanned automatically.';
 
   @override
   String get salarySlips => 'Salary Slips';
@@ -772,4 +772,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closed => 'Closed';
+
+  @override
+  String get loginFailed => 'Failed to login. Please try again.';
+
+  @override
+  String get ssoFailed => 'SSO Login failed. Please try again.';
+
+  @override
+  String get locationAccuracyTitle => 'You are too far..';
+
+  @override
+  String get locationAccuracyMessage =>
+      'Go closer to the QR scanning point and try again.';
+
+  @override
+  String get findingSatellite => 'Finding satellite...';
+
+  @override
+  String currentAccuracyLabel(String accuracy) {
+    return 'Accuracy: ${accuracy}m';
+  }
 }

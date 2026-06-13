@@ -137,25 +137,18 @@ class _MobileSplashState extends State<MobileSplash>
         return true as Future<bool>;
       },
    child: Scaffold(
-  backgroundColor: HRColors.splashbackgroundColor,
+  backgroundColor: HRColors.splashred,
   body: Container(
-    color: HRColors.splashbackgroundColor,
+    color: HRColors.splashred,
     alignment: Alignment.center,
     child: FadeTransition(
       opacity: _fadeAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: Container(
-          width: MediaQuery.of(context).size.width / 1.6, // Changed from 3.4 to 2.2 (larger)
-        
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Image.asset(
-              FlavorConfig.instance.splashLogoAsset,
-              width: MediaQuery.of(context).size.width / 1,
-              fit: BoxFit.cover,
-            ),
-          ),
+        child: Image.asset(
+          FlavorConfig.instance.splashLogoAsset,
+          width: 192.0,
+          fit: BoxFit.contain,
         ),
       ),
     ),

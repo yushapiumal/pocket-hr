@@ -786,4 +786,27 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get closed => 'மூடப்பட்டுள்ளது';
+
+  @override
+  String get loginFailed =>
+      'உள்நுழைய முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get ssoFailed =>
+      'SSO உள்நுழைவு தோல்வியடைந்தது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get locationAccuracyTitle => 'நீங்கள் மிகவும் தொலைவில் உள்ளீர்கள்..';
+
+  @override
+  String get locationAccuracyMessage =>
+      'QR ஸ்கேன் செய்யும் இடத்திற்கு அருகில் சென்று மீண்டும் முயற்சிக்கவும்.';
+
+  @override
+  String get findingSatellite => 'செயற்கைக்கோளைத் தேடுகிறது...';
+
+  @override
+  String currentAccuracyLabel(String accuracy) {
+    return 'துல்லியம்: $accuracyமீ';
+  }
 }
