@@ -34,10 +34,8 @@ workflows:
           # Fetches matching signing certificates and provisioning profiles from App Store Connect.
           # Note: Requires setup of APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, and APP_STORE_CONNECT_PRIVATE_KEY
           # in Codemagic environment group.
-          #
-          # If using manual signing, upload certificates in Codemagic UI under "Application -> App signing".
           if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
-            app-store-connect fetch-signing-files "com.example.cnPocketHr" --project-type ios-app --create
+            app-store-connect fetch-signing-files "asia.ceynet.human.pocket" --project-type ios-app --create
           fi
 
       - name: Install Flutter Dependencies
@@ -50,10 +48,11 @@ workflows:
 
       - name: Build iOS Archive (.ipa)
         script: |
-          # Build release version and generate signed IPA. 
-          # Modify the bundle-id to match your production Apple App ID.
+          # Build release version for Domex tenant and generate signed IPA.
           flutter build ipa --release \
-            --bundle-id="com.example.cnPocketHr" \
+            -t lib/main_domex.dart \
+            --dart-define=tenant=domex \
+            --bundle-id="asia.ceynet.human.pocket" \
             --build-number=$BUILD_NUMBER
 
     artifacts:
