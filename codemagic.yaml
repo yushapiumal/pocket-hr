@@ -1,0 +1,69 @@
+# Codemagic CI/CD configuration for cn_pocket_hr
+# Reference: https://docs.codemagic.io/yaml-quick-start/building-a-flutter-app/
+
+workflows:
+  ios-release:
+    name: iOS Release Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2  # Premium Apple Silicon instance for fast compilation
+    
+    environment:
+      groups:
+        # Define a group in Codemagic UI for app store credentials if using automatic signing
+        # - app_store_credentials 
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - target: human-v2
+          source: '*'
+          
+    scripts:
+      - name: Set up code signing settings
+        script: |
+          # If using Codemagic automatic code signing, this script initializes keychain/signing configurations.
+          # Reference: https://docs.codemagic.io/yaml-code-signing/signing-ios/
+          keychain initialize
+          
+      - name: Fetch Apple Certificates and Profiles
+        script: |
+          # Fetches matching signing certificates and provisioning profiles from App Store Connect.
+          # Note: Requires setup of APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, and APP_STORE_CONNECT_PRIVATE_KEY
+          # in Codemagic environment group.
+          #
+          # If using manual signing, upload certificates in Codemagic UI under "Application -> App signing".
+          if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
+            app-store-connect fetch-signing-files "com.example.cnPocketHr" --project-type ios-app --create
+          fi
+
+      - name: Install Flutter Dependencies
+        script: |
+          flutter packages pub get
+
+      - name: Install Pods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+
+      - name: Build iOS Archive (.ipa)
+        script: |
+          # Build release version and generate signed IPA. 
+          # Modify the bundle-id to match your production Apple App ID.
+          flutter build ipa --release \
+            --bundle-id="com.example.cnPocketHr" \
+            --build-number=$BUILD_NUMBER
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com  # Change this to your email for build notifications
+        notify:
+          success: true
+          failure: true
