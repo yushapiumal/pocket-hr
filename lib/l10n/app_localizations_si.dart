@@ -796,4 +796,22 @@ class AppLocalizationsSi extends AppLocalizations {
   String currentAccuracyLabel(String accuracy) {
     return 'නිරවද්‍යතාවය: මීටර් $accuracy';
   }
+
+  @override
+  String get todos => 'කළ යුතු දෑ';
+
+  @override
+  String get todoTabMyTodos => 'මගේ කාර්යයන්';
+
+  @override
+  String get todoTabApprovable => 'අනුමත කළ හැකි';
+
+  @override
+  String get noTodosFound => 'කළ යුතු දෑ කිසිවක් හමු නොවීය.';
+
+  @override
+  String get failedToLoadTodos => 'දත්ත පූරණය කිරීමට අපොහොසත් විය.';
+
+  @override
+  String get completedLabel => 'සම්පූර්ණයි';
 }

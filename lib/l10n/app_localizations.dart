@@ -1623,6 +1623,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accuracy: {accuracy}m'**
   String currentAccuracyLabel(String accuracy);
+
+  /// No description provided for @todos.
+  ///
+  /// In en, this message translates to:
+  /// **'To-Do List'**
+  String get todos;
+
+  /// No description provided for @todoTabMyTodos.
+  ///
+  /// In en, this message translates to:
+  /// **'My Tasks'**
+  String get todoTabMyTodos;
+
+  /// No description provided for @todoTabApprovable.
+  ///
+  /// In en, this message translates to:
+  /// **'Approvable By Me'**
+  String get todoTabApprovable;
+
+  /// No description provided for @noTodosFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No to-do tasks found.'**
+  String get noTodosFound;
+
+  /// No description provided for @failedToLoadTodos.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load to-do data.'**
+  String get failedToLoadTodos;
+
+  /// No description provided for @completedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedLabel;
 }
 
 class _AppLocalizationsDelegate

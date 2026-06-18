@@ -809,4 +809,22 @@ class AppLocalizationsTa extends AppLocalizations {
   String currentAccuracyLabel(String accuracy) {
     return 'துல்லியம்: $accuracyமீ';
   }
+
+  @override
+  String get todos => 'செய்ய வேண்டியவை';
+
+  @override
+  String get todoTabMyTodos => 'எனது பணிகள்';
+
+  @override
+  String get todoTabApprovable => 'அங்கீகரிக்க வேண்டியவை';
+
+  @override
+  String get noTodosFound => 'செய்ய வேண்டிய பணிகள் எதுவும் இல்லை.';
+
+  @override
+  String get failedToLoadTodos => 'தரவை ஏற்ற முடியவில்லை.';
+
+  @override
+  String get completedLabel => 'முடிந்தது';
 }

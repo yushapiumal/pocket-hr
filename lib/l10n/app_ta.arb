@@ -304,5 +304,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "todos": "செய்ய வேண்டியவை",
+  "todoTabMyTodos": "எனது பணிகள்",
+  "todoTabApprovable": "அங்கீகரிக்க வேண்டியவை",
+  "noTodosFound": "செய்ய வேண்டிய பணிகள் எதுவும் இல்லை.",
+  "failedToLoadTodos": "தரவை ஏற்ற முடியவில்லை.",
+  "completedLabel": "முடிந்தது"
 }

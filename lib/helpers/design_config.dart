@@ -11,6 +11,7 @@ import 'package:cn_pocket_hr/helpers/flutter_rating_bar.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:cn_pocket_hr/screens/debts_and_loans/debts_and_loans_screen.dart';
+import 'package:cn_pocket_hr/screens/todos/todos_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/tenant_helper.dart';
@@ -300,6 +301,31 @@ class DesignConfig {
                     ),
                     title: AutoSizeText(
                       AppLocalizations.of(context)!.debtLoans,
+                      style:
+                          const TextStyle(fontSize: 17, color: HRColors.black),
+                    ),
+                  ),
+                  ListTile(
+                    dense: true,
+                    visualDensity:
+                        const VisualDensity(horizontal: 1, vertical: -2),
+                    onTap: () =>
+                        Navigator.pushNamed(context, HRTodo.routeName),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.checklist,
+                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+                      ),
+                    ),
+                    title: AutoSizeText(
+                      AppLocalizations.of(context)!.todos,
                       style:
                           const TextStyle(fontSize: 17, color: HRColors.black),
                     ),

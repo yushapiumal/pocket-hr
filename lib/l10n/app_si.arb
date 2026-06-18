@@ -304,5 +304,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "todos": "කළ යුතු දෑ",
+  "todoTabMyTodos": "මගේ කාර්යයන්",
+  "todoTabApprovable": "අනුමත කළ හැකි",
+  "noTodosFound": "කළ යුතු දෑ කිසිවක් හමු නොවීය.",
+  "failedToLoadTodos": "දත්ත පූරණය කිරීමට අපොහොසත් විය.",
+  "completedLabel": "සම්පූර්ණයි"
 }

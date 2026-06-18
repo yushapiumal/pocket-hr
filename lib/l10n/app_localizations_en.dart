@@ -793,4 +793,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String currentAccuracyLabel(String accuracy) {
     return 'Accuracy: ${accuracy}m';
   }
+
+  @override
+  String get todos => 'To-Do List';
+
+  @override
+  String get todoTabMyTodos => 'My Tasks';
+
+  @override
+  String get todoTabApprovable => 'Approvable By Me';
+
+  @override
+  String get noTodosFound => 'No to-do tasks found.';
+
+  @override
+  String get failedToLoadTodos => 'Failed to load to-do data.';
+
+  @override
+  String get completedLabel => 'Completed';
 }

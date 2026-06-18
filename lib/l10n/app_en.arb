@@ -310,5 +310,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "todos": "To-Do List",
+  "todoTabMyTodos": "My Tasks",
+  "todoTabApprovable": "Approvable By Me",
+  "noTodosFound": "No to-do tasks found.",
+  "failedToLoadTodos": "Failed to load to-do data.",
+  "completedLabel": "Completed"
 } 

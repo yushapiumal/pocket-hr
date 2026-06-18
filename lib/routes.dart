@@ -15,6 +15,7 @@ import 'package:cn_pocket_hr/screens/salary_slips/salary_slips.dart';
 import 'package:cn_pocket_hr/screens/splash_screen/hr_introduction.dart';
 import 'package:cn_pocket_hr/screens/splash_screen/splashscreen.dart';
 import 'package:cn_pocket_hr/screens/debts_and_loans/debts_and_loans_screen.dart';
+import 'package:cn_pocket_hr/screens/todos/todos_screen.dart';
 
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => SplashScreen(),
@@ -31,9 +32,7 @@ final Map<String, WidgetBuilder> routes = {
   HRSalarySlips.routeName: (context) => HRSalarySlips(),
   HRAllowancesDeductions.routeName: (context) => HRAllowancesDeductions(),
   HRDebtsAndLoans.routeName: (context) => HRDebtsAndLoans(),
+  HRTodo.routeName: (context) => HRTodo(),
   HRTeam.routeName: (context) => HRTeam(),
   HRContactUs.routeName: (context) => HRContactUs(),
-
-
-
 };
