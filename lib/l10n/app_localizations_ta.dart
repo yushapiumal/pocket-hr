@@ -827,4 +827,122 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get completedLabel => 'முடிந்தது';
+
+  @override
+  String get todoTabRemoteAttendance => 'தொலைநிலை வருகை';
+
+  @override
+  String get todoTabProfileUnlock => 'சுயவிவரம் திறத்தல்';
+
+  @override
+  String get todoTabOthers => 'மற்றவை';
+
+  @override
+  String get todoDetailCategory => 'வகை';
+
+  @override
+  String get todoDetailZone => 'வளையம்';
+
+  @override
+  String get todoDetailPunchType => 'பதிவு வகை';
+
+  @override
+  String get todoDetailCheckedAt => 'பதிவு செய்யப்பட்ட நேரம்';
+
+  @override
+  String get todoDetailAccuracy => 'துல்லியம்';
+
+  @override
+  String get todoDetailBattery => 'மின்கல அளவு';
+
+  @override
+  String get todoDetailCoordinates => 'ஆயத்தொலைவுகள்';
+
+  @override
+  String get todoDetailReason => 'காரணம்';
+
+  @override
+  String get todoDetailRatesInfo => 'விகித விவரங்கள்';
+
+  @override
+  String get todoRequestDetails => 'கோரிக்கை விவரங்கள்';
+
+  @override
+  String get todoApproveTitle => 'கோரிக்கையை அனுமதி';
+
+  @override
+  String get todoRejectTitle => 'கோரிக்கையை நிராகரி';
+
+  @override
+  String todoApproveConfirmMessage(String name) {
+    return '$name இன் கோரிக்கையை அங்கீகரிக்க விரும்புகிறீர்களா?';
+  }
+
+  @override
+  String todoRejectConfirmMessage(String name) {
+    return '$name இன் கோரிக்கையை நிராகரிக்க விரும்புகிறீர்களா?';
+  }
+
+  @override
+  String get todoReasonHint => 'நிராகரிப்பதற்கான காரணம் *';
+
+  @override
+  String get todoApproveSuccess => 'வெற்றிகரமாக அங்கீகரிக்கப்பட்டது';
+
+  @override
+  String get todoRejectSuccess => 'வெற்றிகரமாக நிராகரிக்கப்பட்டது';
+
+  @override
+  String get todoApproveFailed => 'அங்கீகரிக்க முடியவில்லை';
+
+  @override
+  String get todoRejectFailed => 'நிராகரிக்க முடியவில்லை';
+
+  @override
+  String get todoRemoteAttendanceDetailsTitle => 'தொலைநிலை வருகை விவரங்கள்';
+
+  @override
+  String get todoProfileUnlockDetailsTitle => 'சுயவிவரம் திறத்தல் விவரங்கள்';
+
+  @override
+  String get todoOtherDetailsTitle => 'கோரிக்கை விவரங்கள்';
+
+  @override
+  String get todoDetailDeviceId => 'சாதன ஐடி';
+
+  @override
+  String get todoDetailBypassRemote => 'தொலைநிலைப் பதிவைத் தவிர்த்தல்';
+
+  @override
+  String get yesLabel => 'ஆம்';
+
+  @override
+  String get noLabel => 'இல்லை';
+
+  @override
+  String get todoDetailCompletedBy => 'முடித்தவர்';
+
+  @override
+  String get todoDetailCompletedAt => 'முடிக்கப்பட்ட நேரம்';
+
+  @override
+  String get todoDetailRequestedAt => 'கோரப்பட்ட நேரம்';
+
+  @override
+  String get todoDetailRequestedFor => 'யாருக்காக கோரப்பட்டது';
+
+  @override
+  String get todoDetailRequestedBy => 'கோரியவர்';
+
+  @override
+  String get todoDetailSummary => 'சுருக்கம்';
+
+  @override
+  String get todoDetailPunctualityIncentive => 'நேரக் கட்டுப்பாடு ஊக்கத்தொகை';
+
+  @override
+  String get todoDetailAttendanceAllowance => 'வருகை கொடுப்பனவு';
+
+  @override
+  String get todoActionsTitle => 'செயல்கள்';
 }

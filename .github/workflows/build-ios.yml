@@ -75,16 +75,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Install Dependencies
-        run: |
-          flutter pub get
-
-      - name: Build CocoaPods
-        run: |
-          cd ios
-          pod install --repo-update
-          cd ..
-
       - name: Determine Tenant and Target
         id: config
         run: |
@@ -108,6 +98,21 @@ jobs:
           echo "tenant=$TENANT" >> $GITHUB_OUTPUT
           echo "target=$TARGET" >> $GITHUB_OUTPUT
           echo "export_method=$EXPORT_METHOD" >> $GITHUB_OUTPUT
+
+      - name: Prepare Tenant iOS Assets and Config
+        run: |
+          chmod +x tooling/prepare_ios_flavor.sh
+          ./tooling/prepare_ios_flavor.sh ${{ steps.config.outputs.tenant }}
+
+      - name: Install Dependencies
+        run: |
+          flutter pub get
+
+      - name: Build CocoaPods
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
 
       - name: Build IPA
         run: |

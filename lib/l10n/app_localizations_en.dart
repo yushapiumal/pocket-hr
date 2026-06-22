@@ -811,4 +811,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get completedLabel => 'Completed';
+
+  @override
+  String get todoTabRemoteAttendance => 'Remote Attendance';
+
+  @override
+  String get todoTabProfileUnlock => 'Profile Unlock';
+
+  @override
+  String get todoTabOthers => 'Others';
+
+  @override
+  String get todoDetailCategory => 'Category';
+
+  @override
+  String get todoDetailZone => 'Zone';
+
+  @override
+  String get todoDetailPunchType => 'Punch Type';
+
+  @override
+  String get todoDetailCheckedAt => 'Checked At';
+
+  @override
+  String get todoDetailAccuracy => 'Accuracy';
+
+  @override
+  String get todoDetailBattery => 'Battery';
+
+  @override
+  String get todoDetailCoordinates => 'Coordinates';
+
+  @override
+  String get todoDetailReason => 'Reason';
+
+  @override
+  String get todoDetailRatesInfo => 'Rates Info';
+
+  @override
+  String get todoRequestDetails => 'Request Details';
+
+  @override
+  String get todoApproveTitle => 'Approve Request';
+
+  @override
+  String get todoRejectTitle => 'Reject Request';
+
+  @override
+  String todoApproveConfirmMessage(String name) {
+    return 'Are you sure you want to approve $name\'s request?';
+  }
+
+  @override
+  String todoRejectConfirmMessage(String name) {
+    return 'Are you sure you want to reject $name\'s request?';
+  }
+
+  @override
+  String get todoReasonHint => 'Reason for rejection *';
+
+  @override
+  String get todoApproveSuccess => 'Todo approved successfully';
+
+  @override
+  String get todoRejectSuccess => 'Todo rejected successfully';
+
+  @override
+  String get todoApproveFailed => 'Failed to approve Todo';
+
+  @override
+  String get todoRejectFailed => 'Failed to reject Todo';
+
+  @override
+  String get todoRemoteAttendanceDetailsTitle => 'Remote Attendance Details';
+
+  @override
+  String get todoProfileUnlockDetailsTitle => 'Profile Unlock Details';
+
+  @override
+  String get todoOtherDetailsTitle => 'Request Details';
+
+  @override
+  String get todoDetailDeviceId => 'Device ID';
+
+  @override
+  String get todoDetailBypassRemote => 'Bypass Remote Check';
+
+  @override
+  String get yesLabel => 'Yes';
+
+  @override
+  String get noLabel => 'No';
+
+  @override
+  String get todoDetailCompletedBy => 'Completed By';
+
+  @override
+  String get todoDetailCompletedAt => 'Completed At';
+
+  @override
+  String get todoDetailRequestedAt => 'Requested At';
+
+  @override
+  String get todoDetailRequestedFor => 'Requested For';
+
+  @override
+  String get todoDetailRequestedBy => 'Requested By';
+
+  @override
+  String get todoDetailSummary => 'Summary';
+
+  @override
+  String get todoDetailPunctualityIncentive => 'Punctuality Incentive';
+
+  @override
+  String get todoDetailAttendanceAllowance => 'Attendance Allowance';
+
+  @override
+  String get todoActionsTitle => 'Actions';
 }

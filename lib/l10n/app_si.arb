@@ -149,7 +149,7 @@
   "noAllowancesFound": "දීමනා නොපවතී",
   "noDeductionsFound": "අඩුකිරීම් නොපවතී",
   "processedLabel": "සකසා ඇත",
-  "pendingLabel": "නිලවරණය",
+  "pendingLabel": "අපේක්ෂිත",
   "retryLabel": "නැවත උත්සාහ කරන්න",
   "debtsLabel": "හිඟ",
   "loansLabel": "ණය",
@@ -310,5 +310,57 @@
   "todoTabApprovable": "අනුමත කළ හැකි",
   "noTodosFound": "කළ යුතු දෑ කිසිවක් හමු නොවීය.",
   "failedToLoadTodos": "දත්ත පූරණය කිරීමට අපොහොසත් විය.",
-  "completedLabel": "සම්පූර්ණයි"
+  "completedLabel": "සම්පූර්ණයි",
+  "todoTabRemoteAttendance": "දුරස්ථ පැමිණීම",
+  "todoTabProfileUnlock": "පැතිකඩ අගුළු හැරීම",
+  "todoTabOthers": "වෙනත්",
+  "todoDetailCategory": "ප්‍රවර්ගය",
+  "todoDetailZone": "කලාපය",
+  "todoDetailPunchType": "පැමිණීමේ වර්ගය",
+  "todoDetailCheckedAt": "සටහන් කළ වේලාව",
+  "todoDetailAccuracy": "නිරවද්‍යතාවය",
+  "todoDetailBattery": "බැටරි මට්ටම",
+  "todoDetailCoordinates": "ඛණ්ඩාංක",
+  "todoDetailReason": "හේතුව",
+  "todoDetailRatesInfo": "ගාස්තු විස්තර",
+  "todoRequestDetails": "ඉල්ලීම් විස්තර",
+  "todoApproveTitle": "ඉල්ලීම අනුමත කරන්න",
+  "todoRejectTitle": "ඉල්ලීම ප්‍රතික්ෂේප කරන්න",
+  "todoApproveConfirmMessage": "{name} ගේ ඉල්ලීම අනුමත කිරීමට ඔබට විශ්වාසද?",
+  "@todoApproveConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoRejectConfirmMessage": "{name} ගේ ඉල්ලීම ප්‍රතික්ෂේප කිරීමට ඔබට විශ්වාසද?",
+  "@todoRejectConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoReasonHint": "ප්‍රතික්ෂේප කිරීමට හේතුව *",
+  "todoApproveSuccess": "කළ යුතු දෑ සාර්ථකව අනුමත කරන ලදී",
+  "todoRejectSuccess": "කළ යුතු දෑ සාර්ථකව ප්‍රතික්ෂේප කරන ලදී",
+  "todoApproveFailed": "අනුමත කිරීම අසාර්ථකයි",
+  "todoRejectFailed": "ප්‍රතික්ෂේප කිරීම අසාර්ථකයි",
+  "todoRemoteAttendanceDetailsTitle": "දුරස්ථ පැමිණීම් විස්තර",
+  "todoProfileUnlockDetailsTitle": "පැතිකඩ අගුළු හැරීමේ විස්තර",
+  "todoOtherDetailsTitle": "ඉල්ලීම් විස්තර",
+  "todoDetailDeviceId": "උපාංග හැඳුනුම්පත",
+  "todoDetailBypassRemote": "දුරස්ථ පරීක්ෂාව මඟ හැරීම",
+  "yesLabel": "ඔව්",
+  "noLabel": "නැත",
+  "todoDetailCompletedBy": "සම්පූර්ණ කරන ලද්දේ",
+  "todoDetailCompletedAt": "සම්පූර්ණ කරන ලද වේලාව",
+  "todoDetailRequestedAt": "ඉල්ලූ වේලාව",
+  "todoDetailRequestedFor": "ඉල්ලීම් කල සේවකයා",
+  "todoDetailRequestedBy": "ඉල්ලීම් කල තැනැත්තා",
+  "todoDetailSummary": "සාරාංශය",
+  "todoDetailPunctualityIncentive": "වේලාවට පැමිණීමේ දිරිදීමනාව",
+  "todoDetailAttendanceAllowance": "පැමිණීමේ දීමනාව",
+  "todoActionsTitle": "ක්‍රියාමාර්ග"
 }

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class TabletTodosScreen extends StatefulWidget {
@@ -19,10 +20,11 @@ class TabletTodosScreen extends StatefulWidget {
 class _TabletTodosScreenState extends State<TabletTodosScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tab;
+  final AutoSizeGroup _tabGroup = AutoSizeGroup();
   bool _loading = true;
   String? _error;
-  List<TodoItem> _myTodos = [];
-  List<TodoItem> _approvableTodos = [];
+  List<TodoItem> _remoteAttendanceTodos = [];
+  List<TodoItem> _otherTodos = [];
 
   static const double _g8 = 8;
   static const double _g16 = 16;
@@ -51,13 +53,10 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
       _error = null;
     });
     try {
-      final results = await Future.wait([
-        APIService().getTodos(approvableByMe: false),
-        APIService().getTodos(approvableByMe: true),
-      ]);
+      final results = await APIService().getTodos(approvableByMe: true);
       setState(() {
-        _myTodos = results[0];
-        _approvableTodos = results[1];
+        _remoteAttendanceTodos = results.where((e) => e.type == 'remote_attendance').toList();
+        _otherTodos = results.where((e) => e.type != 'remote_attendance').toList();
         _loading = false;
       });
     } catch (e, st) {
@@ -89,14 +88,14 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
       if (response['success'] == true) {
         DesignConfig.showTopToast(
           context,
-          'Todo approved successfully',
+          AppLocalizations.of(context)!.todoApproveSuccess,
           background: Colors.green,
         );
         _load();
       } else {
         DesignConfig.showTopToast(
           context,
-          response['message']?.toString() ?? 'Failed to approve Todo',
+          response['message']?.toString() ?? AppLocalizations.of(context)!.todoApproveFailed,
           background: Colors.red,
         );
       }
@@ -105,47 +104,11 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         Navigator.pop(context);
       }
       
-      // Fallback for Demo Mode: Toggle status locally
-      bool updatedLocal = false;
-      for (int i = 0; i < _approvableTodos.length; i++) {
-        if (_approvableTodos[i].id == todoId) {
-          final item = _approvableTodos[i];
-          final updatedItem = TodoItem(
-            id: item.id,
-            title: item.title,
-            type: item.type,
-            zone: item.zone,
-            completed: true,
-            user: item.user,
-            by: item.by,
-            cts: item.cts,
-            uts: DateTime.now().millisecondsSinceEpoch,
-            payload: item.payload,
-            meta: item.meta,
-            raw: item.raw,
-          );
-          setState(() {
-            _approvableTodos.removeAt(i);
-            _myTodos.insert(0, updatedItem);
-          });
-          updatedLocal = true;
-          break;
-        }
-      }
-
-      if (updatedLocal) {
-        DesignConfig.showTopToast(
-          context,
-          'Approved successfully (Demo Mode)',
-          background: Colors.green,
-        );
-      } else {
-        DesignConfig.showTopToast(
-          context,
-          'Error: $e',
-          background: Colors.red,
-        );
-      }
+      DesignConfig.showTopToast(
+        context,
+        AppLocalizations.of(context)!.errorPrefix(e.toString()),
+        background: Colors.red,
+      );
     }
   }
 
@@ -168,14 +131,14 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
       if (response['success'] == true) {
         DesignConfig.showTopToast(
           context,
-          'Todo rejected successfully',
+          AppLocalizations.of(context)!.todoRejectSuccess,
           background: Colors.orange,
         );
         _load();
       } else {
         DesignConfig.showTopToast(
           context,
-          response['message']?.toString() ?? 'Failed to reject Todo',
+          response['message']?.toString() ?? AppLocalizations.of(context)!.todoRejectFailed,
           background: Colors.red,
         );
       }
@@ -184,47 +147,11 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         Navigator.pop(context);
       }
       
-      // Fallback for Demo Mode: Toggle status locally
-      bool updatedLocal = false;
-      for (int i = 0; i < _approvableTodos.length; i++) {
-        if (_approvableTodos[i].id == todoId) {
-          final item = _approvableTodos[i];
-          final updatedItem = TodoItem(
-            id: item.id,
-            title: item.title,
-            type: item.type,
-            zone: item.zone,
-            completed: true,
-            user: item.user,
-            by: item.by,
-            cts: item.cts,
-            uts: DateTime.now().millisecondsSinceEpoch,
-            payload: item.payload,
-            meta: item.meta,
-            raw: item.raw,
-          );
-          setState(() {
-            _approvableTodos.removeAt(i);
-            _myTodos.insert(0, updatedItem);
-          });
-          updatedLocal = true;
-          break;
-        }
-      }
-
-      if (updatedLocal) {
-        DesignConfig.showTopToast(
-          context,
-          'Rejected successfully (Demo Mode)',
-          background: Colors.orange,
-        );
-      } else {
-        DesignConfig.showTopToast(
-          context,
-          'Error: $e',
-          background: Colors.red,
-        );
-      }
+      DesignConfig.showTopToast(
+        context,
+        AppLocalizations.of(context)!.errorPrefix(e.toString()),
+        background: Colors.red,
+      );
     }
   }
 
@@ -237,10 +164,13 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
           backgroundColor: _surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
-            children: const [
-              Icon(Icons.check_circle_outline, color: Colors.green),
-              SizedBox(width: 8),
-              Text("Approve Request", style: TextStyle(fontWeight: FontWeight.w700)),
+            children: [
+              const Icon(Icons.check_circle_outline, color: Colors.green),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.of(context)!.todoApproveTitle,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ],
           ),
           content: ConstrainedBox(
@@ -251,18 +181,9 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: RichText(
-                      text: TextSpan(
-                        style: const TextStyle(color: Colors.black87),
-                        children: [
-                          const TextSpan(text: "Are you sure you want to approve "),
-                          TextSpan(
-                            text: employeeName,
-                            style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.green),
-                          ),
-                          const TextSpan(text: "'s request?"),
-                        ],
-                      ),
+                    child: Text(
+                      AppLocalizations.of(context)!.todoApproveConfirmMessage(employeeName),
+                      style: const TextStyle(color: Colors.black87, fontSize: 14),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -280,7 +201,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancelLabel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(ctx).pop(true),
@@ -289,7 +210,10 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Approve', style: TextStyle(color: Colors.white)),
+              child: Text(
+                AppLocalizations.of(context)!.approvedLable,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -310,10 +234,13 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
               backgroundColor: _surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: Row(
-                children: const [
-                  Icon(Icons.cancel_outlined, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text("Reject Request", style: TextStyle(fontWeight: FontWeight.w700)),
+                children: [
+                  const Icon(Icons.cancel_outlined, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context)!.todoRejectTitle,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
               content: ConstrainedBox(
@@ -324,18 +251,9 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                     children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(color: Colors.black87),
-                            children: [
-                              const TextSpan(text: "Are you sure you want to reject "),
-                              TextSpan(
-                                text: employeeName,
-                                style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.red),
-                              ),
-                              const TextSpan(text: "'s request?"),
-                            ],
-                          ),
+                        child: Text(
+                          AppLocalizations.of(context)!.todoRejectConfirmMessage(employeeName),
+                          style: const TextStyle(color: Colors.black87, fontSize: 14),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -352,8 +270,8 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                           maxLines: 3,
                           maxLength: 300,
                           onChanged: (_) => setState(() {}),
-                          decoration: const InputDecoration(
-                            hintText: 'Reason for rejection *',
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(context)!.todoReasonHint,
                             counterText: '',
                             border: InputBorder.none,
                             isCollapsed: true,
@@ -383,7 +301,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.cancelLabel),
                 ),
                 ElevatedButton(
                   onPressed: isValid
@@ -398,7 +316,10 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Reject', style: TextStyle(color: Colors.white)),
+                  child: Text(
+                    AppLocalizations.of(context)!.rejectedLable,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             );
@@ -409,18 +330,89 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
   }
 
   void _showTodoDetailsBottomSheet(TodoItem item) {
+    if (item.type == 'remote_attendance') {
+      _showRemoteAttendanceBottomSheet(item);
+    } else if (item.type == 'profile_unlock') {
+      _showProfileUnlockBottomSheet(item);
+    } else {
+      _showOtherTodoBottomSheet(item);
+    }
+  }
+
+  String _formatDateTime(int? timestamp) {
+    if (timestamp == null || timestamp <= 0) return '-';
+    int milliseconds = timestamp;
+    if (timestamp <= 9999999999) {
+      milliseconds = timestamp * 1000;
+    }
+    final dt = DateTime.fromMillisecondsSinceEpoch(milliseconds);
+    return DateFormat('yyyy-MM-dd hh:mm a').format(dt);
+  }
+
+  void _showRemoteAttendanceBottomSheet(TodoItem item) {
     final statusColor = item.completed ? Colors.green : Colors.orange;
     final isPending = !item.completed;
     final displayStatus = item.completed
         ? AppLocalizations.of(context)!.completedLabel
         : AppLocalizations.of(context)!.pendingLabel;
+    final l10n = AppLocalizations.of(context)!;
+    final p = item.payload ?? {};
+
+    final punchTypeRaw = p['type']?.toString().toUpperCase() ?? '-';
+    String punchType = punchTypeRaw;
+    Color punchColor = HRColors.orangeColor;
+    IconData punchIcon = Icons.login;
+    if (punchTypeRaw == 'CHECK_IN' || punchTypeRaw == 'CHECKIN' || punchTypeRaw == 'IN') {
+      punchType = l10n.checkIn;
+      punchColor = Colors.green;
+      punchIcon = Icons.login;
+    } else if (punchTypeRaw == 'CHECK_OUT' || punchTypeRaw == 'CHECKOUT' || punchTypeRaw == 'OUT') {
+      punchType = l10n.checkOut;
+      punchColor = Colors.blue;
+      punchIcon = Icons.logout;
+    }
+
+    final checkedAtRaw = p['checked_at'];
+    String checkedAt = '-';
+    if (checkedAtRaw != null) {
+      if (checkedAtRaw is int) {
+        checkedAt = _formatDateTime(checkedAtRaw);
+      } else if (checkedAtRaw is String) {
+        final parsed = DateTime.tryParse(checkedAtRaw);
+        if (parsed != null) {
+          checkedAt = DateFormat('yyyy-MM-dd hh:mm a').format(parsed.toLocal());
+        } else {
+          checkedAt = checkedAtRaw;
+        }
+      } else {
+        checkedAt = checkedAtRaw.toString();
+      }
+    }
+
+    final rawAccuracy = p['location_accuracy'];
+    String accuracy = '-';
+    if (rawAccuracy != null) {
+      final parsed = double.tryParse(rawAccuracy.toString());
+      if (parsed != null) {
+        accuracy = parsed.toStringAsFixed(2);
+      } else {
+        accuracy = rawAccuracy.toString();
+      }
+    }
+    final battery = p['battery_level']?.toString() ?? '-';
+    final lat = p['lat']?.toString() ?? '-';
+    final lng = p['lng']?.toString() ?? '-';
+    final deviceId = p['device_id']?.toString() ?? '-';
+
+    final completedByJson = item.raw['completed_by'];
+    TodoUser? completedBy = completedByJson is Map ? TodoUser.fromJson(Map<String, dynamic>.from(completedByJson)) : null;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        final sheetHeight = MediaQuery.of(ctx).size.height * 0.75;
+        final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
         return Container(
           height: sheetHeight,
           decoration: const BoxDecoration(
@@ -432,7 +424,6 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
           ),
           child: Column(
             children: [
-              // Handle bar
               Center(
                 child: Container(
                   margin: const EdgeInsets.only(top: 10, bottom: 6),
@@ -450,64 +441,270 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
+                      Text(
+                        item.title.contains(':') ? item.title.split(':').first.trim() : item.title,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       Row(
                         children: [
                           Container(
-                            width: 56,
-                            height: 56,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: statusColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(16),
+                              color: statusColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(
-                              item.completed ? Icons.check_circle_outline : Icons.pending_outlined,
-                              color: statusColor,
-                              size: 32,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AutoSizeText(
-                                  item.title.isNotEmpty ? item.title : 'Task Details',
-                                  maxLines: 2,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: statusColor.withOpacity(0.12),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: AutoSizeText(
-                                    displayStatus.toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      color: statusColor,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              displayStatus.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: statusColor,
+                              ),
                             ),
                           ),
                         ],
                       ),
-
+                      const Divider(height: 32, thickness: 1),
+                      Text(
+                        l10n.employeeDetails,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildEmployeeCard(item),
                       const SizedBox(height: 24),
+                      Text(
+                        l10n.todoRequestDetails,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: _surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.black.withOpacity(0.04)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: punchColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(punchIcon, size: 20, color: punchColor),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        punchType,
+                                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: punchColor),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Spacer(),
+                                Icon(Icons.pin_drop_outlined, size: 18, color: Colors.grey[600]),
+                                const SizedBox(width: 6),
+                                Text(
+                                  item.zone,
+                                  style: TextStyle(fontSize: 14, color: Colors.grey[700], fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                            const Divider(height: 24, thickness: 1),
+                            _buildInfoRow(Icons.schedule, l10n.todoDetailCheckedAt, checkedAt),
+                            _buildInfoRow(Icons.devices, l10n.todoDetailDeviceId, deviceId),
+                            _buildInfoRow(Icons.calendar_today_outlined, l10n.todoDetailRequestedAt, _formatDateTime(item.cts)),
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildBadge(Icons.my_location, l10n.todoDetailAccuracy, '$accuracy m'),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: _buildBadge(Icons.battery_std, l10n.todoDetailBattery, '$battery%'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            _buildClickableInfoRow(
+                              Icons.map,
+                              l10n.todoDetailCoordinates,
+                              '$lat, $lng',
+                              onTap: () async {
+                                if (lat != '-' && lng != '-') {
+                                  final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+                                  final uri = Uri.parse(url);
+                                  if (await canLaunchUrl(uri)) {
+                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                  }
+                                }
+                              },
+                            ),
+                            if (completedBy != null) ...[
+                              const Divider(height: 24, thickness: 1),
+                              _buildInfoRow(
+                                Icons.person_outline,
+                                l10n.todoDetailCompletedBy,
+                                '${completedBy.name} (${completedBy.email})',
+                              ),
+                              _buildInfoRow(Icons.done_all, l10n.todoDetailCompletedAt, _formatDateTime(item.uts)),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (isPending) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.todoActionsTitle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: _surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.black.withOpacity(0.04)),
+                          ),
+                          child: _buildActionButtons(item, ctx),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-                      // User details
-                      const Text(
-                        'Employee Details',
-                        style: TextStyle(
+  void _showProfileUnlockBottomSheet(TodoItem item) {
+    final statusColor = item.completed ? Colors.green : Colors.orange;
+    final isPending = !item.completed;
+    final displayStatus = item.completed
+        ? AppLocalizations.of(context)!.completedLabel
+        : AppLocalizations.of(context)!.pendingLabel;
+    final l10n = AppLocalizations.of(context)!;
+    final m = item.meta ?? {};
+    final reason = m['reason']?.toString() ?? m['summary']?.toString() ?? '-';
+    final summary = m['summary']?.toString() ?? '-';
+    final action = m['action']?.toString() ?? '-';
+
+    TodoUser? requestedForUser = item.user;
+    if (requestedForUser == null && item.meta != null && item.meta!['user_id'] != null) {
+      requestedForUser = TodoUser(
+        id: item.meta!['user_id']?.toString() ?? '',
+        name: item.meta!['user_name']?.toString() ?? item.meta!['user_email']?.toString() ?? '',
+        email: item.meta!['user_email']?.toString() ?? '',
+        epfPretty: item.meta!['user_epf_no']?.toString(),
+      );
+    }
+
+    TodoUser? requestedByUser = item.by;
+    if (requestedByUser == null && item.meta != null && item.meta!['requested_by_user_id'] != null) {
+      requestedByUser = TodoUser(
+        id: item.meta!['requested_by_user_id']?.toString() ?? '',
+        name: item.meta!['requested_by_name']?.toString() ?? item.meta!['requested_by_email']?.toString() ?? '',
+        email: item.meta!['requested_by_email']?.toString() ?? '',
+        epfPretty: null,
+      );
+    }
+
+    final completedByJson = item.raw['completed_by'];
+    TodoUser? completedBy = completedByJson is Map ? TodoUser.fromJson(Map<String, dynamic>.from(completedByJson)) : null;
+    final epfPretty = requestedForUser?.epfPretty;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
+        return Container(
+          height: sheetHeight,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 6),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: statusColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              displayStatus.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: statusColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 32, thickness: 1),
+                      Text(
+                        l10n.todoDetailRequestedFor,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -530,17 +727,17 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AutoSizeText(
-                                    item.user?.name ?? item.user?.email ?? 'Unknown User',
+                                    requestedForUser?.name ?? requestedForUser?.email ?? 'Unknown User',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  if (item.user?.email != null) ...[
+                                  if (requestedForUser?.email != null) ...[
                                     const SizedBox(height: 4),
                                     AutoSizeText(
-                                      item.user!.email,
+                                      requestedForUser!.email,
                                       style: const TextStyle(
                                         fontSize: 13,
                                         color: Colors.black54,
@@ -550,7 +747,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                                 ],
                               ),
                             ),
-                            if (item.user?.epfPretty != null)
+                            if (epfPretty != null)
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 decoration: BoxDecoration(
@@ -563,20 +760,214 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                                   children: [
                                     const Text('EPF', style: TextStyle(fontSize: 9, color: Colors.black54)),
                                     const SizedBox(height: 2),
-                                    Text(item.user!.epfPretty!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                    Text(epfPretty, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                                   ],
                                 ),
                               ),
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 24),
+                      Text(
+                        l10n.todoRequestDetails,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: _surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.black.withOpacity(0.04)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildInfoRow(Icons.layers_outlined, l10n.todoDetailCategory, item.type.toUpperCase()),
+                            _buildInfoRow(Icons.pin_drop_outlined, l10n.todoDetailZone, item.zone),
+                            _buildInfoRow(Icons.info_outline, l10n.todoDetailSummary, summary),
+                            _buildInfoRow(Icons.touch_app_outlined, 'Action', action),
+                            if (requestedByUser != null)
+                              _buildInfoRow(
+                                Icons.person,
+                                l10n.todoDetailRequestedBy,
+                                '${requestedByUser.name} (${requestedByUser.email})',
+                              ),
+                            _buildInfoRow(Icons.calendar_today_outlined, l10n.todoDetailRequestedAt, _formatDateTime(item.cts)),
+                            if (completedBy != null) ...[
+                              const Divider(height: 24, thickness: 1),
+                              _buildInfoRow(
+                                Icons.person_outline,
+                                l10n.todoDetailCompletedBy,
+                                '${completedBy.name} (${completedBy.email})',
+                              ),
+                              _buildInfoRow(Icons.done_all, l10n.todoDetailCompletedAt, _formatDateTime(item.uts)),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.todoDetailReason,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.orange.withOpacity(0.2)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.format_quote, color: Colors.orange, size: 24),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                reason,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                  fontStyle: FontStyle.italic,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isPending) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.todoActionsTitle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: _surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.black.withOpacity(0.04)),
+                          ),
+                          child: _buildActionButtons(item, ctx),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-                      // Metadata table
-                      const Text(
-                        'Request Details',
-                        style: TextStyle(
+  void _showOtherTodoBottomSheet(TodoItem item) {
+    final statusColor = item.completed ? Colors.green : Colors.orange;
+    final isPending = !item.completed;
+    final displayStatus = item.completed
+        ? AppLocalizations.of(context)!.completedLabel
+        : AppLocalizations.of(context)!.pendingLabel;
+    final l10n = AppLocalizations.of(context)!;
+
+    final completedByJson = item.raw['completed_by'];
+    TodoUser? completedBy = completedByJson is Map ? TodoUser.fromJson(Map<String, dynamic>.from(completedByJson)) : null;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
+        return Container(
+          height: sheetHeight,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 6),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: statusColor.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              displayStatus.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: statusColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 32, thickness: 1),
+                      Text(
+                        l10n.employeeDetails,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildEmployeeCard(item),
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.todoRequestDetails,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
@@ -592,66 +983,66 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                           border: Border.all(color: Colors.black.withOpacity(0.04)),
                         ),
                         child: Column(
-                          children: _buildSheetDetailRows(item),
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Approve / Reject Actions
-                      if (isPending)
-                        Row(
                           children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  Navigator.pop(ctx);
-                                  final reason = await _showRejectConfirmation(item);
-                                  if (reason != null) {
-                                    await _rejectTodoItem(item.id, reason);
-                                  }
-                                },
-                                icon: const Icon(Icons.close, size: 20),
-                                label: AutoSizeText(
-                                  AppLocalizations.of(context)!.rejectedLable,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  side: const BorderSide(color: Colors.red),
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
+                            _buildInfoRow(Icons.layers_outlined, l10n.todoDetailCategory, item.type.toUpperCase()),
+                            _buildInfoRow(Icons.pin_drop_outlined, l10n.todoDetailZone, item.zone),
+                            if (item.by != null)
+                              _buildInfoRow(
+                                Icons.person,
+                                l10n.todoDetailRequestedBy,
+                                '${item.by!.name} (${item.by!.email})',
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () async {
-                                  Navigator.pop(ctx);
-                                  final confirmed = await _showApproveConfirmation(item);
-                                  if (confirmed == true) {
-                                    await _approveTodoItem(item.id);
-                                  }
-                                },
-                                icon: const Icon(Icons.check, size: 20, color: Colors.white),
-                                label: AutoSizeText(
-                                  AppLocalizations.of(context)!.approvedLable,
-                                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                            _buildInfoRow(Icons.calendar_today_outlined, l10n.todoDetailRequestedAt, _formatDateTime(item.cts)),
+                            if (item.type == 'attendance' && item.meta != null) ...[
+                              const Divider(height: 24, thickness: 1),
+                              if (item.meta!['rates'] is Map) ...[
+                                _buildInfoRow(
+                                  Icons.lock_clock_outlined,
+                                  l10n.todoDetailPunctualityIncentive,
+                                  item.meta!['rates']['punctuality_incentive'] == true ? l10n.yesLabel : l10n.noLabel,
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                _buildInfoRow(
+                                  Icons.payments_outlined,
+                                  l10n.todoDetailAttendanceAllowance,
+                                  item.meta!['rates']['attendance_allowance'] == true ? l10n.yesLabel : l10n.noLabel,
                                 ),
+                              ] else ...[
+                                _buildInfoRow(Icons.payments_outlined, l10n.todoDetailRatesInfo, item.meta!['rates']?.toString() ?? '-'),
+                              ]
+                            ],
+                            if (completedBy != null) ...[
+                              const Divider(height: 24, thickness: 1),
+                              _buildInfoRow(
+                                Icons.person_outline,
+                                l10n.todoDetailCompletedBy,
+                                '${completedBy.name} (${completedBy.email})',
                               ),
-                            ),
+                              _buildInfoRow(Icons.done_all, l10n.todoDetailCompletedAt, _formatDateTime(item.uts)),
+                            ],
                           ],
                         ),
+                      ),
+                      if (isPending) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          l10n.todoActionsTitle,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: _surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.black.withOpacity(0.04)),
+                          ),
+                          child: _buildActionButtons(item, ctx),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -663,40 +1054,66 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
     );
   }
 
-  List<Widget> _buildSheetDetailRows(TodoItem item) {
-    final List<Widget> list = [];
-    
-    list.add(_buildDetailRow(Icons.layers_outlined, 'Category', item.type.toUpperCase()));
-    list.add(_buildDetailRow(Icons.pin_drop_outlined, 'Zone', item.zone));
-    
-    if (item.type == 'remote_attendance' && item.payload != null) {
-      final p = item.payload!;
-      final punchType = p['type']?.toString().toUpperCase() ?? '-';
-      final checkedAt = p['checked_at']?.toString() ?? '-';
-      final accuracy = p['location_accuracy']?.toString() ?? '-';
-      final battery = p['battery_level']?.toString() ?? '-';
-      final lat = p['lat']?.toString() ?? '-';
-      final lng = p['lng']?.toString() ?? '-';
-      
-      list.add(_buildDetailRow(Icons.login, 'Punch Type', punchType));
-      list.add(_buildDetailRow(Icons.schedule, 'Checked At', checkedAt));
-      list.add(_buildDetailRow(Icons.my_location, 'Accuracy', '$accuracy m'));
-      list.add(_buildDetailRow(Icons.battery_std, 'Battery', '$battery%'));
-      list.add(_buildDetailRow(Icons.map, 'Coordinates', '$lat, $lng'));
-    } else if (item.type == 'profile_unlock' && item.meta != null) {
-      final m = item.meta!;
-      final reason = m['reason']?.toString() ?? m['summary']?.toString() ?? '-';
-      list.add(_buildDetailRow(Icons.help_outline, 'Reason', reason));
-    } else if (item.type == 'attendance' && item.meta != null) {
-      final m = item.meta!;
-      final rates = m['rates']?.toString() ?? '-';
-      list.add(_buildDetailRow(Icons.payments_outlined, 'Rates Info', rates));
-    }
-    
-    return list;
+  Widget _buildEmployeeCard(TodoItem item) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.black.withOpacity(0.04)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.person_outline, size: 24, color: Colors.black54),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AutoSizeText(
+                  item.user?.name ?? item.user?.email ?? 'Unknown User',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                if (item.user?.email != null) ...[
+                  const SizedBox(height: 4),
+                  AutoSizeText(
+                    item.user!.email,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (item.user?.epfPretty != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.black12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text('EPF', style: TextStyle(fontSize: 9, color: Colors.black54)),
+                  const SizedBox(height: 2),
+                  Text(item.user!.epfPretty!, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -726,6 +1143,162 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildClickableInfoRow(
+    IconData icon,
+    String label,
+    String value, {
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: Colors.black38),
+          const SizedBox(width: 10),
+          SizedBox(
+            width: 130,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: onTap,
+                  borderRadius: BorderRadius.circular(4),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: HRColors.orangeColor,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                              decorationColor: HRColors.orangeColor,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.open_in_new,
+                          size: 15,
+                          color: HRColors.orangeColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBadge(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black.withOpacity(0.03)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: Colors.black45),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(TodoItem item, BuildContext ctx) {
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              final navigator = Navigator.of(ctx);
+              final reason = await _showRejectConfirmation(item);
+              if (reason != null) {
+                navigator.pop();
+                await _rejectTodoItem(item.id, reason);
+              }
+            },
+            icon: const Icon(Icons.close, size: 20),
+            label: AutoSizeText(
+              l10n.rejectedLable,
+              style: const TextStyle(fontSize: 16),
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              final navigator = Navigator.of(ctx);
+              final confirmed = await _showApproveConfirmation(item);
+              if (confirmed == true) {
+                navigator.pop();
+                await _approveTodoItem(item.id);
+              }
+            },
+            icon: const Icon(Icons.check, size: 20, color: Colors.white),
+            label: AutoSizeText(
+              l10n.approvedLable,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -822,11 +1395,11 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         children: [
           RefreshIndicator(
             onRefresh: _load,
-            child: _tabBody(_myTodos),
+            child: _tabBody(_remoteAttendanceTodos),
           ),
           RefreshIndicator(
             onRefresh: _load,
-            child: _tabBody(_approvableTodos),
+            child: _tabBody(_otherTodos),
           ),
         ],
       );
@@ -896,18 +1469,20 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                   tabs: [
                     Tab(
                       child: AutoSizeText(
-                        AppLocalizations.of(context)!.todoTabMyTodos,
+                        AppLocalizations.of(context)!.todoTabRemoteAttendance,
                         maxLines: 1,
-                        minFontSize: 12,
-                        style: const TextStyle(fontSize: 14),
+                        minFontSize: 14,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Tab(
                       child: AutoSizeText(
-                        AppLocalizations.of(context)!.todoTabApprovable,
+                        AppLocalizations.of(context)!.todoTabOthers,
                         maxLines: 1,
-                        minFontSize: 12,
-                        style: const TextStyle(fontSize: 14),
+                        minFontSize: 14,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

@@ -1659,6 +1659,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Completed'**
   String get completedLabel;
+
+  /// No description provided for @todoTabRemoteAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Attendance'**
+  String get todoTabRemoteAttendance;
+
+  /// No description provided for @todoTabProfileUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Unlock'**
+  String get todoTabProfileUnlock;
+
+  /// No description provided for @todoTabOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get todoTabOthers;
+
+  /// No description provided for @todoDetailCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get todoDetailCategory;
+
+  /// No description provided for @todoDetailZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone'**
+  String get todoDetailZone;
+
+  /// No description provided for @todoDetailPunchType.
+  ///
+  /// In en, this message translates to:
+  /// **'Punch Type'**
+  String get todoDetailPunchType;
+
+  /// No description provided for @todoDetailCheckedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked At'**
+  String get todoDetailCheckedAt;
+
+  /// No description provided for @todoDetailAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get todoDetailAccuracy;
+
+  /// No description provided for @todoDetailBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get todoDetailBattery;
+
+  /// No description provided for @todoDetailCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get todoDetailCoordinates;
+
+  /// No description provided for @todoDetailReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get todoDetailReason;
+
+  /// No description provided for @todoDetailRatesInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates Info'**
+  String get todoDetailRatesInfo;
+
+  /// No description provided for @todoRequestDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Details'**
+  String get todoRequestDetails;
+
+  /// No description provided for @todoApproveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Request'**
+  String get todoApproveTitle;
+
+  /// No description provided for @todoRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Request'**
+  String get todoRejectTitle;
+
+  /// No description provided for @todoApproveConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to approve {name}\'s request?'**
+  String todoApproveConfirmMessage(String name);
+
+  /// No description provided for @todoRejectConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reject {name}\'s request?'**
+  String todoRejectConfirmMessage(String name);
+
+  /// No description provided for @todoReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for rejection *'**
+  String get todoReasonHint;
+
+  /// No description provided for @todoApproveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Todo approved successfully'**
+  String get todoApproveSuccess;
+
+  /// No description provided for @todoRejectSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Todo rejected successfully'**
+  String get todoRejectSuccess;
+
+  /// No description provided for @todoApproveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to approve Todo'**
+  String get todoApproveFailed;
+
+  /// No description provided for @todoRejectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reject Todo'**
+  String get todoRejectFailed;
+
+  /// No description provided for @todoRemoteAttendanceDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Attendance Details'**
+  String get todoRemoteAttendanceDetailsTitle;
+
+  /// No description provided for @todoProfileUnlockDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Unlock Details'**
+  String get todoProfileUnlockDetailsTitle;
+
+  /// No description provided for @todoOtherDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Details'**
+  String get todoOtherDetailsTitle;
+
+  /// No description provided for @todoDetailDeviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Device ID'**
+  String get todoDetailDeviceId;
+
+  /// No description provided for @todoDetailBypassRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Bypass Remote Check'**
+  String get todoDetailBypassRemote;
+
+  /// No description provided for @yesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yesLabel;
+
+  /// No description provided for @noLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get noLabel;
+
+  /// No description provided for @todoDetailCompletedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed By'**
+  String get todoDetailCompletedBy;
+
+  /// No description provided for @todoDetailCompletedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed At'**
+  String get todoDetailCompletedAt;
+
+  /// No description provided for @todoDetailRequestedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested At'**
+  String get todoDetailRequestedAt;
+
+  /// No description provided for @todoDetailRequestedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested For'**
+  String get todoDetailRequestedFor;
+
+  /// No description provided for @todoDetailRequestedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested By'**
+  String get todoDetailRequestedBy;
+
+  /// No description provided for @todoDetailSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get todoDetailSummary;
+
+  /// No description provided for @todoDetailPunctualityIncentive.
+  ///
+  /// In en, this message translates to:
+  /// **'Punctuality Incentive'**
+  String get todoDetailPunctualityIncentive;
+
+  /// No description provided for @todoDetailAttendanceAllowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance Allowance'**
+  String get todoDetailAttendanceAllowance;
+
+  /// No description provided for @todoActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get todoActionsTitle;
 }
 
 class _AppLocalizationsDelegate

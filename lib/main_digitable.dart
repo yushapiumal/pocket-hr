@@ -2,7 +2,6 @@ import 'package:cn_pocket_hr/config/firebase_options_digitable.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
 import 'package:cn_pocket_hr/main.dart';
-import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +48,5 @@ Future<void> main() async {
     ),
   );
 
-  await FCMService.initialize();
   runApp(PocketHR());
 }

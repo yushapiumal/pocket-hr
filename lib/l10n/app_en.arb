@@ -316,5 +316,57 @@
   "todoTabApprovable": "Approvable By Me",
   "noTodosFound": "No to-do tasks found.",
   "failedToLoadTodos": "Failed to load to-do data.",
-  "completedLabel": "Completed"
+  "completedLabel": "Completed",
+  "todoTabRemoteAttendance": "Remote Attendance",
+  "todoTabProfileUnlock": "Profile Unlock",
+  "todoTabOthers": "Others",
+  "todoDetailCategory": "Category",
+  "todoDetailZone": "Zone",
+  "todoDetailPunchType": "Punch Type",
+  "todoDetailCheckedAt": "Checked At",
+  "todoDetailAccuracy": "Accuracy",
+  "todoDetailBattery": "Battery",
+  "todoDetailCoordinates": "Coordinates",
+  "todoDetailReason": "Reason",
+  "todoDetailRatesInfo": "Rates Info",
+  "todoRequestDetails": "Request Details",
+  "todoApproveTitle": "Approve Request",
+  "todoRejectTitle": "Reject Request",
+  "todoApproveConfirmMessage": "Are you sure you want to approve {name}'s request?",
+  "@todoApproveConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoRejectConfirmMessage": "Are you sure you want to reject {name}'s request?",
+  "@todoRejectConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoReasonHint": "Reason for rejection *",
+  "todoApproveSuccess": "Todo approved successfully",
+  "todoRejectSuccess": "Todo rejected successfully",
+  "todoApproveFailed": "Failed to approve Todo",
+  "todoRejectFailed": "Failed to reject Todo",
+  "todoRemoteAttendanceDetailsTitle": "Remote Attendance Details",
+  "todoProfileUnlockDetailsTitle": "Profile Unlock Details",
+  "todoOtherDetailsTitle": "Request Details",
+  "todoDetailDeviceId": "Device ID",
+  "todoDetailBypassRemote": "Bypass Remote Check",
+  "yesLabel": "Yes",
+  "noLabel": "No",
+  "todoDetailCompletedBy": "Completed By",
+  "todoDetailCompletedAt": "Completed At",
+  "todoDetailRequestedAt": "Requested At",
+  "todoDetailRequestedFor": "Requested For",
+  "todoDetailRequestedBy": "Requested By",
+  "todoDetailSummary": "Summary",
+  "todoDetailPunctualityIncentive": "Punctuality Incentive",
+  "todoDetailAttendanceAllowance": "Attendance Allowance",
+  "todoActionsTitle": "Actions"
 } 

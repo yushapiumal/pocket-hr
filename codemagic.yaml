@@ -35,8 +35,13 @@ workflows:
           # Note: Requires setup of APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, and APP_STORE_CONNECT_PRIVATE_KEY
           # in Codemagic environment group.
           if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
-            app-store-connect fetch-signing-files "asia.ceynet.human.pocket" --project-type ios-app --create
+            app-store-connect fetch-signing-files "io.digitable.go.mydomex.human" --project-type ios-app --create
           fi
+
+      - name: Prepare Domex iOS Assets and Config
+        script: |
+          chmod +x tooling/prepare_ios_flavor.sh
+          ./tooling/prepare_ios_flavor.sh domex
 
       - name: Install Flutter Dependencies
         script: |
@@ -52,7 +57,7 @@ workflows:
           flutter build ipa --release \
             -t lib/main_domex.dart \
             --dart-define=tenant=domex \
-            --bundle-id="asia.ceynet.human.pocket" \
+            --bundle-id="io.digitable.go.mydomex.human" \
             --build-number=$BUILD_NUMBER
 
     artifacts:

@@ -376,8 +376,7 @@ class APIService {
       debugPrint('[TODOS] response.body=${response.body}');
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        debugPrint('[TODOS] API status code ${response.statusCode}. Using sample mock fallback.');
-        return _getSampleTodos(approvableByMe);
+        throw Exception('Failed to load todos (Status: ${response.statusCode})');
       }
 
       final decoded = json.decode(response.body);
@@ -396,188 +395,14 @@ class APIService {
         }
       }
 
-      if (itemsList.isEmpty) {
-        debugPrint('[TODOS] API returned empty list. Using sample mock fallback.');
-        return _getSampleTodos(approvableByMe);
-      }
-
       return itemsList
           .whereType<Map>()
           .map((e) => TodoItem.fromJson(Map<String, dynamic>.from(e)))
           .toList();
     } catch (e, st) {
-      debugPrint('[TODOS] ERROR => $e. Falling back to sample mock data.');
+      debugPrint('[TODOS] ERROR => $e');
       debugPrint(st.toString());
-      return _getSampleTodos(approvableByMe);
-    }
-  }
-
-  List<TodoItem> _getSampleTodos(bool approvableByMe) {
-    if (approvableByMe) {
-      return [
-        TodoItem.fromJson({
-          '_id': 'mock_todo_1',
-          'title': 'Remote Attendance Approval: Hasara Weerasinghe (0001) on 6/17/2026',
-          'type': 'remote_attendance',
-          'zone': 'Head Office',
-          'completed': false,
-          'user': {
-            '_id': 'mock_user_1',
-            'name': 'Hasara Weerasinghe',
-            'email': 'sinethihasara@gmail.com',
-            'epf': {'system': 1, 'pretty': '0001'}
-          },
-          'by': {
-            '_id': 'mock_user_1',
-            'name': 'Hasara Weerasinghe',
-            'email': 'sinethihasara@gmail.com',
-            'epf': {'system': 1, 'pretty': '0001'}
-          },
-          'cts': DateTime.now().millisecondsSinceEpoch - 1200000,
-          'uts': DateTime.now().millisecondsSinceEpoch - 1200000,
-          'payload': {
-            'type': 'in',
-            'checked_at': '2026-06-17 08:30:15',
-            'location_accuracy': '15',
-            'battery_level': '85',
-            'lat': '6.9271',
-            'lng': '79.8612'
-          }
-        }),
-        TodoItem.fromJson({
-          '_id': 'mock_todo_2',
-          'title': 'Remote Attendance Approval: Dilanka Perera (0002) on 6/17/2026',
-          'type': 'remote_attendance',
-          'zone': 'Kandy Branch',
-          'completed': false,
-          'user': {
-            '_id': 'mock_user_2',
-            'name': 'Dilanka Perera',
-            'email': 'dilanka@gmail.com',
-            'epf': {'system': 2, 'pretty': '0002'}
-          },
-          'by': {
-            '_id': 'mock_user_2',
-            'name': 'Dilanka Perera',
-            'email': 'dilanka@gmail.com',
-            'epf': {'system': 2, 'pretty': '0002'}
-          },
-          'cts': DateTime.now().millisecondsSinceEpoch - 3600000,
-          'uts': DateTime.now().millisecondsSinceEpoch - 3600000,
-          'payload': {
-            'type': 'out',
-            'checked_at': '2026-06-17 17:05:00',
-            'location_accuracy': '22',
-            'battery_level': '45',
-            'lat': '7.2906',
-            'lng': '80.6337'
-          }
-        }),
-        TodoItem.fromJson({
-          '_id': 'mock_todo_3',
-          'title': 'Profile Unlock Approval: Nuwan Silva (0003)',
-          'type': 'profile_unlock',
-          'zone': 'Head Office',
-          'completed': false,
-          'user': {
-            '_id': 'mock_user_3',
-            'name': 'Nuwan Silva',
-            'email': 'nuwan@gmail.com',
-            'epf': {'system': 3, 'pretty': '0003'}
-          },
-          'by': {
-            '_id': 'mock_user_3',
-            'name': 'Nuwan Silva',
-            'email': 'nuwan@gmail.com',
-            'epf': {'system': 3, 'pretty': '0003'}
-          },
-          'cts': DateTime.now().millisecondsSinceEpoch - 7200000,
-          'uts': DateTime.now().millisecondsSinceEpoch - 7200000,
-          'meta': {
-            'reason': 'Need to update contact details and home address.'
-          }
-        }),
-        TodoItem.fromJson({
-          '_id': 'mock_todo_4',
-          'title': 'Manual Attendance Approval: Shamal Fernando (0004)',
-          'type': 'attendance',
-          'zone': 'Galle Branch',
-          'completed': false,
-          'user': {
-            '_id': 'mock_user_4',
-            'name': 'Shamal Fernando',
-            'email': 'shamal@gmail.com',
-            'epf': {'system': 4, 'pretty': '0004'}
-          },
-          'by': {
-            '_id': 'mock_user_4',
-            'name': 'Shamal Fernando',
-            'email': 'shamal@gmail.com',
-            'epf': {'system': 4, 'pretty': '0004'}
-          },
-          'cts': DateTime.now().millisecondsSinceEpoch - 86400000,
-          'uts': DateTime.now().millisecondsSinceEpoch - 86400000,
-          'meta': {
-            'rates': 'Shift: Night, Rates: 1.5x Overtime'
-          }
-        })
-      ];
-    } else {
-      return [
-        TodoItem.fromJson({
-          '_id': 'mock_todo_5',
-          'title': 'Remote Attendance Approval: Priyantha Bandara (0005) on 6/16/2026',
-          'type': 'remote_attendance',
-          'zone': 'Head Office',
-          'completed': true,
-          'user': {
-            '_id': 'mock_user_5',
-            'name': 'Priyantha Bandara',
-            'email': 'priyantha@gmail.com',
-            'epf': {'system': 5, 'pretty': '0005'}
-          },
-          'by': {
-            '_id': 'mock_user_5',
-            'name': 'Priyantha Bandara',
-            'email': 'priyantha@gmail.com',
-            'epf': {'system': 5, 'pretty': '0005'}
-          },
-          'cts': DateTime.now().millisecondsSinceEpoch - 90000000,
-          'uts': DateTime.now().millisecondsSinceEpoch - 89000000,
-          'payload': {
-            'type': 'in',
-            'checked_at': '2026-06-16 08:25:00',
-            'location_accuracy': '10',
-            'battery_level': '92',
-            'lat': '6.9271',
-            'lng': '79.8612'
-          }
-        }),
-        TodoItem.fromJson({
-          '_id': 'mock_todo_6',
-          'title': 'Profile Unlock Approval: Chathura Senanayake (0006)',
-          'type': 'profile_unlock',
-          'zone': 'Head Office',
-          'completed': true,
-          'user': {
-            '_id': 'mock_user_6',
-            'name': 'Chathura Senanayake',
-            'email': 'chathura@gmail.com',
-            'epf': {'system': 6, 'pretty': '0006'}
-          },
-          'by': {
-            '_id': 'mock_user_6',
-            'name': 'Chathura Senanayake',
-            'email': 'chathura@gmail.com',
-            'epf': {'system': 6, 'pretty': '0006'}
-          },
-          'cts': DateTime.now().millisecondsSinceEpoch - 180000000,
-          'uts': DateTime.now().millisecondsSinceEpoch - 179000000,
-          'meta': {
-            'reason': 'Requesting edit access for salary structure.'
-          }
-        })
-      ];
+      rethrow;
     }
   }
 
@@ -2248,7 +2073,7 @@ class APIService {
     final accessToken = storage.getItem('access_token')?.toString() ?? '';
     final tenant = storage.getItem('tenant')?.toString() ?? '';
 
-    final url = '${baseUrl}/todos/$todoId/approve?tenant=$tenant';
+    final url = '${baseUrl}/todos/$todoId/update?tenant=$tenant';
 
     final response = await http.post(
       Uri.parse(url),
@@ -2257,17 +2082,23 @@ class APIService {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
       },
+      body: jsonEncode({
+        'id': todoId,
+        'action': 'complete',
+      }),
     );
 
+    print('[approveTodo] Response Body: ${response.body}');
     return _handleApiResponse(response, 'approveTodo');
   }
+
 
   Future<Map<String, dynamic>> rejectTodo(String todoId, String reason) async {
     await storage.ready;
     final accessToken = storage.getItem('access_token')?.toString() ?? '';
     final tenant = storage.getItem('tenant')?.toString() ?? '';
 
-    final url = '${baseUrl}/todos/$todoId/reject?tenant=$tenant';
+    final url = '${baseUrl}/todos/$todoId/update?tenant=$tenant';
 
     final response = await http.post(
       Uri.parse(url),
@@ -2276,7 +2107,11 @@ class APIService {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
       },
-      body: jsonEncode({'reason': reason}),
+      body: jsonEncode({
+        'id': todoId,
+        'action': 'reject',
+        'reason': reason,
+      }),
     );
 
     return _handleApiResponse(response, 'rejectTodo');
@@ -2359,6 +2194,9 @@ class APIService {
       throw Exception('Failed to parse JSON from $apiName: ${response.body}');
     }
   }
+
+// dl3FFA7BQ8K31O5eaEMdC8:APA91bHdrgjF4K_KpGIE0Vu-VDAGQDql8SzSTGj_7Z7uTDgnDjKawpNqb9RQWw2PdSX-SOt3qjUvrY40p9nTp0WmzlX-DpINQI_9sHbnYBKe_DKHzqQEKro
+
 
   // ── App version & force-update machinery ────────────────────────────────
 

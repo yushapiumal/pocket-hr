@@ -56,7 +56,6 @@ Future<void> main() async {
     );
   }
 
-  await FCMService.initialize();
   runApp(PocketHR());
 }
 

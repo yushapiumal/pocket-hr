@@ -62,6 +62,8 @@ class FCMService {
   /// so FCMService can navigate without a BuildContext.
   static final navigatorKey = GlobalKey<NavigatorState>();
 
+  static bool _initialized = false;
+
   /// Unread notification count. Listen to this to show a badge in the UI.
   static final ValueNotifier<int> unreadCount = ValueNotifier<int>(0);
 
@@ -192,8 +194,11 @@ class FCMService {
     importance: Importance.high,
   );
 
-  /// Call once at app startup, after [Firebase.initializeApp()].
+  /// Call once after successful login.
   static Future<void> initialize() async {
+    if (_initialized) return;
+    _initialized = true;
+
     // Register background handler
     FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessageHandler);
 
@@ -387,6 +392,18 @@ class FCMService {
       }
     } catch (e) {
       debugPrint('FCMService: sendTokenToBackend error: $e');
+    }
+  }
+
+  /// Deletes the current FCM token and resets the initialization state.
+  static Future<void> reset() async {
+    try {
+      await FirebaseMessaging.instance.deleteToken();
+      _initialized = false;
+      unreadCount.value = 0;
+      debugPrint('FCMService: token deleted and reset completed');
+    } catch (e) {
+      debugPrint('FCMService: reset failed: $e');
     }
   }
 }

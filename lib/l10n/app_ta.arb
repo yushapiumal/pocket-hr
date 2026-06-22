@@ -310,5 +310,57 @@
   "todoTabApprovable": "அங்கீகரிக்க வேண்டியவை",
   "noTodosFound": "செய்ய வேண்டிய பணிகள் எதுவும் இல்லை.",
   "failedToLoadTodos": "தரவை ஏற்ற முடியவில்லை.",
-  "completedLabel": "முடிந்தது"
+  "completedLabel": "முடிந்தது",
+  "todoTabRemoteAttendance": "தொலைநிலை வருகை",
+  "todoTabProfileUnlock": "சுயவிவரம் திறத்தல்",
+  "todoTabOthers": "மற்றவை",
+  "todoDetailCategory": "வகை",
+  "todoDetailZone": "வளையம்",
+  "todoDetailPunchType": "பதிவு வகை",
+  "todoDetailCheckedAt": "பதிவு செய்யப்பட்ட நேரம்",
+  "todoDetailAccuracy": "துல்லியம்",
+  "todoDetailBattery": "மின்கல அளவு",
+  "todoDetailCoordinates": "ஆயத்தொலைவுகள்",
+  "todoDetailReason": "காரணம்",
+  "todoDetailRatesInfo": "விகித விவரங்கள்",
+  "todoRequestDetails": "கோரிக்கை விவரங்கள்",
+  "todoApproveTitle": "கோரிக்கையை அனுமதி",
+  "todoRejectTitle": "கோரிக்கையை நிராகரி",
+  "todoApproveConfirmMessage": "{name} இன் கோரிக்கையை அங்கீகரிக்க விரும்புகிறீர்களா?",
+  "@todoApproveConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoRejectConfirmMessage": "{name} இன் கோரிக்கையை நிராகரிக்க விரும்புகிறீர்களா?",
+  "@todoRejectConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoReasonHint": "நிராகரிப்பதற்கான காரணம் *",
+  "todoApproveSuccess": "வெற்றிகரமாக அங்கீகரிக்கப்பட்டது",
+  "todoRejectSuccess": "வெற்றிகரமாக நிராகரிக்கப்பட்டது",
+  "todoApproveFailed": "அங்கீகரிக்க முடியவில்லை",
+  "todoRejectFailed": "நிராகரிக்க முடியவில்லை",
+  "todoRemoteAttendanceDetailsTitle": "தொலைநிலை வருகை விவரங்கள்",
+  "todoProfileUnlockDetailsTitle": "சுயவிவரம் திறத்தல் விவரங்கள்",
+  "todoOtherDetailsTitle": "கோரிக்கை விவரங்கள்",
+  "todoDetailDeviceId": "சாதன ஐடி",
+  "todoDetailBypassRemote": "தொலைநிலைப் பதிவைத் தவிர்த்தல்",
+  "yesLabel": "ஆம்",
+  "noLabel": "இல்லை",
+  "todoDetailCompletedBy": "முடித்தவர்",
+  "todoDetailCompletedAt": "முடிக்கப்பட்ட நேரம்",
+  "todoDetailRequestedAt": "கோரப்பட்ட நேரம்",
+  "todoDetailRequestedFor": "யாருக்காக கோரப்பட்டது",
+  "todoDetailRequestedBy": "கோரியவர்",
+  "todoDetailSummary": "சுருக்கம்",
+  "todoDetailPunctualityIncentive": "நேரக் கட்டுப்பாடு ஊக்கத்தொகை",
+  "todoDetailAttendanceAllowance": "வருகை கொடுப்பனவு",
+  "todoActionsTitle": "செயல்கள்"
 }

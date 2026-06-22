@@ -145,7 +145,9 @@ class _MobileLoginState extends State<MobileLogin>
       // Token exists and not expired — try to fetch profile to ensure server accepts it
       try {
         await apiService.fetchMeProfileWithBearer();
-        if (!mounted) return;
+        await FCMService.initialize();
+        FCMService.sendTokenToBackend();
+
         Navigator.of(context).pushReplacementNamed(HRMain.routeName);
         return;
       } catch (e) {
@@ -463,6 +465,7 @@ class _MobileLoginState extends State<MobileLogin>
         }
       } catch (_) {}
 
+      await FCMService.initialize();
       FCMService.sendTokenToBackend();
 
       setState(() {

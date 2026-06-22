@@ -468,7 +468,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get processedLabel => 'සකසා ඇත';
 
   @override
-  String get pendingLabel => 'නිලවරණය';
+  String get pendingLabel => 'අපේක්ෂිත';
 
   @override
   String get retryLabel => 'නැවත උත්සාහ කරන්න';
@@ -814,4 +814,122 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get completedLabel => 'සම්පූර්ණයි';
+
+  @override
+  String get todoTabRemoteAttendance => 'දුරස්ථ පැමිණීම';
+
+  @override
+  String get todoTabProfileUnlock => 'පැතිකඩ අගුළු හැරීම';
+
+  @override
+  String get todoTabOthers => 'වෙනත්';
+
+  @override
+  String get todoDetailCategory => 'ප්‍රවර්ගය';
+
+  @override
+  String get todoDetailZone => 'කලාපය';
+
+  @override
+  String get todoDetailPunchType => 'පැමිණීමේ වර්ගය';
+
+  @override
+  String get todoDetailCheckedAt => 'සටහන් කළ වේලාව';
+
+  @override
+  String get todoDetailAccuracy => 'නිරවද්‍යතාවය';
+
+  @override
+  String get todoDetailBattery => 'බැටරි මට්ටම';
+
+  @override
+  String get todoDetailCoordinates => 'ඛණ්ඩාංක';
+
+  @override
+  String get todoDetailReason => 'හේතුව';
+
+  @override
+  String get todoDetailRatesInfo => 'ගාස්තු විස්තර';
+
+  @override
+  String get todoRequestDetails => 'ඉල්ලීම් විස්තර';
+
+  @override
+  String get todoApproveTitle => 'ඉල්ලීම අනුමත කරන්න';
+
+  @override
+  String get todoRejectTitle => 'ඉල්ලීම ප්‍රතික්ෂේප කරන්න';
+
+  @override
+  String todoApproveConfirmMessage(String name) {
+    return '$name ගේ ඉල්ලීම අනුමත කිරීමට ඔබට විශ්වාසද?';
+  }
+
+  @override
+  String todoRejectConfirmMessage(String name) {
+    return '$name ගේ ඉල්ලීම ප්‍රතික්ෂේප කිරීමට ඔබට විශ්වාසද?';
+  }
+
+  @override
+  String get todoReasonHint => 'ප්‍රතික්ෂේප කිරීමට හේතුව *';
+
+  @override
+  String get todoApproveSuccess => 'කළ යුතු දෑ සාර්ථකව අනුමත කරන ලදී';
+
+  @override
+  String get todoRejectSuccess => 'කළ යුතු දෑ සාර්ථකව ප්‍රතික්ෂේප කරන ලදී';
+
+  @override
+  String get todoApproveFailed => 'අනුමත කිරීම අසාර්ථකයි';
+
+  @override
+  String get todoRejectFailed => 'ප්‍රතික්ෂේප කිරීම අසාර්ථකයි';
+
+  @override
+  String get todoRemoteAttendanceDetailsTitle => 'දුරස්ථ පැමිණීම් විස්තර';
+
+  @override
+  String get todoProfileUnlockDetailsTitle => 'පැතිකඩ අගුළු හැරීමේ විස්තර';
+
+  @override
+  String get todoOtherDetailsTitle => 'ඉල්ලීම් විස්තර';
+
+  @override
+  String get todoDetailDeviceId => 'උපාංග හැඳුනුම්පත';
+
+  @override
+  String get todoDetailBypassRemote => 'දුරස්ථ පරීක්ෂාව මඟ හැරීම';
+
+  @override
+  String get yesLabel => 'ඔව්';
+
+  @override
+  String get noLabel => 'නැත';
+
+  @override
+  String get todoDetailCompletedBy => 'සම්පූර්ණ කරන ලද්දේ';
+
+  @override
+  String get todoDetailCompletedAt => 'සම්පූර්ණ කරන ලද වේලාව';
+
+  @override
+  String get todoDetailRequestedAt => 'ඉල්ලූ වේලාව';
+
+  @override
+  String get todoDetailRequestedFor => 'ඉල්ලීම් කල සේවකයා';
+
+  @override
+  String get todoDetailRequestedBy => 'ඉල්ලීම් කල තැනැත්තා';
+
+  @override
+  String get todoDetailSummary => 'සාරාංශය';
+
+  @override
+  String get todoDetailPunctualityIncentive => 'වේලාවට පැමිණීමේ දිරිදීමනාව';
+
+  @override
+  String get todoDetailAttendanceAllowance => 'පැමිණීමේ දීමනාව';
+
+  @override
+  String get todoActionsTitle => 'ක්‍රියාමාර්ග';
 }
