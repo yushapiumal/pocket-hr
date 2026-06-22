@@ -35,7 +35,7 @@ workflows:
           # Note: Requires setup of APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, and APP_STORE_CONNECT_PRIVATE_KEY
           # in Codemagic environment group.
           if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
-            app-store-connect fetch-signing-files "io.digitable.go.mydomex.human" --project-type ios-app --create
+            app-store-connect fetch-signing-files "io.digitable.go.mydomex.human" --project-type ios-app --create --type IOS_APP_STORE
           fi
 
       - name: Prepare Domex iOS Assets and Config
