@@ -47,16 +47,10 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
  // late AudioPlayer _audioPlayer;
 
-  String morningBg =
-      "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
-
-  String afternoonBg =
-      "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
-
-  String eveningBg =
-      "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/sunset-quotes-21-1586531574.jpg";
-
-  String nightBg = "https://wallpaperaccess.com/full/2113857.jpg";
+  String morningBg = FlavorConfig.instance.morningBg;
+  String afternoonBg = FlavorConfig.instance.afternoonBg;
+  String eveningBg = FlavorConfig.instance.eveningBg;
+  String nightBg = FlavorConfig.instance.nightBg;
 
   late String bgImg;
   String? _dateTime;
@@ -753,7 +747,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                       bottomRight: Radius.circular(40),
                     ),
                     child: OctoImage(
-                      image: CachedNetworkImageProvider(setBgImage()),
+                      image: DesignConfig.getHomeBgProvider(setBgImage()),
                       placeholderBuilder: OctoBlurHashFix.placeHolder(
                         sliderList[i].blurUrl!,
                       ),

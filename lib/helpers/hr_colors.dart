@@ -42,6 +42,21 @@ class HRColors {
   static Color? get flavorIconBackgroundColor =>
       FlavorConfig.instance.iconBackgroundColor;
 
+  /// Active flavor's tab indicator/background color for selected tabs
+  static Color get tabColor => FlavorConfig.instance.tabColor;
+
+  /// Active flavor's tab label text color for selected tabs
+  static Color get tabLabelColor => FlavorConfig.instance.tabLabelColor;
+
+  /// Active flavor's selected icon color in the bottom navigation bar
+  static Color get bottomNavIconColor => FlavorConfig.instance.bottomNavIconColor;
+
+  /// Active flavor's background circle color for selected bottom navigation icon
+  static Color get bottomNavIconBgColor => FlavorConfig.instance.bottomNavIconBgColor;
+
+  /// Active flavor's button background color
+  static Color get buttonColor => FlavorConfig.instance.buttonColor;
+
   static const Color intro1Sed1Color = Color(0xfffedd8c);
   static const Color intro1Sed2Color = Color(0xfff7c361);
   static const Color intro1Sed3Color = Color(0xfff7b53e);

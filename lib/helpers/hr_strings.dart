@@ -80,7 +80,9 @@ class HRStrings {
   static String checkIn = "Check In";
   static String checkOut = "Check Out";
   static String leaveText = "My Leaves";
+  static String teamLeavesText = "Leaves";
   static String attendanceText = "My Attendance";
+  static String teamAttendanceText = "Attendance";
   static String continueText = "Continue";
   static String leaveRequest = "Leave Request";
   static String submit = "Submit";

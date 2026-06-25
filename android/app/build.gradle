@@ -88,8 +88,8 @@ android {
         }
         mahajana {
             dimension "tenant"
-            applicationId "com.mahajana.human.pocket"
-            resValue "string", "app_name", "Mahajana HR"
+            applicationId "io.digitable.go.mahajana.human"
+            resValue "string", "app_name", "Mahajana Hr"
         }
     }
 

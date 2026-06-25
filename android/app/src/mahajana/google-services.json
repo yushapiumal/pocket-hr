@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "71892141807",
+    "project_id": "mahajana-hr",
+    "storage_bucket": "mahajana-hr.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:71892141807:android:35bdf73b281be00be6fd1a",
+        "android_client_info": {
+          "package_name": "io.digitable.go.mahajana.human"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaEv5pqk_6Oh86WVcgHDNg08igJrwMbLM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

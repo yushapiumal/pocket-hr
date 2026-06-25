@@ -929,4 +929,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todoActionsTitle => 'Actions';
+
+  @override
+  String get todoWaitingForPreviousStage => 'for previous person';
+
+  @override
+  String get todoPending => 'for you';
+
+  @override
+  String get goodMorning => 'Good Morning';
+
+  @override
+  String get goodAfternoon => 'Good Afternoon';
+
+  @override
+  String get goodEvening => 'Good Evening';
+
+  @override
+  String get goodNight => 'Good Night';
+
+  @override
+  String get notificationDetailEmployeeName => 'Employee Name';
+
+  @override
+  String get notificationDetailPerformedBy => 'Performed By';
+
+  @override
+  String get notificationDetailPerformerEmail => 'Performer Email';
+
+  @override
+  String get notificationDetailPerformerEpfNo => 'Performer EPF No';
+
+  @override
+  String get notificationDetailEmployeeEpfNo => 'Employee EPF No';
+
+  @override
+  String get notificationDetailIpAddress => 'IP Address';
+
+  @override
+  String get notificationDetailTime => 'Time';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationClearAll => 'Clear all';
+
+  @override
+  String get notificationNoNotificationsYet => 'No notifications yet';
+
+  @override
+  String get notificationAllCaughtUp => 'You\'re all caught up!';
+
+  @override
+  String get notificationMessageLabel => 'Message';
+
+  @override
+  String get notificationDetailsLabel => 'Details';
+
+  @override
+  String get notificationCloseButton => 'Close';
+
+  @override
+  String get teamLeavesText => 'Leaves';
+
+  @override
+  String get teamAttendanceText => 'Attendance';
+
+  @override
+  String get fcmTokenError => 'Failed to get push notification (FCM) token.';
 }

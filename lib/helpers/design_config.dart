@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cn_pocket_hr/screens/allowances_deductions/allowance.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,14 @@ import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DesignConfig {
+  static ImageProvider getHomeBgProvider(String path) {
+    if (path.startsWith('http') || path.startsWith('https')) {
+      return CachedNetworkImageProvider(path);
+    } else {
+      return AssetImage(path);
+    }
+  }
+
   static String getPngImagePath(String imageName) {
     return "assets/images/img/$imageName";
   }

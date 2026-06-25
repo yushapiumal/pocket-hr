@@ -46,16 +46,10 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   //late AudioPlayer _audioPlayer;
 
-  String morningBg =
-      "https://domex.lk/public/image/main-banner3.jpg";
-
-  String afternoonBg =
-      "https://domex.lk/public/image/main-banner3.jpg";
-
-  String eveningBg =
-      "https://domex.lk/public/image/main-banner3.jpg";
-
-  String nightBg = "https://domex.lk/public/image/main-banner3.jpg";
+  String morningBg = FlavorConfig.instance.morningBg;
+  String afternoonBg = FlavorConfig.instance.afternoonBg;
+  String eveningBg = FlavorConfig.instance.eveningBg;
+  String nightBg = FlavorConfig.instance.nightBg;
 
   late String bgImg;
   String? _dateTime;
@@ -687,10 +681,11 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    if (hour < 21) return 'Good Evening';
-    return 'Good Night';
+    final l10n = AppLocalizations.of(context)!;
+    if (hour < 12) return l10n.goodMorning;
+    if (hour < 17) return l10n.goodAfternoon;
+    if (hour < 21) return l10n.goodEvening;
+    return l10n.goodNight;
   }
 
   String _getWelcomeName() {
@@ -798,7 +793,7 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                       bottomRight: Radius.circular(40),
                     ),
                     child: OctoImage(
-                      image: CachedNetworkImageProvider(setBgImage()),
+                      image: DesignConfig.getHomeBgProvider(setBgImage()),
                       placeholderBuilder: OctoBlurHashFix.placeHolder(
                         sliderList[i].blurUrl!,
                       ),

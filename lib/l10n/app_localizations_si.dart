@@ -932,4 +932,74 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get todoActionsTitle => 'ක්‍රියාමාර්ග';
+
+  @override
+  String get todoWaitingForPreviousStage => 'පෙර පුද්ගලයා සඳහා';
+
+  @override
+  String get todoPending => 'ඔබ සඳහා';
+
+  @override
+  String get goodMorning => 'සුභ උදෑසනක්';
+
+  @override
+  String get goodAfternoon => 'සුභ පස්වරුවක්';
+
+  @override
+  String get goodEvening => 'සුභ සැන්දෑවක්';
+
+  @override
+  String get goodNight => 'සුභ රාත්‍රියක්';
+
+  @override
+  String get notificationDetailEmployeeName => 'සේවකයාගේ නම';
+
+  @override
+  String get notificationDetailPerformedBy => 'සිදුකළ පුද්ගලයා';
+
+  @override
+  String get notificationDetailPerformerEmail => 'සිදුකළ අයගේ විද්‍යුත් තැපෑල';
+
+  @override
+  String get notificationDetailPerformerEpfNo => 'සිදුකළ අයගේ EPF අංකය';
+
+  @override
+  String get notificationDetailEmployeeEpfNo => 'සේවකයාගේ EPF අංකය';
+
+  @override
+  String get notificationDetailIpAddress => 'IP ලිපිනය';
+
+  @override
+  String get notificationDetailTime => 'වේලාව';
+
+  @override
+  String get notificationsTitle => 'දැනුම්දීම්';
+
+  @override
+  String get notificationClearAll => 'සියල්ල මකන්න';
+
+  @override
+  String get notificationNoNotificationsYet => 'තවමත් දැනුම්දීම් නැත';
+
+  @override
+  String get notificationAllCaughtUp => 'ඔබ සියල්ල කියවා අවසන්!';
+
+  @override
+  String get notificationMessageLabel => 'පණිවිඩය';
+
+  @override
+  String get notificationDetailsLabel => 'විස්තර';
+
+  @override
+  String get notificationCloseButton => 'වසන්න';
+
+  @override
+  String get teamLeavesText => 'නිවාඩු';
+
+  @override
+  String get teamAttendanceText => 'පැමිණීම්';
+
+  @override
+  String get fcmTokenError =>
+      'පුෂ් දැනුම්දීම් (FCM) ටෝකනය ලබා ගැනීමට නොහැකි විය.';
 }

@@ -38,9 +38,18 @@ Future<void> main() async {
     splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',
     primaryColor: primary,
     secondaryColor: secondary,
+    morningBg: 'assets/images/domex_home-banner3.jpg',
+    afternoonBg: 'assets/images/domex_home-banner3.jpg',
+    eveningBg: 'assets/images/domex_home-banner3.jpg',
+    nightBg: 'assets/images/domex_home-banner3.jpg',
     iconColor: iconFg,
     iconBackgroundColor: iconBg,
     tenant: 'domex',
+    tabColor: const Color(0xFF791b27),
+    tabLabelColor: secondary,
+    bottomNavIconColor: secondary,
+    bottomNavIconBgColor: const Color(0xFF791b27),
+    buttonColor: primary,
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,

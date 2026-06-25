@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/services/fcm_service.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
@@ -111,17 +112,18 @@ class _HRNotificationsState extends State<HRNotifications> {
                 color: HRColors.flavorIconColor, size: 18),
           ),
         ),
-        title: const Text(
-          'Notifications',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)?.notificationsTitle ?? 'Notifications',
+          style: const TextStyle(
               color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
         ),
         actions: [
           if (_notifications.isNotEmpty)
             TextButton(
               onPressed: _clearAll,
-              child: const Text('Clear all',
-                  style: TextStyle(color: Colors.white, fontSize: 13)),
+              child: Text(
+                  AppLocalizations.of(context)?.notificationClearAll ?? 'Clear all',
+                  style: const TextStyle(color: Colors.white, fontSize: 13)),
             ),
         ],
       ),
@@ -194,7 +196,7 @@ class _HRNotificationsState extends State<HRNotifications> {
           title: AutoSizeText(
             n['title']?.toString().isNotEmpty == true
                 ? n['title'].toString()
-                : 'Notification',
+                : (AppLocalizations.of(context)?.notificationText ?? 'Notification'),
             maxLines: 1,
             style: TextStyle(
               fontWeight: isUnread ? FontWeight.w700 : FontWeight.w600,
@@ -232,9 +234,9 @@ class _HRNotificationsState extends State<HRNotifications> {
                         color: primary,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Text(
-                        'NEW',
-                        style: TextStyle(
+                      child: Text(
+                        AppLocalizations.of(context)?.newText ?? 'NEW',
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 9,
                             fontWeight: FontWeight.bold),
@@ -264,7 +266,7 @@ class _HRNotificationsState extends State<HRNotifications> {
               size: 72, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
-            'No notifications yet',
+            AppLocalizations.of(context)?.notificationNoNotificationsYet ?? 'No notifications yet',
             style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -272,7 +274,7 @@ class _HRNotificationsState extends State<HRNotifications> {
           ),
           const SizedBox(height: 8),
           Text(
-            "You're all caught up!",
+            AppLocalizations.of(context)?.notificationAllCaughtUp ?? "You're all caught up!",
             style: TextStyle(fontSize: 14, color: Colors.grey[400]),
           ),
         ],
@@ -303,11 +305,44 @@ class _NotificationDetailSheet extends StatelessWidget {
     }
   }
 
+  String _getLocalizedLabel(String key, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return key;
+
+    final cleanKey = key.toLowerCase().replaceAll('_', '').replaceAll('-', '');
+    switch (cleanKey) {
+      case 'targetusername':
+        return l10n.notificationDetailEmployeeName;
+      case 'triggeredbyname':
+        return l10n.notificationDetailPerformedBy;
+      case 'triggeredby':
+        return l10n.notificationDetailPerformerEmail;
+      case 'triggeredbyepfno':
+        return l10n.notificationDetailPerformerEpfNo;
+      case 'targetuserepfno':
+        return l10n.notificationDetailEmployeeEpfNo;
+      case 'ip':
+        return l10n.notificationDetailIpAddress;
+      case 'time':
+        return l10n.notificationDetailTime;
+      default:
+        // Fallback formatting: capitalize words, remove underscores/dashes
+        String fallback = key.replaceAll('_', ' ').replaceAll('-', ' ');
+        if (fallback.isNotEmpty) {
+          fallback = fallback.split(' ').map((word) {
+            if (word.isEmpty) return '';
+            return '${word[0].toUpperCase()}${word.substring(1)}';
+          }).join(' ');
+        }
+        return fallback;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final title = n['title']?.toString().isNotEmpty == true
         ? n['title'].toString()
-        : 'Notification';
+        : (AppLocalizations.of(context)?.notificationText ?? 'Notification');
     final body = n['body']?.toString() ?? '';
     final timestamp = _formatTime(n['timestamp']?.toString());
     final data = n['data'];
@@ -397,7 +432,7 @@ class _NotificationDetailSheet extends StatelessWidget {
                 children: [
                   if (body.isNotEmpty) ...[
                     Text(
-                      'Message',
+                      AppLocalizations.of(context)?.notificationMessageLabel ?? 'Message',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -425,37 +460,69 @@ class _NotificationDetailSheet extends StatelessWidget {
                     const SizedBox(height: 20),
                   ],
                   if (extraData.isNotEmpty) ...[
-                    Text(
-                      'Details',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[500],
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.grey[200]!, width: 1),
-                      ),
-                      child: Column(
-                        children: extraData.entries
-                            .where((e) =>
-                                e.value != null &&
-                                e.value.toString().isNotEmpty)
-                            .map((e) => _DetailRow(
-                                  label: e.key,
-                                  value: e.value.toString(),
+                    (() {
+                      final filteredEntries = extraData.entries.where((e) {
+                        final key = e.key.toLowerCase();
+                        if (key == 'tenant' ||
+                            key == 'click_action' ||
+                            key == 'key' ||
+                            key == 'tkey' ||
+                            key == 'alertid' ||
+                            key == 'alert_id' ||
+                            key.startsWith('google.') ||
+                            key.startsWith('gcm.')) {
+                          return false;
+                        }
+                        return e.value != null && e.value.toString().isNotEmpty;
+                      }).toList();
+
+                      if (filteredEntries.isEmpty) return const SizedBox.shrink();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)?.notificationDetailsLabel ?? 'Details',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[500],
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.grey[200]!, width: 1),
+                            ),
+                            child: Column(
+                              children: filteredEntries.map((e) {
+                                final cleanLabel = _getLocalizedLabel(e.key, context);
+                                
+                                // Format time string if needed to be user readable instead of raw ISO format
+                                String cleanValue = e.value.toString();
+                                if (e.key.toLowerCase() == 'time') {
+                                  final formatted = _formatTime(cleanValue);
+                                  if (formatted.isNotEmpty) {
+                                    cleanValue = formatted;
+                                  }
+                                }
+
+                                return _DetailRow(
+                                  label: cleanLabel,
+                                  value: cleanValue,
                                   primary: primary,
-                                  isLast: e.key == extraData.keys.last,
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                                  isLast: e.key == filteredEntries.last.key,
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      );
+                    })(),
                   ],
                   // Close button
                   SizedBox(
@@ -471,8 +538,9 @@ class _NotificationDetailSheet extends StatelessWidget {
                         elevation: 0,
                       ),
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Close',
-                          style: TextStyle(
+                      child: Text(
+                          AppLocalizations.of(context)?.notificationCloseButton ?? 'Close',
+                          style: const TextStyle(
                               fontSize: 15, fontWeight: FontWeight.w600)),
                     ),
                   ),

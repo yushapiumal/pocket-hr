@@ -28,19 +28,19 @@ class MahajanaFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'REPLACE_MAHAJANA_ANDROID_API_KEY',
-    appId: 'REPLACE_MAHAJANA_ANDROID_APP_ID',
-    messagingSenderId: 'REPLACE_MAHAJANA_SENDER_ID',
-    projectId: 'REPLACE_MAHAJANA_PROJECT_ID',
-    storageBucket: 'REPLACE_MAHAJANA_STORAGE_BUCKET',
+    apiKey: 'AIzaSyAaEv5pqk_6Oh86WVcgHDNg08igJrwMbLM',
+    appId: '1:71892141807:android:35bdf73b281be00be6fd1a',
+    messagingSenderId: '71892141807',
+    projectId: 'mahajana-hr',
+    storageBucket: 'mahajana-hr.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'REPLACE_MAHAJANA_IOS_API_KEY',
     appId: 'REPLACE_MAHAJANA_IOS_APP_ID',
-    messagingSenderId: 'REPLACE_MAHAJANA_SENDER_ID',
-    projectId: 'REPLACE_MAHAJANA_PROJECT_ID',
-    storageBucket: 'REPLACE_MAHAJANA_STORAGE_BUCKET',
-    iosBundleId: 'REPLACE_MAHAJANA_IOS_BUNDLE_ID',
+    messagingSenderId: '71892141807',
+    projectId: 'mahajana-hr',
+    storageBucket: 'mahajana-hr.firebasestorage.app',
+    iosBundleId: 'io.digitable.go.mahajana.human',
   );
 }

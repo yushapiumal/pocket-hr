@@ -1887,6 +1887,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Actions'**
   String get todoActionsTitle;
+
+  /// No description provided for @todoWaitingForPreviousStage.
+  ///
+  /// In en, this message translates to:
+  /// **'for previous person'**
+  String get todoWaitingForPreviousStage;
+
+  /// No description provided for @todoPending.
+  ///
+  /// In en, this message translates to:
+  /// **'for you'**
+  String get todoPending;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get goodMorning;
+
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get goodAfternoon;
+
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get goodEvening;
+
+  /// No description provided for @goodNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Night'**
+  String get goodNight;
+
+  /// No description provided for @notificationDetailEmployeeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Name'**
+  String get notificationDetailEmployeeName;
+
+  /// No description provided for @notificationDetailPerformedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Performed By'**
+  String get notificationDetailPerformedBy;
+
+  /// No description provided for @notificationDetailPerformerEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Performer Email'**
+  String get notificationDetailPerformerEmail;
+
+  /// No description provided for @notificationDetailPerformerEpfNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Performer EPF No'**
+  String get notificationDetailPerformerEpfNo;
+
+  /// No description provided for @notificationDetailEmployeeEpfNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee EPF No'**
+  String get notificationDetailEmployeeEpfNo;
+
+  /// No description provided for @notificationDetailIpAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'IP Address'**
+  String get notificationDetailIpAddress;
+
+  /// No description provided for @notificationDetailTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get notificationDetailTime;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get notificationClearAll;
+
+  /// No description provided for @notificationNoNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationNoNotificationsYet;
+
+  /// No description provided for @notificationAllCaughtUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up!'**
+  String get notificationAllCaughtUp;
+
+  /// No description provided for @notificationMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get notificationMessageLabel;
+
+  /// No description provided for @notificationDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get notificationDetailsLabel;
+
+  /// No description provided for @notificationCloseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get notificationCloseButton;
+
+  /// No description provided for @teamLeavesText.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaves'**
+  String get teamLeavesText;
+
+  /// No description provided for @teamAttendanceText.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get teamAttendanceText;
+
+  /// No description provided for @fcmTokenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get push notification (FCM) token.'**
+  String get fcmTokenError;
 }
 
 class _AppLocalizationsDelegate

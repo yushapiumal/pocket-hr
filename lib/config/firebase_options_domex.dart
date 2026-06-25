@@ -49,11 +49,11 @@ class DomexFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBIVLR8rVccNQKmxymprrzjmcm5Pw5T-PE',
-    appId: '1:444016119144:ios:8340e3851e4cda07ee5add',
-    messagingSenderId: '444016119144',
-    projectId: 'pocket-hr-4ca30',
-    storageBucket: 'pocket-hr-4ca30.firebasestorage.app',
-    iosBundleId: 'asia.ceynet.human.pocket',
+    apiKey: 'AIzaSyBx3O2aV7osrjAsjFaj2aJ9079VgKXJCz0',
+    appId: '1:1049172536794:ios:369a8fb2aabcaec22a24e3',
+    messagingSenderId: '1049172536794',
+    projectId: 'domex-go',
+    storageBucket: 'domex-go.firebasestorage.app',
+    iosBundleId: 'io.digitable.go.domex.human',
   );
 }

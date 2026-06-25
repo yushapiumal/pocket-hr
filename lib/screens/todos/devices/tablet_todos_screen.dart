@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
+
 class TabletTodosScreen extends StatefulWidget {
   const TabletTodosScreen({super.key});
 
@@ -156,7 +157,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
   }
 
   Future<bool?> _showApproveConfirmation(TodoItem item) {
-    final employeeName = item.user?.name ?? item.user?.email ?? 'Employee';
+    final employeeName = item.user?.name ?? 'Employee';
     return showDialog<bool>(
       context: context,
       builder: (BuildContext ctx) {
@@ -167,9 +168,11 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
             children: [
               const Icon(Icons.check_circle_outline, color: Colors.green),
               const SizedBox(width: 8),
-              Text(
-                AppLocalizations.of(context)!.todoApproveTitle,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.todoApproveTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -223,7 +226,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
 
   Future<String?> _showRejectConfirmation(TodoItem item) {
     final reasonController = TextEditingController();
-    final employeeName = item.user?.name ?? item.user?.email ?? 'Employee';
+    final employeeName = item.user?.name ?? 'Employee';
     return showDialog<String>(
       context: context,
       builder: (BuildContext ctx) {
@@ -237,9 +240,11 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                 children: [
                   const Icon(Icons.cancel_outlined, color: Colors.red),
                   const SizedBox(width: 8),
-                  Text(
-                    AppLocalizations.of(context)!.todoRejectTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.todoRejectTitle,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ],
               ),
@@ -350,11 +355,15 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
   }
 
   void _showRemoteAttendanceBottomSheet(TodoItem item) {
-    final statusColor = item.completed ? Colors.green : Colors.orange;
+    final statusColor = item.completed
+        ? Colors.green
+        : (item.waitingForPreviousStage ? Colors.red : Colors.orange);
     final isPending = !item.completed;
     final displayStatus = item.completed
         ? AppLocalizations.of(context)!.completedLabel
-        : AppLocalizations.of(context)!.pendingLabel;
+        : (item.waitingForPreviousStage
+            ? AppLocalizations.of(context)!.todoWaitingForPreviousStage
+            : AppLocalizations.of(context)!.todoPending);
     final l10n = AppLocalizations.of(context)!;
     final p = item.payload ?? {};
 
@@ -564,7 +573,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                               _buildInfoRow(
                                 Icons.person_outline,
                                 l10n.todoDetailCompletedBy,
-                                '${completedBy.name} (${completedBy.email})',
+                                completedBy.name,
                               ),
                               _buildInfoRow(Icons.done_all, l10n.todoDetailCompletedAt, _formatDateTime(item.uts)),
                             ],
@@ -604,11 +613,15 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
   }
 
   void _showProfileUnlockBottomSheet(TodoItem item) {
-    final statusColor = item.completed ? Colors.green : Colors.orange;
+    final statusColor = item.completed
+        ? Colors.green
+        : (item.waitingForPreviousStage ? Colors.red : Colors.orange);
     final isPending = !item.completed;
     final displayStatus = item.completed
         ? AppLocalizations.of(context)!.completedLabel
-        : AppLocalizations.of(context)!.pendingLabel;
+        : (item.waitingForPreviousStage
+            ? AppLocalizations.of(context)!.todoWaitingForPreviousStage
+            : AppLocalizations.of(context)!.todoPending);
     final l10n = AppLocalizations.of(context)!;
     final m = item.meta ?? {};
     final reason = m['reason']?.toString() ?? m['summary']?.toString() ?? '-';
@@ -727,23 +740,13 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   AutoSizeText(
-                                    requestedForUser?.name ?? requestedForUser?.email ?? 'Unknown User',
+                                    requestedForUser?.name ?? 'Unknown User',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  if (requestedForUser?.email != null) ...[
-                                    const SizedBox(height: 4),
-                                    AutoSizeText(
-                                      requestedForUser!.email,
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: Colors.black54,
-                                      ),
-                                    ),
-                                  ],
                                 ],
                               ),
                             ),
@@ -796,7 +799,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                               _buildInfoRow(
                                 Icons.person,
                                 l10n.todoDetailRequestedBy,
-                                '${requestedByUser.name} (${requestedByUser.email})',
+                                requestedByUser.name,
                               ),
                             _buildInfoRow(Icons.calendar_today_outlined, l10n.todoDetailRequestedAt, _formatDateTime(item.cts)),
                             if (completedBy != null) ...[
@@ -804,7 +807,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                               _buildInfoRow(
                                 Icons.person_outline,
                                 l10n.todoDetailCompletedBy,
-                                '${completedBy.name} (${completedBy.email})',
+                                completedBy.name,
                               ),
                               _buildInfoRow(Icons.done_all, l10n.todoDetailCompletedAt, _formatDateTime(item.uts)),
                             ],
@@ -881,11 +884,15 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
   }
 
   void _showOtherTodoBottomSheet(TodoItem item) {
-    final statusColor = item.completed ? Colors.green : Colors.orange;
+    final statusColor = item.completed
+        ? Colors.green
+        : (item.waitingForPreviousStage ? Colors.red : Colors.orange);
     final isPending = !item.completed;
     final displayStatus = item.completed
         ? AppLocalizations.of(context)!.completedLabel
-        : AppLocalizations.of(context)!.pendingLabel;
+        : (item.waitingForPreviousStage
+            ? AppLocalizations.of(context)!.todoWaitingForPreviousStage
+            : AppLocalizations.of(context)!.todoPending);
     final l10n = AppLocalizations.of(context)!;
 
     final completedByJson = item.raw['completed_by'];
@@ -990,7 +997,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                               _buildInfoRow(
                                 Icons.person,
                                 l10n.todoDetailRequestedBy,
-                                '${item.by!.name} (${item.by!.email})',
+                                item.by!.name,
                               ),
                             _buildInfoRow(Icons.calendar_today_outlined, l10n.todoDetailRequestedAt, _formatDateTime(item.cts)),
                             if (item.type == 'attendance' && item.meta != null) ...[
@@ -1015,7 +1022,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                               _buildInfoRow(
                                 Icons.person_outline,
                                 l10n.todoDetailCompletedBy,
-                                '${completedBy.name} (${completedBy.email})',
+                                completedBy.name,
                               ),
                               _buildInfoRow(Icons.done_all, l10n.todoDetailCompletedAt, _formatDateTime(item.uts)),
                             ],
@@ -1071,23 +1078,13 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AutoSizeText(
-                  item.user?.name ?? item.user?.email ?? 'Unknown User',
+                  item.user?.name ?? 'Unknown User',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,
                   ),
                 ),
-                if (item.user?.email != null) ...[
-                  const SizedBox(height: 4),
-                  AutoSizeText(
-                    item.user!.email,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -1246,26 +1243,27 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
 
   Widget _buildActionButtons(TodoItem item, BuildContext ctx) {
     final l10n = AppLocalizations.of(context)!;
+    final isEnabled = !item.waitingForPreviousStage;
     return Row(
       children: [
         Expanded(
           child: OutlinedButton.icon(
-            onPressed: () async {
+            onPressed: isEnabled ? () async {
               final navigator = Navigator.of(ctx);
               final reason = await _showRejectConfirmation(item);
               if (reason != null) {
                 navigator.pop();
                 await _rejectTodoItem(item.id, reason);
               }
-            },
+            } : null,
             icon: const Icon(Icons.close, size: 20),
             label: AutoSizeText(
               l10n.rejectedLable,
               style: const TextStyle(fontSize: 16),
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
+              foregroundColor: isEnabled ? Colors.red : Colors.grey,
+              side: BorderSide(color: isEnabled ? Colors.red : Colors.grey),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1276,21 +1274,21 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () async {
+            onPressed: isEnabled ? () async {
               final navigator = Navigator.of(ctx);
               final confirmed = await _showApproveConfirmation(item);
               if (confirmed == true) {
                 navigator.pop();
                 await _approveTodoItem(item.id);
               }
-            },
-            icon: const Icon(Icons.check, size: 20, color: Colors.white),
+            } : null,
+            icon: Icon(Icons.check, size: 20, color: isEnabled ? Colors.white : Colors.grey),
             label: AutoSizeText(
               l10n.approvedLable,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: TextStyle(color: isEnabled ? Colors.white : Colors.grey, fontSize: 16),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
+              backgroundColor: isEnabled ? Colors.green : Colors.grey.shade300,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1332,10 +1330,13 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
     return ListView.builder(
       padding: const EdgeInsets.only(top: 10, bottom: 40),
       itemCount: list.length,
-      itemBuilder: (_, i) => TodoCardWidget(
-        item: list[i],
-        onTap: () => _showTodoDetailsBottomSheet(list[i]),
-      ),
+      itemBuilder: (_, i) {
+        final item = list[i];
+        return TodoCardWidget(
+          item: item,
+          onTap: () => _showTodoDetailsBottomSheet(item),
+        );
+      },
     );
   }
 
@@ -1502,7 +1503,11 @@ class TodoCardWidget extends StatelessWidget {
   final TodoItem item;
   final VoidCallback onTap;
 
-  const TodoCardWidget({super.key, required this.item, required this.onTap});
+  const TodoCardWidget({
+    super.key,
+    required this.item,
+    required this.onTap,
+  });
 
   String _formatDateTime(int? timestamp) {
     if (timestamp == null || timestamp <= 0) return '-';
@@ -1522,11 +1527,16 @@ class TodoCardWidget extends StatelessWidget {
     if (item.completed) {
       badgeColor = Colors.green.shade100;
       textColor = Colors.green.shade800;
+    } else if (item.waitingForPreviousStage) {
+      badgeColor = Colors.red.shade100;
+      textColor = Colors.red.shade800;
     }
 
     final String displayStatus = item.completed
         ? AppLocalizations.of(context)!.completedLabel
-        : AppLocalizations.of(context)!.pendingLabel;
+        : (item.waitingForPreviousStage
+            ? AppLocalizations.of(context)!.todoWaitingForPreviousStage
+            : AppLocalizations.of(context)!.todoPending);
 
     IconData typeIcon = Icons.assignment_outlined;
     if (item.type == 'remote_attendance') {
@@ -1537,8 +1547,7 @@ class TodoCardWidget extends StatelessWidget {
       typeIcon = Icons.calendar_today_outlined;
     }
 
-    final String userName = item.user?.name ?? item.user?.email ?? 'Unknown User';
-    final String userEmail = item.user?.email ?? '';
+    final String userName = item.user?.name ?? 'Unknown User';
     final String epfString = item.user?.epfPretty != null ? 'EPF: ${item.user!.epfPretty}' : '';
 
     String punchDetails = '';
@@ -1549,141 +1558,128 @@ class TodoCardWidget extends StatelessWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Card(
-        elevation: 0,
-        margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: Colors.black.withOpacity(0.05)),
-        ),
-        color: const Color.fromARGB(255, 248, 250, 252),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: HRColors.orangeColor.withOpacity(0.10),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(typeIcon, color: HRColors.orangeColor, size: 24),
+    final cardWidget = Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: Colors.black.withOpacity(0.05)),
+      ),
+      color: const Color.fromARGB(255, 248, 250, 252),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: HRColors.orangeColor.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: AutoSizeText(
-                              userName,
-                              maxLines: 1,
-                              minFontSize: 14,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
+                child: Icon(typeIcon, color: HRColors.orangeColor, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: AutoSizeText(
+                            userName,
+                            minFontSize: 13,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: badgeColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: AutoSizeText(
-                              displayStatus,
-                              maxLines: 1,
-                              minFontSize: 10,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: textColor,
-                              ),
-                            ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: badgeColor,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ],
-                      ),
-                      if (userEmail.isNotEmpty && userEmail != userName) ...[
-                        const SizedBox(height: 2),
-                        AutoSizeText(
-                          userEmail,
-                          maxLines: 1,
-                          minFontSize: 12,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black54,
+                          child: AutoSizeText(
+                            displayStatus,
+                            maxLines: 1,
+                            minFontSize: 10,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
                           ),
                         ),
                       ],
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 14,
-                        runSpacing: 6,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          if (epfString.isNotEmpty)
-                            AutoSizeText(
-                              epfString,
-                              maxLines: 1,
-                              minFontSize: 12,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (epfString.isNotEmpty)
+                          AutoSizeText(
+                            epfString,
+                            maxLines: 1,
+                            minFontSize: 12,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
                             ),
-                          if (punchDetails.isNotEmpty)
-                            AutoSizeText(
-                              punchDetails,
-                              maxLines: 1,
-                              minFontSize: 12,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.calendar_month, size: 16, color: Colors.black38),
-                              const SizedBox(width: 6),
-                              AutoSizeText(
-                                _formatDateTime(item.cts),
-                                maxLines: 1,
-                                minFontSize: 10,
-                                style: const TextStyle(
-                                  color: Colors.black38,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        if (punchDetails.isNotEmpty)
+                          AutoSizeText(
+                            punchDetails,
+                            maxLines: 1,
+                            minFontSize: 12,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.calendar_month, size: 16, color: Colors.black38),
+                            const SizedBox(width: 6),
+                            AutoSizeText(
+                              _formatDateTime(item.cts),
+                              maxLines: 1,
+                              minFontSize: 10,
+                              style: const TextStyle(
+                                color: Colors.black38,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: cardWidget,
     );
   }
 }

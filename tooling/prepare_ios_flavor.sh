@@ -89,8 +89,8 @@ case "$FLAVOR" in
     BUNDLE_ID="io.digitable.go.mydomex.human"
     ;;
   mahajana)
-    DISPLAY_NAME="Mahajana HR"
-    BUNDLE_ID="com.mahajana.human.pocket"
+    DISPLAY_NAME="Mahajana Hr"
+    BUNDLE_ID="io.digitable.go.mahajana.human"
     ;;
   digitable|*)
     DISPLAY_NAME="Pocket HR"

@@ -945,4 +945,74 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get todoActionsTitle => 'செயல்கள்';
+
+  @override
+  String get todoWaitingForPreviousStage => 'முந்தைய நபருக்கு';
+
+  @override
+  String get todoPending => 'உங்களுக்கு';
+
+  @override
+  String get goodMorning => 'காலை வணக்கம்';
+
+  @override
+  String get goodAfternoon => 'மதிய வணக்கம்';
+
+  @override
+  String get goodEvening => 'மாலை வணக்கம்';
+
+  @override
+  String get goodNight => 'இனிய இரவு';
+
+  @override
+  String get notificationDetailEmployeeName => 'ஊழியர் பெயர்';
+
+  @override
+  String get notificationDetailPerformedBy => 'செய்தவர்';
+
+  @override
+  String get notificationDetailPerformerEmail => 'செய்தவர் மின்னஞ்சல்';
+
+  @override
+  String get notificationDetailPerformerEpfNo => 'செய்தவர் இபிஎஃப் எண்';
+
+  @override
+  String get notificationDetailEmployeeEpfNo => 'ஊழியர் இபிஎஃப் எண்';
+
+  @override
+  String get notificationDetailIpAddress => 'ஐபி முகவரி';
+
+  @override
+  String get notificationDetailTime => 'நேரம்';
+
+  @override
+  String get notificationsTitle => 'அறிவிப்புகள்';
+
+  @override
+  String get notificationClearAll => 'அனைத்தையும் நீக்கு';
+
+  @override
+  String get notificationNoNotificationsYet => 'இன்னும் அறிவிப்புகள் இல்லை';
+
+  @override
+  String get notificationAllCaughtUp =>
+      'நீங்கள் அனைத்தையும் பார்த்துள்ளீர்கள்!';
+
+  @override
+  String get notificationMessageLabel => 'செய்தி';
+
+  @override
+  String get notificationDetailsLabel => 'விவரங்கள்';
+
+  @override
+  String get notificationCloseButton => 'மூடு';
+
+  @override
+  String get teamLeavesText => 'விடுமுறைகள்';
+
+  @override
+  String get teamAttendanceText => 'வருகை';
+
+  @override
+  String get fcmTokenError => 'புஷ் அறிவிப்பு (FCM) டோக்கனைப் பெற முடியவில்லை.';
 }

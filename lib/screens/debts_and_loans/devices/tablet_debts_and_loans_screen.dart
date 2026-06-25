@@ -347,10 +347,10 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.all(6),
                   indicator: BoxDecoration(
-                    color: const Color(0xFF791b27),
+                    color: HRColors.tabColor,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  labelColor: HRColors.secondaryColor,
+                  labelColor: HRColors.tabLabelColor,
                   unselectedLabelColor: Colors.black54,
                   tabs: [
                     Tab(text: AppLocalizations.of(context)!.allLabel),

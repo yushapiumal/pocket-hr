@@ -17,10 +17,12 @@ class TodoUser {
     if (epf is Map) {
       epfPretty = epf['pretty']?.toString();
     }
+    final nameStr = (json['name'] ?? '').toString().trim();
+    final emailStr = (json['email'] ?? '').toString().trim();
     return TodoUser(
       id: (json['_id'] ?? json['id'] ?? '').toString(),
-      name: (json['name'] ?? '').toString(),
-      email: (json['email'] ?? '').toString(),
+      name: nameStr.isNotEmpty ? nameStr : (emailStr.isNotEmpty ? emailStr : 'Unknown User'),
+      email: emailStr,
       epfPretty: epfPretty,
     );
   }
@@ -38,6 +40,7 @@ class TodoItem {
   final int? uts; // Updated timestamp
   final Map<String, dynamic>? payload;
   final Map<String, dynamic>? meta;
+  final bool waitingForPreviousStage;
   final Map<String, dynamic> raw;
 
   TodoItem({
@@ -52,6 +55,7 @@ class TodoItem {
     this.uts,
     this.payload,
     this.meta,
+    this.waitingForPreviousStage = false,
     required this.raw,
   });
 
@@ -73,6 +77,7 @@ class TodoItem {
       uts: json['uts'] is num ? (json['uts'] as num).toInt() : null,
       payload: payloadJson is Map ? Map<String, dynamic>.from(payloadJson) : null,
       meta: metaJson is Map ? Map<String, dynamic>.from(metaJson) : null,
+      waitingForPreviousStage: json['waiting_for_previous_stage'] == true,
       raw: json,
     );
   }

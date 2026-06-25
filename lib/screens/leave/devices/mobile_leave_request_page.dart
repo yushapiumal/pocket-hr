@@ -479,7 +479,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
               color: isSelected
-                  ? const Color(0xFF791b27)
+                  ? HRColors.tabColor
                   : const Color(0xFFF9FAFB),
               border: Border.all(
                 color: isSelected ? Colors.transparent : Colors.grey.shade300,
@@ -487,7 +487,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF791b27).withOpacity(0.25),
+                        color: HRColors.tabColor.withOpacity(0.25),
                         blurRadius: 10,
                         offset: const Offset(0, 5),
                       ),
@@ -499,14 +499,14 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                 Icon(
                   icon,
                   size: 16,
-                  color: isSelected ? const Color(0xFFeed06e) : _accent,
+                  color: isSelected ? HRColors.tabLabelColor : _accent,
                 ),
                 const SizedBox(height: 5),
                 AutoSizeText(
                   label,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? const Color(0xFFeed06e) : _textDark,
+                    color: isSelected ? HRColors.tabLabelColor : _textDark,
                     fontWeight: FontWeight.w700,
                     fontSize: 10.5,
                   ),
@@ -1475,7 +1475,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                                     const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: shortLeaveSession == 'morning'
-                                      ? const Color(0xFF791b27)
+                                      ? HRColors.tabColor
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -1486,7 +1486,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                                       fontWeight: FontWeight.w700,
                                       fontSize: 11,
                                       color: shortLeaveSession == 'morning'
-                                          ? HRColors.secondaryColor
+                                          ? HRColors.tabLabelColor
                                           : _textDark,
                                     ),
                                   ),
@@ -1507,7 +1507,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                                     const EdgeInsets.symmetric(vertical: 10),
                                 decoration: BoxDecoration(
                                   color: shortLeaveSession == 'evening'
-                                      ? const Color(0xFF791b27)
+                                      ? HRColors.tabColor
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -1518,7 +1518,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                                       fontWeight: FontWeight.w700,
                                       fontSize: 11,
                                       color: shortLeaveSession == 'evening'
-                                          ? HRColors.secondaryColor
+                                          ? HRColors.tabLabelColor
                                           : _textDark,
                                     ),
                                   ),
@@ -1589,12 +1589,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF791b27) : Colors.transparent,
+          color: isSelected ? HRColors.tabColor : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF791b27).withOpacity(0.2),
+                    color: HRColors.tabColor.withOpacity(0.2),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   )
@@ -1607,7 +1607,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
             style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 12,
-              color: isSelected ? const Color(0xFFeed06e) : _textDark,
+              color: isSelected ? HRColors.tabLabelColor : _textDark,
             ),
           ),
         ),

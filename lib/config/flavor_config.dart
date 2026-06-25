@@ -37,6 +37,27 @@ class FlavorConfig {
   final Color lightWhiteColor;
   final Color splashBackgroundColor;
 
+  /// Tab indicator/background color for selected tabs
+  final Color tabColor;
+
+  /// Tab label text color for selected tabs
+  final Color tabLabelColor;
+
+  /// Selected icon color in the bottom navigation bar
+  final Color bottomNavIconColor;
+
+  /// Background circle color for selected bottom navigation icon
+  final Color bottomNavIconBgColor;
+
+  /// Button background color
+  final Color buttonColor;
+
+  /// Home page background images
+  final String morningBg;
+  final String afternoonBg;
+  final String eveningBg;
+  final String nightBg;
+
   static FlavorConfig? _instance;
 
   FlavorConfig._({
@@ -50,12 +71,25 @@ class FlavorConfig {
     required this.iconColor,
     this.iconBackgroundColor,
     required this.theme,
+    required this.morningBg,
+    required this.afternoonBg,
+    required this.eveningBg,
+    required this.nightBg,
     this.tenant,
     this.backgroundColor = const Color(0xfffff9ef),
     this.containerShadowColor = const Color(0xffffe8b7),
     this.lightWhiteColor = const Color(0xfffee8c6),
     this.splashBackgroundColor = const Color(0xff7a1b28),
-  });
+    Color? tabColor,
+    Color? tabLabelColor,
+    Color? bottomNavIconColor,
+    Color? bottomNavIconBgColor,
+    Color? buttonColor,
+  }) : this.tabColor = tabColor ?? primaryColor,
+       this.tabLabelColor = tabLabelColor ?? secondaryColor,
+       this.bottomNavIconColor = bottomNavIconColor ?? secondaryColor,
+       this.bottomNavIconBgColor = bottomNavIconBgColor ?? const Color(0xFF791b27),
+       this.buttonColor = buttonColor ?? primaryColor;
 
   static void init({
     required Flavor flavor,
@@ -65,6 +99,10 @@ class FlavorConfig {
     required String splashLogoAsset,
     required Color primaryColor,
     required Color secondaryColor,
+    required String morningBg,
+    required String afternoonBg,
+    required String eveningBg,
+    required String nightBg,
     Color iconColor = Colors.white,
     Color? iconBackgroundColor,
     required ThemeData theme,
@@ -73,6 +111,11 @@ class FlavorConfig {
     Color containerShadowColor = const Color(0xffffe8b7),
     Color lightWhiteColor = const Color(0xfffee8c6),
     Color splashBackgroundColor = const Color(0xff7a1b28),
+    Color? tabColor,
+    Color? tabLabelColor,
+    Color? bottomNavIconColor,
+    Color? bottomNavIconBgColor,
+    Color? buttonColor,
   }) {
     _instance = FlavorConfig._(
       flavor: flavor,
@@ -90,6 +133,15 @@ class FlavorConfig {
       containerShadowColor: containerShadowColor,
       lightWhiteColor: lightWhiteColor,
       splashBackgroundColor: splashBackgroundColor,
+      tabColor: tabColor,
+      tabLabelColor: tabLabelColor,
+      bottomNavIconColor: bottomNavIconColor,
+      bottomNavIconBgColor: bottomNavIconBgColor,
+      buttonColor: buttonColor,
+      morningBg: morningBg,
+      afternoonBg: afternoonBg,
+      eveningBg: eveningBg,
+      nightBg: nightBg,
     );
   }
 

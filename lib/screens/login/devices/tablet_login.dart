@@ -80,6 +80,10 @@ class _TabletLoginState extends State<TabletLogin> {
       try {
         await apiService.fetchMeProfileWithBearer();
         await FCMService.initialize();
+        final fcmToken = await FCMService.getToken();
+        if (fcmToken == null || fcmToken.isEmpty) {
+          apiService.showToast(AppLocalizations.of(context)!.fcmTokenError);
+        }
         FCMService.sendTokenToBackend();
 
         Navigator.of(context).pushReplacementNamed(HRMain.routeName);
@@ -398,6 +402,10 @@ class _TabletLoginState extends State<TabletLogin> {
       } catch (_) {}
 
       await FCMService.initialize();
+      final fcmToken = await FCMService.getToken();
+      if (fcmToken == null || fcmToken.isEmpty) {
+        apiService.showToast(AppLocalizations.of(context)!.fcmTokenError);
+      }
       FCMService.sendTokenToBackend();
 
       setState(() {
