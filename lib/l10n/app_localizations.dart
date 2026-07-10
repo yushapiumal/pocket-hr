@@ -1623,6 +1623,462 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accuracy: {accuracy}m'**
   String currentAccuracyLabel(String accuracy);
+
+  /// No description provided for @todos.
+  ///
+  /// In en, this message translates to:
+  /// **'To-Do List'**
+  String get todos;
+
+  /// No description provided for @todoTabMyTodos.
+  ///
+  /// In en, this message translates to:
+  /// **'My Tasks'**
+  String get todoTabMyTodos;
+
+  /// No description provided for @todoTabApprovable.
+  ///
+  /// In en, this message translates to:
+  /// **'Approvable By Me'**
+  String get todoTabApprovable;
+
+  /// No description provided for @noTodosFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No to-do tasks found.'**
+  String get noTodosFound;
+
+  /// No description provided for @failedToLoadTodos.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load to-do data.'**
+  String get failedToLoadTodos;
+
+  /// No description provided for @completedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedLabel;
+
+  /// No description provided for @todoTabRemoteAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Attendance'**
+  String get todoTabRemoteAttendance;
+
+  /// No description provided for @todoTabProfileUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Unlock'**
+  String get todoTabProfileUnlock;
+
+  /// No description provided for @todoTabOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get todoTabOthers;
+
+  /// No description provided for @todoDetailCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get todoDetailCategory;
+
+  /// No description provided for @todoDetailZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone'**
+  String get todoDetailZone;
+
+  /// No description provided for @todoDetailPunchType.
+  ///
+  /// In en, this message translates to:
+  /// **'Punch Type'**
+  String get todoDetailPunchType;
+
+  /// No description provided for @todoDetailCheckedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked At'**
+  String get todoDetailCheckedAt;
+
+  /// No description provided for @todoDetailAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Accuracy'**
+  String get todoDetailAccuracy;
+
+  /// No description provided for @todoDetailBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery'**
+  String get todoDetailBattery;
+
+  /// No description provided for @todoDetailCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get todoDetailCoordinates;
+
+  /// No description provided for @todoDetailReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get todoDetailReason;
+
+  /// No description provided for @todoDetailRatesInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Rates Info'**
+  String get todoDetailRatesInfo;
+
+  /// No description provided for @todoRequestDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Details'**
+  String get todoRequestDetails;
+
+  /// No description provided for @todoApproveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve Request'**
+  String get todoApproveTitle;
+
+  /// No description provided for @todoRejectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Request'**
+  String get todoRejectTitle;
+
+  /// No description provided for @todoApproveConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to approve {name}\'s request?'**
+  String todoApproveConfirmMessage(String name);
+
+  /// No description provided for @todoRejectConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to reject {name}\'s request?'**
+  String todoRejectConfirmMessage(String name);
+
+  /// No description provided for @todoReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for rejection *'**
+  String get todoReasonHint;
+
+  /// No description provided for @todoApproveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Todo approved successfully'**
+  String get todoApproveSuccess;
+
+  /// No description provided for @todoRejectSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Todo rejected successfully'**
+  String get todoRejectSuccess;
+
+  /// No description provided for @todoApproveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to approve Todo'**
+  String get todoApproveFailed;
+
+  /// No description provided for @todoRejectFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reject Todo'**
+  String get todoRejectFailed;
+
+  /// No description provided for @todoRemoteAttendanceDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remote Attendance Details'**
+  String get todoRemoteAttendanceDetailsTitle;
+
+  /// No description provided for @todoProfileUnlockDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Unlock Details'**
+  String get todoProfileUnlockDetailsTitle;
+
+  /// No description provided for @todoOtherDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Details'**
+  String get todoOtherDetailsTitle;
+
+  /// No description provided for @todoDetailDeviceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Device ID'**
+  String get todoDetailDeviceId;
+
+  /// No description provided for @todoDetailBypassRemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Bypass Remote Check'**
+  String get todoDetailBypassRemote;
+
+  /// No description provided for @yesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yesLabel;
+
+  /// No description provided for @noLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get noLabel;
+
+  /// No description provided for @todoDetailCompletedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed By'**
+  String get todoDetailCompletedBy;
+
+  /// No description provided for @todoDetailCompletedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed At'**
+  String get todoDetailCompletedAt;
+
+  /// No description provided for @todoDetailRequestedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested At'**
+  String get todoDetailRequestedAt;
+
+  /// No description provided for @todoDetailRequestedFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested For'**
+  String get todoDetailRequestedFor;
+
+  /// No description provided for @todoDetailRequestedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested By'**
+  String get todoDetailRequestedBy;
+
+  /// No description provided for @todoDetailSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get todoDetailSummary;
+
+  /// No description provided for @todoDetailPunctualityIncentive.
+  ///
+  /// In en, this message translates to:
+  /// **'Punctuality Incentive'**
+  String get todoDetailPunctualityIncentive;
+
+  /// No description provided for @todoDetailAttendanceAllowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance Allowance'**
+  String get todoDetailAttendanceAllowance;
+
+  /// No description provided for @todoActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get todoActionsTitle;
+
+  /// No description provided for @todoWaitingForPreviousStage.
+  ///
+  /// In en, this message translates to:
+  /// **'for previous person'**
+  String get todoWaitingForPreviousStage;
+
+  /// No description provided for @todoPending.
+  ///
+  /// In en, this message translates to:
+  /// **'for you'**
+  String get todoPending;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Morning'**
+  String get goodMorning;
+
+  /// No description provided for @goodAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Afternoon'**
+  String get goodAfternoon;
+
+  /// No description provided for @goodEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Evening'**
+  String get goodEvening;
+
+  /// No description provided for @goodNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Night'**
+  String get goodNight;
+
+  /// No description provided for @notificationDetailEmployeeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee Name'**
+  String get notificationDetailEmployeeName;
+
+  /// No description provided for @notificationDetailPerformedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Performed By'**
+  String get notificationDetailPerformedBy;
+
+  /// No description provided for @notificationDetailPerformerEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Performer Email'**
+  String get notificationDetailPerformerEmail;
+
+  /// No description provided for @notificationDetailPerformerEpfNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Performer EPF No'**
+  String get notificationDetailPerformerEpfNo;
+
+  /// No description provided for @notificationDetailEmployeeEpfNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Employee EPF No'**
+  String get notificationDetailEmployeeEpfNo;
+
+  /// No description provided for @notificationDetailIpAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'IP Address'**
+  String get notificationDetailIpAddress;
+
+  /// No description provided for @notificationDetailTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get notificationDetailTime;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get notificationClearAll;
+
+  /// No description provided for @notificationNoNotificationsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notificationNoNotificationsYet;
+
+  /// No description provided for @notificationAllCaughtUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up!'**
+  String get notificationAllCaughtUp;
+
+  /// No description provided for @notificationMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get notificationMessageLabel;
+
+  /// No description provided for @notificationDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get notificationDetailsLabel;
+
+  /// No description provided for @notificationCloseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get notificationCloseButton;
+
+  /// No description provided for @teamLeavesText.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaves'**
+  String get teamLeavesText;
+
+  /// No description provided for @teamAttendanceText.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get teamAttendanceText;
+
+  /// No description provided for @fcmTokenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to get push notification (FCM) token.'**
+  String get fcmTokenError;
+
+  /// No description provided for @shortLeaveBalanceExhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'Short leave balance exhausted. You are entitled to a maximum of {max} short leaves per month. (Used/Pending: {used})'**
+  String shortLeaveBalanceExhausted(String max, String used);
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @cannotApplyLeaveOnNonWorkingDay.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot apply leave on {day} — it is not a working day according to your package terms.'**
+  String cannotApplyLeaveOnNonWorkingDay(String day);
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @session.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get session;
 }
 
 class _AppLocalizationsDelegate

@@ -809,4 +809,241 @@ class AppLocalizationsTa extends AppLocalizations {
   String currentAccuracyLabel(String accuracy) {
     return 'துல்லியம்: $accuracyமீ';
   }
+
+  @override
+  String get todos => 'செய்ய வேண்டியவை';
+
+  @override
+  String get todoTabMyTodos => 'எனது பணிகள்';
+
+  @override
+  String get todoTabApprovable => 'அங்கீகரிக்க வேண்டியவை';
+
+  @override
+  String get noTodosFound => 'செய்ய வேண்டிய பணிகள் எதுவும் இல்லை.';
+
+  @override
+  String get failedToLoadTodos => 'தரவை ஏற்ற முடியவில்லை.';
+
+  @override
+  String get completedLabel => 'முடிந்தது';
+
+  @override
+  String get todoTabRemoteAttendance => 'தொலைநிலை வருகை';
+
+  @override
+  String get todoTabProfileUnlock => 'சுயவிவரம் திறத்தல்';
+
+  @override
+  String get todoTabOthers => 'மற்றவை';
+
+  @override
+  String get todoDetailCategory => 'வகை';
+
+  @override
+  String get todoDetailZone => 'வளையம்';
+
+  @override
+  String get todoDetailPunchType => 'பதிவு வகை';
+
+  @override
+  String get todoDetailCheckedAt => 'பதிவு செய்யப்பட்ட நேரம்';
+
+  @override
+  String get todoDetailAccuracy => 'துல்லியம்';
+
+  @override
+  String get todoDetailBattery => 'மின்கல அளவு';
+
+  @override
+  String get todoDetailCoordinates => 'ஆயத்தொலைவுகள்';
+
+  @override
+  String get todoDetailReason => 'காரணம்';
+
+  @override
+  String get todoDetailRatesInfo => 'விகித விவரங்கள்';
+
+  @override
+  String get todoRequestDetails => 'கோரிக்கை விவரங்கள்';
+
+  @override
+  String get todoApproveTitle => 'கோரிக்கையை அனுமதி';
+
+  @override
+  String get todoRejectTitle => 'கோரிக்கையை நிராகரி';
+
+  @override
+  String todoApproveConfirmMessage(String name) {
+    return '$name இன் கோரிக்கையை அங்கீகரிக்க விரும்புகிறீர்களா?';
+  }
+
+  @override
+  String todoRejectConfirmMessage(String name) {
+    return '$name இன் கோரிக்கையை நிராகரிக்க விரும்புகிறீர்களா?';
+  }
+
+  @override
+  String get todoReasonHint => 'நிராகரிப்பதற்கான காரணம் *';
+
+  @override
+  String get todoApproveSuccess => 'வெற்றிகரமாக அங்கீகரிக்கப்பட்டது';
+
+  @override
+  String get todoRejectSuccess => 'வெற்றிகரமாக நிராகரிக்கப்பட்டது';
+
+  @override
+  String get todoApproveFailed => 'அங்கீகரிக்க முடியவில்லை';
+
+  @override
+  String get todoRejectFailed => 'நிராகரிக்க முடியவில்லை';
+
+  @override
+  String get todoRemoteAttendanceDetailsTitle => 'தொலைநிலை வருகை விவரங்கள்';
+
+  @override
+  String get todoProfileUnlockDetailsTitle => 'சுயவிவரம் திறத்தல் விவரங்கள்';
+
+  @override
+  String get todoOtherDetailsTitle => 'கோரிக்கை விவரங்கள்';
+
+  @override
+  String get todoDetailDeviceId => 'சாதன ஐடி';
+
+  @override
+  String get todoDetailBypassRemote => 'தொலைநிலைப் பதிவைத் தவிர்த்தல்';
+
+  @override
+  String get yesLabel => 'ஆம்';
+
+  @override
+  String get noLabel => 'இல்லை';
+
+  @override
+  String get todoDetailCompletedBy => 'முடித்தவர்';
+
+  @override
+  String get todoDetailCompletedAt => 'முடிக்கப்பட்ட நேரம்';
+
+  @override
+  String get todoDetailRequestedAt => 'கோரப்பட்ட நேரம்';
+
+  @override
+  String get todoDetailRequestedFor => 'யாருக்காக கோரப்பட்டது';
+
+  @override
+  String get todoDetailRequestedBy => 'கோரியவர்';
+
+  @override
+  String get todoDetailSummary => 'சுருக்கம்';
+
+  @override
+  String get todoDetailPunctualityIncentive => 'நேரக் கட்டுப்பாடு ஊக்கத்தொகை';
+
+  @override
+  String get todoDetailAttendanceAllowance => 'வருகை கொடுப்பனவு';
+
+  @override
+  String get todoActionsTitle => 'செயல்கள்';
+
+  @override
+  String get todoWaitingForPreviousStage => 'முந்தைய நபருக்கு';
+
+  @override
+  String get todoPending => 'உங்களுக்கு';
+
+  @override
+  String get goodMorning => 'காலை வணக்கம்';
+
+  @override
+  String get goodAfternoon => 'மதிய வணக்கம்';
+
+  @override
+  String get goodEvening => 'மாலை வணக்கம்';
+
+  @override
+  String get goodNight => 'இனிய இரவு';
+
+  @override
+  String get notificationDetailEmployeeName => 'ஊழியர் பெயர்';
+
+  @override
+  String get notificationDetailPerformedBy => 'செய்தவர்';
+
+  @override
+  String get notificationDetailPerformerEmail => 'செய்தவர் மின்னஞ்சல்';
+
+  @override
+  String get notificationDetailPerformerEpfNo => 'செய்தவர் இபிஎஃப் எண்';
+
+  @override
+  String get notificationDetailEmployeeEpfNo => 'ஊழியர் இபிஎஃப் எண்';
+
+  @override
+  String get notificationDetailIpAddress => 'ஐபி முகவரி';
+
+  @override
+  String get notificationDetailTime => 'நேரம்';
+
+  @override
+  String get notificationsTitle => 'அறிவிப்புகள்';
+
+  @override
+  String get notificationClearAll => 'அனைத்தையும் நீக்கு';
+
+  @override
+  String get notificationNoNotificationsYet => 'இன்னும் அறிவிப்புகள் இல்லை';
+
+  @override
+  String get notificationAllCaughtUp =>
+      'நீங்கள் அனைத்தையும் பார்த்துள்ளீர்கள்!';
+
+  @override
+  String get notificationMessageLabel => 'செய்தி';
+
+  @override
+  String get notificationDetailsLabel => 'விவரங்கள்';
+
+  @override
+  String get notificationCloseButton => 'மூடு';
+
+  @override
+  String get teamLeavesText => 'விடுமுறைகள்';
+
+  @override
+  String get teamAttendanceText => 'வருகை';
+
+  @override
+  String get fcmTokenError => 'புஷ் அறிவிப்பு (FCM) டோக்கனைப் பெற முடியவில்லை.';
+
+  @override
+  String shortLeaveBalanceExhausted(String max, String used) {
+    return 'குறுகிய விடுப்பு இருப்பு முடிந்துவிட்டது. நீங்கள் ஒரு மாதத்திற்கு அதிகபட்சமாக $max குறுகிய விடுப்புகளுக்கு தகுதியுடையவர். (பயன்படுத்தப்பட்ட/நிலுவையில் உள்ளவை: $used)';
+  }
+
+  @override
+  String get monday => 'திங்கள்';
+
+  @override
+  String get tuesday => 'செவ்வாய்';
+
+  @override
+  String get wednesday => 'புதன்';
+
+  @override
+  String get thursday => 'வியாழன்';
+
+  @override
+  String get friday => 'வெள்ளி';
+
+  @override
+  String cannotApplyLeaveOnNonWorkingDay(String day) {
+    return '$day அன்று நீங்கள் விடுப்பு விண்ணப்பிக்க முடியாது — இது உங்கள் தொகுப்பு விதிமுறைகளின்படி வேலை நாள் அல்ல.';
+  }
+
+  @override
+  String get date => 'தேதி';
+
+  @override
+  String get session => 'அமர்வு';
 }

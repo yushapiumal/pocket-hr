@@ -57,6 +57,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
   // Animation controllers for list items
   final Map<int, AnimationController> _leaveAnimationControllers = {};
   final Map<int, AnimationController> _attendanceAnimationControllers = {};
+  String? _expandedLeaveId;
 
   @override
   void initState() {
@@ -316,6 +317,101 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     } catch (_) {
       return '';
     }
+  }
+
+  String _getMemberNickname(Map<String, dynamic> member) {
+    final fields = member['customfields'] ?? [];
+    try {
+      final nickname = fields.firstWhere(
+            (f) => f['input_name'] == 'cf_nickname',
+            orElse: () => {},
+          )['input_value'] ??
+          '';
+      if (nickname.toString().trim().isNotEmpty) {
+        return nickname.toString().trim();
+      }
+    } catch (_) {}
+
+    try {
+      final firstName = fields.firstWhere(
+            (f) => f['input_name'] == 'cf_first_name',
+            orElse: () => {},
+          )['input_value'] ??
+          '';
+      if (firstName.toString().trim().isNotEmpty) {
+        return firstName.toString().trim();
+      }
+    } catch (_) {}
+
+    return _getMemberName(member).split(' ').first;
+  }
+
+  Map<String, dynamic>? _findMember(String? userId, String? epf) {
+    if (_teamMembers.isEmpty) return null;
+    for (var member in _teamMembers) {
+      if (member is! Map<String, dynamic>) continue;
+      final id = (member['_id'] ?? member['id'])?.toString();
+      final mEpf = _getMemberEPF(member);
+      if ((userId != null && id == userId) || (epf != null && epf.isNotEmpty && mEpf == epf)) {
+        return member;
+      }
+    }
+    return null;
+  }
+
+  Widget _buildMemberNameAndEpf(String nickname, String epf, String fullName, {Color? textColor}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AutoSizeText(
+              nickname,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: textColor ?? Colors.black87,
+              ),
+            ),
+            if (epf.isNotEmpty) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                decoration: BoxDecoration(
+                  color: HRColors.orangeColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: AutoSizeText(
+                  epf,
+                  style: TextStyle(
+                    color: HRColors.orangeColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (fullName.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          AutoSizeText(
+            fullName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 11,
+              color: Colors.grey,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
   Future<void> _loadTabData() async {
@@ -842,522 +938,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     }
   }
 
-  void _showLeaveDetailsBottomSheet(Map<String, dynamic> leave) {
-    final dates = leave['dates'] as List? ?? [];
-    final status = leave['status'] ?? 'pending';
-    final type = leave['type'] ?? 'casual';
-    final reason = leave['reason'] ?? '';
-    final leaveId = leave['_id'] ?? '';
-    final employeeName =
-        leave['employeeName']?.split('(')[0].trim() ?? 'Employee';
-    final statusColor = _getLeaveStatusColor(status);
-    final isPending = status.toLowerCase() == 'pending';
 
-    // Try to extract EPF from a few possible locations on the leave object
-    String epf = '';
-    try {
-      if (leave['epf'] != null)
-        epf = leave['epf'].toString();
-      else if (leave['employeeEPF'] != null)
-        epf = leave['employeeEPF'].toString();
-      else if (leave['employeeEpf'] != null)
-        epf = leave['employeeEpf'].toString();
-      else if (leave['employee'] is Map) {
-        final emp = leave['employee'] as Map;
-        if (emp['epf'] != null)
-          epf = emp['epf'].toString();
-        else if (emp['employeeEPF'] != null)
-          epf = emp['employeeEPF'].toString();
-        else if (emp['customfields'] is List) {
-          final fields = List.from(emp['customfields']);
-          final f = fields.firstWhere(
-            (ff) =>
-                ff is Map &&
-                (ff['input_name'] == 'cf_epf_no' ||
-                    ff['input_name'] == 'cf_epf'),
-            orElse: () => null,
-          );
-          if (f is Map && f['input_value'] != null)
-            epf = f['input_value'].toString();
-        }
-      } else if (leave['customfields'] is List) {
-        final fields = List.from(leave['customfields']);
-        final f = fields.firstWhere(
-          (ff) =>
-              ff is Map &&
-              (ff['input_name'] == 'cf_epf_no' || ff['input_name'] == 'cf_epf'),
-          orElse: () => null,
-        );
-        if (f is Map && f['input_value'] != null)
-          epf = f['input_value'].toString();
-      }
-    } catch (_) {
-      epf = '';
-    }
-
-    final pageCtx = context;
-    showModalBottomSheet(
-      context: pageCtx,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final sheetHeight = MediaQuery.of(context).size.height *
-            0.70; // fixed height (75% of screen)
-        return Container(
-          height: sheetHeight,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
-          ),
-          child: SingleChildScrollView(
-            padding: EdgeInsets.zero,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Handle bar
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: _g8),
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-
-                // Header
-                Padding(
-                  padding: const EdgeInsets.all(_g16),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Icon(
-                          status == 'approved'
-                              ? Icons.check_circle_outline
-                              : status == 'rejected'
-                                  ? Icons.cancel_outlined
-                                  : Icons.pending_outlined,
-                          color: statusColor,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: _g12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            AutoSizeText(
-                              _getLeaveTypeLabel(context, type),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: _g4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: _g8, vertical: _g4),
-                              decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.12),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: AutoSizeText(
-                                status == 'approved'
-                                    ? AppLocalizations.of(context)!
-                                        .approvedLable
-                                        .toUpperCase()
-                                    : status == 'rejected'
-                                        ? AppLocalizations.of(context)!
-                                            .rejectedLable
-                                            .toUpperCase()
-                                        : AppLocalizations.of(context)!
-                                            .pendindingLable
-                                            .toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: statusColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                //    const Divider(height: 1),
-
-                // Employee info
-                Padding(
-                  padding: const EdgeInsets.all(_g16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        AppLocalizations.of(context)!.employeeDetails,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: _g12),
-                      Container(
-                        padding: const EdgeInsets.all(_g12),
-                        decoration: BoxDecoration(
-                          color: _surface,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.person_outline,
-                                size: 20, color: Colors.black54),
-                            const SizedBox(width: _g12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AutoSizeText(
-                                    employeeName,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(height: _g4),
-                                  AutoSizeText(
-                                    leave['employeeName'] ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (epf.isNotEmpty)
-                              Container(
-                                margin: const EdgeInsets.only(left: 8),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.black12),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    AutoSizeText('EPF',
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.black54)),
-                                    const SizedBox(height: 2),
-                                    AutoSizeText(epf,
-                                        style: const TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black87)),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Leave details
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: _g16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AutoSizeText(
-                        AppLocalizations.of(context)!.leaveDetails,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: _g12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(_g12),
-                              decoration: BoxDecoration(
-                                color: _surface,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.calendar_today,
-                                          size: 18, color: Colors.black54),
-                                      const SizedBox(width: _g12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            AutoSizeText(
-                                              AppLocalizations.of(context)!
-                                                  .leaveDuration,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black54,
-                                              ),
-                                            ),
-                                            const SizedBox(height: _g4),
-                                            AutoSizeText(
-                                              '${dates.length} ${dates.length > 1 ? AppLocalizations.of(context)!.daysLabel : AppLocalizations.of(context)!.days}',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(_g12),
-                              decoration: BoxDecoration(
-                                color: _surface,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.event_note,
-                                          size: 18, color: Colors.black54),
-                                      const SizedBox(width: _g12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            AutoSizeText(
-                                              AppLocalizations.of(context)!
-                                                  .leaveTypeLabel,
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.black54,
-                                              ),
-                                            ),
-                                            const SizedBox(height: _g4),
-                                            AutoSizeText(
-                                              _getLeaveTypeLabel(context, type),
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Dates list
-                if (dates.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(_g16, _g16, _g16, _g8),
-                    child: AutoSizeText(
-                      AppLocalizations.of(context)!.leaveDates,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-
-                  // Full width container (occupies the available sheet width)
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(right: _g12, left: _g16),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: _g16, vertical: _g12),
-                    decoration: BoxDecoration(
-                      color: _surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: 56),
-                      // Wrap will flow to multiple lines; this makes the area expand full width
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: dates.map<Widget>((date) {
-                          final label = FormatUtils.dateFromUnixSeconds(date);
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.black12),
-                            ),
-                            child: AutoSizeText(
-                              label,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ],
-
-                // Reason
-                if (reason.isNotEmpty) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(_g16, _g16, _g16, _g8),
-                    child: AutoSizeText(
-                      AppLocalizations.of(context)!.reason,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: _g16),
-                    padding: const EdgeInsets.all(_g12),
-                    decoration: BoxDecoration(
-                      color: _surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: AutoSizeText(
-                      reason,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: _g16),
-
-                // Action buttons for pending leaves
-                if (isPending) ...[
-                  Padding(
-                    padding: const EdgeInsets.all(_g16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              final reason = await _showRejectConfirmation(
-                                  pageCtx, leaveId, employeeName);
-                              if (reason != null)
-                                await _rejectLeave(leaveId, reason);
-                            },
-                            icon: const Icon(Icons.close, size: 18),
-                            label: AutoSizeText(
-                              AppLocalizations.of(context)!.rejectedLable,
-                            ),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.red,
-                              side: const BorderSide(color: Colors.red),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: _g12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: _g12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              Navigator.pop(context);
-                              final confirmed = await _showApproveConfirmation(
-                                  pageCtx, leaveId, employeeName);
-                              if (confirmed == true)
-                                await _approveLeave(leaveId);
-                            },
-                            icon: const Icon(
-                              Icons.check,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            label: AutoSizeText(
-                                AppLocalizations.of(context)!.approvedLable,
-                                style: TextStyle(color: Colors.white)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: _g12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: _g24),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   Future<bool?> _showApproveConfirmation(
       BuildContext context, String leaveId, String employeeName) {
@@ -1608,6 +1189,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     final leaveId = leave['_id'] ?? '';
     final employeeName =
         leave['employeeName']?.toString().split('(')[0].trim() ?? 'Employee';
+    final reason = leave['reason'] ?? '';
 
     String epf = '';
     if (leave['epf'] != null) {
@@ -1618,44 +1200,45 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
       if (match != null) epf = match.group(1) ?? '';
     }
 
+    final String? userId = leave['userId']?.toString();
+    final member = _findMember(userId, epf);
+    final String nickname = member != null ? _getMemberNickname(member) : employeeName;
+    final String fullName = member != null ? _getMemberName(member) : employeeName;
+    final String finalEpf = member != null ? _getMemberEPF(member) : epf;
+
     final isPending = status == 'pending';
-    final isApproved = status == 'approved';
-    final isRejected = status == 'rejected';
     final animation = _leaveAnimationControllers[index];
 
-    IconData trailingIcon;
-    Color trailingBg;
-    Color trailingFg;
     Color statusColor = _getLeaveStatusColor(status);
-
-    if (isApproved) {
-      trailingIcon = Icons.check_rounded;
-      trailingBg = Colors.green.withOpacity(0.12);
-      trailingFg = Colors.green;
-    } else if (isRejected) {
-      trailingIcon = Icons.close_rounded;
-      trailingBg = Colors.red.withOpacity(0.12);
-      trailingFg = Colors.red;
-    } else {
-      trailingIcon = Icons.hourglass_bottom_rounded;
-      trailingBg = Colors.orange.withOpacity(0.14);
-      trailingFg = Colors.orange.shade800;
-    }
 
     final String dateText =
         '${dates.length} ${dates.length > 1 ? l10n.daysLabel : 'day'}';
 
+    final bool isExpanded = _expandedLeaveId == leaveId;
+
     Widget card = Container(
       margin: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g6),
       decoration: BoxDecoration(
-        color: _surface,
+        color: isExpanded ? Colors.white : _surface,
         borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: isExpanded ? statusColor.withOpacity(0.3) : Colors.transparent,
+          width: 1.5,
+        ),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
+          if (isExpanded)
+            BoxShadow(
+              color: statusColor.withOpacity(0.08),
+              blurRadius: 16,
+              spreadRadius: 2,
+              offset: const Offset(0, 6),
+            )
+          else
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
         ],
       ),
       child: ClipRRect(
@@ -1736,103 +1319,253 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                 )
               : null,
           child: Material(
-            color: _surface,
+            color: Colors.transparent,
             child: InkWell(
-              onTap: () => _showLeaveDetailsBottomSheet(leave),
+              onTap: () {
+                setState(() {
+                  if (_expandedLeaveId == leaveId) {
+                    _expandedLeaveId = null;
+                  } else {
+                    _expandedLeaveId = leaveId;
+                  }
+                });
+              },
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
                   vertical: 12,
                 ),
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AutoSizeText(
-                            _getLeaveTypeLabel(context, type),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          if (employeeName.isNotEmpty) ...[
-                            AutoSizeText(
-                              epf.isNotEmpty
-                                  ? '$employeeName ($epf)'
-                                  : employeeName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                          ],
-                          Row(
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.calendar_today_outlined,
-                                size: 13,
-                                color: Colors.grey,
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AutoSizeText(
+                                      _getLeaveTypeLabel(context, type),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 5),
-                              AutoSizeText(
-                                dateText,
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  color: Colors.grey,
+                              const SizedBox(height: 8),
+                              if (nickname.isNotEmpty) ...[
+                                _buildMemberNameAndEpf(
+                                  nickname,
+                                  finalEpf,
+                                  fullName,
                                 ),
-                              ),
+                              ],
                             ],
                           ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: statusColor.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: AutoSizeText(
+                                status == 'approved'
+                                    ? l10n.approvedLable.toUpperCase()
+                                    : status == 'rejected'
+                                        ? l10n.rejectedLable.toUpperCase()
+                                        : l10n.pendindingLable.toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: statusColor,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 13,
+                                  color: Colors.grey,
+                                ),
+                                const SizedBox(width: 5),
+                                AutoSizeText(
+                                  dateText,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (isPending && !isExpanded) ...[
+                              const SizedBox(height: 10),
+                              const Icon(
+                                Icons.swipe_left_rounded,
+                                color: Colors.grey,
+                                size: 18,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 5,
+                    if (isExpanded) ...[
+                      const SizedBox(height: _g12),
+                      const Divider(height: 1, color: Colors.black12),
+                      const SizedBox(height: _g12),
+                      if (dates.isNotEmpty) ...[
+                        AutoSizeText(
+                          l10n.leaveDates,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
                           ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(_g12),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black.withOpacity(0.05)),
+                          ),
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: dates.map<Widget>((date) {
+                              final label = FormatUtils.dateFromUnixSeconds(date);
+                              return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: _surface,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.black.withOpacity(0.06)),
+                                ),
+                                child: AutoSizeText(
+                                  label,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                      if (reason.isNotEmpty) ...[
+                        const SizedBox(height: _g12),
+                        AutoSizeText(
+                          l10n.reason,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(_g12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black.withOpacity(0.05)),
                           ),
                           child: AutoSizeText(
-                            status == 'approved'
-                                ? l10n.approvedLable.toUpperCase()
-                                : status == 'rejected'
-                                    ? l10n.rejectedLable.toUpperCase()
-                                    : l10n.pendindingLable.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
+                            reason,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.black87,
+                              height: 1.3,
                             ),
                           ),
                         ),
-                        if (isPending) ...[
-                          const SizedBox(height: 10),
-                          const Icon(
-                            Icons.swipe_left_rounded,
-                            color: Colors.grey,
-                            size: 18,
-                          ),
-                        ],
                       ],
-                    ),
+                      if (isPending) ...[
+                        const SizedBox(height: _g16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  final pageCtx = context;
+                                  final rejectedReason = await _showRejectConfirmation(
+                                      pageCtx, leaveId, employeeName);
+                                  if (rejectedReason != null) {
+                                    await _rejectLeave(leaveId, rejectedReason);
+                                  }
+                                },
+                                icon: const Icon(Icons.close, size: 16),
+                                label: AutoSizeText(
+                                  l10n.rejectedLable,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  side: const BorderSide(color: Colors.red),
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: _g12),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  final pageCtx = context;
+                                  final confirmed = await _showApproveConfirmation(
+                                      pageCtx, leaveId, employeeName);
+                                  if (confirmed == true) {
+                                    await _approveLeave(leaveId);
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                label: AutoSizeText(
+                                  l10n.approvedLable,
+                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ],
                 ),
               ),
@@ -1869,6 +1602,10 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     final checkOut = attendance['checkOut'] ?? '';
     final workHoursDisplay = attendance['workHoursDisplay'] ?? '';
     final memberName = attendance['memberName'] ?? '';
+
+    final String? userId = attendance['userId']?.toString();
+    final String? epf = attendance['epf']?.toString();
+    final member = _findMember(userId, epf);
 
     final formattedDate = FormatUtils.dateFromUnixSeconds(date);
 
@@ -1932,15 +1669,21 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                 children: [
                   // Date + Member Name (when All selected)
                   AutoSizeText(
-                    _selectedUserId == null && memberName.isNotEmpty
-                        ? '$formattedDate • $memberName'
-                        : formattedDate,
+                    formattedDate,
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
                   ),
+                  if (_selectedUserId == null && memberName.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    _buildMemberNameAndEpf(
+                      member != null ? _getMemberNickname(member) : memberName,
+                      member != null ? _getMemberEPF(member) : (epf ?? ''),
+                      member != null ? _getMemberName(member) : memberName,
+                    ),
+                  ],
                   const SizedBox(height: _g4),
 
                   // Show IN / OUT if available (This is the main change you wanted)
@@ -2136,346 +1879,312 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: _g12),
               child: Container(
+                padding: const EdgeInsets.all(_g12),
                 decoration: BoxDecoration(
                   color: _surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black.withOpacity(0.05)),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  dividerColor: Colors.transparent,
-                  indicatorColor: Colors.transparent,
-                  // Make the indicator span the full tab and give it some horizontal padding
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorPadding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  indicator: BoxDecoration(
-                    color: const Color(0xFF791b27),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  labelColor: HRColors.secondaryColor,
-                  unselectedLabelColor: Colors.black54,
-                  tabs: [
-                    Tab(text: AppLocalizations.of(context)!.leaveText),
-                    Tab(text: AppLocalizations.of(context)!.attendanceText),
+                  border: Border.all(color: Colors.black.withOpacity(0.06)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(height: _g12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: _g16),
-                  child: AutoSizeText(
-                    AppLocalizations.of(context)!.selectTeamMember,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.selectTeamMember,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: _g8),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: _g12),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: _surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.black.withOpacity(0.06)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                    const SizedBox(height: _g8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
                       ),
-                    ],
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String?>(
-                      value: _selectedUserId == null
-                          ? null
-                          : (_teamMembers.any((m) =>
-                                  (m['_id'] ?? m['id'])?.toString() ==
-                                  _selectedUserId)
-                              ? _selectedUserId
-                              : null),
-                      isExpanded: true,
-                      dropdownColor: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      menuMaxHeight: 320,
-                      icon: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      selectedItemBuilder: (context) {
-                        return [
-                          // Selected view for "All team members"
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundColor:
-                                    HRColors.darkOrangeColor.withOpacity(0.12),
-                                child: Icon(
-                                  Icons.group,
-                                  size: 18,
-                                  color: HRColors.darkOrangeColor,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AutoSizeText(
-                                      AppLocalizations.of(context)!
-                                          .allTeamMembers,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    AutoSizeText(
-                                      '${_teamMembers.length} ${AppLocalizations.of(context)!.members}',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String?>(
+                          value: _selectedUserId == null
+                              ? null
+                              : (_teamMembers.any((m) =>
+                                      (m['_id'] ?? m['id'])?.toString() ==
+                                      _selectedUserId)
+                                  ? _selectedUserId
+                                  : null),
+                          isExpanded: true,
+                          dropdownColor: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          menuMaxHeight: 320,
+                          icon: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Colors.black54,
+                            ),
                           ),
-
-                          // Selected view for each member
-                          ..._teamMembers.where((member) {
-                            final m = member as Map<String, dynamic>;
-                            return (m['_id'] ?? m['id']) != null;
-                          }).map<Widget>((member) {
-                            final m = member as Map<String, dynamic>;
-                            final name = _getMemberName(m);
-                            final epf = _getMemberEPF(m);
-
-                            String initials() {
-                              final parts = name
-                                  .trim()
-                                  .split(' ')
-                                  .where((e) => e.isNotEmpty)
-                                  .toList();
-                              if (parts.length >= 2) {
-                                return '${parts[0][0]}${parts[1][0]}'
-                                    .toUpperCase();
-                              }
-                              if (name.isNotEmpty) return name[0].toUpperCase();
-                              return '?';
-                            }
-
-                            return Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 16,
-                                  backgroundColor: Colors.blueGrey.shade50,
-                                  child: AutoSizeText(
-                                    initials(),
-                                    style: const TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12,
+                          selectedItemBuilder: (context) {
+                            return [
+                              // Selected view for "All team members"
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 16,
+                                    backgroundColor:
+                                        HRColors.darkOrangeColor.withOpacity(0.12),
+                                    child: Icon(
+                                      Icons.group,
+                                      size: 18,
+                                      color: HRColors.darkOrangeColor,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        name,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      if (epf.isNotEmpty)
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
                                         AutoSizeText(
-                                          'EPF: $epf',
+                                          AppLocalizations.of(context)!
+                                              .allTeamMembers,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        AutoSizeText(
+                                          '${_teamMembers.length} ${AppLocalizations.of(context)!.members}',
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
                                             fontSize: 11,
                                             color: Colors.grey,
                                           ),
                                         ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ];
-                      },
-                      onChanged: (selected) {
-                        setState(() {
-                          _selectedUserId = selected;
-                          _selectedUserLabel = selected == null
-                              ? 'All'
-                              : _getMemberName(
-                                  (_teamMembers.firstWhere(
-                                    (m) =>
-                                        (m['_id'] ?? m['id'])?.toString() ==
-                                        selected,
-                                    orElse: () => <String, dynamic>{},
-                                  ) as Map<String, dynamic>),
-                                );
-                        });
-                        _loadTabData();
-                      },
-                      items: <DropdownMenuItem<String?>>[
-                        // Opened menu item for "All team members"
-                        DropdownMenuItem<String?>(
-                          value: null,
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 18,
-                                backgroundColor:
-                                    HRColors.darkOrangeColor.withOpacity(0.12),
-                                child: Icon(
-                                  Icons.group,
-                                  color: HRColors.darkOrangeColor,
-                                ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                              // Selected view for each member
+                              ..._teamMembers.where((member) {
+                                final m = member as Map<String, dynamic>;
+                                return (m['_id'] ?? m['id']) != null;
+                              }).map<Widget>((member) {
+                                final m = member as Map<String, dynamic>;
+                                final name = _getMemberName(m);
+                                final epf = _getMemberEPF(m);
+
+                                String initials() {
+                                  final parts = name
+                                      .trim()
+                                      .split(' ')
+                                      .where((e) => e.isNotEmpty)
+                                      .toList();
+                                  if (parts.length >= 2) {
+                                    return '${parts[0][0]}${parts[1][0]}'
+                                        .toUpperCase();
+                                  }
+                                  if (name.isNotEmpty) return name[0].toUpperCase();
+                                  return '?';
+                                }
+
+                                return Row(
                                   children: [
-                                    AutoSizeText(
-                                      AppLocalizations.of(context)!
-                                          .allTeamMembers,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 14,
+                                    CircleAvatar(
+                                      radius: 16,
+                                      backgroundColor: Colors.blueGrey.shade50,
+                                      child: AutoSizeText(
+                                        initials(),
+                                        style: const TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    AutoSizeText(
-                                      '${_teamMembers.length} ${AppLocalizations.of(context)!.members}',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey,
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: _buildMemberNameAndEpf(
+                                        _getMemberNickname(m),
+                                        epf,
+                                        name,
                                       ),
                                     ),
                                   ],
-                                ),
-                              ),
-                              if (_selectedUserId == null)
-                                const Icon(Icons.check_circle,
-                                    color: Colors.green),
-                            ],
-                          ),
-                        ),
-
-                        // Opened menu items for members
-                        ..._teamMembers.where((member) {
-                          final m = member as Map<String, dynamic>;
-                          final id = (m['_id'] ?? m['id'])?.toString();
-                          return id != null;
-                        }).map<DropdownMenuItem<String?>>((member) {
-                          final m = member as Map<String, dynamic>;
-                          final id = (m['_id'] ?? m['id'])?.toString();
-                          final name = _getMemberName(m);
-                          final epf = _getMemberEPF(m);
-
-                          String initials() {
-                            final parts = name
-                                .trim()
-                                .split(' ')
-                                .where((e) => e.isNotEmpty)
-                                .toList();
-                            if (parts.length >= 2) {
-                              return '${parts[0][0]}${parts[1][0]}'
-                                  .toUpperCase();
-                            }
-                            if (name.isNotEmpty) return name[0].toUpperCase();
-                            return '?';
-                          }
-
-                          return DropdownMenuItem<String?>(
-                            value: id,
-                            child: Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.blueGrey.shade50,
-                                  child: AutoSizeText(
-                                    initials(),
-                                    style: const TextStyle(
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w700,
+                                );
+                              }).toList(),
+                            ];
+                          },
+                          onChanged: (selected) {
+                            setState(() {
+                              _selectedUserId = selected;
+                              _selectedUserLabel = selected == null
+                                  ? 'All'
+                                  : _getMemberName(
+                                      (_teamMembers.firstWhere(
+                                        (m) =>
+                                            (m['_id'] ?? m['id'])?.toString() ==
+                                            selected,
+                                        orElse: () => <String, dynamic>{},
+                                      ) as Map<String, dynamic>),
+                                    );
+                            });
+                            _loadTabData();
+                          },
+                          items: <DropdownMenuItem<String?>>[
+                            // Opened menu item for "All team members"
+                            DropdownMenuItem<String?>(
+                              value: null,
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor:
+                                        HRColors.darkOrangeColor.withOpacity(0.12),
+                                    child: Icon(
+                                      Icons.group,
+                                      color: HRColors.darkOrangeColor,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      AutoSizeText(
-                                        name,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          AppLocalizations.of(context)!
+                                              .allTeamMembers,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                      ),
-                                      if (epf.isNotEmpty) ...[
                                         const SizedBox(height: 2),
                                         AutoSizeText(
-                                          'EPF: $epf',
+                                          '${_teamMembers.length} ${AppLocalizations.of(context)!.members}',
                                           style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey,
                                           ),
                                         ),
                                       ],
-                                    ],
+                                    ),
                                   ),
-                                ),
-                                if (id != null && id == _selectedUserId)
-                                  const Icon(Icons.check_circle,
-                                      color: Colors.green),
-                              ],
+                                  if (_selectedUserId == null)
+                                    const Icon(Icons.check_circle,
+                                        color: Colors.green),
+                                ],
+                              ),
                             ),
-                          );
-                        }).toList(),
-                      ],
+
+                            // Opened menu items for members
+                            ..._teamMembers.where((member) {
+                              final m = member as Map<String, dynamic>;
+                              final id = (m['_id'] ?? m['id'])?.toString();
+                              return id != null;
+                            }).map<DropdownMenuItem<String?>>((member) {
+                              final m = member as Map<String, dynamic>;
+                              final id = (m['_id'] ?? m['id'])?.toString();
+                              final name = _getMemberName(m);
+                              final epf = _getMemberEPF(m);
+
+                              String initials() {
+                                final parts = name
+                                    .trim()
+                                    .split(' ')
+                                    .where((e) => e.isNotEmpty)
+                                    .toList();
+                                if (parts.length >= 2) {
+                                  return '${parts[0][0]}${parts[1][0]}'
+                                      .toUpperCase();
+                                }
+                                if (name.isNotEmpty) return name[0].toUpperCase();
+                                return '?';
+                              }
+
+                              return DropdownMenuItem<String?>(
+                                value: id,
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 18,
+                                      backgroundColor: Colors.blueGrey.shade50,
+                                      child: AutoSizeText(
+                                        initials(),
+                                        style: const TextStyle(
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: _buildMemberNameAndEpf(
+                                        _getMemberNickname(m),
+                                        epf,
+                                        name,
+                                      ),
+                                    ),
+                                    if (id != null && id == _selectedUserId)
+                                      const Icon(Icons.check_circle,
+                                          color: Colors.green),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: _g12),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: TabBar(
+                        controller: _tabController,
+                        dividerColor: Colors.transparent,
+                        indicatorColor: Colors.transparent,
+                        // Make the indicator span the full tab and give it some horizontal padding
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorPadding:
+                            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        indicator: BoxDecoration(
+                          color: HRColors.tabColor,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        labelColor: HRColors.tabLabelColor,
+                        unselectedLabelColor: Colors.black54,
+                        tabs: [
+                          Tab(text: AppLocalizations.of(context)!.teamLeavesText),
+                          Tab(text: AppLocalizations.of(context)!.teamAttendanceText),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: _g12),
             Expanded(child: body),

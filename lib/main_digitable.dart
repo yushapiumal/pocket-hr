@@ -2,7 +2,6 @@ import 'package:cn_pocket_hr/config/firebase_options_digitable.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
 import 'package:cn_pocket_hr/main.dart';
-import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,11 +27,22 @@ Future<void> main() async {
     splashLogoAsset: 'assets/images/app_logo.png',
     primaryColor: primary,
     secondaryColor: secondary,
+    morningBg: "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg",
+    afternoonBg: "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg",
+    eveningBg: "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/sunset-quotes-21-1586531574.jpg",
+    nightBg: "https://wallpaperaccess.com/full/2113857.jpg",
     backgroundColor: const Color(0xFFF4F7FC),
     containerShadowColor: const Color(0xFFE2E8F0),
     lightWhiteColor: const Color(0xFFEBF2FC),
     splashBackgroundColor: const Color(0xFF2D67CC),
-    tenant: '',
+    iconColor: primary,
+    iconBackgroundColor: const Color(0xFFEBF2FC),
+    tenant:'domex',
+    tabColor: primary,
+    tabLabelColor: Colors.white,
+    bottomNavIconColor: Colors.white,
+    bottomNavIconBgColor: primary,
+    buttonColor: primary,
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
@@ -49,6 +59,5 @@ Future<void> main() async {
     ),
   );
 
-  await FCMService.initialize();
   runApp(PocketHR());
 }

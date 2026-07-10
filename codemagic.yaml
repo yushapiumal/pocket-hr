@@ -1,0 +1,73 @@
+# Codemagic CI/CD configuration for cn_pocket_hr
+# Reference: https://docs.codemagic.io/yaml-quick-start/building-a-flutter-app/
+
+workflows:
+  ios-release:
+    name: iOS Release Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2  # Premium Apple Silicon instance for fast compilation
+    
+    environment:
+      groups:
+        # Define a group in Codemagic UI for app store credentials if using automatic signing
+        # - app_store_credentials 
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - target: human-v2
+          source: '*'
+          
+    scripts:
+      - name: Set up code signing settings
+        script: |
+          # If using Codemagic automatic code signing, this script initializes keychain/signing configurations.
+          # Reference: https://docs.codemagic.io/yaml-code-signing/signing-ios/
+          keychain initialize
+          
+      - name: Fetch Apple Certificates and Profiles
+        script: |
+          # Fetches matching signing certificates and provisioning profiles from App Store Connect.
+          # Note: Requires setup of APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_ISSUER_ID, and APP_STORE_CONNECT_PRIVATE_KEY
+          # in Codemagic environment group.
+          if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
+            app-store-connect fetch-signing-files "io.digitable.go.mydomex.human" --project-type ios-app --create --type IOS_APP_STORE
+          fi
+
+      - name: Prepare Domex iOS Assets and Config
+        script: |
+          chmod +x tooling/prepare_ios_flavor.sh
+          ./tooling/prepare_ios_flavor.sh domex
+
+      - name: Install Flutter Dependencies
+        script: |
+          flutter packages pub get
+
+      - name: Install Pods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+
+      - name: Build iOS Archive (.ipa)
+        script: |
+          # Build release version for Domex tenant and generate signed IPA.
+          flutter build ipa --release \
+            -t lib/main_domex.dart \
+            --dart-define=tenant=domex \
+            --bundle-id="io.digitable.go.mydomex.human" \
+            --build-number=$BUILD_NUMBER
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com  # Change this to your email for build notifications
+        notify:
+          success: true
+          failure: true

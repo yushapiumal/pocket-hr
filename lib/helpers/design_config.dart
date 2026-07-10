@@ -1,6 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'dart:ui';
-import 'package:cn_pocket_hr/contact_us.dart/contact_us.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cn_pocket_hr/screens/allowances_deductions/allowance.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +10,21 @@ import 'package:cn_pocket_hr/helpers/flutter_rating_bar.dart';
 import 'package:cn_pocket_hr/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:cn_pocket_hr/screens/debts_and_loans/debts_and_loans_screen.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cn_pocket_hr/screens/todos/todos_screen.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
-import 'package:cn_pocket_hr/helpers/tenant_helper.dart';
 import 'package:cn_pocket_hr/helpers/logout.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class DesignConfig {
+  static ImageProvider getHomeBgProvider(String path) {
+    if (path.startsWith('http') || path.startsWith('https')) {
+      return CachedNetworkImageProvider(path);
+    } else {
+      return AssetImage(path);
+    }
+  }
+
   static String getPngImagePath(String imageName) {
     return "assets/images/img/$imageName";
   }
@@ -100,9 +106,10 @@ class DesignConfig {
   // ==================== DRAWER WITH YOUR BG COLOR ====================
   static Widget drawerContent(
       GlobalKey<ScaffoldState> scaffoldKey, BuildContext context) {
+    final LocalStorage storage = LocalStorage('pocketHR');
+
     Widget langPicker() {
       final provider = Provider.of<LocaleProvider>(context);
-      final LocalStorage storage = LocalStorage('pocketHR');
 
       return Container(
         margin: const EdgeInsets.only(top: 80.0, left: 8.0, right: 30.0),
@@ -115,6 +122,130 @@ class DesignConfig {
           ],
         ),
       );
+    }
+
+    Widget? buildMenuItem(String key) {
+      final l10n = AppLocalizations.of(context)!;
+      switch (key) {
+        case 'my_team':
+          return ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+            onTap: () => Navigator.pushNamed(context, '/team'),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: Icon(Icons.people_alt,
+                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+              ),
+            ),
+            title: AutoSizeText(
+              l10n.myTeam,
+              style: const TextStyle(fontSize: 17, color: HRColors.black),
+            ),
+          );
+        case 'salary_slips':
+          return ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+            onTap: () => Navigator.pushNamed(context, HRSalarySlips.routeName),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: Icon(Icons.receipt_long,
+                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+              ),
+            ),
+            title: AutoSizeText(
+              l10n.salarySlips,
+              style: const TextStyle(fontSize: 17, color: HRColors.black),
+            ),
+          );
+        case 'allowance_deductions':
+          return ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+            onTap: () => Navigator.pushNamed(
+                context, HRAllowancesDeductions.routeName),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: Icon(Icons.account_balance_wallet_outlined,
+                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+              ),
+            ),
+            title: AutoSizeText(
+              l10n.allowanceDeductions,
+              style: const TextStyle(fontSize: 17, color: HRColors.black),
+            ),
+          );
+        case 'debts_loans':
+          return ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+            onTap: () => Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: Icon(Icons.payments_outlined,
+                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+              ),
+            ),
+            title: AutoSizeText(
+              l10n.debtLoans,
+              style: const TextStyle(fontSize: 17, color: HRColors.black),
+            ),
+          );
+        case 'todo_list':
+          return ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+            onTap: () => Navigator.pushNamed(context, HRTodo.routeName),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: Icon(Icons.checklist,
+                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+              ),
+            ),
+            title: AutoSizeText(
+              l10n.todos,
+              style: const TextStyle(fontSize: 17, color: HRColors.black),
+            ),
+          );
+        default:
+          return null;
+      }
     }
 
     return Material(
@@ -165,167 +296,54 @@ class DesignConfig {
                         fontWeight: FontWeight.w500),
                   ),
                   const Spacer(),
-                  // FutureBuilder<String?>(
-                  //   future: TenantHelper.getCurrentTenant(),
-                  //   builder: (context, snapshot) {
-                  //     final tenant = snapshot.data;
-                  //     final path = TenantHelper.getLogoForTenant(tenant);
-                  //     final borderColor =
-                  //         TenantHelper.getLogoBorderColor(tenant);
-                  //     final fillColor = TenantHelper.getLogoFillColor(tenant);
-                  //     final logo = Image.asset(
-                  //       path,
-                  //       height: 24,
-                  //       width: 80,
-                  //       fit: BoxFit.contain,
-                  //     );
-                  //     if (borderColor != null || fillColor != null) {
-                  //       return Container(
-                  //         padding: const EdgeInsets.symmetric(
-                  //             horizontal: 10, vertical: 6),
-                  //         decoration: BoxDecoration(
-                  //           color: fillColor,
-                  //           border: borderColor != null
-                  //               ? Border.all(color: borderColor, width: 2)
-                  //               : null,
-                  //           borderRadius: BorderRadius.circular(10),
-                  //         ),
-                  //         child: logo,
-                  //       );
-                  //     }
-                  //     return logo;
-                  //   },
-                  // ),
                 ],
               ),
             ),
 
             // Menu List
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 20),
-                children: [
-                  ListTile(
-                    dense: true,
-                    visualDensity:
-                        const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () => Navigator.pushNamed(context, '/team'),
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.people_alt,
-                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-                      ),
-                    ),
-                    title: AutoSizeText(
-                      AppLocalizations.of(context)!.myTeam,
-                      style:
-                          const TextStyle(fontSize: 17, color: HRColors.black),
-                    ),
-                  ),
-                  ListTile(
-                    dense: true,
-                    visualDensity:
-                        const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () =>
-                        Navigator.pushNamed(context, HRSalarySlips.routeName),
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.receipt_long,
-                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-                      ),
-                    ),
-                    title: AutoSizeText(
-                      AppLocalizations.of(context)!.salarySlips,
-                      style:
-                          const TextStyle(fontSize: 17, color: HRColors.black),
-                    ),
-                  ),
-                  ListTile(
-                    dense: true,
-                    visualDensity:
-                        const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () => Navigator.pushNamed(
-                        context, HRAllowancesDeductions.routeName),
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.account_balance_wallet_outlined,
-                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-                      ),
-                    ),
-                    title: AutoSizeText(
-                      AppLocalizations.of(context)!.allowanceDeductions,
-                      style:
-                          const TextStyle(fontSize: 17, color: HRColors.black),
-                    ),
-                  ),
-                  ListTile(
-                    dense: true,
-                    visualDensity:
-                        const VisualDensity(horizontal: 1, vertical: -2),
-                    onTap: () =>
-                        Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
-                      ),
-                      child: Center(
-                        child: Icon(Icons.payments_outlined,
-                          color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-                      ),
-                    ),
-                    title: AutoSizeText(
-                      AppLocalizations.of(context)!.debtLoans,
-                      style:
-                          const TextStyle(fontSize: 17, color: HRColors.black),
-                    ),
-                  ),
-                  // ListTile(
-                  //   dense: true,
-                  //   visualDensity: const VisualDensity(horizontal: 1, vertical: -4),
-                  //   onTap: () {
-                  //     Navigator.of(context).push(
-                  //       MaterialPageRoute(builder: (_) =>  HRContactUs()),
-                  //     );
-                  //   },
-                  //   leading: const Icon(Icons.contact_support_outlined, color: HRColors.black),
-                  //   title: AutoSizeText(
-                  //     AppLocalizations.of(context)!.contactUsText,
-                  //     style: const TextStyle(fontSize: 17, color: HRColors.black),
-                  //   ),
-                  // ),
+              child: FutureBuilder<bool>(
+                future: storage.ready,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                  // Refresh Button as ListTile
-                  const _RefreshListTile(),
+                  final profile = storage.getItem('me_profile') as Map<String, dynamic>?;
+                  final data = profile != null ? profile['data'] as Map<String, dynamic>? : null;
+                  final mobileMenu = data != null ? data['mobileMenu'] as Map<String, dynamic>? : null;
+                  final items = mobileMenu != null ? mobileMenu['items'] as List<dynamic>? : null;
 
-                  const SizedBox(height: 20),
-                  langPicker(),
-                  const SizedBox(height: 30),
-                ],
+                  final defaultKeys = [
+                    'my_team',
+                    'salary_slips',
+                    'allowance_deductions',
+                    'debts_loans',
+                    'todo_list'
+                  ];
+
+                  List<String> activeKeys = defaultKeys;
+                  if (items != null && items.isNotEmpty) {
+                    activeKeys = items
+                        .map((e) => e is Map ? (e['key']?.toString() ?? '') : '')
+                        .where((k) => k.isNotEmpty)
+                        .toList();
+                  }
+
+                  return ListView(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    children: [
+                      ...activeKeys
+                          .map((key) => buildMenuItem(key))
+                          .whereType<Widget>()
+                          .toList(),
+                      const _RefreshListTile(),
+                      const SizedBox(height: 20),
+                      langPicker(),
+                      const SizedBox(height: 30),
+                    ],
+                  );
+                },
               ),
             ),
 
@@ -423,7 +441,6 @@ class DesignConfig {
   static void showTopToast(BuildContext context, String message,
       {Color? background}) {
     final overlay = Overlay.of(context);
-    if (overlay == null) return;
 
     final entry = OverlayEntry(
       builder: (ctx) => Positioned(

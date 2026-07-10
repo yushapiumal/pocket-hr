@@ -22,7 +22,7 @@ class TenantHelper {
           Color(0xFF8B1818), // matches logout button / primary color
       logoFillColor: Color(0xFF8B1818), // dark crimson red background
     ),
-    'mahajana': _TenantConfig(logoPath: 'assets/images/mahajana-logo.png'),
+    'mahajana': _TenantConfig(logoPath: 'assets/images/mahajana plash_logo.png'),
   };
 
   /// Fallback logo when no tenant match is found.

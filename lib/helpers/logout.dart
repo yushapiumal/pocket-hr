@@ -53,7 +53,7 @@ class LogoutHelper {
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.remove('fcm_pending_notifications');
               } catch (_) {}
-              FCMService.unreadCount.value = 0;
+              await FCMService.reset();
 
               if (!context.mounted) return;
 

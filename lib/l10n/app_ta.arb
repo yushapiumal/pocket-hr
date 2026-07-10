@@ -304,5 +304,95 @@
         "type": "String"
       }
     }
-  }
+  },
+  "todos": "செய்ய வேண்டியவை",
+  "todoTabMyTodos": "எனது பணிகள்",
+  "todoTabApprovable": "அங்கீகரிக்க வேண்டியவை",
+  "noTodosFound": "செய்ய வேண்டிய பணிகள் எதுவும் இல்லை.",
+  "failedToLoadTodos": "தரவை ஏற்ற முடியவில்லை.",
+  "completedLabel": "முடிந்தது",
+  "todoTabRemoteAttendance": "தொலைநிலை வருகை",
+  "todoTabProfileUnlock": "சுயவிவரம் திறத்தல்",
+  "todoTabOthers": "மற்றவை",
+  "todoDetailCategory": "வகை",
+  "todoDetailZone": "வளையம்",
+  "todoDetailPunchType": "பதிவு வகை",
+  "todoDetailCheckedAt": "பதிவு செய்யப்பட்ட நேரம்",
+  "todoDetailAccuracy": "துல்லியம்",
+  "todoDetailBattery": "மின்கல அளவு",
+  "todoDetailCoordinates": "ஆயத்தொலைவுகள்",
+  "todoDetailReason": "காரணம்",
+  "todoDetailRatesInfo": "விகித விவரங்கள்",
+  "todoRequestDetails": "கோரிக்கை விவரங்கள்",
+  "todoApproveTitle": "கோரிக்கையை அனுமதி",
+  "todoRejectTitle": "கோரிக்கையை நிராகரி",
+  "todoApproveConfirmMessage": "{name} இன் கோரிக்கையை அங்கீகரிக்க விரும்புகிறீர்களா?",
+  "@todoApproveConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoRejectConfirmMessage": "{name} இன் கோரிக்கையை நிராகரிக்க விரும்புகிறீர்களா?",
+  "@todoRejectConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoReasonHint": "நிராகரிப்பதற்கான காரணம் *",
+  "todoApproveSuccess": "வெற்றிகரமாக அங்கீகரிக்கப்பட்டது",
+  "todoRejectSuccess": "வெற்றிகரமாக நிராகரிக்கப்பட்டது",
+  "todoApproveFailed": "அங்கீகரிக்க முடியவில்லை",
+  "todoRejectFailed": "நிராகரிக்க முடியவில்லை",
+  "todoRemoteAttendanceDetailsTitle": "தொலைநிலை வருகை விவரங்கள்",
+  "todoProfileUnlockDetailsTitle": "சுயவிவரம் திறத்தல் விவரங்கள்",
+  "todoOtherDetailsTitle": "கோரிக்கை விவரங்கள்",
+  "todoDetailDeviceId": "சாதன ஐடி",
+  "todoDetailBypassRemote": "தொலைநிலைப் பதிவைத் தவிர்த்தல்",
+  "yesLabel": "ஆம்",
+  "noLabel": "இல்லை",
+  "todoDetailCompletedBy": "முடித்தவர்",
+  "todoDetailCompletedAt": "முடிக்கப்பட்ட நேரம்",
+  "todoDetailRequestedAt": "கோரப்பட்ட நேரம்",
+  "todoDetailRequestedFor": "யாருக்காக கோரப்பட்டது",
+  "todoDetailRequestedBy": "கோரியவர்",
+  "todoDetailSummary": "சுருக்கம்",
+  "todoDetailPunctualityIncentive": "நேரக் கட்டுப்பாடு ஊக்கத்தொகை",
+  "todoDetailAttendanceAllowance": "வருகை கொடுப்பனவு",
+  "todoActionsTitle": "செயல்கள்",
+  "todoWaitingForPreviousStage": "முந்தைய நபருக்கு",
+  "todoPending": "உங்களுக்கு",
+  "goodMorning": "காலை வணக்கம்",
+  "goodAfternoon": "மதிய வணக்கம்",
+  "goodEvening": "மாலை வணக்கம்",
+  "goodNight": "இனிய இரவு",
+  "notificationDetailEmployeeName": "ஊழியர் பெயர்",
+  "notificationDetailPerformedBy": "செய்தவர்",
+  "notificationDetailPerformerEmail": "செய்தவர் மின்னஞ்சல்",
+  "notificationDetailPerformerEpfNo": "செய்தவர் இபிஎஃப் எண்",
+  "notificationDetailEmployeeEpfNo": "ஊழியர் இபிஎஃப் எண்",
+  "notificationDetailIpAddress": "ஐபி முகவரி",
+  "notificationDetailTime": "நேரம்",
+  "notificationsTitle": "அறிவிப்புகள்",
+  "notificationClearAll": "அனைத்தையும் நீக்கு",
+  "notificationNoNotificationsYet": "இன்னும் அறிவிப்புகள் இல்லை",
+  "notificationAllCaughtUp": "நீங்கள் அனைத்தையும் பார்த்துள்ளீர்கள்!",
+  "notificationMessageLabel": "செய்தி",
+  "notificationDetailsLabel": "விவரங்கள்",
+  "notificationCloseButton": "மூடு",
+  "teamLeavesText": "விடுமுறைகள்",
+  "teamAttendanceText": "வருகை",
+  "fcmTokenError": "புஷ் அறிவிப்பு (FCM) டோக்கனைப் பெற முடியவில்லை.",
+  "shortLeaveBalanceExhausted": "குறுகிய விடுப்பு இருப்பு முடிந்துவிட்டது. நீங்கள் ஒரு மாதத்திற்கு அதிகபட்சமாக {max} குறுகிய விடுப்புகளுக்கு தகுதியுடையவர். (பயன்படுத்தப்பட்ட/நிலுவையில் உள்ளவை: {used})",
+  "monday": "திங்கள்",
+  "tuesday": "செவ்வாய்",
+  "wednesday": "புதன்",
+  "thursday": "வியாழன்",
+  "friday": "வெள்ளி",
+  "cannotApplyLeaveOnNonWorkingDay": "{day} அன்று நீங்கள் விடுப்பு விண்ணப்பிக்க முடியாது — இது உங்கள் தொகுப்பு விதிமுறைகளின்படி வேலை நாள் அல்ல.",
+  "date": "தேதி",
+  "session": "அமர்வு"
 }

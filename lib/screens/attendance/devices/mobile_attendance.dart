@@ -480,7 +480,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: _tabType == 'cur'
-                      ? const Color(0xFF791b27)
+                      ? HRColors.tabColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -492,7 +492,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                     style: TextStyle(
                       fontWeight: _wBold,
                       color: _tabType == 'cur'
-                          ? HRColors.secondaryColor
+                          ? HRColors.tabLabelColor
                           : Colors.black54,
                     ),
                   ),
@@ -509,7 +509,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: _tabType == 'prv'
-                      ? const Color(0xFF791b27)
+                      ? HRColors.tabColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -523,7 +523,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                     style: TextStyle(
                       fontWeight: _wBold,
                       color: _tabType == 'prv'
-                          ? HRColors.secondaryColor
+                          ? HRColors.tabLabelColor
                           : Colors.black54,
                     ),
                   ),

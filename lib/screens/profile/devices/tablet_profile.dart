@@ -218,11 +218,11 @@ class _TabletProfileState extends State<TabletProfile> {
             ),
             _topCircleButton(
               onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
-              child: Image.asset(
-                'assets/images/img/notification.png',
-                errorBuilder: (_, __, ___) => const Icon(
-                  Icons.notifications_none_rounded,
-                  color: Colors.black87,
+              child: SvgPicture.asset(
+                'assets/svg/notifications_icon.svg',
+                colorFilter: ColorFilter.mode(
+                  HRColors.flavorIconColor,
+                  BlendMode.srcIn,
                 ),
               ),
             ),

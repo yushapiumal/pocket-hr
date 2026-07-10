@@ -534,10 +534,10 @@ class TabletLeaveState extends State<TabletLeave>
                     indicatorPadding: const EdgeInsets.all(6),
                     labelPadding: const EdgeInsets.only(left: 23, right: 23),
                     indicator: BoxDecoration(
-                      color: const Color(0xFF791b27),
+                      color: HRColors.tabColor,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    labelColor: HRColors.secondaryColor,
+                    labelColor: HRColors.tabLabelColor,
                     unselectedLabelColor: Colors.black54,
                     tabs: [
                       Tab(text: AppLocalizations.of(context)!.allLabel),
@@ -743,19 +743,8 @@ class TabletLeaveState extends State<TabletLeave>
             : const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
-          color: FlavorConfig.isDomex
-              ? (HRColors.flavorIconBackgroundColor ?? Colors.white)
-              : null,
-          gradient: FlavorConfig.isDomex
-              ? null
-              : LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [HRColors.orangeColor, HRColors.orangeColor],
-                ),
-          border: FlavorConfig.isDomex
-              ? Border.all(color: Colors.black.withOpacity(0.06))
-              : null,
+          color: HRColors.buttonColor,
+          border: Border.all(color: Colors.black.withOpacity(0.06)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.18),
@@ -768,7 +757,7 @@ class TabletLeaveState extends State<TabletLeave>
           child: iconOnly
               ? Icon(
                   Icons.add_rounded,
-                  color: FlavorConfig.isDomex ? const Color(0xFFF9A825) : HRColors.white,
+                  color: HRColors.tabLabelColor,
                   size: 28,
                 )
               : Padding(
@@ -779,7 +768,7 @@ class TabletLeaveState extends State<TabletLeave>
                       AutoSizeText(
                         label,
                         style: TextStyle(
-                          color: FlavorConfig.isDomex ? const Color(0xFFF9A825) : HRColors.white,
+                          color: HRColors.tabLabelColor,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.0,
                         ),
@@ -787,7 +776,7 @@ class TabletLeaveState extends State<TabletLeave>
                       const SizedBox(width: 6),
                       Icon(
                         Icons.chevron_right,
-                        color: FlavorConfig.isDomex ? const Color(0xFFF9A825) : HRColors.white,
+                        color: HRColors.tabLabelColor,
                       ),
                     ],
                   ),
@@ -862,6 +851,7 @@ class TabletLeaveState extends State<TabletLeave>
     if (s.contains('medical') || s.contains('sick')) {
       return AppLocalizations.of(context)!.medicalLabel;
     }
+    if (s.contains('short')) return AppLocalizations.of(context)!.shortLeave;
     if (s.contains('nopay') || s.contains('unpaid')) {
       // If localization key doesn't exist in this app, keep an English fallback.
       return 'No Pay';

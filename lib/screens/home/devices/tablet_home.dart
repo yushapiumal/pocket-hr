@@ -47,16 +47,10 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
  // late AudioPlayer _audioPlayer;
 
-  String morningBg =
-      "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
-
-  String afternoonBg =
-      "https://www.farmersalmanac.com/wp-content/uploads/2020/11/Earliest-Sunrise-June-A191879830.jpg";
-
-  String eveningBg =
-      "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/sunset-quotes-21-1586531574.jpg";
-
-  String nightBg = "https://wallpaperaccess.com/full/2113857.jpg";
+  String morningBg = FlavorConfig.instance.morningBg;
+  String afternoonBg = FlavorConfig.instance.afternoonBg;
+  String eveningBg = FlavorConfig.instance.eveningBg;
+  String nightBg = FlavorConfig.instance.nightBg;
 
   late String bgImg;
   String? _dateTime;
@@ -245,10 +239,17 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   checkinCheckout(type, {bool isRemote = false}) async {
     DateTime getCurrentTimestamp = DateTime.now();
     String date = controller.formatISOTime(getCurrentTimestamp);
-    final latStr = (latitude != null) ? latitude.toString() : null;
-    final lngStr = (longitude != null) ? longitude.toString() : null;
-    final addr = (address != null) ? address.toString() : null;
-    final accStr = (accuracy != null) ? accuracy.toString() : null;
+
+    final useQrLocation = !isRemote && qrLatitude != null;
+    final activeLat = useQrLocation ? qrLatitude : latitude;
+    final activeLng = useQrLocation ? qrLongitude : longitude;
+    final activeAddr = useQrLocation ? (qrAddress ?? address) : address;
+    final activeAcc = useQrLocation ? qrAccuracy : accuracy;
+
+    final latStr = (activeLat != null) ? activeLat.toString() : null;
+    final lngStr = (activeLng != null) ? activeLng.toString() : null;
+    final addr = (activeAddr != null) ? activeAddr.toString() : null;
+    final accStr = (activeAcc != null) ? activeAcc.toString() : null;
 
     // If offline, save immediately and avoid calling remote API (prevents socket errors)
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
@@ -259,13 +260,13 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
           uid: storage.getItem('uid')?.toString() ?? 'local',
           type: type,
           time: date,
-          lat: (latitude is double)
-              ? latitude
-              : double.tryParse(latitude?.toString() ?? '') ?? 0.0,
-          lng: (longitude is double)
-              ? longitude
-              : double.tryParse(longitude?.toString() ?? '') ?? 0.0,
-          address: address ?? '',
+          lat: (activeLat is double)
+              ? activeLat
+              : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
+          lng: (activeLng is double)
+              ? activeLng
+              : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
+          address: activeAddr ?? '',
           deviceId: '',
           deviceModel: '',
           deviceBrand: '',
@@ -307,13 +308,13 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
           uid: storage.getItem('uid')?.toString() ?? 'local',
           type: type,
           time: date,
-          lat: (latitude is double)
-              ? latitude
-              : double.tryParse(latitude?.toString() ?? '') ?? 0.0,
-          lng: (longitude is double)
-              ? longitude
-              : double.tryParse(longitude?.toString() ?? '') ?? 0.0,
-          address: address ?? '',
+          lat: (activeLat is double)
+              ? activeLat
+              : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
+          lng: (activeLng is double)
+              ? activeLng
+              : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
+          address: activeAddr ?? '',
           deviceId: '',
           deviceModel: '',
           deviceBrand: '',
@@ -398,6 +399,11 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   var accuracy;
   late StreamSubscription<Position> streamSubscription;
 
+  var qrLatitude;
+  var qrLongitude;
+  var qrAccuracy;
+  var qrAddress;
+
   getLocation() async {
     bool serviceEnabled;
 
@@ -435,6 +441,19 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     address = '${place.street}, ${place.locality}';
   }
 
+  Future<void> _getQrAddressFromLatLang(Position position) async {
+    try {
+      List<Placemark> placemark =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      Placemark place = placemark[0];
+      if (mounted) {
+        setState(() {
+          qrAddress = '${place.street}, ${place.locality}';
+        });
+      }
+    } catch (_) {}
+  }
+
   // Compute distance between two lat/lng points in meters (Haversine formula)
   double _distanceBetween(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371000.0; // Earth radius in meters
@@ -463,6 +482,13 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     final userId = storage.getItem('uid')?.toString() ?? '';
     final locations = await apiService.getTenantCoordinateFromQr(userId);
 
+    setState(() {
+      qrLatitude = null;
+      qrLongitude = null;
+      qrAccuracy = null;
+      qrAddress = null;
+    });
+
     while (true) {
       final usernameForQr = (storage.getItem('name') ??
               storage.getItem('username') ??
@@ -478,10 +504,11 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
             showRemoteButton: isRemoteAllowed,
             onLocationUpdated: (pos) {
               setState(() {
-                latitude = pos.latitude;
-                longitude = pos.longitude;
-                accuracy = pos.accuracy;
+                qrLatitude = pos.latitude;
+                qrLongitude = pos.longitude;
+                qrAccuracy = pos.accuracy;
               });
+              _getQrAddressFromLatLang(pos);
             },
             onRemotePressed: () {
               Navigator.of(context).pop('remote');
@@ -565,16 +592,13 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
               } catch (_) {}
 
               // After scan: validate device location within allowed radius
-              final double? dlat = (latitude is num)
-                  ? (latitude as num).toDouble()
-                  : double.tryParse(latitude?.toString() ?? '');
+              final double? dlat = (qrLatitude is num)
+                  ? (qrLatitude as num).toDouble()
+                  : double.tryParse(qrLatitude?.toString() ?? '');
 
-              // final double? dlat = 6.927079;
-              // final double? dlng = 79.861244;
-
-              final double? dlng = (longitude is num)
-                  ? (longitude as num).toDouble()
-                  : double.tryParse(longitude?.toString() ?? '');
+              final double? dlng = (qrLongitude is num)
+                  ? (qrLongitude as num).toDouble()
+                  : double.tryParse(qrLongitude?.toString() ?? '');
 
               if (dlat == null || dlng == null) {
                 return 'Location not available';
@@ -753,7 +777,7 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                       bottomRight: Radius.circular(40),
                     ),
                     child: OctoImage(
-                      image: CachedNetworkImageProvider(setBgImage()),
+                      image: DesignConfig.getHomeBgProvider(setBgImage()),
                       placeholderBuilder: OctoBlurHashFix.placeHolder(
                         sliderList[i].blurUrl!,
                       ),

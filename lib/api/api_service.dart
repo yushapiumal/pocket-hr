@@ -14,6 +14,7 @@ import 'package:cn_pocket_hr/api/config.dart';
 import 'package:cn_pocket_hr/models/hr/attendance_model.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/models/hr/me_model.dart';
+import 'package:cn_pocket_hr/models/hr/todo_model.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 // import 'package:cn_pocket_hr/services/fcm_service.dart';
@@ -257,17 +258,32 @@ class APIService {
       final description = details is Map && details['description'] != null
           ? details['description'].toString()
           : '';
+      final shortLeavePeriod = details is Map && details['short_leave_period'] != null
+          ? details['short_leave_period'].toString()
+          : '';
 
-      final data = {
-        'leave_title': leaveTitle,
-        'from_date': fromDate,
-        'to_date': toDate,
-        'user-id': uidStr,
-        'leave_type': leaveType,
-        'type': typeStr,
-        'session': session,
-        'description': description,
-      };
+      final isShortLeave = leaveType == 'short_leave' || typeStr == 'short_leave';
+
+      final data = isShortLeave
+          ? {
+              'uid': uidStr,
+              'from_date': fromDate,
+              'leave_type': 'short_leave',
+              'type': 'short_leave',
+              if (shortLeavePeriod.isNotEmpty) 'short_leave_period': shortLeavePeriod,
+              'leave_title': leaveTitle,
+            }
+          : {
+              'leave_title': leaveTitle,
+              'from_date': fromDate,
+              'to_date': toDate,
+              'user-id': uidStr,
+              'uid': uidStr,
+              'leave_type': leaveType,
+              'type': typeStr,
+              'session': session,
+              'description': description,
+            };
       await _injectTenantToBody(data);
 
       // Build headers as Map<String, String> and only include keys with non-empty values
@@ -339,6 +355,70 @@ class APIService {
       debugPrint('[LEAVE BALANCE] ERROR => $e');
     }
     return null;
+  }
+
+  Future<List<TodoItem>> getTodos({required bool approvableByMe}) async {
+    try {
+      await storage.ready;
+      final url = '$baseUrl/todos';
+      final uri = await _uriWithTenant(url, {
+        'approvableByMe': approvableByMe.toString(),
+      });
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+      final oauthToken = storage.getItem('token')?.toString() ?? '';
+
+      final headers = <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      if (accessToken.isNotEmpty) {
+        headers['Authorization'] = 'Bearer $accessToken';
+      }
+      if (oauthToken.isNotEmpty) {
+        headers['Oauth-Token'] = oauthToken;
+      }
+      
+      final tenant = await _resolveTenant();
+      if (tenant != null && tenant.isNotEmpty) {
+        headers['Tenant'] = tenant;
+      }
+
+      debugPrint('[TODOS] GET $uri');
+      debugPrint('[TODOS] headers => $headers');
+
+      final response = await http.get(uri, headers: headers);
+      debugPrint('[TODOS] status=${response.statusCode}');
+      debugPrint('[TODOS] response.body=${response.body}');
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw Exception('Failed to load todos (Status: ${response.statusCode})');
+      }
+
+      final decoded = json.decode(response.body);
+      List<dynamic> itemsList = [];
+      if (decoded is List) {
+        itemsList = decoded;
+      } else if (decoded is Map) {
+        final nestedData = decoded['data'] ?? decoded['result'] ?? decoded['todos'] ?? decoded['items'];
+        if (nestedData is List) {
+          itemsList = nestedData;
+        } else if (nestedData is Map) {
+          final subData = nestedData['data'] ?? nestedData['result'] ?? nestedData['items'] ?? nestedData['todos'];
+          if (subData is List) {
+            itemsList = subData;
+          }
+        }
+      }
+
+      return itemsList
+          .whereType<Map>()
+          .map((e) => TodoItem.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } catch (e, st) {
+      debugPrint('[TODOS] ERROR => $e');
+      debugPrint(st.toString());
+      rethrow;
+    }
   }
 
   Future<List<MeSubsModel>> getMeSubs() async {
@@ -703,18 +783,67 @@ class APIService {
   Future<List<dynamic>> fetchVariablesForUser(String userId) async {
     await storage.ready;
 
-    final accessToken = storage.getItem('access_token');
-    if (accessToken == null || accessToken.toString().isEmpty) {
-      throw Exception('Missing access_token');
-    }
+    String? accessToken = storage.getItem('access_token')?.toString();
+    final oauthToken = storage.getItem('token')?.toString() ?? '';
+    final tenant = await _resolveTenant();
 
     final url = '${baseUrl}/variables/variables/$userId';
     final uri = await _uriWithTenant(url);
-    final res = await http.get(uri, headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-    });
+
+    Map<String, String> buildHeaders({
+      bool includeAccess = true,
+      bool includeOauth = true,
+    }) {
+      final h = <String, String>{
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+
+      if (includeAccess && (accessToken != null && accessToken.isNotEmpty)) {
+        h['Authorization'] = 'Bearer $accessToken';
+      }
+
+      if (includeOauth && oauthToken.isNotEmpty) {
+        h['Oauth-Token'] = oauthToken;
+      }
+
+      if (tenant != null && tenant.isNotEmpty) {
+        h['Tenant'] = tenant;
+      }
+
+      return h;
+    }
+
+    var res = await http.get(
+      uri,
+      headers: buildHeaders(includeAccess: true, includeOauth: true),
+    );
+
+    // Retry logic
+    if (res.statusCode == 401 || res.statusCode == 403) {
+      // Attempt 2 → oauth only
+      if (oauthToken.isNotEmpty) {
+        try {
+          res = await http.get(
+            uri,
+            headers: buildHeaders(includeAccess: false, includeOauth: true),
+          );
+        } catch (_) {}
+      }
+
+      // Attempt 3 → Refresh bearer
+      if (res.statusCode == 401 || res.statusCode == 403) {
+        try {
+          await fetchMeProfileWithBearer();
+          accessToken = storage.getItem('access_token')?.toString();
+
+          res = await http.get(
+            uri,
+            headers: buildHeaders(includeAccess: true, includeOauth: true),
+          );
+        } catch (_) {}
+      }
+    }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
       throw Exception('Failed to load variables (${res.statusCode})');
@@ -1954,6 +2083,55 @@ class APIService {
     return _handleApiResponse(response, 'rejectLeave');
   }
 
+  Future<Map<String, dynamic>> approveTodo(String todoId) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
+
+    final url = '${baseUrl}/todos/$todoId/update?tenant=$tenant';
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'id': todoId,
+        'action': 'complete',
+      }),
+    );
+
+    print('[approveTodo] Response Body: ${response.body}');
+    return _handleApiResponse(response, 'approveTodo');
+  }
+
+
+  Future<Map<String, dynamic>> rejectTodo(String todoId, String reason) async {
+    await storage.ready;
+    final accessToken = storage.getItem('access_token')?.toString() ?? '';
+    final tenant = storage.getItem('tenant')?.toString() ?? '';
+
+    final url = '${baseUrl}/todos/$todoId/update?tenant=$tenant';
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'id': todoId,
+        'action': 'reject',
+        'reason': reason,
+      }),
+    );
+
+    return _handleApiResponse(response, 'rejectTodo');
+  }
+
   Future<Map<String, dynamic>> markAttendance(
       String userId, String date, String checkIn, String checkOut) async {
     await storage.ready;
@@ -2031,6 +2209,9 @@ class APIService {
       throw Exception('Failed to parse JSON from $apiName: ${response.body}');
     }
   }
+
+// dl3FFA7BQ8K31O5eaEMdC8:APA91bHdrgjF4K_KpGIE0Vu-VDAGQDql8SzSTGj_7Z7uTDgnDjKawpNqb9RQWw2PdSX-SOt3qjUvrY40p9nTp0WmzlX-DpINQI_9sHbnYBKe_DKHzqQEKro
+
 
   // ── App version & force-update machinery ────────────────────────────────
 

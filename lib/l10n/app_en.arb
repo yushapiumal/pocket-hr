@@ -310,5 +310,112 @@
         "type": "String"
       }
     }
-  }
+  },
+  "todos": "To-Do List",
+  "todoTabMyTodos": "My Tasks",
+  "todoTabApprovable": "Approvable By Me",
+  "noTodosFound": "No to-do tasks found.",
+  "failedToLoadTodos": "Failed to load to-do data.",
+  "completedLabel": "Completed",
+  "todoTabRemoteAttendance": "Remote Attendance",
+  "todoTabProfileUnlock": "Profile Unlock",
+  "todoTabOthers": "Others",
+  "todoDetailCategory": "Category",
+  "todoDetailZone": "Zone",
+  "todoDetailPunchType": "Punch Type",
+  "todoDetailCheckedAt": "Checked At",
+  "todoDetailAccuracy": "Accuracy",
+  "todoDetailBattery": "Battery",
+  "todoDetailCoordinates": "Coordinates",
+  "todoDetailReason": "Reason",
+  "todoDetailRatesInfo": "Rates Info",
+  "todoRequestDetails": "Request Details",
+  "todoApproveTitle": "Approve Request",
+  "todoRejectTitle": "Reject Request",
+  "todoApproveConfirmMessage": "Are you sure you want to approve {name}'s request?",
+  "@todoApproveConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoRejectConfirmMessage": "Are you sure you want to reject {name}'s request?",
+  "@todoRejectConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "todoReasonHint": "Reason for rejection *",
+  "todoApproveSuccess": "Todo approved successfully",
+  "todoRejectSuccess": "Todo rejected successfully",
+  "todoApproveFailed": "Failed to approve Todo",
+  "todoRejectFailed": "Failed to reject Todo",
+  "todoRemoteAttendanceDetailsTitle": "Remote Attendance Details",
+  "todoProfileUnlockDetailsTitle": "Profile Unlock Details",
+  "todoOtherDetailsTitle": "Request Details",
+  "todoDetailDeviceId": "Device ID",
+  "todoDetailBypassRemote": "Bypass Remote Check",
+  "yesLabel": "Yes",
+  "noLabel": "No",
+  "todoDetailCompletedBy": "Completed By",
+  "todoDetailCompletedAt": "Completed At",
+  "todoDetailRequestedAt": "Requested At",
+  "todoDetailRequestedFor": "Requested For",
+  "todoDetailRequestedBy": "Requested By",
+  "todoDetailSummary": "Summary",
+  "todoDetailPunctualityIncentive": "Punctuality Incentive",
+  "todoDetailAttendanceAllowance": "Attendance Allowance",
+  "todoActionsTitle": "Actions",
+  "todoWaitingForPreviousStage": "for previous person",
+  "todoPending": "for you",
+  "goodMorning": "Good Morning",
+  "goodAfternoon": "Good Afternoon",
+  "goodEvening": "Good Evening",
+  "goodNight": "Good Night",
+  "notificationDetailEmployeeName": "Employee Name",
+  "notificationDetailPerformedBy": "Performed By",
+  "notificationDetailPerformerEmail": "Performer Email",
+  "notificationDetailPerformerEpfNo": "Performer EPF No",
+  "notificationDetailEmployeeEpfNo": "Employee EPF No",
+  "notificationDetailIpAddress": "IP Address",
+  "notificationDetailTime": "Time",
+  "notificationsTitle": "Notifications",
+  "notificationClearAll": "Clear all",
+  "notificationNoNotificationsYet": "No notifications yet",
+  "notificationAllCaughtUp": "You're all caught up!",
+  "notificationMessageLabel": "Message",
+  "notificationDetailsLabel": "Details",
+  "notificationCloseButton": "Close",
+  "teamLeavesText": "Leaves",
+  "teamAttendanceText": "Attendance",
+  "fcmTokenError": "Failed to get push notification (FCM) token.",
+  "shortLeaveBalanceExhausted": "Short leave balance exhausted. You are entitled to a maximum of {max} short leaves per month. (Used/Pending: {used})",
+  "@shortLeaveBalanceExhausted": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "cannotApplyLeaveOnNonWorkingDay": "You cannot apply leave on {day} — it is not a working day according to your package terms.",
+  "@cannotApplyLeaveOnNonWorkingDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "date": "Date",
+  "session": "Session"
 } 

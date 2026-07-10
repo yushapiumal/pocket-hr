@@ -13,6 +13,7 @@ import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/liquid_side_menu.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 
 class HRMain extends StatefulWidget {
   static String routeName = "/main";
@@ -47,6 +48,11 @@ class _HRMainState extends State<HRMain> {
     SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp],
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await FCMService.initialize();
+      FCMService.sendTokenToBackend();
+    });
   }
 
   void updateTabSelection(int index) {
@@ -141,7 +147,7 @@ class _HRMainState extends State<HRMain> {
                     width: 40,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? const Color(0xFF791b27)
+                          ? HRColors.bottomNavIconBgColor
                           : Colors.transparent,
                       shape: BoxShape.circle,
                     ),
@@ -149,7 +155,7 @@ class _HRMainState extends State<HRMain> {
                       icon,
                       size: 22,
                       color:
-                          isSelected ? HRColors.secondaryColor : Colors.white,
+                          isSelected ? HRColors.bottomNavIconColor : Colors.white,
                     ),
                   ),
                 ),

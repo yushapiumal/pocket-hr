@@ -468,7 +468,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get processedLabel => 'සකසා ඇත';
 
   @override
-  String get pendingLabel => 'නිලවරණය';
+  String get pendingLabel => 'අපේක්ෂිත';
 
   @override
   String get retryLabel => 'නැවත උත්සාහ කරන්න';
@@ -796,4 +796,241 @@ class AppLocalizationsSi extends AppLocalizations {
   String currentAccuracyLabel(String accuracy) {
     return 'නිරවද්‍යතාවය: මීටර් $accuracy';
   }
+
+  @override
+  String get todos => 'කළ යුතු දෑ';
+
+  @override
+  String get todoTabMyTodos => 'මගේ කාර්යයන්';
+
+  @override
+  String get todoTabApprovable => 'අනුමත කළ හැකි';
+
+  @override
+  String get noTodosFound => 'කළ යුතු දෑ කිසිවක් හමු නොවීය.';
+
+  @override
+  String get failedToLoadTodos => 'දත්ත පූරණය කිරීමට අපොහොසත් විය.';
+
+  @override
+  String get completedLabel => 'සම්පූර්ණයි';
+
+  @override
+  String get todoTabRemoteAttendance => 'දුරස්ථ පැමිණීම';
+
+  @override
+  String get todoTabProfileUnlock => 'පැතිකඩ අගුළු හැරීම';
+
+  @override
+  String get todoTabOthers => 'වෙනත්';
+
+  @override
+  String get todoDetailCategory => 'ප්‍රවර්ගය';
+
+  @override
+  String get todoDetailZone => 'කලාපය';
+
+  @override
+  String get todoDetailPunchType => 'පැමිණීමේ වර්ගය';
+
+  @override
+  String get todoDetailCheckedAt => 'සටහන් කළ වේලාව';
+
+  @override
+  String get todoDetailAccuracy => 'නිරවද්‍යතාවය';
+
+  @override
+  String get todoDetailBattery => 'බැටරි මට්ටම';
+
+  @override
+  String get todoDetailCoordinates => 'ඛණ්ඩාංක';
+
+  @override
+  String get todoDetailReason => 'හේතුව';
+
+  @override
+  String get todoDetailRatesInfo => 'ගාස්තු විස්තර';
+
+  @override
+  String get todoRequestDetails => 'ඉල්ලීම් විස්තර';
+
+  @override
+  String get todoApproveTitle => 'ඉල්ලීම අනුමත කරන්න';
+
+  @override
+  String get todoRejectTitle => 'ඉල්ලීම ප්‍රතික්ෂේප කරන්න';
+
+  @override
+  String todoApproveConfirmMessage(String name) {
+    return '$name ගේ ඉල්ලීම අනුමත කිරීමට ඔබට විශ්වාසද?';
+  }
+
+  @override
+  String todoRejectConfirmMessage(String name) {
+    return '$name ගේ ඉල්ලීම ප්‍රතික්ෂේප කිරීමට ඔබට විශ්වාසද?';
+  }
+
+  @override
+  String get todoReasonHint => 'ප්‍රතික්ෂේප කිරීමට හේතුව *';
+
+  @override
+  String get todoApproveSuccess => 'කළ යුතු දෑ සාර්ථකව අනුමත කරන ලදී';
+
+  @override
+  String get todoRejectSuccess => 'කළ යුතු දෑ සාර්ථකව ප්‍රතික්ෂේප කරන ලදී';
+
+  @override
+  String get todoApproveFailed => 'අනුමත කිරීම අසාර්ථකයි';
+
+  @override
+  String get todoRejectFailed => 'ප්‍රතික්ෂේප කිරීම අසාර්ථකයි';
+
+  @override
+  String get todoRemoteAttendanceDetailsTitle => 'දුරස්ථ පැමිණීම් විස්තර';
+
+  @override
+  String get todoProfileUnlockDetailsTitle => 'පැතිකඩ අගුළු හැරීමේ විස්තර';
+
+  @override
+  String get todoOtherDetailsTitle => 'ඉල්ලීම් විස්තර';
+
+  @override
+  String get todoDetailDeviceId => 'උපාංග හැඳුනුම්පත';
+
+  @override
+  String get todoDetailBypassRemote => 'දුරස්ථ පරීක්ෂාව මඟ හැරීම';
+
+  @override
+  String get yesLabel => 'ඔව්';
+
+  @override
+  String get noLabel => 'නැත';
+
+  @override
+  String get todoDetailCompletedBy => 'සම්පූර්ණ කරන ලද්දේ';
+
+  @override
+  String get todoDetailCompletedAt => 'සම්පූර්ණ කරන ලද වේලාව';
+
+  @override
+  String get todoDetailRequestedAt => 'ඉල්ලූ වේලාව';
+
+  @override
+  String get todoDetailRequestedFor => 'ඉල්ලීම් කල සේවකයා';
+
+  @override
+  String get todoDetailRequestedBy => 'ඉල්ලීම් කල තැනැත්තා';
+
+  @override
+  String get todoDetailSummary => 'සාරාංශය';
+
+  @override
+  String get todoDetailPunctualityIncentive => 'වේලාවට පැමිණීමේ දිරිදීමනාව';
+
+  @override
+  String get todoDetailAttendanceAllowance => 'පැමිණීමේ දීමනාව';
+
+  @override
+  String get todoActionsTitle => 'ක්‍රියාමාර්ග';
+
+  @override
+  String get todoWaitingForPreviousStage => 'පෙර පුද්ගලයා සඳහා';
+
+  @override
+  String get todoPending => 'ඔබ සඳහා';
+
+  @override
+  String get goodMorning => 'සුභ උදෑසනක්';
+
+  @override
+  String get goodAfternoon => 'සුභ පස්වරුවක්';
+
+  @override
+  String get goodEvening => 'සුභ සැන්දෑවක්';
+
+  @override
+  String get goodNight => 'සුභ රාත්‍රියක්';
+
+  @override
+  String get notificationDetailEmployeeName => 'සේවකයාගේ නම';
+
+  @override
+  String get notificationDetailPerformedBy => 'සිදුකළ පුද්ගලයා';
+
+  @override
+  String get notificationDetailPerformerEmail => 'සිදුකළ අයගේ විද්‍යුත් තැපෑල';
+
+  @override
+  String get notificationDetailPerformerEpfNo => 'සිදුකළ අයගේ EPF අංකය';
+
+  @override
+  String get notificationDetailEmployeeEpfNo => 'සේවකයාගේ EPF අංකය';
+
+  @override
+  String get notificationDetailIpAddress => 'IP ලිපිනය';
+
+  @override
+  String get notificationDetailTime => 'වේලාව';
+
+  @override
+  String get notificationsTitle => 'දැනුම්දීම්';
+
+  @override
+  String get notificationClearAll => 'සියල්ල මකන්න';
+
+  @override
+  String get notificationNoNotificationsYet => 'තවමත් දැනුම්දීම් නැත';
+
+  @override
+  String get notificationAllCaughtUp => 'ඔබ සියල්ල කියවා අවසන්!';
+
+  @override
+  String get notificationMessageLabel => 'පණිවිඩය';
+
+  @override
+  String get notificationDetailsLabel => 'විස්තර';
+
+  @override
+  String get notificationCloseButton => 'වසන්න';
+
+  @override
+  String get teamLeavesText => 'නිවාඩු';
+
+  @override
+  String get teamAttendanceText => 'පැමිණීම්';
+
+  @override
+  String get fcmTokenError =>
+      'පුෂ් දැනුම්දීම් (FCM) ටෝකනය ලබා ගැනීමට නොහැකි විය.';
+
+  @override
+  String shortLeaveBalanceExhausted(String max, String used) {
+    return 'කෙටි නිවාඩු ශේෂය අවසන් වී ඇත. ඔබට මසකට උපරිම කෙටි නිවාඩු $max ක් සඳහා හිමිකම් ඇත. (භාවිතා කළ/අපේක්ෂිත: $used)';
+  }
+
+  @override
+  String get monday => 'සඳුදා';
+
+  @override
+  String get tuesday => 'අඟහරුවාදා';
+
+  @override
+  String get wednesday => 'බදාදා';
+
+  @override
+  String get thursday => 'බ්‍රහස්පතින්දා';
+
+  @override
+  String get friday => 'සිකුරාදා';
+
+  @override
+  String cannotApplyLeaveOnNonWorkingDay(String day) {
+    return '$day දින නිවාඩු අයදුම් කළ නොහැක — එය ඔබගේ පැකේජ කොන්දේසි අනුව වැඩ කරන දිනයක් නොවේ.';
+  }
+
+  @override
+  String get date => 'දිනය';
+
+  @override
+  String get session => 'සැසිය';
 }

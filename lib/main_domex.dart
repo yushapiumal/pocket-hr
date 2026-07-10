@@ -1,9 +1,7 @@
 import 'package:cn_pocket_hr/config/firebase_options_domex.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
-import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
 import 'package:cn_pocket_hr/main.dart'; // Ensure this points to your app widget
-import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,9 +38,18 @@ Future<void> main() async {
     splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',
     primaryColor: primary,
     secondaryColor: secondary,
+    morningBg: 'assets/images/domex_home-banner3.jpg',
+    afternoonBg: 'assets/images/domex_home-banner3.jpg',
+    eveningBg: 'assets/images/domex_home-banner3.jpg',
+    nightBg: 'assets/images/domex_home-banner3.jpg',
     iconColor: iconFg,
     iconBackgroundColor: iconBg,
     tenant: 'domex',
+    tabColor: const Color(0xFF791b27),
+    tabLabelColor: secondary,
+    bottomNavIconColor: secondary,
+    bottomNavIconBgColor: const Color(0xFF791b27),
+    buttonColor: primary,
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
@@ -73,9 +80,6 @@ Future<void> main() async {
       fontFamily: 'Poppins',
     ),
   );
-
-  // 4. Initialize services
-  await FCMService.initialize();
 
   // 5. Remove the splash screen now that app is ready
   FlutterNativeSplash.remove();
