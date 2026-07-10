@@ -1,7 +1,12 @@
 name: cn_pocket_hr
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.2.3+11
+#domex
+version: 1.2.3+14
+#mahajana
+#version: 1.2.3+2
+#digitable
+#version: 1.2.3+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

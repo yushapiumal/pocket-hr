@@ -225,10 +225,17 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   checkinCheckout(type, {bool isRemote = false}) async {
     DateTime getCurrentTimestamp = DateTime.now();
     String date = controller.formatISOTime(getCurrentTimestamp);
-    final latStr = (latitude != null) ? latitude.toString() : null;
-    final lngStr = (longitude != null) ? longitude.toString() : null;
-    final addr = (address != null) ? address.toString() : null;
-    final accStr = (accuracy != null) ? accuracy.toString() : null;
+
+    final useQrLocation = !isRemote && qrLatitude != null;
+    final activeLat = useQrLocation ? qrLatitude : latitude;
+    final activeLng = useQrLocation ? qrLongitude : longitude;
+    final activeAddr = useQrLocation ? (qrAddress ?? address) : address;
+    final activeAcc = useQrLocation ? qrAccuracy : accuracy;
+
+    final latStr = (activeLat != null) ? activeLat.toString() : null;
+    final lngStr = (activeLng != null) ? activeLng.toString() : null;
+    final addr = (activeAddr != null) ? activeAddr.toString() : null;
+    final accStr = (activeAcc != null) ? activeAcc.toString() : null;
 
     // If offline, save immediately and avoid calling remote API (prevents socket errors)
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
@@ -239,13 +246,13 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
           uid: storage.getItem('uid')?.toString() ?? 'local',
           type: type,
           time: date,
-          lat: (latitude is double)
-              ? latitude
-              : double.tryParse(latitude?.toString() ?? '') ?? 0.0,
-          lng: (longitude is double)
-              ? longitude
-              : double.tryParse(longitude?.toString() ?? '') ?? 0.0,
-          address: address ?? '',
+          lat: (activeLat is double)
+              ? activeLat
+              : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
+          lng: (activeLng is double)
+              ? activeLng
+              : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
+          address: activeAddr ?? '',
           deviceId: '',
           deviceModel: '',
           deviceBrand: '',
@@ -259,7 +266,7 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
         await OfflineAttendanceService.instance.insertPunch(model);
         if (mounted)
           showTopToast('Saved locally, will sync when online',
-              background: Colors.orange);
+               background: Colors.orange);
       } catch (e) {
         if (mounted)
           showTopToast('Failed to save locally', background: Colors.red);
@@ -287,13 +294,13 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
           uid: storage.getItem('uid')?.toString() ?? 'local',
           type: type,
           time: date,
-          lat: (latitude is double)
-              ? latitude
-              : double.tryParse(latitude?.toString() ?? '') ?? 0.0,
-          lng: (longitude is double)
-              ? longitude
-              : double.tryParse(longitude?.toString() ?? '') ?? 0.0,
-          address: address ?? '',
+          lat: (activeLat is double)
+              ? activeLat
+              : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
+          lng: (activeLng is double)
+              ? activeLng
+              : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
+          address: activeAddr ?? '',
           deviceId: '',
           deviceModel: '',
           deviceBrand: '',
@@ -378,6 +385,11 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   var accuracy;
   late StreamSubscription<Position> streamSubscription;
 
+  var qrLatitude;
+  var qrLongitude;
+  var qrAccuracy;
+  var qrAddress;
+
   getLocation() async {
     bool serviceEnabled;
 
@@ -415,6 +427,19 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
     address = '${place.street}, ${place.locality}';
   }
 
+  Future<void> _getQrAddressFromLatLang(Position position) async {
+    try {
+      List<Placemark> placemark =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      Placemark place = placemark[0];
+      if (mounted) {
+        setState(() {
+          qrAddress = '${place.street}, ${place.locality}';
+        });
+      }
+    } catch (_) {}
+  }
+
   // Compute distance between two lat/lng points in meters (Haversine formula)
   double _distanceBetween(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371000.0; // Earth radius in meters
@@ -436,6 +461,12 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   Future<void> _onScanTap() async {
     if (_punchCooldown || _qrBusy) return;
     _qrBusy = true;
+    setState(() {
+      qrLatitude = null;
+      qrLongitude = null;
+      qrAccuracy = null;
+      qrAddress = null;
+    });
     try {
       if (!apiService.qrEnable) {
         // QR not required — go straight to punch selection
@@ -458,10 +489,11 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
             showRemoteButton: false,
             onLocationUpdated: (pos) {
               setState(() {
-                latitude = pos.latitude;
-                longitude = pos.longitude;
-                accuracy = pos.accuracy;
+                qrLatitude = pos.latitude;
+                qrLongitude = pos.longitude;
+                qrAccuracy = pos.accuracy;
               });
+              _getQrAddressFromLatLang(pos);
             },
             validator: (raw) {
               double? qlat;
@@ -529,12 +561,12 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
                 if (r is String) allowedRadius = double.tryParse(r) ?? 50.0;
               } catch (_) {}
 
-              final double? dlat = (latitude is num)
-                  ? (latitude as num).toDouble()
-                  : double.tryParse(latitude?.toString() ?? '');
-              final double? dlng = (longitude is num)
-                  ? (longitude as num).toDouble()
-                  : double.tryParse(longitude?.toString() ?? '');
+              final double? dlat = (qrLatitude is num)
+                  ? (qrLatitude as num).toDouble()
+                  : double.tryParse(qrLatitude?.toString() ?? '');
+              final double? dlng = (qrLongitude is num)
+                  ? (qrLongitude as num).toDouble()
+                  : double.tryParse(qrLongitude?.toString() ?? '');
 
               if (dlat == null || dlng == null) return 'Location not available';
 
@@ -689,7 +721,34 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
   }
 
   String _getWelcomeName() {
-    // Try flat keys first
+    // Try to find cf_nickname first
+    try {
+      final raw = storage.getItem('me_profile');
+      if (raw != null) {
+        final map = raw is Map ? Map<String, dynamic>.from(raw) : null;
+        if (map != null) {
+          final dataAny = map['data'] ?? map['result'] ?? map['user'] ?? map;
+          if (dataAny is Map) {
+            final data = Map<String, dynamic>.from(dataAny);
+            final cf = data['customfields'];
+            if (cf is List) {
+              for (final item in cf) {
+                if (item is Map) {
+                  final inputName = item['input_name']?.toString() ?? '';
+                  final inputValue =
+                      item['input_value']?.toString().trim() ?? '';
+                  if (inputName == 'cf_nickname' && inputValue.isNotEmpty) {
+                    return inputValue;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
+    // Try flat keys next
     final flat = (storage.getItem('name') ??
             storage.getItem('username') ??
             storage.getItem('userName') ??

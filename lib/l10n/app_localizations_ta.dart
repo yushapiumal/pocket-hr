@@ -1015,4 +1015,35 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get fcmTokenError => 'புஷ் அறிவிப்பு (FCM) டோக்கனைப் பெற முடியவில்லை.';
+
+  @override
+  String shortLeaveBalanceExhausted(String max, String used) {
+    return 'குறுகிய விடுப்பு இருப்பு முடிந்துவிட்டது. நீங்கள் ஒரு மாதத்திற்கு அதிகபட்சமாக $max குறுகிய விடுப்புகளுக்கு தகுதியுடையவர். (பயன்படுத்தப்பட்ட/நிலுவையில் உள்ளவை: $used)';
+  }
+
+  @override
+  String get monday => 'திங்கள்';
+
+  @override
+  String get tuesday => 'செவ்வாய்';
+
+  @override
+  String get wednesday => 'புதன்';
+
+  @override
+  String get thursday => 'வியாழன்';
+
+  @override
+  String get friday => 'வெள்ளி';
+
+  @override
+  String cannotApplyLeaveOnNonWorkingDay(String day) {
+    return '$day அன்று நீங்கள் விடுப்பு விண்ணப்பிக்க முடியாது — இது உங்கள் தொகுப்பு விதிமுறைகளின்படி வேலை நாள் அல்ல.';
+  }
+
+  @override
+  String get date => 'தேதி';
+
+  @override
+  String get session => 'அமர்வு';
 }

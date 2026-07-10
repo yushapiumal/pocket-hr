@@ -57,7 +57,7 @@ class _LocationPermissionDialog extends StatefulWidget {
   State<_LocationPermissionDialog> createState() => _LocationPermissionDialogState();
 }
 
-class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
+class _LocationPermissionDialogState extends State<_LocationPermissionDialog> with WidgetsBindingObserver {
   bool _busy = false;
   bool _checkingAfterSettings = false;
   bool _permissionGranted = false;
@@ -66,7 +66,21 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkPermissionStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkPermissionStatus();
+    }
   }
 
   Future<void> _checkPermissionStatus() async {
@@ -80,6 +94,7 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
       if (!serviceEnabled) {
         setState(() {
           _busy = false;
+          _checkingAfterSettings = false;
           _permissionGranted = false;
           _error = 'LOCATION_SERVICE_DISABLED';
         });
@@ -92,6 +107,7 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
           permission == LocationPermission.always) {
         setState(() {
           _busy = false;
+          _checkingAfterSettings = false;
           _permissionGranted = true;
           _error = null;
         });
@@ -100,6 +116,7 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
 
       setState(() {
         _busy = false;
+        _checkingAfterSettings = false;
         _permissionGranted = false;
         _error = permission == LocationPermission.deniedForever
             ? 'DENIED_FOREVER'
@@ -108,6 +125,7 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
     } catch (_) {
       setState(() {
         _busy = false;
+        _checkingAfterSettings = false;
         _permissionGranted = false;
         _error = 'ERROR';
       });
@@ -115,43 +133,12 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> {
   }
 
   Future<void> _openAppSettings() async {
-    await Geolocator.openAppSettings();
-    
-    // Show checking indicator
     setState(() {
       _checkingAfterSettings = true;
       _busy = true;
     });
     
-    // Wait for 3 seconds while checking permission
-    await Future.delayed(const Duration(seconds: 3));
-    
-    if (!mounted) return;
-    
-    // Check permission after returning from settings
-    final permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
-      // Permission granted - show success message with continue button
-      if (mounted) {
-        setState(() {
-          _checkingAfterSettings = false;
-          _busy = false;
-          _permissionGranted = true;
-          _error = null;
-        });
-      }
-      return;
-    }
-    
-    // If permission still not granted, refresh the dialog state
-    if (mounted) {
-      setState(() {
-        _checkingAfterSettings = false;
-        _busy = false;
-      });
-      _checkPermissionStatus();
-    }
+    await Geolocator.openAppSettings();
   }
 
   void _continue() {

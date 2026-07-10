@@ -1002,4 +1002,35 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get fcmTokenError =>
       'පුෂ් දැනුම්දීම් (FCM) ටෝකනය ලබා ගැනීමට නොහැකි විය.';
+
+  @override
+  String shortLeaveBalanceExhausted(String max, String used) {
+    return 'කෙටි නිවාඩු ශේෂය අවසන් වී ඇත. ඔබට මසකට උපරිම කෙටි නිවාඩු $max ක් සඳහා හිමිකම් ඇත. (භාවිතා කළ/අපේක්ෂිත: $used)';
+  }
+
+  @override
+  String get monday => 'සඳුදා';
+
+  @override
+  String get tuesday => 'අඟහරුවාදා';
+
+  @override
+  String get wednesday => 'බදාදා';
+
+  @override
+  String get thursday => 'බ්‍රහස්පතින්දා';
+
+  @override
+  String get friday => 'සිකුරාදා';
+
+  @override
+  String cannotApplyLeaveOnNonWorkingDay(String day) {
+    return '$day දින නිවාඩු අයදුම් කළ නොහැක — එය ඔබගේ පැකේජ කොන්දේසි අනුව වැඩ කරන දිනයක් නොවේ.';
+  }
+
+  @override
+  String get date => 'දිනය';
+
+  @override
+  String get session => 'සැසිය';
 }

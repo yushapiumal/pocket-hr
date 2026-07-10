@@ -6,6 +6,7 @@ import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HRNotifications extends StatefulWidget {
   static String routeName = "/HRNotifications";
@@ -462,13 +463,16 @@ class _NotificationDetailSheet extends StatelessWidget {
                   if (extraData.isNotEmpty) ...[
                     (() {
                       final filteredEntries = extraData.entries.where((e) {
-                        final key = e.key.toLowerCase();
+                        final key = e.key.toLowerCase().trim();
                         if (key == 'tenant' ||
                             key == 'click_action' ||
                             key == 'key' ||
                             key == 'tkey' ||
                             key == 'alertid' ||
                             key == 'alert_id' ||
+                            key == 'event' ||
+                            key == 'target_user_id' ||
+                            key == 'targetuserid' ||
                             key.startsWith('google.') ||
                             key.startsWith('gcm.')) {
                           return false;
@@ -523,6 +527,37 @@ class _NotificationDetailSheet extends StatelessWidget {
                         ],
                       );
                     })(),
+                  ],
+                  if (extraData['event'] == 'call_request' && extraData['target_phone'] != null) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.phone_in_talk_rounded),
+                        label: const Text(
+                          'Call Employee',
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        onPressed: () async {
+                          final phone = extraData['target_phone'].toString().trim();
+                          if (phone.isNotEmpty) {
+                            final Uri launchUri = Uri(scheme: 'tel', path: phone);
+                            if (await canLaunchUrl(launchUri)) {
+                              await launchUrl(launchUri);
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                   ],
                   // Close button
                   SizedBox(

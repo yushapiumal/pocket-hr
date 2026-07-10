@@ -524,6 +524,11 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     required VoidCallback? onTap,
   }) {
     final isPlaceholder = text == 'From' || text == 'To';
+    final displayText = isPlaceholder
+        ? (text == 'From'
+            ? AppLocalizations.of(context)!.fromLabel
+            : AppLocalizations.of(context)!.toLabel)
+        : text;
 
     return InkWell(
       onTap: onTap,
@@ -550,7 +555,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
             const SizedBox(width: 8),
             Expanded(
               child: AutoSizeText(
-                text,
+                displayText,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
@@ -668,6 +673,90 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     );
   }
 
+  String _getLocalizedDayName(String dayEnglish) {
+    final lowerDay = dayEnglish.toLowerCase().trim();
+    switch (lowerDay) {
+      case 'monday':
+        return AppLocalizations.of(context)!.monday;
+      case 'tuesday':
+        return AppLocalizations.of(context)!.tuesday;
+      case 'wednesday':
+        return AppLocalizations.of(context)!.wednesday;
+      case 'thursday':
+        return AppLocalizations.of(context)!.thursday;
+      case 'friday':
+        return AppLocalizations.of(context)!.friday;
+      case 'saturday':
+        return AppLocalizations.of(context)!.saturday;
+      case 'sunday':
+        return AppLocalizations.of(context)!.sunday;
+      default:
+        return dayEnglish;
+    }
+  }
+
+  String _getLocalizedErrorMessage(dynamic res) {
+    if (res is! Map) {
+      return AppLocalizations.of(context)!.failedToSubmitLeave;
+    }
+
+    String? backendMsg;
+    // Extract message/details in order of availability
+    if (res.containsKey('message') && res['message'] != null) {
+      backendMsg = res['message'].toString();
+    } else if (res.containsKey('details') && res['details'] is Map) {
+      final details = res['details'] as Map;
+      if (details.containsKey('balance') && details['balance'] != null) {
+        backendMsg = details['balance'].toString();
+      }
+    } else if (res.containsKey('details') && res['details'] != null) {
+      backendMsg = res['details'].toString();
+    } else if (res.containsKey('errors') && res['errors'] != null) {
+      backendMsg = res['errors'].toString();
+    }
+
+    // Check inside nested data if not found at root
+    if ((backendMsg == null || backendMsg.isEmpty) &&
+        res.containsKey('data') &&
+        res['data'] is Map) {
+      return _getLocalizedErrorMessage(res['data']);
+    }
+
+    if (backendMsg == null || backendMsg.isEmpty) {
+      return AppLocalizations.of(context)!.failedToSubmitLeave;
+    }
+
+    // Match short leave balance exhausted message with dynamic values:
+    // "Short leave balance exhausted. You are entitled to a maximum of 2 short leaves per month. (Used/Pending: 2)"
+    final regex = RegExp(
+      r'Short leave balance exhausted\.\s*You are entitled to a maximum of\s*(\d+)\s*short leaves per month\.\s*\(Used/Pending:\s*(\d+)\)',
+      caseSensitive: false,
+    );
+    final match = regex.firstMatch(backendMsg);
+    if (match != null) {
+      final maxVal = match.group(1) ?? '2';
+      final usedVal = match.group(2) ?? '2';
+      return AppLocalizations.of(context)!
+          .shortLeaveBalanceExhausted(maxVal, usedVal);
+    }
+
+    // Match non-working day message with dynamic day:
+    // "You cannot apply leave on Saturday — it is not a working day according to your package terms."
+    final nonWorkingDayRegex = RegExp(
+      r'You cannot apply leave on\s+([a-zA-Z]+)\s+[\-—–]\s+it is not a working day according to your package terms\.',
+      caseSensitive: false,
+    );
+    final nonWorkingMatch = nonWorkingDayRegex.firstMatch(backendMsg);
+    if (nonWorkingMatch != null) {
+      final dayEnglish = nonWorkingMatch.group(1) ?? '';
+      final localizedDay = _getLocalizedDayName(dayEnglish);
+      return AppLocalizations.of(context)!
+          .cannotApplyLeaveOnNonWorkingDay(localizedDay);
+    }
+
+    return backendMsg;
+  }
+
   Future<void> _submit() async {
     if (typeValue == null || typeValue!.isEmpty) {
       await _showTopMessage(
@@ -706,20 +795,28 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       return;
     }
 
+    final isShortLeave = leaveTypeValue == 'short_leave';
     final res = await apiService.leave({
-      'leave_title': 'Leave Request',
-      'from_date': DateFormat('yyyy-MM-dd').format(fDate),
+      'leave_title': isShortLeave
+          ? (description.text.trim().isNotEmpty
+              ? description.text.trim()
+              : 'Short Leave')
+          : 'Leave Request',
+      'from_date': isShortLeave
+          ? DateFormat('dd/MM/yyyy').format(fDate)
+          : DateFormat('yyyy-MM-dd').format(fDate),
       'to_date': DateFormat('yyyy-MM-dd').format(tDate),
       // Always send the user-selected leave type (annual/casual/medical)
-      'leave_type': typeValue,
-      'type': leaveTypeValue ?? 'full_day',
+      'leave_type': isShortLeave ? 'short_leave' : typeValue,
+      'type': isShortLeave ? 'short_leave' : (leaveTypeValue ?? 'full_day'),
       // Pass the session conditionally
-      'session': leaveTypeValue == 'short_leave'
+      'session': isShortLeave
           ? shortLeaveSession
           : (leaveTypeValue == 'half'
               ? halfDaySession
               : (leaveTypeValue ?? 'full_day')),
       'description': description.text,
+      if (isShortLeave) 'short_leave_period': shortLeaveSession,
     });
 
     try {
@@ -732,11 +829,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
         if (res['data'] is Map &&
             (res['data']['success'] == false ||
                 res['data']['success'] == 'false')) {
-          String errMsg =
-              'Your leave quota is over. Contact your merchant.'; // generic message mapped
-          if (res['data']['errors'] != null &&
-              res['data']['errors'].toString().isNotEmpty) {
-            errMsg = res['data']['errors'].toString();
+          String errMsg = _getLocalizedErrorMessage(res['data']);
+          if (errMsg == AppLocalizations.of(context)!.failedToSubmitLeave) {
+            errMsg = 'Your leave quota is over. Contact your merchant.';
           }
           await _showTopMessage(errMsg, error: true);
           return;
@@ -756,8 +851,12 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       }
 
       if (statusCode == 400 || statusCode == 422) {
+        final errMsg = _getLocalizedErrorMessage(res);
         await _showTopMessage(
-            AppLocalizations.of(context)!.invalidDetailsPleaseCheckYourForm,
+            errMsg != AppLocalizations.of(context)!.failedToSubmitLeave
+                ? errMsg
+                : AppLocalizations.of(context)!
+                    .invalidDetailsPleaseCheckYourForm,
             error: true);
         return;
       }
@@ -866,14 +965,27 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                         ),
                       ),
                       const SizedBox(height: 14),
-                      _infoRow(
-                        AppLocalizations.of(context)!.fromLabel,
-                        DateFormat('dd/MM/yyyy').format(fDate),
-                      ),
-                      _infoRow(
-                        AppLocalizations.of(context)!.toLabel,
-                        DateFormat('dd/MM/yyyy').format(tDate),
-                      ),
+                      if (leaveTypeValue == 'short_leave') ...[
+                        _infoRow(
+                          "Date",
+                          DateFormat('dd/MM/yyyy').format(fDate),
+                        ),
+                        _infoRow(
+                          "Period",
+                          shortLeaveSession == 'morning'
+                              ? AppLocalizations.of(context)!.morningLabel
+                              : AppLocalizations.of(context)!.eveningLabel,
+                        ),
+                      ] else ...[
+                        _infoRow(
+                          AppLocalizations.of(context)!.fromLabel,
+                          DateFormat('dd/MM/yyyy').format(fDate),
+                        ),
+                        _infoRow(
+                          AppLocalizations.of(context)!.toLabel,
+                          DateFormat('dd/MM/yyyy').format(tDate),
+                        ),
+                      ],
                       _infoRow(
                         AppLocalizations.of(context)!.daysLabel,
                         leaveTypeValue == 'short_leave'
@@ -882,7 +994,9 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                       ),
                       _infoRow(
                         AppLocalizations.of(context)!.leaveTypeLabel,
-                        _getLeaveTypeLabel(typeValue ?? ''),
+                        leaveTypeValue == 'short_leave'
+                            ? AppLocalizations.of(context)!.shortLeave
+                            : _getLeaveTypeLabel(typeValue ?? ''),
                       ),
                       if (description.text.trim().isNotEmpty) ...[
                         const SizedBox(height: 8),
@@ -1013,8 +1127,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       if (balanceData != null && balanceData['balance'] != null) {
         final currentType = typeValue!.toLowerCase();
 
-        // Skip balance check for unpaid/no-pay leave types
-        if (currentType != 'nopay' && currentType != 'unpaid') {
+        // Skip balance check for unpaid/no-pay leave types or short leaves
+        if (currentType != 'nopay' && currentType != 'unpaid' && leaveTypeValue != 'short_leave') {
           final bal = balanceData['balance'][currentType];
           final num availableBalance =
               (bal is num) ? bal : num.tryParse(bal?.toString() ?? '') ?? 0;
@@ -1297,50 +1411,52 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                   ),
                   const SizedBox(height: 20),
 
-                  // Show Leave Type dropdown for all modes (Half Day, Full Day, Short Leave)
-                  _sectionHeader(
-                    AppLocalizations.of(context)!.leaveTypeLabel,
-                    Icons.category_rounded,
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.grey.shade300),
+                  // Show Leave Type dropdown for all modes except Short Leave
+                  if (leaveTypeValue != 'short_leave') ...[
+                    _sectionHeader(
+                      AppLocalizations.of(context)!.leaveTypeLabel,
+                      Icons.category_rounded,
                     ),
-                    child: DropdownButton<String>(
-                      underline: const SizedBox.shrink(),
-                      dropdownColor: HRColors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      value: typeValue,
-                      iconEnabledColor: _textDark,
-                      isExpanded: true,
-                      onChanged: (readOnly || leaveTypeValue == 'short_leave')
-                          ? null
-                          : (v) => setState(() => typeValue = v),
-                      items: leaveTypeList.map((v) {
-                        return DropdownMenuItem<String>(
-                          value: v,
-                          child: AutoSizeText(
-                            _getLeaveTypeLabel(v),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: _textDark,
-                              fontSize: 12,
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF9FAFB),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: DropdownButton<String>(
+                        underline: const SizedBox.shrink(),
+                        dropdownColor: HRColors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        value: typeValue,
+                        iconEnabledColor: _textDark,
+                        isExpanded: true,
+                        onChanged: (readOnly || leaveTypeValue == 'short_leave')
+                            ? null
+                            : (v) => setState(() => typeValue = v),
+                        items: leaveTypeList.map((v) {
+                          return DropdownMenuItem<String>(
+                            value: v,
+                            child: AutoSizeText(
+                              _getLeaveTypeLabel(v),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: _textDark,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                        );
-                      }).toList(),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
+                  ],
 
                   _sectionHeader(
                     leaveTypeValue == 'full_day'
                         ? AppLocalizations.of(context)!.fromToLabel
-                        : "Date",
+                        : AppLocalizations.of(context)!.date,
                     Icons.date_range_rounded,
                   ),
                   const SizedBox(height: 8),
@@ -1406,12 +1522,11 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                               });
                             },
                     ),
-
-                  // Half Day Session Selection (Tab style)
+                                   // Half Day Session Selection (Tab style)
                   if (leaveTypeValue == 'half') ...[
                     const SizedBox(height: 20),
                     _sectionHeader(
-                      "Session",
+                      AppLocalizations.of(context)!.session,
                       Icons.access_time_filled_rounded,
                     ),
                     const SizedBox(height: 8),
@@ -1450,7 +1565,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                   if (leaveTypeValue == 'short_leave') ...[
                     const SizedBox(height: 20),
                     _sectionHeader(
-                      "Session",
+                      AppLocalizations.of(context)!.session,
                       Icons.timer_outlined,
                     ),
                     const SizedBox(height: 8),

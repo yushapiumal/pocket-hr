@@ -38,6 +38,7 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
   bool _isError = false;
   bool _torchOn = false;
   bool _isFrontCamera = false;
+  bool _isFetchingLocation = false;
   final LocalStorage storage = LocalStorage('pocketHR');
 
   StreamSubscription<Position>? _positionStream;
@@ -223,62 +224,87 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
     final double msgTop = topPad + scanSize + 12;
     final double bottomPad = math.max(16.0, media.padding.bottom + 12.0);
 
-    void handleDetect(BarcodeCapture capture) {
+    void handleDetect(BarcodeCapture capture) async {
       try {
-        if (!_accuracyAchieved || _scanned) return;
+        if (!_accuracyAchieved || _scanned || _isFetchingLocation) return;
         final barcodes = capture.barcodes;
         if (barcodes.isEmpty) return;
         final b = barcodes.first;
         final String? code = b.rawValue;
         if (code == null || code.isEmpty) return;
+
+        setState(() {
+          _scanned = true; // Briefly pause scanning
+          _isFetchingLocation = true;
+        });
+
         _buzzOnScan();
 
-        final trimmed = code.trim();
+        Position? position;
+        try {
+          position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best,
+            timeLimit: const Duration(seconds: 10),
+          );
+        } catch (_) {
+          try {
+            position = await Geolocator.getLastKnownPosition();
+          } catch (_) {}
+        }
 
-        // The validator performs the primary logic (API calls, distance checks, etc.)
-        // It returns `null` on success, or an error message string on failure.
+        setState(() {
+          _isFetchingLocation = false;
+        });
+
+        if (position == null) {
+          _setMessage('Location not available', isError: true);
+          Future.delayed(const Duration(milliseconds: 2000), () {
+            if (!mounted) return;
+            setState(() {
+              _scanned = false;
+              _message = null;
+            });
+          });
+          return;
+        }
+
+        widget.onLocationUpdated?.call(position);
+
+        final trimmed = code.trim();
         final err = widget.validator?.call(trimmed);
 
         if (err == null) {
           // --- SUCCESS ---
           // Only navigate away if the validator confirms everything is OK.
-          if (!_scanned) {
-            _scanned = true;
-            _setMessage('QR accepted', isError: false);
-            _controller.stop();
-            Navigator.of(context).pop(trimmed);
-          }
+          _setMessage('QR accepted', isError: false);
+          _controller.stop();
+          Navigator.of(context).pop(trimmed);
           return;
         }
 
         // --- ERROR ---
         // Any error from the validator (distance, invalid QR, etc.) is handled here.
         // Do not navigate. Show the message and allow re-scanning.
-        if (!_scanned) {
-          _scanned = true; // Briefly pause scanning to show message
-          _setMessage(err, isError: true);
+        _setMessage(err, isError: true);
 
-          // After a delay, re-enable scanning
-          Future.delayed(const Duration(milliseconds: 1500), () {
-            if (!mounted) return;
-            setState(() {
-              _scanned = false;
-              // Clear the message to allow a new one on next scan
-              _message = null;
-            });
-            try {
-              // Check if camera is already running before trying to start.
-              if (_controller.value.isRunning == false) {
-                _controller.start();
-              }
-            } catch (_) {}
+        // After a delay, re-enable scanning
+        Future.delayed(const Duration(milliseconds: 2000), () {
+          if (!mounted) return;
+          setState(() {
+            _scanned = false;
+            _message = null;
           });
-        }
+          try {
+            if (_controller.value.isRunning == false) {
+              _controller.start();
+            }
+          } catch (_) {}
+        });
       } catch (_) {
-        // In case of unexpected errors, allow scanning to continue.
         if (mounted) {
           setState(() {
             _scanned = false;
+            _isFetchingLocation = false;
           });
         }
       }
@@ -419,6 +445,34 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
                                       ),
                                     ),
                                   ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        if (_isFetchingLocation)
+                          Container(
+                            color: Colors.black.withOpacity(0.85),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    AppLocalizations.of(context)!.findingSatellite,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),

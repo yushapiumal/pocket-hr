@@ -2025,6 +2025,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to get push notification (FCM) token.'**
   String get fcmTokenError;
+
+  /// No description provided for @shortLeaveBalanceExhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'Short leave balance exhausted. You are entitled to a maximum of {max} short leaves per month. (Used/Pending: {used})'**
+  String shortLeaveBalanceExhausted(String max, String used);
+
+  /// No description provided for @monday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get friday;
+
+  /// No description provided for @cannotApplyLeaveOnNonWorkingDay.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot apply leave on {day} — it is not a working day according to your package terms.'**
+  String cannotApplyLeaveOnNonWorkingDay(String day);
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @session.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get session;
 }
 
 class _AppLocalizationsDelegate

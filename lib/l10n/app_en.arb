@@ -391,5 +391,31 @@
   "notificationCloseButton": "Close",
   "teamLeavesText": "Leaves",
   "teamAttendanceText": "Attendance",
-  "fcmTokenError": "Failed to get push notification (FCM) token."
+  "fcmTokenError": "Failed to get push notification (FCM) token.",
+  "shortLeaveBalanceExhausted": "Short leave balance exhausted. You are entitled to a maximum of {max} short leaves per month. (Used/Pending: {used})",
+  "@shortLeaveBalanceExhausted": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      },
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "cannotApplyLeaveOnNonWorkingDay": "You cannot apply leave on {day} — it is not a working day according to your package terms.",
+  "@cannotApplyLeaveOnNonWorkingDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "date": "Date",
+  "session": "Session"
 } 

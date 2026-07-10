@@ -258,17 +258,32 @@ class APIService {
       final description = details is Map && details['description'] != null
           ? details['description'].toString()
           : '';
+      final shortLeavePeriod = details is Map && details['short_leave_period'] != null
+          ? details['short_leave_period'].toString()
+          : '';
 
-      final data = {
-        'leave_title': leaveTitle,
-        'from_date': fromDate,
-        'to_date': toDate,
-        'user-id': uidStr,
-        'leave_type': leaveType,
-        'type': typeStr,
-        'session': session,
-        'description': description,
-      };
+      final isShortLeave = leaveType == 'short_leave' || typeStr == 'short_leave';
+
+      final data = isShortLeave
+          ? {
+              'uid': uidStr,
+              'from_date': fromDate,
+              'leave_type': 'short_leave',
+              'type': 'short_leave',
+              if (shortLeavePeriod.isNotEmpty) 'short_leave_period': shortLeavePeriod,
+              'leave_title': leaveTitle,
+            }
+          : {
+              'leave_title': leaveTitle,
+              'from_date': fromDate,
+              'to_date': toDate,
+              'user-id': uidStr,
+              'uid': uidStr,
+              'leave_type': leaveType,
+              'type': typeStr,
+              'session': session,
+              'description': description,
+            };
       await _injectTenantToBody(data);
 
       // Build headers as Map<String, String> and only include keys with non-empty values

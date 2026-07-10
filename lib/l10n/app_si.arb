@@ -385,5 +385,14 @@
   "notificationCloseButton": "වසන්න",
   "teamLeavesText": "නිවාඩු",
   "teamAttendanceText": "පැමිණීම්",
-  "fcmTokenError": "පුෂ් දැනුම්දීම් (FCM) ටෝකනය ලබා ගැනීමට නොහැකි විය."
+  "fcmTokenError": "පුෂ් දැනුම්දීම් (FCM) ටෝකනය ලබා ගැනීමට නොහැකි විය.",
+  "shortLeaveBalanceExhausted": "කෙටි නිවාඩු ශේෂය අවසන් වී ඇත. ඔබට මසකට උපරිම කෙටි නිවාඩු {max} ක් සඳහා හිමිකම් ඇත. (භාවිතා කළ/අපේක්ෂිත: {used})",
+  "monday": "සඳුදා",
+  "tuesday": "අඟහරුවාදා",
+  "wednesday": "බදාදා",
+  "thursday": "බ්‍රහස්පතින්දා",
+  "friday": "සිකුරාදා",
+  "cannotApplyLeaveOnNonWorkingDay": "{day} දින නිවාඩු අයදුම් කළ නොහැක — එය ඔබගේ පැකේජ කොන්දේසි අනුව වැඩ කරන දිනයක් නොවේ.",
+  "date": "දිනය",
+  "session": "සැසිය"
 }

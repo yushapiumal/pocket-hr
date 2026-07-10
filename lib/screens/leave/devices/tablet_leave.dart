@@ -851,6 +851,7 @@ class TabletLeaveState extends State<TabletLeave>
     if (s.contains('medical') || s.contains('sick')) {
       return AppLocalizations.of(context)!.medicalLabel;
     }
+    if (s.contains('short')) return AppLocalizations.of(context)!.shortLeave;
     if (s.contains('nopay') || s.contains('unpaid')) {
       // If localization key doesn't exist in this app, keep an English fallback.
       return 'No Pay';

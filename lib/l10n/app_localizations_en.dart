@@ -998,4 +998,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fcmTokenError => 'Failed to get push notification (FCM) token.';
+
+  @override
+  String shortLeaveBalanceExhausted(String max, String used) {
+    return 'Short leave balance exhausted. You are entitled to a maximum of $max short leaves per month. (Used/Pending: $used)';
+  }
+
+  @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
+  String cannotApplyLeaveOnNonWorkingDay(String day) {
+    return 'You cannot apply leave on $day — it is not a working day according to your package terms.';
+  }
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get session => 'Session';
 }

@@ -13,6 +13,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Top-level handler — called when app is terminated or in background.
 /// Must be a top-level function (not a class method).
@@ -126,6 +127,22 @@ Future<void> _firebaseBackgroundMessageHandler(RemoteMessage message) async {
 
 class FCMService {
   FCMService._();
+
+  static Future<void> _launchDialer(String phone) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phone.trim(),
+    );
+    try {
+      if (await canLaunchUrl(launchUri)) {
+        await launchUrl(launchUri);
+      } else {
+        debugPrint('FCMService: Could not launch dialer for phone: $phone');
+      }
+    } catch (e) {
+      debugPrint('FCMService: Error launching dialer: $e');
+    }
+  }
 
   /// Global navigator key — set this on your [MaterialApp.navigatorKey]
   /// so FCMService can navigate without a BuildContext.
@@ -286,7 +303,13 @@ class FCMService {
       debugPrint('  data       : ${message.data}');
       debugPrint('==================================================');
       await saveNotification(message);
-      _navigateToNotifications();
+      
+      final data = message.data;
+      if (data['event'] == 'call_request' && data['target_phone'] != null) {
+        await _launchDialer(data['target_phone'].toString());
+      } else {
+        _navigateToNotifications();
+      }
     });
 
     // Tapped while app was terminated — save & navigate
@@ -299,7 +322,13 @@ class FCMService {
       debugPrint('  data       : ${initial.data}');
       debugPrint('==================================================');
       await saveNotification(initial);
-      _navigateToNotifications();
+
+      final data = initial.data;
+      if (data['event'] == 'call_request' && data['target_phone'] != null) {
+        await _launchDialer(data['target_phone'].toString());
+      } else {
+        _navigateToNotifications();
+      }
     }
 
     // Print token at startup
@@ -321,7 +350,20 @@ class FCMService {
     );
     await _localNotifications.initialize(
       const InitializationSettings(android: android, iOS: ios),
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        final payload = response.payload;
+        if (payload != null && payload.isNotEmpty) {
+          try {
+            final data = jsonDecode(payload);
+            if (data is Map && data['event'] == 'call_request' && data['target_phone'] != null) {
+              final phone = data['target_phone'].toString().trim();
+              if (phone.isNotEmpty) {
+                await _launchDialer(phone);
+                return;
+              }
+            }
+          } catch (_) {}
+        }
         // Foreground local notification tapped — navigate to notifications screen
         _navigateToNotifications();
       },
@@ -377,6 +419,7 @@ class FCMService {
         ),
         iOS: const DarwinNotificationDetails(),
       ),
+      payload: jsonEncode(message.data),
     );
   }
 
