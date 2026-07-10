@@ -38,6 +38,41 @@ end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+    puts "Processing target: #{target.name}"
     flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      puts "  Configuring build settings for: #{config.name}"
+
+      # Use per-target isolated module cache directories.
+      #
+      # Each Pod target gets its own $(TARGET_TEMP_DIR)/ModuleCache.noindex so
+      # parallel Clang processes never share a cache directory. Sharing one global
+      # ModuleCache.noindex causes a concurrent rename race: parallel processes
+      # write *.pcm.tmp into a shared hash subdir, one process detects a session
+      # change and deletes that subdir, the other's rename fails →
+      # "No such file or directory" → cascading Darwin/CoreFoundation failures.
+      #
+      # We intentionally do NOT set CLANG_MODULES_BUILD_SESSION_FILE here.
+      # With an isolated per-target cache there is no shared state to coordinate,
+      # so the session file serves no purpose for Pod targets. More importantly,
+      # Xcode deletes Session.modulevalidation at the very start of an archive
+      # build. Pod compilations run in parallel before the Run Script phase can
+      # recreate it — leaving a window where Clang sees a missing session file
+      # and errors out. Removing the setting eliminates that failure entirely.
+      #
+      # Do NOT set OTHER_CFLAGS/OTHER_SWIFT_FLAGS here either — those are already
+      # set per-configuration in project.pbxproj. Stacking them via $(inherited)
+      # across 12 flavour configs causes "Argument list too long" (E2BIG).
+      config.build_settings['CLANG_MODULE_CACHE_PATH'] = '$(TARGET_TEMP_DIR)/ModuleCache.noindex'
+      config.build_settings['MODULE_CACHE_DIR'] = '$(TARGET_TEMP_DIR)/ModuleCache.noindex'
+      config.build_settings.delete('CLANG_MODULES_BUILD_SESSION_FILE')
+      config.build_settings['SDK_STAT_CACHE_ENABLE'] = 'NO'
+      config.build_settings['CLANG_ENABLE_EXPLICIT_MODULES'] = 'NO'
+      config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+      config.build_settings['USE_RECURSIVE_SCRIPT_INPUTS_IN_SCRIPT_PHASES'] = 'NO'
+    end
   end
 end
+
+
+
