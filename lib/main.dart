@@ -29,7 +29,7 @@ Future<void> main() async {
   final packageName = packageInfo.packageName;
 
   FirebaseOptions? options;
-  if (packageName == 'io.digitable.go.domex.human') {
+  if (packageName == 'io.digitable.go.domex.human' || packageName == 'io.digitable.go.mydomex.human') {
     options = DomexFirebaseOptions.currentPlatform;
   } else if (packageName == 'io.digitable.go.mahajana.human') {
     options = MahajanaFirebaseOptions.currentPlatform;
@@ -43,7 +43,7 @@ Future<void> main() async {
 
   // Default flavor — used when running `flutter run` without -t flag
   if (!_flavorInitialized()) {
-    if (packageName == 'io.digitable.go.domex.human') {
+    if (packageName == 'io.digitable.go.domex.human' || packageName == 'io.digitable.go.mydomex.human') {
       const Color primary = Color(0xFF6A1311); // Domex dark crimson red
       const Color secondary = Color(0xffffcc09); // Domex gold
       const Color iconFg = secondary;
@@ -52,7 +52,7 @@ Future<void> main() async {
         flavor: Flavor.domex,
         appName: 'My Domex',
         apiBaseUrl: 'https://api.human.go.digitable.io/human/v2/api',
-        packageName: 'io.digitable.go.domex.human',
+        packageName: packageName,
         splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',
         primaryColor: primary,
         secondaryColor: secondary,

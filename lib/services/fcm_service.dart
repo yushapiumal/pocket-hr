@@ -69,7 +69,7 @@ Future<void> _firebaseBackgroundMessageHandler(RemoteMessage message) async {
       final info = await PackageInfo.fromPlatform();
       final packageName = info.packageName;
       FirebaseOptions? options;
-      if (packageName == 'io.digitable.go.domex.human') {
+      if (packageName == 'io.digitable.go.domex.human' || packageName == 'io.digitable.go.mydomex.human') {
         options = DomexFirebaseOptions.currentPlatform;
       } else if (packageName == 'io.digitable.go.mahajana.human') {
         options = MahajanaFirebaseOptions.currentPlatform;
@@ -476,10 +476,14 @@ class FCMService {
         // Wait for APNs token to be set first to prevent race condition
         String? apnsToken;
         for (int i = 0; i < 10; i++) {
-          apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-          if (apnsToken != null) {
-            debugPrint('FCMService: APNs token received: $apnsToken');
-            break;
+          try {
+            apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+            if (apnsToken != null) {
+              debugPrint('FCMService: APNs token received: $apnsToken');
+              break;
+            }
+          } catch (e) {
+            debugPrint('FCMService: getAPNSToken attempt ${i + 1} failed: $e');
           }
           debugPrint('FCMService: waiting for APNs token...');
           await Future.delayed(const Duration(seconds: 1));
@@ -491,12 +495,16 @@ class FCMService {
 
       String? token;
       for (int i = 0; i < 10; i++) {
-        token = await FirebaseMessaging.instance.getToken();
-        if (token != null) {
-          debugPrint('========== FCM TOKEN ==========');
-          debugPrint(token);
-          debugPrint('================================');
-          return token;
+        try {
+          token = await FirebaseMessaging.instance.getToken();
+          if (token != null) {
+            debugPrint('========== FCM TOKEN ==========');
+            debugPrint(token);
+            debugPrint('================================');
+            return token;
+          }
+        } catch (e) {
+          debugPrint('FCMService: getToken attempt ${i + 1} failed: $e');
         }
         debugPrint('FCMService: FCM token is null, retrying...');
         await Future.delayed(const Duration(seconds: 1));
