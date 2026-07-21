@@ -475,6 +475,7 @@ class FCMService {
       if (defaultTargetPlatform == TargetPlatform.iOS) {
         // Wait for APNs token to be set first to prevent race condition
         String? apnsToken;
+        String? apnsError;
         for (int i = 0; i < 10; i++) {
           try {
             apnsToken = await FirebaseMessaging.instance.getAPNSToken();
@@ -483,6 +484,7 @@ class FCMService {
               break;
             }
           } catch (e) {
+            apnsError = e.toString();
             debugPrint('FCMService: getAPNSToken attempt ${i + 1} failed: $e');
           }
           debugPrint('FCMService: waiting for APNs token...');
@@ -490,10 +492,12 @@ class FCMService {
         }
         if (apnsToken == null) {
           debugPrint('FCMService: APNs token is null after 10 attempts');
+          return 'ERROR: APNs token is null. Details: ${apnsError ?? "Timeout (10s). Make sure Push capability is enabled in provisioning profile."}';
         }
       }
 
       String? token;
+      String? fcmError;
       for (int i = 0; i < 10; i++) {
         try {
           token = await FirebaseMessaging.instance.getToken();
@@ -504,6 +508,7 @@ class FCMService {
             return token;
           }
         } catch (e) {
+          fcmError = e.toString();
           debugPrint('FCMService: getToken attempt ${i + 1} failed: $e');
         }
         debugPrint('FCMService: FCM token is null, retrying...');
@@ -513,10 +518,10 @@ class FCMService {
       debugPrint('========== FCM TOKEN ==========');
       debugPrint('NO TOKEN AFTER RETRIES');
       debugPrint('================================');
-      return null;
+      return 'ERROR: FCM token is null. Details: ${fcmError ?? "Timeout (10s)."}';
     } catch (e) {
       debugPrint('FCMService: failed to get token: $e');
-      return null;
+      return 'ERROR: Exception: $e';
     }
   }
 
@@ -525,9 +530,9 @@ class FCMService {
   static Future<void> sendTokenToBackend() async {
     try {
       final token = await getToken();
-      if (token == null || token.isEmpty) {
+      if (token == null || token.isEmpty || token.startsWith('ERROR:')) {
         debugPrint(
-            'FCMService: no token available, skipping backend registration');
+            'FCMService: no valid token available, skipping backend registration');
         return;
       }
 

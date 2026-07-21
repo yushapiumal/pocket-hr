@@ -149,6 +149,8 @@ class _MobileLoginState extends State<MobileLogin>
         final fcmToken = await FCMService.getToken();
         if (fcmToken == null || fcmToken.isEmpty) {
           apiService.showToast(AppLocalizations.of(context)!.fcmTokenError);
+        } else if (fcmToken.startsWith('ERROR:')) {
+          apiService.showToast(fcmToken);
         }
         FCMService.sendTokenToBackend();
 
@@ -473,6 +475,8 @@ class _MobileLoginState extends State<MobileLogin>
       final fcmToken = await FCMService.getToken();
       if (fcmToken == null || fcmToken.isEmpty) {
         apiService.showToast(AppLocalizations.of(context)!.fcmTokenError);
+      } else if (fcmToken.startsWith('ERROR:')) {
+        apiService.showToast(fcmToken);
       }
       FCMService.sendTokenToBackend();
 
