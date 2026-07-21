@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>io.digitable.go.domex.human</string>
+	<string>io.digitable.go.mydomex.human</string>
 	<key>PROJECT_ID</key>
 	<string>domex-go</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1049172536794:ios:369a8fb2aabcaec22a24e3</string>
+	<string>1:1049172536794:ios:bc4e0e0a5cf0015c2a24e3</string>
 </dict>
 </plist>

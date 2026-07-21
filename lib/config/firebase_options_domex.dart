@@ -50,10 +50,10 @@ class DomexFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBx3O2aV7osrjAsjFaj2aJ9079VgKXJCz0',
-    appId: '1:1049172536794:ios:369a8fb2aabcaec22a24e3',
+    appId: '1:1049172536794:ios:bc4e0e0a5cf0015c2a24e3',
     messagingSenderId: '1049172536794',
     projectId: 'domex-go',
     storageBucket: 'domex-go.firebasestorage.app',
-    iosBundleId: 'io.digitable.go.domex.human',
+    iosBundleId: 'io.digitable.go.mydomex.human',
   );
 }
