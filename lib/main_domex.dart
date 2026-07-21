@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart'; // Required for splash control
+import 'package:flutter/foundation.dart';
 
 Future<void> main() async {
   // 1. Initialize binding and immediately preserve the native splash screen
