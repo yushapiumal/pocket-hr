@@ -4,6 +4,7 @@ class AttendanceModel {
   String type;
   bool isOffday;
   Map<String, dynamic> boilerPlate;
+  bool isPending;
 
   AttendanceModel({
     required this.day,
@@ -11,6 +12,7 @@ class AttendanceModel {
     required this.type,
     required this.isOffday,
     required this.boilerPlate,
+    this.isPending = false,
   });
 
   /// Parses both legacy API shapes and the new v2 attendance/user records.
@@ -63,6 +65,8 @@ class AttendanceModel {
     // Work time formatting as provided by v2
     final String worked = (json['workedHours'] ?? json['worked_hours'] ?? bp['wrkd_hours_fmtd'] ?? '').toString();
 
+    final bool isPending = json['isPending'] == true || bp['isPending'] == true;
+
     final Map<String, dynamic> boilerPlate = {
       ...bp,
       'day': day,
@@ -72,6 +76,8 @@ class AttendanceModel {
       'wrkd_hours_fmtd': worked.isNotEmpty ? worked : (bp['wrkd_hours_fmtd']),
       'late': bp['late'],
       'over': bp['over'],
+      'firstCheckIn': bp['firstCheckIn'] ?? json['firstCheckIn'] ?? inEpoch,
+      'isPending': isPending,
     };
 
     final bool offdayFromJson = json['isOffday'] == true;
@@ -83,6 +89,7 @@ class AttendanceModel {
       type: type,
       isOffday: offdayFromJson || inferredOffday,
       boilerPlate: boilerPlate,
+      isPending: isPending,
     );
   }
 

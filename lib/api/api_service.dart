@@ -1356,8 +1356,43 @@ class APIService {
 
       if (decoded is Map && decoded['data'] is Map) {
         final data = Map<String, dynamic>.from(decoded['data']);
+        final out = <AttendanceModel>[];
+
+        DateTime? parseCheckedAt(String s) {
+          try {
+            String normalized = s;
+            final match = RegExp(r'([+-])(\d{2})(\d{2})$').firstMatch(s);
+            if (match != null) {
+              final sign = match.group(1);
+              final hr = match.group(2);
+              final min = match.group(3);
+              normalized = s.substring(0, match.start) + '$sign$hr:$min';
+            }
+            return DateTime.parse(normalized);
+          } catch (_) {
+            try {
+              final ymd = s.substring(0, 10);
+              return DateTime.parse(ymd);
+            } catch (__) {
+              return null;
+            }
+          }
+        }
+
+        String fmtDate(DateTime d) =>
+            '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+        String fmtTime(int seconds) {
+          final d = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+          return '${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}';
+        }
+
+        String fmtDow(DateTime d) {
+          const dows = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+          return dows[d.weekday % 7];
+        }
+
         if (data['records'] is List) {
-          final out = <AttendanceModel>[];
           for (final e in (data['records'] as List)) {
             if (e is! Map) continue;
             final raw = Map<String, dynamic>.from(e);
@@ -1368,8 +1403,87 @@ class APIService {
               print('[ATT] skip record parse error => $err');
             }
           }
-          return out;
         }
+
+        if (data['pending'] is List) {
+          final pendingPunchesByDay = <String, List<Map<String, dynamic>>>{};
+          for (final e in (data['pending'] as List)) {
+            if (e is! Map) continue;
+            final typeStr = e['type']?.toString();
+            if (typeStr != 'remote_attendance') continue;
+
+            final payload = e['payload'];
+            if (payload is! Map) continue;
+
+            final checkedAtStr = payload['checked_at']?.toString() ?? '';
+            if (checkedAtStr.isEmpty) continue;
+
+            final dt = parseCheckedAt(checkedAtStr);
+            if (dt == null) continue;
+
+            final dayStr = fmtDate(dt);
+            pendingPunchesByDay.putIfAbsent(dayStr, () => []);
+            pendingPunchesByDay[dayStr]!.add({
+              'type': payload['type']?.toString() ?? 'in',
+              'time': dt.millisecondsSinceEpoch ~/ 1000,
+              'meta': payload,
+            });
+          }
+
+          pendingPunchesByDay.forEach((dayStr, punches) {
+            punches.sort((a, b) => (a['time'] as int).compareTo(b['time'] as int));
+
+            final firstPunch = punches.first;
+            final dt = DateTime.fromMillisecondsSinceEpoch((firstPunch['time'] as int) * 1000);
+            final dowStr = fmtDow(dt);
+
+            int? inEpoch;
+            int? outEpoch;
+            for (final p in punches) {
+              if (p['type'] == 'in' && inEpoch == null) inEpoch = p['time'] as int;
+              if (p['type'] == 'out') outEpoch = p['time'] as int;
+            }
+            if (punches.length == 1 && punches.first['type'] == 'out') {
+              outEpoch = punches.first['time'] as int;
+            }
+
+            final String? inTime = inEpoch != null ? fmtTime(inEpoch) : null;
+            final String? outTime = outEpoch != null ? fmtTime(outEpoch) : null;
+
+            final normalized = <String, dynamic>{
+              'id': 'pending_$dayStr',
+              'day': dayStr,
+              'dow': dowStr,
+              'attendance': punches,
+              'workedHours': ' - ',
+              'workedSeconds': 0,
+              'isPending': true,
+              'isOffday': false,
+              'boilerPlate': <String, dynamic>{
+                'day': dayStr,
+                'dow': dowStr,
+                'in_time_only': inTime,
+                'out_time_only': outTime,
+                'wrkd_hours_fmtd': ' - ',
+                'workedSeconds': 0,
+                'worked_hours': 0,
+                'location': punches.first['meta']?['site_name'] ?? 'Remote',
+                'late': null,
+                'over': null,
+                'firstCheckIn': inEpoch ?? punches.first['time'],
+                'isPending': true,
+              }
+            };
+
+            try {
+              out.add(AttendanceModel.fromJson(normalized));
+            } catch (err) {
+              print('[ATT] skip pending record parse error => $err');
+            }
+          });
+        }
+
+        return out;
       }
 
       if (decoded is List) {

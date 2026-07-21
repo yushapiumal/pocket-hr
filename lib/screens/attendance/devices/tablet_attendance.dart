@@ -765,14 +765,14 @@ class _TabletAttendanceState extends State<TabletAttendance>
           }
         }
 
-        // Sort first date -> last date (ascending)
+        // Sort latest to oldest (descending)
         data = List<AttendanceModel>.from(data)
           ..sort((a, b) {
             final ta = _toInt(
                 a.boilerPlate['firstCheckIn'] ?? a.boilerPlate['time'] ?? 0);
             final tb = _toInt(
                 b.boilerPlate['firstCheckIn'] ?? b.boilerPlate['time'] ?? 0);
-            return ta.compareTo(tb);
+            return tb.compareTo(ta);
           });
 
         if (data.isEmpty) {
@@ -851,17 +851,19 @@ class _TabletAttendanceState extends State<TabletAttendance>
                                       color: Color(0xff676767),
                                       fontWeight: _wMedium),
                                 ),
-                                AutoSizeText(
-                                  data.isOffday
-                                      ? AppLocalizations.of(context)!
-                                          .dayOffLabel
-                                      : AppLocalizations.of(context)!
-                                          .shiftLabel,
+                                 AutoSizeText(
+                                  data.isPending
+                                      ? AppLocalizations.of(context)!.pendingLabel
+                                      : (data.isOffday
+                                          ? AppLocalizations.of(context)!.dayOffLabel
+                                          : AppLocalizations.of(context)!.shiftLabel),
                                   style: TextStyle(
                                     fontWeight: _wSemi,
-                                    color: data.isOffday
-                                        ? HRColors.dutyOff
-                                        : HRColors.shift,
+                                    color: data.isPending
+                                        ? HRColors.orangeColor
+                                        : (data.isOffday
+                                            ? HRColors.dutyOff
+                                            : HRColors.shift),
                                   ),
                                 ),
                               ],

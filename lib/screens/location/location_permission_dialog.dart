@@ -17,12 +17,15 @@ Future<bool> showLocationPermissionDialog(BuildContext context) async {
   // First, try the system dialog
   final permission = await _requestSystemPermission();
   
-  if (permission == LocationPermission.whileInUse ||
-      permission == LocationPermission.always) {
+  final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  
+  if ((permission == LocationPermission.whileInUse ||
+       permission == LocationPermission.always) &&
+      serviceEnabled) {
     return true;
   }
   
-  // Only if system dialog was denied, show custom dialog
+  // Only if system dialog was denied or location services are disabled, show custom dialog
   if (!context.mounted) return false;
   
   return (await showDialog<bool>(
@@ -35,11 +38,6 @@ Future<bool> showLocationPermissionDialog(BuildContext context) async {
 
 Future<LocationPermission> _requestSystemPermission() async {
   try {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return LocationPermission.denied;
-    }
-    
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission(); // System dialog
@@ -141,6 +139,49 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> wi
     await Geolocator.openAppSettings();
   }
 
+  Future<void> _openLocationSettings() async {
+    setState(() {
+      _checkingAfterSettings = true;
+      _busy = true;
+    });
+    
+    await Geolocator.openLocationSettings();
+  }
+
+  Future<void> _requestPermission() async {
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+
+    try {
+      final permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        setState(() {
+          _busy = false;
+          _permissionGranted = true;
+          _error = null;
+        });
+        if (mounted) {
+          Navigator.of(context).pop(true);
+        }
+      } else {
+        setState(() {
+          _busy = false;
+          _error = permission == LocationPermission.deniedForever
+              ? 'DENIED_FOREVER'
+              : 'DENIED';
+        });
+      }
+    } catch (_) {
+      setState(() {
+        _busy = false;
+        _error = 'ERROR';
+      });
+    }
+  }
+
   void _continue() {
     if (_permissionGranted) {
       Navigator.of(context).pop(true);
@@ -177,10 +218,10 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> wi
       buttonAction = _openAppSettings;
     } else if (_error == 'DENIED') {
       buttonText = 'Allow permission';
-      buttonAction = _openAppSettings;
+      buttonAction = _requestPermission;
     } else if (_error == 'LOCATION_SERVICE_DISABLED') {
       buttonText = 'Enable Location Services';
-      buttonAction = _openAppSettings;
+      buttonAction = _openLocationSettings;
     }
 
     return WillPopScope(
