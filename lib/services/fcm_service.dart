@@ -473,13 +473,21 @@ class FCMService {
   static Future<String?> getToken() async {
     try {
       if (defaultTargetPlatform == TargetPlatform.iOS) {
+        // Ensure notification permissions are requested first
+        final settings = await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+        debugPrint('FCMService: Notification permission status: ${settings.authorizationStatus}');
+
         // Wait for APNs token to be set first to prevent race condition
         String? apnsToken;
         String? apnsError;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 25; i++) {
           try {
             apnsToken = await FirebaseMessaging.instance.getAPNSToken();
-            if (apnsToken != null) {
+            if (apnsToken != null && apnsToken.isNotEmpty) {
               debugPrint('FCMService: APNs token received: $apnsToken');
               break;
             }
@@ -487,11 +495,12 @@ class FCMService {
             apnsError = e.toString();
             debugPrint('FCMService: getAPNSToken attempt ${i + 1} failed: $e');
           }
-          debugPrint('FCMService: waiting for APNs token...');
+          debugPrint('FCMService: waiting for APNs token (attempt ${i + 1}/25)...');
           await Future.delayed(const Duration(seconds: 1));
         }
-        if (apnsToken == null) {
-          debugPrint('FCMService: APNs token is null after 10 attempts');
+
+        if (apnsToken == null || apnsToken.isEmpty) {
+          debugPrint('FCMService: APNs token is null after 25 attempts');
           // Fallback attempt to get FCM token directly in case APNs token was registered internally
           try {
             final directToken = await FirebaseMessaging.instance.getToken();
@@ -501,9 +510,9 @@ class FCMService {
             }
           } catch (e) {
             debugPrint('FCMService: Direct getToken fallback also failed: $e');
-            apnsError = '${apnsError ?? "Timeout (10s)"}; direct getToken error: $e';
+            apnsError = '${apnsError ?? "Timeout (25s)"}; direct getToken error: $e';
           }
-          return 'ERROR: APNs token is null. Details: ${apnsError ?? "Timeout (10s). Make sure Push capability is enabled in provisioning profile."}';
+          return 'ERROR: APNs token is null. Details: ${apnsError ?? "Timeout (25s). Make sure Push capability is enabled in provisioning profile."}';
         }
       }
 
