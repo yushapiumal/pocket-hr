@@ -492,6 +492,17 @@ class FCMService {
         }
         if (apnsToken == null) {
           debugPrint('FCMService: APNs token is null after 10 attempts');
+          // Fallback attempt to get FCM token directly in case APNs token was registered internally
+          try {
+            final directToken = await FirebaseMessaging.instance.getToken();
+            if (directToken != null && directToken.isNotEmpty) {
+              debugPrint('FCMService: FCM token fetched directly without APNs wait: $directToken');
+              return directToken;
+            }
+          } catch (e) {
+            debugPrint('FCMService: Direct getToken fallback also failed: $e');
+            apnsError = '${apnsError ?? "Timeout (10s)"}; direct getToken error: $e';
+          }
           return 'ERROR: APNs token is null. Details: ${apnsError ?? "Timeout (10s). Make sure Push capability is enabled in provisioning profile."}';
         }
       }
