@@ -67,6 +67,10 @@
 	<string>This app needs permission to save downloaded images and files.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs your location while you use it for attendance and check-in features.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs your location for attendance and check-in features, even when running in the background.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs your location for attendance and check-in features.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
