@@ -1064,4 +1064,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String allowedLeaveRange(String minDate, String maxDate) {
     return 'Allowed leave application range: $minDate to $maxDate';
   }
+
+  @override
+  String get deleteAccountTitle => 'Delete Account';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'Delete Account Request';
+
+  @override
+  String get deleteAccountConfirmationMessage =>
+      'Are you sure you want to request deletion of your account? This action will submit an account deletion request to your company administrator.';
+
+  @override
+  String get confirmDeleteAccount => 'Delete My Account';
+
+  @override
+  String get deleteAccountRequestedSuccess =>
+      'Account deletion request submitted successfully.';
 }

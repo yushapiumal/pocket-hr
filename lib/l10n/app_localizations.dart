@@ -2127,6 +2127,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allowed leave application range: {minDate} to {maxDate}'**
   String allowedLeaveRange(String minDate, String maxDate);
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountConfirmationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account Request'**
+  String get deleteAccountConfirmationTitle;
+
+  /// No description provided for @deleteAccountConfirmationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to request deletion of your account? This action will submit an account deletion request to your company administrator.'**
+  String get deleteAccountConfirmationMessage;
+
+  /// No description provided for @confirmDeleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete My Account'**
+  String get confirmDeleteAccount;
+
+  /// No description provided for @deleteAccountRequestedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion request submitted successfully.'**
+  String get deleteAccountRequestedSuccess;
 }
 
 class _AppLocalizationsDelegate

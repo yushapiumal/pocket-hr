@@ -1068,4 +1068,21 @@ class AppLocalizationsSi extends AppLocalizations {
   String allowedLeaveRange(String minDate, String maxDate) {
     return 'අවසර ලත් නිවාඩු ඉල්ලුම් පරාසය: $minDate සිට $maxDate දක්වා';
   }
+
+  @override
+  String get deleteAccountTitle => 'ගිණුම ඉවත් කරන්න';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'ගිණුම ඉවත් කිරීමේ ඉල්ලීම';
+
+  @override
+  String get deleteAccountConfirmationMessage =>
+      'ඔබගේ ගිණුම ඉවත් කිරීමට ඉල්ලුම් කිරීමට ඔබට විශ්වාසද? මෙමගින් ඔබගේ සමාගම් පරිපාලක වෙත ගිණුම් ඉවත් කිරීමේ ඉල්ලීමක් යොමු කෙරේ.';
+
+  @override
+  String get confirmDeleteAccount => 'මගේ ගිණුම ඉවත් කරන්න';
+
+  @override
+  String get deleteAccountRequestedSuccess =>
+      'ගිණුම ඉවත් කිරීමේ ඉල්ලීම සාර්ථකව යොමු කරන ලදී.';
 }

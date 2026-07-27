@@ -1081,4 +1081,21 @@ class AppLocalizationsTa extends AppLocalizations {
   String allowedLeaveRange(String minDate, String maxDate) {
     return 'அனுமதிக்கப்பட்ட விடுமுறை விண்ணப்ப வரம்பு: $minDate முதல் $maxDate வரை';
   }
+
+  @override
+  String get deleteAccountTitle => 'கணக்கை நீக்கு';
+
+  @override
+  String get deleteAccountConfirmationTitle => 'கணக்கு நீக்கல் கோரிக்கை';
+
+  @override
+  String get deleteAccountConfirmationMessage =>
+      'உங்கள் கணக்கை நீக்க கோரிக்கை விடுக்க விரும்புகிறீர்களா? இந்த செயல்பாடு உங்கள் நிறுவன நிர்வாகிக்கு கணக்கு நீக்கல் கோரிக்கையை அனுப்பும்.';
+
+  @override
+  String get confirmDeleteAccount => 'எனது கணக்கை நீக்கு';
+
+  @override
+  String get deleteAccountRequestedSuccess =>
+      'கணக்கு நீக்கல் கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது.';
 }
