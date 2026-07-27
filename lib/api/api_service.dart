@@ -13,18 +13,24 @@ import 'package:cn_pocket_hr/helpers/api_config.dart';
 import 'package:cn_pocket_hr/api/config.dart';
 import 'package:cn_pocket_hr/models/hr/attendance_model.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
+import 'package:cn_pocket_hr/models/hr/leave_eligibility_model.dart';
 import 'package:cn_pocket_hr/models/hr/me_model.dart';
 import 'package:cn_pocket_hr/models/hr/todo_model.dart';
 import 'package:cn_pocket_hr/services/device_details_service.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
-// import 'package:cn_pocket_hr/services/fcm_service.dart';
-// import 'package:package_info_plus/package_info_plus.dart';
+import 'package:cn_pocket_hr/api/api_client.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:cn_pocket_hr/helpers/app_update_helper.dart';
 
 class APIService {
   final LocalStorage storage = LocalStorage('pocketHR');
   final APIConfig api = APIConfig();
   String get baseUrl => AppConfig.baseUrl;
   bool qrEnable = true;
+
+  Future<String> _getAppVersion() async {
+    return await ApiClient.getAppVersion();
+  }
 
   // remoteEnable is now fetched entirely dynamically through fetchMeProfileWithBearer and retrieved globally.
 
@@ -183,9 +189,12 @@ class APIService {
     try {
       await _injectTenantToBody(data);
     } catch (_) {}
+    final appVer = await _getAppVersion();
     final headers = {
       "Accept": "application/json",
-      "Content-Type": "application/x-www-form-urlencoded"
+      "Content-Type": "application/x-www-form-urlencoded",
+      "app_version": appVer,
+      "app-version": appVer,
     };
     final oauthToken = storage.getItem('token')?.toString();
     final accessToken = storage.getItem('access_token')?.toString();
@@ -193,7 +202,7 @@ class APIService {
       headers['Oauth-Token'] = oauthToken;
     if (accessToken != null && accessToken.isNotEmpty)
       headers['Authorization'] = 'Bearer $accessToken';
-    // headers['app_version'] = await _getAppVersion();
+      headers['app_version'] = await _getAppVersion();
     try {
       print('[CHECK] POST $url');
       print('[CHECK] headers => ' + headers.toString());
@@ -287,9 +296,12 @@ class APIService {
       await _injectTenantToBody(data);
 
       // Build headers as Map<String, String> and only include keys with non-empty values
+      final appVer = await _getAppVersion();
       final headers = <String, String>{
         "Accept": "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
+        "app_version": appVer,
+        "app-version": appVer,
       };
       // Include both auth forms when available: Bearer for access_token, Oauth-Token for legacy oauth token
       if (accessToken.isNotEmpty)
@@ -337,8 +349,11 @@ class APIService {
       final accessToken = storage.getItem('access_token')?.toString() ?? '';
       final oauthToken = storage.getItem('token')?.toString() ?? '';
 
+      final appVer = await _getAppVersion();
       final headers = <String, String>{
         'Accept': 'application/json',
+        'app_version': appVer,
+        'app-version': appVer,
       };
       if (accessToken.isNotEmpty)
         headers['Authorization'] = 'Bearer $accessToken';
@@ -357,6 +372,47 @@ class APIService {
     return null;
   }
 
+  Future<LeaveApplyEligibility?> getLeaveApplyEligibility({String? userId}) async {
+    try {
+      await storage.ready;
+      String uid = userId ?? storage.getItem('uid')?.toString() ?? '';
+      if (uid.isEmpty) {
+        uid = await ensureUidFromAccessToken() ?? '';
+      }
+      if (uid.isEmpty) return null;
+
+      final url = '${baseUrl}/leave/apply-eligibility/$uid';
+      final uri = await _uriWithTenant(url);
+      final accessToken = storage.getItem('access_token')?.toString() ?? '';
+      final oauthToken = storage.getItem('token')?.toString() ?? '';
+
+      final appVer = await _getAppVersion();
+      final headers = <String, String>{
+        'Accept': 'application/json',
+        'app_version': appVer,
+        'app-version': appVer,
+      };
+      if (accessToken.isNotEmpty)
+        headers['Authorization'] = 'Bearer $accessToken';
+      if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
+
+      debugPrint('[LEAVE ELIGIBILITY] GET $uri');
+      final response = await http.get(uri, headers: headers);
+      debugPrint('[LEAVE ELIGIBILITY] status=${response.statusCode} body=${response.body}');
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final decoded = json.decode(response.body);
+        if (decoded is Map && decoded['data'] is Map) {
+          return LeaveApplyEligibility.fromJson(
+              Map<String, dynamic>.from(decoded['data']));
+        }
+      }
+    } catch (e) {
+      debugPrint('[LEAVE ELIGIBILITY] ERROR => $e');
+    }
+    return null;
+  }
+
   Future<List<TodoItem>> getTodos({required bool approvableByMe}) async {
     try {
       await storage.ready;
@@ -367,9 +423,12 @@ class APIService {
       final accessToken = storage.getItem('access_token')?.toString() ?? '';
       final oauthToken = storage.getItem('token')?.toString() ?? '';
 
+      final appVer = await _getAppVersion();
       final headers = <String, String>{
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'app_version': appVer,
+        'app-version': appVer,
       };
       if (accessToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $accessToken';
@@ -500,10 +559,13 @@ class APIService {
       final baseUrl = "${this.baseUrl}/auth/me";
       final uri = await _uriWithTenant(baseUrl);
 
+      final appVer = await _getAppVersion();
       Map<String, String> headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
         "Authorization": "Bearer $accessToken",
+        "app_version": appVer,
+        "app-version": appVer,
       };
       if (tenant.isNotEmpty) headers['Tenant'] = tenant;
 
@@ -618,9 +680,12 @@ class APIService {
 
       final uri = Uri.parse(url).replace(queryParameters: qParams);
 
+      final appVer = await _getAppVersion();
       final headers = <String, String>{
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+        'app_version': appVer,
+        'app-version': appVer,
       };
       if (oauthToken.isNotEmpty) headers['Oauth-Token'] = oauthToken;
       if (accessToken.isNotEmpty)
@@ -790,13 +855,16 @@ class APIService {
     final url = '${baseUrl}/variables/variables/$userId';
     final uri = await _uriWithTenant(url);
 
-    Map<String, String> buildHeaders({
+    Future<Map<String, String>> buildHeaders({
       bool includeAccess = true,
       bool includeOauth = true,
-    }) {
+    }) async {
+      final appVer = await _getAppVersion();
       final h = <String, String>{
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'app_version': appVer,
+        'app-version': appVer,
       };
 
       if (includeAccess && (accessToken != null && accessToken.isNotEmpty)) {
@@ -816,7 +884,7 @@ class APIService {
 
     var res = await http.get(
       uri,
-      headers: buildHeaders(includeAccess: true, includeOauth: true),
+      headers: await buildHeaders(includeAccess: true, includeOauth: true),
     );
 
     // Retry logic
@@ -826,7 +894,7 @@ class APIService {
         try {
           res = await http.get(
             uri,
-            headers: buildHeaders(includeAccess: false, includeOauth: true),
+            headers: await buildHeaders(includeAccess: false, includeOauth: true),
           );
         } catch (_) {}
       }
@@ -839,7 +907,7 @@ class APIService {
 
           res = await http.get(
             uri,
-            headers: buildHeaders(includeAccess: true, includeOauth: true),
+            headers: await buildHeaders(includeAccess: true, includeOauth: true),
           );
         } catch (_) {}
       }
@@ -879,13 +947,16 @@ class APIService {
 
       print('[DEBT] URL: $uri');
 
-      Map<String, String> buildHeaders({
+      Future<Map<String, String>> buildHeaders({
         bool includeAccess = true,
         bool includeOauth = true,
-      }) {
+      }) async {
+        final appVer = await _getAppVersion();
         final h = <String, String>{
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'app_version': appVer,
+          'app-version': appVer,
         };
 
         if (includeAccess && (accessToken != null && accessToken.isNotEmpty)) {
@@ -905,7 +976,7 @@ class APIService {
 
       var res = await http.get(
         uri,
-        headers: buildHeaders(includeAccess: true, includeOauth: true),
+        headers: await buildHeaders(includeAccess: true, includeOauth: true),
       );
 
       print('[DEBT] Response Status (Attempt 1): ${res.statusCode}');
@@ -921,7 +992,7 @@ class APIService {
             print('[DEBT] Attempt 2 → Oauth Only');
             res = await http.get(
               uri,
-              headers: buildHeaders(includeAccess: false, includeOauth: true),
+              headers: await buildHeaders(includeAccess: false, includeOauth: true),
             );
             print('[DEBT] Response Status (Attempt 2): ${res.statusCode}');
           } catch (e) {
@@ -938,7 +1009,7 @@ class APIService {
 
             res = await http.get(
               uri,
-              headers: buildHeaders(includeAccess: true, includeOauth: true),
+              headers: await buildHeaders(includeAccess: true, includeOauth: true),
             );
 
             print('[DEBT] Response Status (Attempt 3): ${res.statusCode}');
@@ -2251,6 +2322,7 @@ class APIService {
     await storage.ready;
     final accessToken = storage.getItem('access_token')?.toString() ?? '';
     final tenant = storage.getItem('tenant')?.toString() ?? '';
+    final appVer = await _getAppVersion();
 
     final url = '${baseUrl}/attendance/mark?tenant=$tenant';
 
@@ -2260,6 +2332,8 @@ class APIService {
         'Accept': 'application/json',
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
+        'app_version': appVer,
+        'app-version': appVer,
       },
       body: jsonEncode({
         'userId': userId,
@@ -2276,6 +2350,7 @@ class APIService {
     await storage.ready;
     final accessToken = storage.getItem('access_token')?.toString() ?? '';
     final tenant = storage.getItem('tenant')?.toString() ?? '';
+    final appVer = await _getAppVersion();
 
     final url = '${baseUrl}/teams/my-team/attendance?tenant=$tenant';
 
@@ -2284,6 +2359,8 @@ class APIService {
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $accessToken',
+        'app_version': appVer,
+        'app-version': appVer,
       },
     );
 
@@ -2295,6 +2372,8 @@ class APIService {
     debugPrint('[$apiName] Status Code: ${response.statusCode}');
     debugPrint(
         '[$apiName] Response Body: ${response.body.length > 500 ? response.body.substring(0, 500) + '...' : response.body}');
+
+    AppUpdateHelper.handlePotentialUpdateRequired(response.statusCode, response.body);
 
     // If not successful status code
     if (response.statusCode < 200 || response.statusCode >= 300) {
@@ -2324,126 +2403,5 @@ class APIService {
     }
   }
 
-// dl3FFA7BQ8K31O5eaEMdC8:APA91bHdrgjF4K_KpGIE0Vu-VDAGQDql8SzSTGj_7Z7uTDgnDjKawpNqb9RQWw2PdSX-SOt3qjUvrY40p9nTp0WmzlX-DpINQI_9sHbnYBKe_DKHzqQEKro
 
-
-  // ── App version & force-update machinery ────────────────────────────────
-
-  // static String? _cachedAppVersion;
-  // static bool _forceUpdateShown = false;
-
-  // Future<String> _getAppVersion() async {
-  //   if (_cachedAppVersion != null) return _cachedAppVersion!;
-  //   try {
-  //     final info = await PackageInfo.fromPlatform();
-  //     _cachedAppVersion = info.buildNumber.isNotEmpty
-  //         ? '${info.version}+${info.buildNumber}'
-  //         : info.version;
-  //     return _cachedAppVersion!;
-  //   } catch (_) {
-  //     _cachedAppVersion = '1.0.0';
-  //     return _cachedAppVersion!;
-  //   }
-  // }
-
-  // Future<Map<String, String>> _injectAppVersion(
-  //     Map<String, String> headers) async {
-  //   final version = await _getAppVersion();
-  //   return {...headers, 'app_version': version};
-  // }
-
-  // void _check426(http.Response response) {
-  //   if (response.statusCode != 426) return;
-  //   try {
-  //     final body = jsonDecode(response.body);
-  //     if (body is Map && body['error_code'] == 'APP_UPDATE_REQUIRED') {
-  //       _handleForceUpdate(body['message']?.toString());
-  //     }
-  //   } catch (_) {}
-  // }
-
-  // void _handleForceUpdate(String? message) {
-  //   if (_forceUpdateShown) return;
-  //   _forceUpdateShown = true;
-
-  //   final ctx = FCMService.navigatorKey.currentContext;
-  //   if (ctx == null) {
-  //     _clearUserData().then((_) {
-  //       FCMService.navigatorKey.currentState
-  //           ?.pushNamedAndRemoveUntil('/login', (route) => false);
-  //     });
-  //     return;
-  //   }
-
-  //   showDialog(
-  //     context: ctx,
-  //     barrierDismissible: false,
-  //     builder: (dialogCtx) => PopScope(
-  //       canPop: false,
-  //       child: AlertDialog(
-  //         title: const Text(
-  //           'Update Required',
-  //           style: TextStyle(fontWeight: FontWeight.bold),
-  //         ),
-  //         content: Text(
-  //           message ??
-  //               'Please update your app to the latest version to continue.',
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               // Navigate first (context is guaranteed mounted at tap time),
-  //               // then clear data in background so reactive storage updates
-  //               // cannot unmount the context before navigation runs.
-  //               Navigator.of(dialogCtx, rootNavigator: true)
-  //                   .pushNamedAndRemoveUntil('/login', (route) => false);
-  //               _clearUserData();
-  //             },
-  //             child: const Text('OK'),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Future<void> _clearUserData() async {
-  //   try {
-  //     await storage.ready;
-  //     final savedLang = storage.getItem('lang')?.toString();
-  //     await storage.clear();
-  //     if (savedLang != null && savedLang.isNotEmpty) {
-  //       await storage.setItem('lang', savedLang);
-  //     }
-  //   } catch (_) {}
-  //   try {
-  //     const secure = FlutterSecureStorage();
-  //     await secure.deleteAll();
-  //   } catch (_) {}
-  // }
-
-  // /// HTTP GET wrapper — auto-injects [app_version] header and checks for 426.
-  // Future<http.Response> _httpGet(Uri uri,
-  //     {Map<String, String>? headers}) async {
-  //   final h = await _injectAppVersion(headers ?? {});
-  //   debugPrint('[HTTP] GET ${uri.path}');
-  //   debugPrint('[HTTP] headers => $h');
-  //   final response = await http.get(uri, headers: h);
-  //   _check426(response);
-  //   return response;
-  // }
-
-  // /// HTTP POST wrapper — auto-injects [app_version] header and checks for 426.
-  // Future<http.Response> _httpPost(Uri uri,
-  //     {Map<String, String>? headers, Object? body, Encoding? encoding}) async {
-  //   final h = await _injectAppVersion(headers ?? {});
-  //   debugPrint('[HTTP] POST ${uri.path}');
-  //   debugPrint('[HTTP] headers => $h');
-  //   final response =
-  //       await http.post(uri, headers: h, body: body, encoding: encoding);
-  //   _check426(response);
-  //   return response;
-  // }
-
-  // // ── End app version machinery ────────────────────────────────────────────
 }

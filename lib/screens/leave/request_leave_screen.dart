@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cn_pocket_hr/screens/leave/devices/mobile_leave_request.dart';
-import 'package:cn_pocket_hr/screens/leave/devices/tablet_leave_request.dart';
-import 'package:cn_pocket_hr/ui/responsive_layout.dart';
+import 'package:cn_pocket_hr/screens/leave/devices/mobile_leave_request_page.dart';
 
 class HRLeaveRequest extends StatefulWidget {
   static String routeName = "/leave-request";
@@ -15,9 +13,9 @@ class HRLeaveRequest extends StatefulWidget {
 class _HRLeaveRequestState extends State<HRLeaveRequest> {
   @override
   Widget build(BuildContext context) {
-    return ResponsiveLayout(
-      mobileBody: MobileLeaveRequest(),
-      tabletBody: TabletLeaveRequest(),
+    return const MobileLeaveRequestPage(
+      isEdit: false,
+      initial: null,
     );
   }
 }

@@ -394,5 +394,59 @@
   "friday": "வெள்ளி",
   "cannotApplyLeaveOnNonWorkingDay": "{day} அன்று நீங்கள் விடுப்பு விண்ணப்பிக்க முடியாது — இது உங்கள் தொகுப்பு விதிமுறைகளின்படி வேலை நாள் அல்ல.",
   "date": "தேதி",
-  "session": "அமர்வு"
+  "session": "அமர்வு",
+  "appUpdateRequiredTitle": "பயன்பாட்டை புதுப்பிக்க வேண்டும்",
+  "appUpdateRequiredMessage": "தொடர, தயவுசெய்து உங்கள் பயன்பாட்டை புதிய பதிப்பிற்கு புதுப்பிக்கவும்.",
+  "appUpdateRequiredButton": "இப்போதே புதுப்பிக்கவும்",
+  "payrollLockedUntilHeader": "சம்பளப் பட்டியல் {date} வரை பூட்டப்பட்டுள்ளது",
+  "@payrollLockedUntilHeader": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollLockedUntilMessage": "சம்பளப் பட்டியல் {lockedEnd} வரை பூட்டப்பட்டுள்ளது. {minDate} க்கு முன் விடுமுறை விண்ணப்பிக்க முடியாது.",
+  "@payrollLockedUntilMessage": {
+    "placeholders": {
+      "lockedEnd": {
+        "type": "String"
+      },
+      "minDate": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDateCannotBeBefore": "விடுமுறை தேதி {date} க்கு முன் இருக்க முடியாது.",
+  "@leaveDateCannotBeBefore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDateCannotBeAfter": "விடுமுறை தேதி {date} க்கு பின் இருக்க முடியாது.",
+  "@leaveDateCannotBeAfter": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allowedLeaveRange": "அனுமதிக்கப்பட்ட விடுமுறை விண்ணப்ப வரம்பு: {minDate} முதல் {maxDate} வரை",
+  "@allowedLeaveRange": {
+    "placeholders": {
+      "minDate": {
+        "type": "String"
+      },
+      "maxDate": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountTitle": "கணக்கை நீக்கு",
+  "deleteAccountConfirmationTitle": "கணக்கு நீக்கல் கோரிக்கை",
+  "deleteAccountConfirmationMessage": "உங்கள் கணக்கை நீக்க கோரிக்கை விடுக்க விரும்புகிறீர்களா? இந்த செயல்பாடு உங்கள் நிறுவன நிர்வாகிக்கு கணக்கு நீக்கல் கோரிக்கையை அனுப்பும்.",
+  "confirmDeleteAccount": "எனது கணக்கை நீக்கு",
+  "deleteAccountRequestedSuccess": "கணக்கு நீக்கல் கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது."
 }

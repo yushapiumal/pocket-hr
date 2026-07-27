@@ -67,7 +67,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - your-email@example.com  # Change this to your email for build notifications
+          - piumal0713@gmail.com  # Change this to your email for build notifications
         notify:
           success: true
           failure: true

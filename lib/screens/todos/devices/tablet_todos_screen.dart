@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geocoding/geocoding.dart';
 
 
 
@@ -354,6 +355,62 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
     return DateFormat('yyyy-MM-dd hh:mm a').format(dt);
   }
 
+  String _stripPlusCode(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return '';
+    // Strip leading Plus Code (e.g., "VW7X+55P, Bandarawela" -> "Bandarawela")
+    final stripped = trimmed.replaceAll(RegExp(r'^[A-Z0-9]{2,8}\+[A-Z0-9]{2,4}\s*,?\s*'), '').trim();
+    if (stripped.contains('+') && RegExp(r'^[A-Z0-9]{2,8}\+[A-Z0-9]{2,4}$').hasMatch(stripped)) {
+      return '';
+    }
+    return stripped;
+  }
+
+  Future<String> _resolveAddress(Map<String, dynamic> p) async {
+    final rawAddr = p['address']?.toString().trim() ?? '';
+    if (rawAddr.isNotEmpty && rawAddr != '-') {
+      final cleaned = _stripPlusCode(rawAddr);
+      if (cleaned.isNotEmpty) return cleaned;
+    }
+
+    final latStr = p['lat']?.toString() ?? '';
+    final lngStr = p['lng']?.toString() ?? '';
+    final lat = double.tryParse(latStr);
+    final lng = double.tryParse(lngStr);
+
+    if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
+      try {
+        final placemarks = await placemarkFromCoordinates(lat, lng);
+        if (placemarks.isNotEmpty) {
+          final place = placemarks.first;
+          final parts = <String>[];
+          
+          void addPart(String? val) {
+            if (val == null) return;
+            final cleaned = _stripPlusCode(val);
+            if (cleaned.isNotEmpty && !parts.contains(cleaned)) {
+              parts.add(cleaned);
+            }
+          }
+
+          addPart(place.street);
+          addPart(place.subLocality);
+          addPart(place.locality);
+          addPart(place.administrativeArea);
+          addPart(place.country);
+
+          if (parts.isNotEmpty) {
+            return parts.join(', ');
+          }
+        }
+      } catch (e) {
+        debugPrint('Reverse geocode error: $e');
+      }
+      return '$lat, $lng';
+    }
+    return '-';
+  }
+
   void _showRemoteAttendanceBottomSheet(TodoItem item) {
     final statusColor = item.completed
         ? Colors.green
@@ -554,18 +611,27 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                               ],
                             ),
                             const SizedBox(height: 14),
-                            _buildClickableInfoRow(
-                              Icons.map,
-                              l10n.todoDetailCoordinates,
-                              '$lat, $lng',
-                              onTap: () async {
-                                if (lat != '-' && lng != '-') {
-                                  final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-                                  final uri = Uri.parse(url);
-                                  if (await canLaunchUrl(uri)) {
-                                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                  }
-                                }
+                            FutureBuilder<String>(
+                              future: _resolveAddress(p),
+                              builder: (context, snapshot) {
+                                final locationText = snapshot.data ??
+                                    (p['address']?.toString().isNotEmpty == true
+                                        ? p['address'].toString()
+                                        : (lat != '-' && lng != '-' ? '$lat, $lng' : '-'));
+                                return _buildClickableInfoRow(
+                                  Icons.location_on_outlined,
+                                  'Location Address',
+                                  locationText,
+                                  onTap: () async {
+                                    if (lat != '-' && lng != '-') {
+                                      final url = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+                                      final uri = Uri.parse(url);
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                      }
+                                    }
+                                  },
+                                );
                               },
                             ),
                             if (completedBy != null) ...[
@@ -1168,39 +1234,38 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
             ),
           ),
           Expanded(
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: onTap,
-                  borderRadius: BorderRadius.circular(4),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 2),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            value,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: HRColors.orangeColor,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                              decorationColor: HRColors.orangeColor,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.open_in_new,
-                          size: 15,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 14,
                           color: HRColors.orangeColor,
+                          fontWeight: FontWeight.w600,
+                          decoration: TextDecoration.underline,
+                          decorationColor: HRColors.orangeColor,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Icon(
+                        Icons.open_in_new,
+                        size: 15,
+                        color: HRColors.orangeColor,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],

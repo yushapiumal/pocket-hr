@@ -794,11 +794,11 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
           ),
           Container(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 5.2,
+            height: 122.0,
             margin: EdgeInsets.only(
-              left: 10.0,
-              right: 10.0,
-              top: MediaQuery.of(context).size.height * .318,
+              left: 12.0,
+              right: 12.0,
+              top: MediaQuery.of(context).size.height * .37,
             ),
             child: SlideAnimation(
               position: 4,
@@ -806,66 +806,35 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
               slideDirection: SlideDirection.fromTop,
               animationController: _animationController,
               child: GlassBox(
-                redius: 40.0,
+                redius: 24.0,
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 5.2,
-                child: Center(
+                height: 122.0,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 12.0),
-                          child: AnimatedBuilder(
-                            animation:
-                                _blinkController ?? kAlwaysDismissedAnimation,
-                            builder: (context, child) {
-                              final t = (_blinkController?.value ?? 0.0);
-                              final blinkOpacity = 1.0 - (t * 0.65);
-                              final opacity =
-                                  _qrWindowActive ? blinkOpacity : 1.0;
-                              return Opacity(opacity: opacity, child: child);
-                            },
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 20.0),
-                                    child: Text(
-                                      _dateTime ?? "loading...",
-                                      style: TextStyle(
-                                        color: HRColors.black,
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                ),
-                                Flexible(
-                                  child: SingleChildScrollView(
-                                    child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                          left: 20.0,
-                                          top: 1.0,
-                                        ),
-                                        child: Text(
-                                          address ?? "loading...",
-                                          style: TextStyle(
-                                            color: HRColors.black,
-                                            fontSize: 15,
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                      AnimatedBuilder(
+                        animation:
+                            _blinkController ?? kAlwaysDismissedAnimation,
+                        builder: (context, child) {
+                          final t = (_blinkController?.value ?? 0.0);
+                          final blinkOpacity = 1.0 - (t * 0.65);
+                          final opacity =
+                              _qrWindowActive ? blinkOpacity : 1.0;
+                          return Opacity(opacity: opacity, child: child);
+                        },
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Text(
+                              _dateTime ?? "loading...",
+                              style: TextStyle(
+                                color: HRColors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),

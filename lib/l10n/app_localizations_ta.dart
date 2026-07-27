@@ -1046,4 +1046,39 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get session => 'அமர்வு';
+
+  @override
+  String get appUpdateRequiredTitle => 'பயன்பாட்டை புதுப்பிக்க வேண்டும்';
+
+  @override
+  String get appUpdateRequiredMessage =>
+      'தொடர, தயவுசெய்து உங்கள் பயன்பாட்டை புதிய பதிப்பிற்கு புதுப்பிக்கவும்.';
+
+  @override
+  String get appUpdateRequiredButton => 'இப்போதே புதுப்பிக்கவும்';
+
+  @override
+  String payrollLockedUntilHeader(String date) {
+    return 'சம்பளப் பட்டியல் $date வரை பூட்டப்பட்டுள்ளது';
+  }
+
+  @override
+  String payrollLockedUntilMessage(String lockedEnd, String minDate) {
+    return 'சம்பளப் பட்டியல் $lockedEnd வரை பூட்டப்பட்டுள்ளது. $minDate க்கு முன் விடுமுறை விண்ணப்பிக்க முடியாது.';
+  }
+
+  @override
+  String leaveDateCannotBeBefore(String date) {
+    return 'விடுமுறை தேதி $date க்கு முன் இருக்க முடியாது.';
+  }
+
+  @override
+  String leaveDateCannotBeAfter(String date) {
+    return 'விடுமுறை தேதி $date க்கு பின் இருக்க முடியாது.';
+  }
+
+  @override
+  String allowedLeaveRange(String minDate, String maxDate) {
+    return 'அனுமதிக்கப்பட்ட விடுமுறை விண்ணப்ப வரம்பு: $minDate முதல் $maxDate வரை';
+  }
 }

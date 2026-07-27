@@ -1033,4 +1033,39 @@ class AppLocalizationsSi extends AppLocalizations {
 
   @override
   String get session => 'සැසිය';
+
+  @override
+  String get appUpdateRequiredTitle => 'නව යාවත්කාලීන කිරීමක් අවශ්‍යයි';
+
+  @override
+  String get appUpdateRequiredMessage =>
+      'ඉදිරියට යාම සඳහා කරුණාකර ඔබගේ යෙදුම යාවත්කාලීන කරන්න.';
+
+  @override
+  String get appUpdateRequiredButton => 'යාවත්කාලීන කරන්න';
+
+  @override
+  String payrollLockedUntilHeader(String date) {
+    return 'වැටුප් ගෙවීම් $date දක්වා අගුලු දමා ඇත';
+  }
+
+  @override
+  String payrollLockedUntilMessage(String lockedEnd, String minDate) {
+    return 'වැටුප් ගෙවීම් $lockedEnd දක්වා අගුලු දමා ඇත. $minDate දිනට පෙර නිවාඩු ඉල්ලුම් කළ නොහැක.';
+  }
+
+  @override
+  String leaveDateCannotBeBefore(String date) {
+    return 'නිවාඩු දිනය $date දිනට පෙර විය නොහැක.';
+  }
+
+  @override
+  String leaveDateCannotBeAfter(String date) {
+    return 'නිවාඩු දිනය $date දිනට පසුව විය නොහැක.';
+  }
+
+  @override
+  String allowedLeaveRange(String minDate, String maxDate) {
+    return 'අවසර ලත් නිවාඩු ඉල්ලුම් පරාසය: $minDate සිට $maxDate දක්වා';
+  }
 }

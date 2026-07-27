@@ -2079,6 +2079,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Session'**
   String get session;
+
+  /// No description provided for @appUpdateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Update Required'**
+  String get appUpdateRequiredTitle;
+
+  /// No description provided for @appUpdateRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please update your app to the latest version to continue.'**
+  String get appUpdateRequiredMessage;
+
+  /// No description provided for @appUpdateRequiredButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Now'**
+  String get appUpdateRequiredButton;
+
+  /// No description provided for @payrollLockedUntilHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Payroll Locked until {date}'**
+  String payrollLockedUntilHeader(String date);
+
+  /// No description provided for @payrollLockedUntilMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Payroll is locked up to {lockedEnd}. Leave cannot be applied before {minDate}.'**
+  String payrollLockedUntilMessage(String lockedEnd, String minDate);
+
+  /// No description provided for @leaveDateCannotBeBefore.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave date cannot be before {date}.'**
+  String leaveDateCannotBeBefore(String date);
+
+  /// No description provided for @leaveDateCannotBeAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave date cannot be after {date}.'**
+  String leaveDateCannotBeAfter(String date);
+
+  /// No description provided for @allowedLeaveRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed leave application range: {minDate} to {maxDate}'**
+  String allowedLeaveRange(String minDate, String maxDate);
 }
 
 class _AppLocalizationsDelegate

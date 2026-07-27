@@ -394,5 +394,59 @@
   "friday": "සිකුරාදා",
   "cannotApplyLeaveOnNonWorkingDay": "{day} දින නිවාඩු අයදුම් කළ නොහැක — එය ඔබගේ පැකේජ කොන්දේසි අනුව වැඩ කරන දිනයක් නොවේ.",
   "date": "දිනය",
-  "session": "සැසිය"
+  "session": "සැසිය",
+  "appUpdateRequiredTitle": "නව යාවත්කාලීන කිරීමක් අවශ්‍යයි",
+  "appUpdateRequiredMessage": "ඉදිරියට යාම සඳහා කරුණාකර ඔබගේ යෙදුම යාවත්කාලීන කරන්න.",
+  "appUpdateRequiredButton": "යාවත්කාලීන කරන්න",
+  "payrollLockedUntilHeader": "වැටුප් ගෙවීම් {date} දක්වා අගුලු දමා ඇත",
+  "@payrollLockedUntilHeader": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollLockedUntilMessage": "වැටුප් ගෙවීම් {lockedEnd} දක්වා අගුලු දමා ඇත. {minDate} දිනට පෙර නිවාඩු ඉල්ලුම් කළ නොහැක.",
+  "@payrollLockedUntilMessage": {
+    "placeholders": {
+      "lockedEnd": {
+        "type": "String"
+      },
+      "minDate": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDateCannotBeBefore": "නිවාඩු දිනය {date} දිනට පෙර විය නොහැක.",
+  "@leaveDateCannotBeBefore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDateCannotBeAfter": "නිවාඩු දිනය {date} දිනට පසුව විය නොහැක.",
+  "@leaveDateCannotBeAfter": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allowedLeaveRange": "අවසර ලත් නිවාඩු ඉල්ලුම් පරාසය: {minDate} සිට {maxDate} දක්වා",
+  "@allowedLeaveRange": {
+    "placeholders": {
+      "minDate": {
+        "type": "String"
+      },
+      "maxDate": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountTitle": "ගිණුම ඉවත් කරන්න",
+  "deleteAccountConfirmationTitle": "ගිණුම ඉවත් කිරීමේ ඉල්ලීම",
+  "deleteAccountConfirmationMessage": "ඔබගේ ගිණුම ඉවත් කිරීමට ඉල්ලුම් කිරීමට ඔබට විශ්වාසද? මෙමගින් ඔබගේ සමාගම් පරිපාලක වෙත ගිණුම් ඉවත් කිරීමේ ඉල්ලීමක් යොමු කෙරේ.",
+  "confirmDeleteAccount": "මගේ ගිණුම ඉවත් කරන්න",
+  "deleteAccountRequestedSuccess": "ගිණුම ඉවත් කිරීමේ ඉල්ලීම සාර්ථකව යොමු කරන ලදී."
 }

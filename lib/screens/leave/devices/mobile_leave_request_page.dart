@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
+import 'package:cn_pocket_hr/models/hr/leave_eligibility_model.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 
@@ -55,6 +56,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
   late Future<List<MyLeavesModel>> _myLeavesFuture;
   late Future<Map<String, dynamic>?> _leaveBalanceFuture;
   late Future<List<dynamic>> _combinedFuture;
+  LeaveApplyEligibility? _eligibility;
 
   @override
   void initState() {
@@ -62,6 +64,13 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     _myLeavesFuture = LeaveService.getMyLeaves();
     _leaveBalanceFuture = apiService.getLeaveBalance();
     _combinedFuture = Future.wait([_myLeavesFuture, _leaveBalanceFuture]);
+    apiService.getLeaveApplyEligibility().then((val) {
+      if (val != null && mounted) {
+        setState(() {
+          _eligibility = val;
+        });
+      }
+    });
 
     final m = widget.initial;
     if (m != null) {
@@ -629,6 +638,121 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     );
   }
 
+  Widget _buildEligibilityBanner() {
+    if (_eligibility == null) return const SizedBox.shrink();
+
+    final isPayrollLocked = _eligibility!.restrictedByPayrollLock;
+    final minStr = _eligibility!.minDate;
+    final maxStr = _eligibility!.maxDate;
+    final lockedEnd = _eligibility!.lockedPayrollEnd;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isPayrollLocked
+            ? const Color(0xFFFFF7ED)
+            : const Color(0xFFEFF6FF),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isPayrollLocked
+              ? const Color(0xFFFDBA74)
+              : const Color(0xFFBFDBFE),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isPayrollLocked
+                ? Icons.lock_clock_rounded
+                : Icons.info_outline_rounded,
+            size: 16,
+            color: isPayrollLocked
+                ? const Color(0xFFC2410C)
+                : const Color(0xFF1D4ED8),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isPayrollLocked && lockedEnd != null) ...[
+                  Text(
+                    AppLocalizations.of(context)!
+                        .payrollLockedUntilHeader(lockedEnd),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF9A3412),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                ],
+                Text(
+                  AppLocalizations.of(context)!
+                      .allowedLeaveRange(minStr, maxStr),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: isPayrollLocked
+                        ? const Color(0xFFC2410C)
+                        : const Color(0xFF1E40AF),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _validatePickedDate(DateTime picked) {
+    if (_eligibility?.minDateTime != null) {
+      final minDtOnly = DateTime(
+        _eligibility!.minDateTime!.year,
+        _eligibility!.minDateTime!.month,
+        _eligibility!.minDateTime!.day,
+      );
+      final pickedOnly = DateTime(picked.year, picked.month, picked.day);
+      if (pickedOnly.isBefore(minDtOnly)) {
+        final minStr = DateFormat('dd/MM/yyyy').format(minDtOnly);
+        if (_eligibility?.restrictedByPayrollLock == true &&
+            _eligibility?.lockedPayrollEnd != null) {
+          _showTopMessage(
+            AppLocalizations.of(context)!.payrollLockedUntilMessage(
+                _eligibility!.lockedPayrollEnd!, minStr),
+            error: true,
+          );
+        } else {
+          _showTopMessage(
+            AppLocalizations.of(context)!.leaveDateCannotBeBefore(minStr),
+            error: true,
+          );
+        }
+        return false;
+      }
+    }
+    if (_eligibility?.maxDateTime != null) {
+      final maxDtOnly = DateTime(
+        _eligibility!.maxDateTime!.year,
+        _eligibility!.maxDateTime!.month,
+        _eligibility!.maxDateTime!.day,
+      );
+      final pickedOnly = DateTime(picked.year, picked.month, picked.day);
+      if (pickedOnly.isAfter(maxDtOnly)) {
+        final maxStr = DateFormat('dd/MM/yyyy').format(maxDtOnly);
+        _showTopMessage(
+          AppLocalizations.of(context)!.leaveDateCannotBeAfter(maxStr),
+          error: true,
+        );
+        return false;
+      }
+    }
+    return true;
+  }
+
   Widget _buildSubmitButton() {
     return Container(
       width: double.infinity,
@@ -773,20 +897,56 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       return;
     }
 
-    // Prevent selecting past dates on submission
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    if (DateTime(fDate.year, fDate.month, fDate.day).isBefore(today) ||
-        DateTime(tDate.year, tDate.month, tDate.day).isBefore(today)) {
-      await _showTopMessage(
-        AppLocalizations.of(context)!.cannotSelectPastDate,
-        error: true,
-      );
-      return;
-    }
-
     final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
     final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+
+    final minDt = _eligibility?.minDateTime;
+    final maxDt = _eligibility?.maxDateTime;
+
+    if (minDt != null) {
+      final minDtOnly = DateTime(minDt.year, minDt.month, minDt.day);
+      if (fDateOnly.isBefore(minDtOnly) || tDateOnly.isBefore(minDtOnly)) {
+        final minStr = DateFormat('dd/MM/yyyy').format(minDtOnly);
+        if (_eligibility?.restrictedByPayrollLock == true &&
+            _eligibility?.lockedPayrollEnd != null) {
+          await _showTopMessage(
+            AppLocalizations.of(context)!.payrollLockedUntilMessage(
+                _eligibility!.lockedPayrollEnd!, minStr),
+            error: true,
+          );
+        } else {
+          await _showTopMessage(
+            AppLocalizations.of(context)!.leaveDateCannotBeBefore(minStr),
+            error: true,
+          );
+        }
+        return;
+      }
+    } else {
+      // Fallback if eligibility data is not loaded yet
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
+        await _showTopMessage(
+          AppLocalizations.of(context)!.cannotSelectPastDate,
+          error: true,
+        );
+        return;
+      }
+    }
+
+    if (maxDt != null) {
+      final maxDtOnly = DateTime(maxDt.year, maxDt.month, maxDt.day);
+      if (fDateOnly.isAfter(maxDtOnly) || tDateOnly.isAfter(maxDtOnly)) {
+        final maxStr = DateFormat('dd/MM/yyyy').format(maxDtOnly);
+        await _showTopMessage(
+          AppLocalizations.of(context)!.leaveDateCannotBeAfter(maxStr),
+          error: true,
+        );
+        return;
+      }
+    }
+
     if (tDateOnly.isBefore(fDateOnly)) {
       await _showTopMessage(
         AppLocalizations.of(context)!.toDateMustBeAfterFrom,
@@ -1100,20 +1260,56 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       return;
     }
 
-    // Prevent selecting past dates on submission confirmation
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    if (DateTime(fDate.year, fDate.month, fDate.day).isBefore(today) ||
-        DateTime(tDate.year, tDate.month, tDate.day).isBefore(today)) {
-      await _showTopMessage(
-        AppLocalizations.of(context)!.cannotSelectPastDate,
-        error: true,
-      );
-      return;
-    }
-
     final fDateOnlyConfirm = DateTime(fDate.year, fDate.month, fDate.day);
     final tDateOnlyConfirm = DateTime(tDate.year, tDate.month, tDate.day);
+
+    final minDt = _eligibility?.minDateTime;
+    final maxDt = _eligibility?.maxDateTime;
+
+    if (minDt != null) {
+      final minDtOnly = DateTime(minDt.year, minDt.month, minDt.day);
+      if (fDateOnlyConfirm.isBefore(minDtOnly) || tDateOnlyConfirm.isBefore(minDtOnly)) {
+        final minStr = DateFormat('dd/MM/yyyy').format(minDtOnly);
+        if (_eligibility?.restrictedByPayrollLock == true &&
+            _eligibility?.lockedPayrollEnd != null) {
+          await _showTopMessage(
+            AppLocalizations.of(context)!.payrollLockedUntilMessage(
+                _eligibility!.lockedPayrollEnd!, minStr),
+            error: true,
+          );
+        } else {
+          await _showTopMessage(
+            AppLocalizations.of(context)!.leaveDateCannotBeBefore(minStr),
+            error: true,
+          );
+        }
+        return;
+      }
+    } else {
+      // Fallback if eligibility data is not loaded yet
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      if (fDateOnlyConfirm.isBefore(today) || tDateOnlyConfirm.isBefore(today)) {
+        await _showTopMessage(
+          AppLocalizations.of(context)!.cannotSelectPastDate,
+          error: true,
+        );
+        return;
+      }
+    }
+
+    if (maxDt != null) {
+      final maxDtOnly = DateTime(maxDt.year, maxDt.month, maxDt.day);
+      if (fDateOnlyConfirm.isAfter(maxDtOnly) || tDateOnlyConfirm.isAfter(maxDtOnly)) {
+        final maxStr = DateFormat('dd/MM/yyyy').format(maxDtOnly);
+        await _showTopMessage(
+          AppLocalizations.of(context)!.leaveDateCannotBeAfter(maxStr),
+          error: true,
+        );
+        return;
+      }
+    }
+
     if (tDateOnlyConfirm.isBefore(fDateOnlyConfirm)) {
       await _showTopMessage(
         AppLocalizations.of(context)!.toDateMustBeAfterFrom,
@@ -1453,6 +1649,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                     const SizedBox(height: 20),
                   ],
 
+                  _buildEligibilityBanner(),
+
                   _sectionHeader(
                     leaveTypeValue == 'full_day'
                         ? AppLocalizations.of(context)!.fromToLabel
@@ -1472,6 +1670,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                                     final picked =
                                         await _pickWheelDate(initial: fDate);
                                     if (picked == null) return;
+                                    if (!_validatePickedDate(picked)) return;
 
                                     setState(() {
                                       fDate = picked;
@@ -1491,6 +1690,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                                     final picked =
                                         await _pickWheelDate(initial: tDate);
                                     if (picked == null) return;
+                                    if (!_validatePickedDate(picked)) return;
 
                                     setState(() {
                                       tDate = picked;
@@ -1511,6 +1711,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                               final picked =
                                   await _pickWheelDate(initial: fDate);
                               if (picked == null) return;
+                              if (!_validatePickedDate(picked)) return;
 
                               setState(() {
                                 fDate = picked;

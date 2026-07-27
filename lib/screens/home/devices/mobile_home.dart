@@ -878,11 +878,11 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
 
           Container(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 5.2,
+            height: 122.0,
             margin: EdgeInsets.only(
-              left: 10.0,
-              right: 10.0,
-              top: MediaQuery.of(context).size.height * .318,
+              left: 12.0,
+              right: 12.0,
+              top: MediaQuery.of(context).size.height * .37,
             ),
             child: SlideAnimation(
               position: 4,
@@ -890,170 +890,133 @@ class _MobileHomeState extends State<MobileHome> with TickerProviderStateMixin {
               slideDirection: SlideDirection.fromTop,
               animationController: _animationController,
               child: GlassBox(
-                redius: 40.0,
+                redius: 24.0,
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 5.2,
-                child: Center(
+                height: 122.0,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        flex: 4,
+                      Align(
+                        alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.only(top: 12.0),
-                          child: Column(
-                            children: [
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 20.0),
-                                  child: Text(
-                                    _dateTime ?? "loading...",
-                                    style: TextStyle(
-                                      color: HRColors.black,
-                                      fontSize: 25,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                              ),
-                              Flexible(
-                                child: SingleChildScrollView(
-                                  child: Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Padding(
-                                      padding: EdgeInsets.only(
-                                        left: 20.0,
-                                        top: 1.0,
-                                      ),
-                                      child: Text(
-                                        address ?? "loading...",
-                                        style: TextStyle(
-                                          color: HRColors.black,
-                                          fontSize: 15,
-                                        ),
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                          padding: const EdgeInsets.only(left: 4.0),
+                          child: Text(
+                            _dateTime ?? "loading...",
+                            style: TextStyle(
+                              color: HRColors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
-                      Expanded(
-                        flex: 4,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: IgnorePointer(
-                            ignoring: _punchCooldown || _qrBusy,
-                            child: Opacity(
-                              opacity: (_punchCooldown || _qrBusy) ? 0.45 : 1.0,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // ── Scan Check-In/Out button ────────────
-                                  Flexible(
-                                    child: GestureDetector(
-                                      onTap: _onScanTap,
-                                      child: AnimatedContainer(
-                                        duration:
-                                            const Duration(milliseconds: 160),
-                                        curve: Curves.easeOut,
-                                        height: 50,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        decoration: BoxDecoration(
-                                          color: FlavorConfig
-                                              .instance.primaryColor,
-                                          borderRadius:
-                                              BorderRadius.circular(18),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Colors.black26,
-                                              blurRadius: 10,
-                                              offset: Offset(0, 6),
-                                            )
-                                          ],
+                      IgnorePointer(
+                        ignoring: _punchCooldown || _qrBusy,
+                        child: Opacity(
+                          opacity: (_punchCooldown || _qrBusy) ? 0.45 : 1.0,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // ── Scan Check-In/Out button ────────────
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: _onScanTap,
+                                  child: AnimatedContainer(
+                                    duration:
+                                        const Duration(milliseconds: 160),
+                                    curve: Curves.easeOut,
+                                    height: 46,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    decoration: BoxDecoration(
+                                      color: FlavorConfig
+                                          .instance.primaryColor,
+                                      borderRadius:
+                                          BorderRadius.circular(16),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 8,
+                                          offset: Offset(0, 4),
+                                        )
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.qr_code_scanner,
+                                            color: Colors.white, size: 18),
+                                        const SizedBox(width: 5),
+                                        Text(
+                                          AppLocalizations.of(context)!
+                                              .scanCheckInOut,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w800,
+                                          ),
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(Icons.qr_code_scanner,
-                                                color: Colors.white, size: 18),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              AppLocalizations.of(context)!
-                                                  .scanCheckInOut,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w800,
-                                              ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // ── Remote button (only for remote-enabled users) ──
+                              if (apiService.remoteEnable) ...[
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: _onRemoteTap,
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 160),
+                                      curve: Curves.easeOut,
+                                      height: 46,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      decoration: BoxDecoration(
+                                        color: FlavorConfig
+                                            .instance.secondaryColor,
+                                        borderRadius:
+                                            BorderRadius.circular(16),
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            color: Colors.black26,
+                                            blurRadius: 8,
+                                            offset: Offset(0, 4),
+                                          )
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.wifi_tethering,
+                                              color: Colors.white,
+                                              size: 18),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .remoteChecking,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w800,
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-
-                                  // ── Remote button (only for remote-enabled users) ──
-                                  if (apiService.remoteEnable) ...[
-                                    const SizedBox(width: 8),
-                                    Flexible(
-                                      child: GestureDetector(
-                                        onTap: _onRemoteTap,
-                                        child: AnimatedContainer(
-                                          duration:
-                                              const Duration(milliseconds: 160),
-                                          curve: Curves.easeOut,
-                                          height: 50,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          decoration: BoxDecoration(
-                                            color: FlavorConfig
-                                                .instance.secondaryColor,
-                                            borderRadius:
-                                                BorderRadius.circular(18),
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                color: Colors.black26,
-                                                blurRadius: 10,
-                                                offset: Offset(0, 6),
-                                              )
-                                            ],
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(Icons.wifi_tethering,
-                                                  color: Colors.white,
-                                                  size: 18),
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                AppLocalizations.of(context)!
-                                                    .remoteChecking,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w800,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ),

@@ -1029,4 +1029,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get session => 'Session';
+
+  @override
+  String get appUpdateRequiredTitle => 'App Update Required';
+
+  @override
+  String get appUpdateRequiredMessage =>
+      'Please update your app to the latest version to continue.';
+
+  @override
+  String get appUpdateRequiredButton => 'Update Now';
+
+  @override
+  String payrollLockedUntilHeader(String date) {
+    return 'Payroll Locked until $date';
+  }
+
+  @override
+  String payrollLockedUntilMessage(String lockedEnd, String minDate) {
+    return 'Payroll is locked up to $lockedEnd. Leave cannot be applied before $minDate.';
+  }
+
+  @override
+  String leaveDateCannotBeBefore(String date) {
+    return 'Leave date cannot be before $date.';
+  }
+
+  @override
+  String leaveDateCannotBeAfter(String date) {
+    return 'Leave date cannot be after $date.';
+  }
+
+  @override
+  String allowedLeaveRange(String minDate, String maxDate) {
+    return 'Allowed leave application range: $minDate to $maxDate';
+  }
 }

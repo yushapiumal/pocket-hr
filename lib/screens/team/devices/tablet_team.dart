@@ -481,6 +481,9 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       String? checkIn;
       String? checkOut;
 
+      int? minInEpoch;
+      int? maxOutEpoch;
+
       for (var att in attendanceList) {
         if (att is! Map) continue;
         final type = (att['type'] ?? '').toString().toLowerCase();
@@ -492,20 +495,27 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
           epoch = t.toInt();
         else
           epoch = int.tryParse(t?.toString() ?? '');
-        if (epoch == null) continue;
-        final dt = DateTime.fromMillisecondsSinceEpoch(epoch * 1000);
-        final timeStr =
-            '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+        if (epoch == null || epoch <= 0) continue;
+
         if (type == 'in' || type == 'checkin' || type == 'inward') {
-          if (checkIn == null) checkIn = timeStr;
+          if (minInEpoch == null || epoch < minInEpoch) minInEpoch = epoch;
         } else if (type == 'out' || type == 'checkout' || type == 'outward') {
-          checkOut = timeStr;
+          if (maxOutEpoch == null || epoch > maxOutEpoch) maxOutEpoch = epoch;
         } else {
-          // unknown type: place into checkIn if empty, else checkOut
-          if (checkIn == null)
-            checkIn = timeStr;
-          else if (checkOut == null) checkOut = timeStr;
+          if (minInEpoch == null) minInEpoch = epoch;
+          else if (maxOutEpoch == null || epoch > maxOutEpoch) maxOutEpoch = epoch;
         }
+      }
+
+      if (minInEpoch != null) {
+        final dt = DateTime.fromMillisecondsSinceEpoch(minInEpoch * 1000);
+        checkIn =
+            '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      }
+      if (maxOutEpoch != null) {
+        final dt = DateTime.fromMillisecondsSinceEpoch(maxOutEpoch * 1000);
+        checkOut =
+            '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
       }
 
       String status = 'present';
@@ -602,13 +612,26 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
         String? checkOut;
         DateTime? attendanceDate;
 
+        int? firstInTimestamp;
+        int? lastOutTimestamp;
+
+        // Check top-level record fields if provided by API
+        final dynamic topFirstIn = record['firstCheckIn'] ?? record['first_check_in'];
+        if (topFirstIn != null) {
+          firstInTimestamp = (topFirstIn is num) ? topFirstIn.toInt() : int.tryParse(topFirstIn.toString());
+        }
+        final dynamic topLastOut = record['lastCheckOut'] ?? record['last_check_out'];
+        if (topLastOut != null) {
+          lastOutTimestamp = (topLastOut is num) ? topLastOut.toInt() : int.tryParse(topLastOut.toString());
+        }
+
         final List<dynamic> attList = record['attendance'] ?? [];
 
         for (var att in attList) {
           if (att is! Map<String, dynamic>) continue;
 
           final String type = (att['type'] ?? '').toString().toLowerCase();
-          final dynamic timeVal = att['time'];
+          final dynamic timeVal = att['time'] ?? att['timestamp'];
 
           if (timeVal == null) continue;
 
@@ -620,26 +643,28 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
           final DateTime dt =
               DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
 
-          // Use the FIRST timestamp as the attendance date (usually the check-in)
           attendanceDate ??= DateTime(dt.year, dt.month, dt.day);
 
-          final String timeStr =
-              '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-
-          if (type == 'in' || type == 'checkin') {
-            checkIn = timeStr;
-          } else if (type == 'out' || type == 'checkout') {
-            checkOut = timeStr;
+          if (type == 'in' || type == 'checkin' || type == 'inward') {
+            if (firstInTimestamp == null || timestamp < firstInTimestamp) {
+              firstInTimestamp = timestamp;
+            }
+          } else if (type == 'out' || type == 'checkout' || type == 'outward') {
+            if (lastOutTimestamp == null || timestamp > lastOutTimestamp) {
+              lastOutTimestamp = timestamp;
+            }
           }
         }
 
-        // Fallback date from firstCheckIn or lastCheckOut if no attendance array
-        if (attendanceDate == null) {
-          final int? firstIn = record['firstCheckIn'] as int?;
-          if (firstIn != null && firstIn > 0) {
-            final dt = DateTime.fromMillisecondsSinceEpoch(firstIn * 1000);
-            attendanceDate = DateTime(dt.year, dt.month, dt.day);
-          }
+        if (firstInTimestamp != null && firstInTimestamp > 0) {
+          final dtIn = DateTime.fromMillisecondsSinceEpoch(firstInTimestamp * 1000);
+          checkIn = '${dtIn.hour.toString().padLeft(2, '0')}:${dtIn.minute.toString().padLeft(2, '0')}';
+          attendanceDate ??= DateTime(dtIn.year, dtIn.month, dtIn.day);
+        }
+        if (lastOutTimestamp != null && lastOutTimestamp > 0) {
+          final dtOut = DateTime.fromMillisecondsSinceEpoch(lastOutTimestamp * 1000);
+          checkOut = '${dtOut.hour.toString().padLeft(2, '0')}:${dtOut.minute.toString().padLeft(2, '0')}';
+          attendanceDate ??= DateTime(dtOut.year, dtOut.month, dtOut.day);
         }
 
         if (attendanceDate == null) continue;

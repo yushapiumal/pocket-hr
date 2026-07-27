@@ -417,5 +417,59 @@
     }
   },
   "date": "Date",
-  "session": "Session"
+  "session": "Session",
+  "appUpdateRequiredTitle": "App Update Required",
+  "appUpdateRequiredMessage": "Please update your app to the latest version to continue.",
+  "appUpdateRequiredButton": "Update Now",
+  "payrollLockedUntilHeader": "Payroll Locked until {date}",
+  "@payrollLockedUntilHeader": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "payrollLockedUntilMessage": "Payroll is locked up to {lockedEnd}. Leave cannot be applied before {minDate}.",
+  "@payrollLockedUntilMessage": {
+    "placeholders": {
+      "lockedEnd": {
+        "type": "String"
+      },
+      "minDate": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDateCannotBeBefore": "Leave date cannot be before {date}.",
+  "@leaveDateCannotBeBefore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveDateCannotBeAfter": "Leave date cannot be after {date}.",
+  "@leaveDateCannotBeAfter": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allowedLeaveRange": "Allowed leave application range: {minDate} to {maxDate}",
+  "@allowedLeaveRange": {
+    "placeholders": {
+      "minDate": {
+        "type": "String"
+      },
+      "maxDate": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteAccountTitle": "Delete Account",
+  "deleteAccountConfirmationTitle": "Delete Account Request",
+  "deleteAccountConfirmationMessage": "Are you sure you want to request deletion of your account? This action will submit an account deletion request to your company administrator.",
+  "confirmDeleteAccount": "Delete My Account",
+  "deleteAccountRequestedSuccess": "Account deletion request submitted successfully."
 } 
