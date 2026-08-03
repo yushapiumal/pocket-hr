@@ -865,6 +865,18 @@ class TabletLeaveState extends State<TabletLeave>
     final from = model.fromDate.toString();
     final to = model.toDate.toString();
 
+    final isHalfDay = model.session == 'morning' ||
+        model.session == 'evening' ||
+        model.session == 'half' ||
+        model.leaveType == 'half' ||
+        model.type == 'half';
+    final sessionLabel = isHalfDay
+        ? (model.session == 'morning'
+            ? ' (0.5 Day - Morning)'
+            : (model.session == 'evening' ? ' (0.5 Day - Evening)' : ' (0.5 Day)'))
+        : '';
+    final fullTypeLabel = '$typeLabel$sessionLabel';
+
     final status = model.status.toString().toLowerCase();
     final bool isFinal = status == 'approved' || status == 'rejected';
 
@@ -984,7 +996,7 @@ class TabletLeaveState extends State<TabletLeave>
                       ),
                       const SizedBox(height: 4),
                       AutoSizeText(
-                        typeLabel,
+                        fullTypeLabel,
                         style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFFF59E0B),

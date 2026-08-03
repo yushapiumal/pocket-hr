@@ -55,6 +55,18 @@ class MobileLeaveDetailsPage extends StatelessWidget {
     final to = _fmtDate(model.toDate.toString());
     final desc = model.description.toString();
 
+    final isHalfDay = model.session == 'morning' ||
+        model.session == 'evening' ||
+        model.session == 'half' ||
+        model.leaveType == 'half' ||
+        model.type == 'half';
+    final sessionLabel = isHalfDay
+        ? (model.session == 'morning'
+            ? ' (0.5 Day - Morning)'
+            : (model.session == 'evening' ? ' (0.5 Day - Evening)' : ' (0.5 Day)'))
+        : '';
+    final fullTypeLabel = '$type$sessionLabel';
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 243, 244, 246),
       appBar: AppBar(
@@ -141,7 +153,7 @@ class MobileLeaveDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            _tile('Leave Type', type),
+            _tile('Leave Type', fullTypeLabel),
             _tile('Status', status),
             _tile('From', from),
             _tile('To', to),

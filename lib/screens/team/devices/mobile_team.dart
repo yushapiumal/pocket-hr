@@ -1236,8 +1236,18 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
 
     Color statusColor = _getLeaveStatusColor(status);
 
-    final String dateText =
-        '${dates.length} ${dates.length > 1 ? l10n.daysLabel : 'day'}';
+    final session = leave['session']?.toString() ??
+        ((leave['leave_type'] == 'half' || leave['type'] == 'half')
+            ? (leave['half_period'] ?? 'half').toString()
+            : 'full_day');
+    final isHalfDay = session == 'morning' ||
+        session == 'evening' ||
+        session == 'half';
+    final String dateText = isHalfDay
+        ? (session == 'morning'
+            ? '0.5 Day - Morning'
+            : (session == 'evening' ? '0.5 Day - Evening' : '0.5 Day'))
+        : '${dates.length} ${dates.length > 1 ? l10n.daysLabel : 'day'}';
 
     final bool isExpanded = _expandedLeaveId == leaveId;
 
