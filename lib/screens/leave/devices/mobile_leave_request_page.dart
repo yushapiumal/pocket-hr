@@ -60,6 +60,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
   late Future<Map<String, dynamic>?> _leaveBalanceFuture;
   late Future<List<dynamic>> _combinedFuture;
   LeaveApplyEligibility? _eligibility;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -641,14 +642,16 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       height: 48,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [_accent, _accent],
+          colors: _isSubmitting
+              ? [_accent.withOpacity(0.6), _accent.withOpacity(0.6)]
+              : [_accent, _accent],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: _accent.withOpacity(0.20),
+            color: _accent.withOpacity(_isSubmitting ? 0.05 : 0.20),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -658,15 +661,27 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
-          onTap: _confirmAndSubmit,
+          onTap: _isSubmitting ? null : _confirmAndSubmit,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
-              SizedBox(width: 8),
+              if (_isSubmitting) ...[
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ] else ...[
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+              ],
               AutoSizeText(
                 AppLocalizations.of(context)!.submitRequest,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
@@ -764,6 +779,8 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting) return;
+
     if (typeValue == null || typeValue!.isEmpty) {
       await _showTopMessage(
         'Please select ${AppLocalizations.of(context)!.leaveTypeLabel}',
@@ -836,31 +853,35 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       return;
     }
 
-    final isShortLeave = leaveTypeValue == 'short_leave';
-    final res = await apiService.leave({
-      'leave_title': isShortLeave
-          ? (description.text.trim().isNotEmpty
-              ? description.text.trim()
-              : 'Short Leave')
-          : 'Leave Request',
-      'from_date': isShortLeave
-          ? DateFormat('dd/MM/yyyy').format(fDate)
-          : DateFormat('yyyy-MM-dd').format(fDate),
-      'to_date': DateFormat('yyyy-MM-dd').format(tDate),
-      // Always send the user-selected leave type (annual/casual/medical)
-      'leave_type': isShortLeave ? 'short_leave' : typeValue,
-      'type': isShortLeave ? 'short_leave' : (leaveTypeValue ?? 'full_day'),
-      // Pass the session conditionally
-      'session': isShortLeave
-          ? shortLeaveSession
-          : (leaveTypeValue == 'half'
-              ? halfDaySession
-              : (leaveTypeValue ?? 'full_day')),
-      'description': description.text,
-      if (isShortLeave) 'short_leave_period': shortLeaveSession,
+    setState(() {
+      _isSubmitting = true;
     });
 
     try {
+      final isShortLeave = leaveTypeValue == 'short_leave';
+      final res = await apiService.leave({
+        'leave_title': isShortLeave
+            ? (description.text.trim().isNotEmpty
+                ? description.text.trim()
+                : 'Short Leave')
+            : 'Leave Request',
+        'from_date': isShortLeave
+            ? DateFormat('dd/MM/yyyy').format(fDate)
+            : DateFormat('yyyy-MM-dd').format(fDate),
+        'to_date': DateFormat('yyyy-MM-dd').format(tDate),
+        // Always send the user-selected leave type (annual/casual/medical)
+        'leave_type': isShortLeave ? 'short_leave' : typeValue,
+        'type': isShortLeave ? 'short_leave' : (leaveTypeValue ?? 'full_day'),
+        // Pass the session conditionally
+        'session': isShortLeave
+            ? shortLeaveSession
+            : (leaveTypeValue == 'half'
+                ? halfDaySession
+                : (leaveTypeValue ?? 'full_day')),
+        'description': description.text,
+        if (isShortLeave) 'short_leave_period': shortLeaveSession,
+      });
+
       final statusCode = (res is Map && res.containsKey('statusCode'))
           ? res['statusCode']
           : 500;
@@ -910,11 +931,16 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
 
       await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave,
           error: true);
-      return;
-    } catch (_) {}
-
-    await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave,
-        error: true);
+    } catch (_) {
+      await _showTopMessage(AppLocalizations.of(context)!.failedToSubmitLeave,
+          error: true);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   Widget _infoRow(String title, String value) {
@@ -1132,6 +1158,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
   }
 
   Future<void> _confirmAndSubmit() async {
+    if (_isSubmitting) return;
     if (typeValue == null || typeValue!.isEmpty) {
       await _showTopMessage(
         'Please select ${AppLocalizations.of(context)!.leaveTypeLabel}',
@@ -1424,14 +1451,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
             decoration: BoxDecoration(
               color: _surface,
               borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-              border: Border.all(color: Colors.black.withOpacity(0.04)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

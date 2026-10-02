@@ -172,6 +172,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   }
 
   submit() async {
+    if (!buttonEnable) return;
+
     setState(() {
       loader = true;
       buttonEnable = false;
@@ -190,47 +192,41 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
           : _leaveReasonValidation = false;
     });
 
-    if (!_leaveTypeValidation &&
-        !_fromDateValidation &&
-        !_toDateValidation &&
-        !_leaveReasonValidation) {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
-      final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+    try {
+      if (!_leaveTypeValidation &&
+          !_fromDateValidation &&
+          !_toDateValidation &&
+          !_leaveReasonValidation) {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
+        final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
 
-      if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
-        apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
+        if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
+          apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
+          return;
+        }
+
+        var data = {
+          'leave_title': reasonListValue,
+          'from_date': DateFormat('d/MM/y').format(fDate).toString(),
+          'to_date': DateFormat('d/MM/y').format(tDate).toString(),
+          'leave_type': leave_typeValue,
+          'session': firstsecondValue,
+          'type': typeValue,
+          'description': description
+        };
+
+        await apiService.leave(data);
+      }
+    } catch (_) {
+    } finally {
+      if (mounted) {
         setState(() {
           loader = false;
           buttonEnable = true;
         });
-        return;
       }
-
-      var data = {
-        'leave_title': reasonListValue,
-        'from_date': DateFormat('d/MM/y').format(fDate).toString(),
-        'to_date': DateFormat('d/MM/y').format(tDate).toString(),
-        'leave_type': leave_typeValue,
-        'session': firstsecondValue,
-        'type': typeValue,
-        'description': description
-      };
-
-      final submit = await apiService.leave(data);
-
-      if (submit || !submit) {
-        setState(() {
-          loader = false;
-          buttonEnable = true;
-        });
-      }
-    } else {
-      setState(() {
-        loader = false;
-        buttonEnable = true;
-      });
     }
   }
 

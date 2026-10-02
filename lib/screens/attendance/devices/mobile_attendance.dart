@@ -40,7 +40,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
   String? _resolvedUser;
 
   // Theme colors matching premium mockup
-  static const Color _pageBg = Colors.white; // Warm cream base
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252); // Warm cream base
   static const Color _surface = Colors.white;
   static const Color _burgundy = Color(0xFF701A27); // Burgundy
   static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
@@ -724,6 +724,37 @@ class _MobileAttendanceState extends State<MobileAttendance>
     );
   }
 
+  // ===== empty state =====
+
+  Widget _buildEmptyState(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 32),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.event_busy_rounded,
+              size: 64,
+              color: _textGrey.withOpacity(0.4),
+            ),
+            const SizedBox(height: 16),
+            AutoSizeText(
+              message,
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              style: const TextStyle(
+                color: _textGrey,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ===== list =====
 
   Widget _attendanceList() {
@@ -780,31 +811,16 @@ class _MobileAttendanceState extends State<MobileAttendance>
         }
 
         if (statusCode != null && statusCode >= 500) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted)
-              _showTopToast(AppLocalizations.of(context)!.serverError);
-          });
-          return const SizedBox.shrink();
+          return _buildEmptyState(AppLocalizations.of(context)!.serverError);
         }
         if (statusCode == 401 || statusCode == 403 || statusCode == 404) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted)
-              _showTopToast(_attendanceErrorMessageFromStatus(statusCode));
-          });
-          return const SizedBox.shrink();
+          return _buildEmptyState(_attendanceErrorMessageFromStatus(statusCode));
         }
         if ((statusCode == 200 || statusCode == null) && data.isEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _showTopToast(AppLocalizations.of(context)!.noRecords);
-          });
-          return const SizedBox.shrink();
+          return _buildEmptyState(AppLocalizations.of(context)!.noRecords);
         }
         if (statusCode != null && statusCode != 200 && data.isEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted)
-              _showTopToast(AppLocalizations.of(context)!.serverError);
-          });
-          return const SizedBox.shrink();
+          return _buildEmptyState(AppLocalizations.of(context)!.serverError);
         }
 
         if (data.isNotEmpty) {
@@ -916,7 +932,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         ),
         child: InkWell(

@@ -1,5 +1,5 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:io';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class _TabletProfileState extends State<TabletProfile> {
   // Profile data
   String _headerFullName = '';
   String _headerEpf = '';
-  String _profilePhotoUrl = ''; // ← built from getProfilePhotoUrl()
+  String _profilePhotoUrl = '';
   String _email = '';
   String _designation = '';
   String _department = '';
@@ -45,13 +45,8 @@ class _TabletProfileState extends State<TabletProfile> {
 
   // Colors
   static Color get _primaryColor => HRColors.darkOrangeColor;
-  static const Color _secondaryColor  = Color(0xFF6366F1);
-  static const Color _backgroundColor = Colors.white;
-  static const Color _cardColor       = Color(0xFFFAF2EB);
-  static const Color _textPrimary     = Color(0xFF1E293B);
-  static const Color _textSecondary   = Color(0xFF64748B);
-  static const Color _textTertiary    = Color(0xFF94A3B8);
-  static const Color _dividerColor    = Color(0xFFE2E8F0);
+  static const Color _backgroundColor = Color.fromARGB(255, 248, 250, 252);
+  static const Color _cardColor = Colors.white;
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
 
@@ -80,7 +75,8 @@ class _TabletProfileState extends State<TabletProfile> {
         return;
       }
 
-      final dataAny = meProfile['data'] ?? meProfile['result'] ?? meProfile['user'];
+      final dataAny =
+          meProfile['data'] ?? meProfile['result'] ?? meProfile['user'];
       if (dataAny is! Map) return;
       final data = Map<String, dynamic>.from(dataAny);
 
@@ -97,7 +93,6 @@ class _TabletProfileState extends State<TabletProfile> {
         return '';
       }
 
-      // Save uid to storage so getProfilePhotoUrl() can use it
       final uid = (data['_id'] ?? data['id'] ?? '').toString();
       if (uid.isNotEmpty) {
         await storage.ready;
@@ -105,18 +100,17 @@ class _TabletProfileState extends State<TabletProfile> {
       }
 
       setState(() {
-        _email          = (data['email'] ?? '').toString();
+        _email = (data['email'] ?? '').toString();
         _headerFullName = '${cf('cf_first_name')} ${cf('cf_last_name')}'.trim();
-        _headerEpf      = cf('cf_epf_no');
-        _designation    = cf('cf_designation');
-        _department     = cf('cf_department');
-        _phone          = cf('cf_phone');
-        _address        = cf('cf_address');
-        _nic            = cf('cf_nic');
-        _dob            = cf('cf_dob');
+        _headerEpf = cf('cf_epf_no');
+        _designation = cf('cf_designation');
+        _department = cf('cf_department');
+        _phone = cf('cf_phone');
+        _address = cf('cf_address');
+        _nic = cf('cf_nic');
+        _dob = cf('cf_dob');
       });
 
-      // ── Fetch profile photo separately after profile loads ─────────────────
       _fetchProfilePhoto();
     } catch (e) {
       debugPrint('[PROFILE] Error loading profile: $e');
@@ -128,7 +122,6 @@ class _TabletProfileState extends State<TabletProfile> {
     }
   }
 
-  /// Calls getProfilePhotoUrl() and updates _profilePhotoUrl
   Future<void> _fetchProfilePhoto() async {
     if (mounted) setState(() => _photoLoading = true);
     try {
@@ -144,32 +137,24 @@ class _TabletProfileState extends State<TabletProfile> {
     }
   }
 
-  /// Auth headers for CachedNetworkImageProvider
   Map<String, String> _authHeaders() {
-    final oauthToken  = storage.getItem('token')?.toString() ?? '';
+    final oauthToken = storage.getItem('token')?.toString() ?? '';
     final accessToken = storage.getItem('access_token')?.toString() ?? '';
     final tenant = storage.getItem('tenant')?.toString() ?? '';
     return {
       'Accept': 'image/*',
-      if (oauthToken.isNotEmpty)  'Oauth-Token':   oauthToken,
+      if (oauthToken.isNotEmpty) 'Oauth-Token': oauthToken,
       if (accessToken.isNotEmpty) 'Authorization': 'Bearer $accessToken',
-      if (tenant.isNotEmpty)      'Tenant':        tenant,
+      if (tenant.isNotEmpty) 'Tenant': tenant,
     };
   }
 
   Future<void> _pickImage() async {
     try {
-      // final image = await ImagePicker().pickImage(
-      //   source: ImageSource.gallery,
-      //   imageQuality: 85,
-      // );
-      // if (image == null) return;
-
       setState(() => _savingImage = true);
-      await Future.delayed(const Duration(seconds: 1)); // TODO: replace with real upload
+      await Future.delayed(const Duration(seconds: 1));
 
       setState(() {
-        // _selectedImage = File(image.path);
         _savingImage = false;
       });
 
@@ -188,7 +173,8 @@ class _TabletProfileState extends State<TabletProfile> {
 
   // ── UI Widgets ─────────────────────────────────────────────────────────────
 
-  Widget _topCircleButton({required Widget child, required VoidCallback onTap}) {
+  Widget _topCircleButton(
+      {required Widget child, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -217,7 +203,8 @@ class _TabletProfileState extends State<TabletProfile> {
               child: SvgPicture.asset(
                 'assets/svg/drawer_icon.svg',
                 colorFilter: ColorFilter.mode(
-                  HRColors.flavorIconColor, BlendMode.srcIn,
+                  HRColors.flavorIconColor,
+                  BlendMode.srcIn,
                 ),
               ),
             ),
@@ -226,7 +213,7 @@ class _TabletProfileState extends State<TabletProfile> {
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
-                color: Colors.black87,
+                color: Colors.black,
               ),
             ),
             _topCircleButton(
@@ -281,38 +268,44 @@ class _TabletProfileState extends State<TabletProfile> {
     );
   }
 
-  /// Avatar widget — shows spinner while loading, photo when ready, fallback on error
-  Widget _buildAvatar() {
-    const double size = 120;
+  Widget _avatarFallback() {
+    final firstLetter =
+        _headerFullName.isNotEmpty ? _headerFullName[0].toUpperCase() : 'H';
+    return Container(
+      color: Colors.black.withOpacity(0.08),
+      child: Center(
+        child: Text(
+          firstLetter,
+          style: const TextStyle(
+            fontSize: 42,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    );
+  }
 
-    Widget imageChild;
+  Widget _buildTopProfileHeader() {
+    const double size = 135;
 
+    Widget avatarImage;
     if (_selectedImage != null) {
-      // Locally picked image (before upload)
-      imageChild = Image.file(
+      avatarImage = Image.file(
         _selectedImage!,
         fit: BoxFit.cover,
         width: size,
         height: size,
       );
-    } else if (_savingImage) {
-      imageChild = Center(
+    } else if (_savingImage || _photoLoading) {
+      avatarImage = const Center(
         child: CupertinoActivityIndicator(
-          color: HRColors.darkOrangeColor,
+          color: Colors.black,
           radius: 16,
         ),
       );
-    } else if (_photoLoading) {
-      // Still fetching photo URL
-      imageChild = Center(
-        child: CupertinoActivityIndicator(
-          color: HRColors.darkOrangeColor,
-          radius: 14,
-        ),
-      );
     } else if (_profilePhotoUrl.isNotEmpty) {
-      // ✅ Photo URL resolved — load with auth headers
-      imageChild = OctoImage(
+      avatarImage = OctoImage(
         image: CachedNetworkImageProvider(
           _profilePhotoUrl,
           headers: _authHeaders(),
@@ -326,250 +319,194 @@ class _TabletProfileState extends State<TabletProfile> {
         fit: BoxFit.cover,
       );
     } else {
-      // No photo found
-      imageChild = _avatarFallback();
+      avatarImage = _avatarFallback();
     }
 
-    return Stack(
+    return Column(
       children: [
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: _dividerColor, width: 4),
-          ),
-          child: ClipOval(child: imageChild),
-        ),
-        Positioned(
-          right: 0,
-          bottom: 0,
+        const SizedBox(height: 16),
+        Center(
           child: GestureDetector(
             onTap: _savingImage ? null : _pickImage,
             child: Container(
-              width: 40,
-              height: 40,
+              width: size,
+              height: size,
               decoration: BoxDecoration(
-                color: _primaryColor,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 3),
                 boxShadow: [
                   BoxShadow(
-                    color: _primaryColor.withOpacity(0.3),
-                    blurRadius: 8,
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: Center(
-                child: _savingImage
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CupertinoActivityIndicator(radius: 8),
-                      )
-                    : const Icon(
-                        Icons.camera_alt_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-              ),
+              child: ClipOval(child: avatarImage),
             ),
           ),
         ),
+        const SizedBox(height: 16),
+        if (_headerFullName.isNotEmpty)
+          AutoSizeText(
+            _headerFullName,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        if (_headerEpf.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          AutoSizeText(
+            '${AppLocalizations.of(context)!.epfLabel} $_headerEpf',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+        if (_designation.isNotEmpty || _department.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_designation.isNotEmpty) ...[
+                _buildBadge(_designation, null),
+                const SizedBox(width: 8),
+              ],
+              if (_department.isNotEmpty)
+                _buildBadge(
+                  _department,
+                  const Icon(Icons.check_rounded, size: 12, color: Colors.black),
+                ),
+            ],
+          ),
+        ],
+        const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _avatarFallback() {
+  Widget _buildBadge(String label, Widget? prefixIcon) {
     return Container(
-      color: _cardColor,
-      child: Icon(Icons.person, size: 60, color: _textTertiary),
-    );
-  }
-
-  Widget _buildProfileCard() {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // ── Avatar ──────────────────────────────────────────────────────────
-          _buildAvatar(),
-          const SizedBox(height: 16),
-
-          // ── Full name ────────────────────────────────────────────────────────
-          if (_headerFullName.isNotEmpty)
-            AutoSizeText(
-              _headerFullName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: _textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          const SizedBox(height: 4),
-
-          // ── EPF ──────────────────────────────────────────────────────────────
-          AutoSizeText(
-            '${AppLocalizations.of(context)!.epfLabel}${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
-            style: const TextStyle(fontSize: 14, color: _textSecondary),
-            textAlign: TextAlign.center,
-          ),
-
-          // ── Designation & Department badges ──────────────────────────────────
-          if (_designation.isNotEmpty || _department.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: [
-                if (_designation.isNotEmpty)
-                  _buildBadge(_designation, _primaryColor),
-                if (_department.isNotEmpty)
-                  _buildBadge(_department, _secondaryColor),
-              ],
-            ),
-          ],
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBadge(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: Colors.black.withOpacity(0.06),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: AutoSizeText(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (prefixIcon != null) ...[
+            prefixIcon,
+            const SizedBox(width: 4),
+          ],
+          AutoSizeText(
+            label,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoItem({
+  Widget _buildCardItem({
     required IconData icon,
-    required String title,
+    required String label,
     required String value,
-    Color iconColor = _textPrimary,
+    bool showChevron = false,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
-      ),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(6),
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.black.withOpacity(0.04)),
             ),
-            child: Center(child: Icon(icon, size: 20, color: iconColor)),
+            child: Center(
+              child: Icon(
+                icon,
+                size: 22,
+                color: Colors.black87,
+              ),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                AutoSizeText(
-                  title,
-                  style: const TextStyle(fontSize: 13, color: _textTertiary),
+                Text(
+                  label.toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black45,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                AutoSizeText(
+                const SizedBox(height: 3),
+                Text(
                   value.isNotEmpty
                       ? value
                       : AppLocalizations.of(context)!.notAdded,
                   style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: _textPrimary,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
+          if (showChevron) ...[
+            const SizedBox(width: 8),
+            const Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: Colors.black26,
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildPersonalInfo() {
+  Widget _buildCardGroup(List<Widget> items) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black.withOpacity(0.04)),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 12),
-            child: AutoSizeText(
-              AppLocalizations.of(context)!.personalInformation,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: Colors.black87,
+          for (int i = 0; i < items.length; i++) ...[
+            items[i],
+            if (i < items.length - 1)
+              const Divider(
+                height: 1,
+                indent: 84,
+                endIndent: 20,
+                color: Color(0xFFF1F5F9),
               ),
-            ),
-          ),
-          _buildInfoItem(
-            icon: Icons.email_rounded,
-            title: AppLocalizations.of(context)!.emailAddressText,
-            value: _email,
-            iconColor: _primaryColor,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoItem(
-            icon: Icons.phone_rounded,
-            title: AppLocalizations.of(context)!.phoneLabel,
-            value: _phone,
-            iconColor: Colors.green,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoItem(
-            icon: Icons.location_on_rounded,
-            title: AppLocalizations.of(context)!.addressLabel,
-            value: _address,
-            iconColor: Colors.blue,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoItem(
-            icon: Icons.badge_rounded,
-            title: AppLocalizations.of(context)!.nicLabel,
-            value: _nic,
-            iconColor: Colors.purple,
-          ),
-          const SizedBox(height: 12),
-          _buildInfoItem(
-            icon: Icons.cake_rounded,
-            title: AppLocalizations.of(context)!.dateOfBirth,
-            value: _dob,
-            iconColor: Colors.orange,
-          ),
+          ],
         ],
       ),
     );
@@ -611,13 +548,45 @@ class _TabletProfileState extends State<TabletProfile> {
                         onRefresh: _loadProfileData,
                         child: SingleChildScrollView(
                           physics: const AlwaysScrollableScrollPhysics(),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              _buildProfileCard(),
-                              _buildPersonalInfo(),
-                              const SizedBox(height: 40),
-                            ],
+                          child: Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 700),
+                              child: Column(
+                                children: [
+                                  _buildTopProfileHeader(),
+                                  _buildCardGroup([
+                                    _buildCardItem(
+                                      icon: Icons.phone_outlined,
+                                      label: AppLocalizations.of(context)!.phoneLabel,
+                                      value: _phone,
+                                    ),
+                                    _buildCardItem(
+                                      icon: Icons.mail_outline_rounded,
+                                      label: AppLocalizations.of(context)!.emailAddressText,
+                                      value: _email,
+                                    ),
+                                    _buildCardItem(
+                                      icon: Icons.place_outlined,
+                                      label: AppLocalizations.of(context)!.addressLabel,
+                                      value: _address,
+                                    ),
+                                  ]),
+                                  _buildCardGroup([
+                                    _buildCardItem(
+                                      icon: Icons.badge_outlined,
+                                      label: AppLocalizations.of(context)!.nicLabel,
+                                      value: _nic,
+                                    ),
+                                    _buildCardItem(
+                                      icon: Icons.cake_outlined,
+                                      label: AppLocalizations.of(context)!.dateOfBirth,
+                                      value: _dob,
+                                    ),
+                                  ]),
+                                  const SizedBox(height: 40),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),

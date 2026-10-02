@@ -58,7 +58,7 @@ class TabletLeaveState extends State<TabletLeave>
   // Bottom-sheet wizard
   // int _applyStep = 0; // 0=type, 1=mode+dates, 2=desc+confirm
 
-  static const Color _pageBg = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
 
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
@@ -559,7 +559,6 @@ class TabletLeaveState extends State<TabletLeave>
                   decoration: BoxDecoration(
                     color: _surface,
                     borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
-                    border: Border.all(color: Colors.black.withOpacity(0.05)),
                   ),
                   child: TabBar(
                     controller: _tab,

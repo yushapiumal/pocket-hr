@@ -98,7 +98,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get searchText => 'සෙවීම';
 
   @override
-  String get profileText => 'ප්‍රොෆයිලය';
+  String get profileText => 'පැතිකඩ';
 
   @override
   String get readMoreText => 'තව කියවන්න...';
@@ -783,11 +783,18 @@ class AppLocalizationsSi extends AppLocalizations {
   String get ssoFailed => 'SSO පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.';
 
   @override
-  String get locationAccuracyTitle => 'ඔබ බොහෝ දුරින් සිටී..';
+  String get locationAccuracyTitle => 'ස්ථානීය නිරවද්‍යතාව';
 
   @override
-  String get locationAccuracyMessage =>
-      'ස්කෑන් කිරීමේ ස්ථානයට ළං වී නැවත උත්සාහ කරන්න.';
+  String locationAccuracyMessage(String accuracy) {
+    return 'ඔබගේ දුරකතනයේ ස්ථානීය නිරවද්‍යතාව ${accuracy}m වේ. ස්කෑන් කිරීමට Continue තෝරන්න.';
+  }
+
+  @override
+  String get calibratingDevice => 'උපාංගය ක්‍රමාංකනය කරමින්...';
+
+  @override
+  String get calculatingDistance => 'දුර ගණනය කරමින්...';
 
   @override
   String get findingSatellite => 'චන්ද්‍රිකාව සොයමින්...';

@@ -268,40 +268,28 @@ class _LocationPermissionDialogState extends State<_LocationPermissionDialog> wi
                   ),
                 ),
               ] else if (_permissionGranted) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: accent.withOpacity(0.1),
-                    border: Border.all(color: accent.withOpacity(0.3)),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                   child: AutoSizeText(
                     '✓ Permission granted successfully!',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: accent,
+                      color: Colors.green,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: 14),
               ] else if (message.isNotEmpty) ...[
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
-                    border: Border.all(color: Colors.black12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                   child: AutoSizeText(
                     message,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+                      color: Colors.red,
                     ),
                     textAlign: TextAlign.center,
                   ),

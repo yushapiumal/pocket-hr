@@ -17,6 +17,7 @@ class MobileDebtsAndLoansScreen extends StatefulWidget {
 class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tab;
+  final AutoSizeGroup _tabGroup = AutoSizeGroup();
   bool _loading = true;
   String? _error;
   List<DebtItem> _items = [];
@@ -29,7 +30,7 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
   static const double _g20 = 20;
   static const double _g24 = 24;
 
-  static const Color _pageBg = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
   @override
@@ -82,7 +83,7 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: _surface,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.black.withOpacity(0.05)),
           boxShadow: [
@@ -337,29 +338,38 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: _g12),
               child: Container(
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: _surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black.withOpacity(0.05)),
+                  color: const Color(0xFFFAF2EB),
+                  borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                 ),
                 child: TabBar(
                   controller: _tab,
                   dividerColor: Colors.transparent,
                   indicatorColor: Colors.transparent,
                   indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorPadding: const EdgeInsets.all(6),
+                  indicatorPadding: EdgeInsets.zero,
                   indicator: BoxDecoration(
                     color: HRColors.tabColor,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: HRColors.tabColor.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
                   ),
                   labelColor: HRColors.tabLabelColor,
-                  unselectedLabelColor: Colors.black54,
+                  unselectedLabelColor: const Color(0xFF7D6C6F),
                   tabs: [
                     Tab(
                       child: AutoSizeText(
                         AppLocalizations.of(context)!.allLabel,
                         maxLines: 1,
                         minFontSize: 10,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Tab(
@@ -367,6 +377,8 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                         AppLocalizations.of(context)!.debtsLabel,
                         maxLines: 1,
                         minFontSize: 10,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                     Tab(
@@ -374,6 +386,8 @@ class _MobileDebtsAndLoansScreenState extends State<MobileDebtsAndLoansScreen>
                         AppLocalizations.of(context)!.loansLabel,
                         maxLines: 1,
                         minFontSize: 10,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

@@ -1075,7 +1075,7 @@ abstract class AppLocalizations {
   /// No description provided for @invalidQrServerError.
   ///
   /// In en, this message translates to:
-  /// **'Invalid QR or server error'**
+  /// **'QR code is not valid or the server is unavailable. Please try again.'**
   String get invalidQrServerError;
 
   /// No description provided for @qrCoordinatesNotMatch.
@@ -1087,13 +1087,13 @@ abstract class AppLocalizations {
   /// No description provided for @serverDidNotReturnCoordinates.
   ///
   /// In en, this message translates to:
-  /// **'Server did not return coordinates'**
+  /// **'Coordinates not found. Please try again.'**
   String get serverDidNotReturnCoordinates;
 
   /// No description provided for @invalidServerCoordinates.
   ///
   /// In en, this message translates to:
-  /// **'Invalid server coordinates'**
+  /// **'Invalid coordinates. Please try again.'**
   String get invalidServerCoordinates;
 
   /// No description provided for @qrMatchesServerLocation.
@@ -1603,14 +1603,26 @@ abstract class AppLocalizations {
   /// No description provided for @locationAccuracyTitle.
   ///
   /// In en, this message translates to:
-  /// **'You are too far..'**
+  /// **'Location Accuracy'**
   String get locationAccuracyTitle;
 
   /// No description provided for @locationAccuracyMessage.
   ///
   /// In en, this message translates to:
-  /// **'Go closer to the QR scanning point and try again.'**
-  String get locationAccuracyMessage;
+  /// **'Your phone\'s location accuracy is {accuracy}m. Select Continue to scan.'**
+  String locationAccuracyMessage(String accuracy);
+
+  /// No description provided for @calibratingDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Calibrating device...'**
+  String get calibratingDevice;
+
+  /// No description provided for @calculatingDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating distance...'**
+  String get calculatingDistance;
 
   /// No description provided for @findingSatellite.
   ///
@@ -2209,7 +2221,7 @@ abstract class AppLocalizations {
   /// No description provided for @failedToConnectToServer.
   ///
   /// In en, this message translates to:
-  /// **'Failed to connect to the server. Please check your internet connection.'**
+  /// **'Unable to connect. Please check your internet connection and try again..'**
   String get failedToConnectToServer;
 
   /// No description provided for @myAttendance.

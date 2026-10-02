@@ -23,6 +23,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
   final _storage = LocalStorage('pocketHR');
 
   late final TabController _tab;
+  final AutoSizeGroup _tabGroup = AutoSizeGroup();
   bool _loading = true;
   String? _error;
   List<DebtItem> _items = [];
@@ -35,7 +36,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
   static const double _g20 = 20;
   static const double _g24 = 24;
 
-  static const Color _pageBg = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
   @override
@@ -88,7 +89,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: _surface,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.black.withOpacity(0.05)),
           boxShadow: [
@@ -325,27 +326,58 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: _g12),
               child: Container(
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: _surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black.withOpacity(0.05)),
+                  color: const Color(0xFFFAF2EB),
+                  borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                 ),
                 child: TabBar(
                   controller: _tab,
                   dividerColor: Colors.transparent,
                   indicatorColor: Colors.transparent,
                   indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorPadding: const EdgeInsets.all(6),
+                  indicatorPadding: EdgeInsets.zero,
                   indicator: BoxDecoration(
                     color: HRColors.tabColor,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: HRColors.tabColor.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
                   ),
                   labelColor: HRColors.tabLabelColor,
-                  unselectedLabelColor: Colors.black54,
+                  unselectedLabelColor: const Color(0xFF7D6C6F),
                   tabs: [
-                    Tab(text: AppLocalizations.of(context)!.allLabel),
-                    Tab(text: AppLocalizations.of(context)!.debtsLabel),
-                    Tab(text: AppLocalizations.of(context)!.loansLabel),
+                    Tab(
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.allLabel,
+                        maxLines: 1,
+                        minFontSize: 12,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Tab(
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.debtsLabel,
+                        maxLines: 1,
+                        minFontSize: 12,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Tab(
+                      child: AutoSizeText(
+                        AppLocalizations.of(context)!.loansLabel,
+                        maxLines: 1,
+                        minFontSize: 12,
+                        group: _tabGroup,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
               ),

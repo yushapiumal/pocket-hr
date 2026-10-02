@@ -161,7 +161,7 @@
   "scanSiteCheckIn": "Scan site QR to enable check-in",
   "scanSiteCheckOut": "Scan site QR to enable check-out",
   "qrNoCoordinates": "QR does not contain coordinates",
-  "invalidQrServerError": "Invalid QR or server error",
+  "invalidQrServerError": "QR code is not valid or the server is unavailable. Please try again.",
   "qrCoordinatesNotMatch": "QR and company location differ by {meters} m. Move closer or contact admin.",
   "@qrCoordinatesNotMatch": {
     "placeholders": {
@@ -170,8 +170,8 @@
       }
     }
   },
-  "serverDidNotReturnCoordinates": "Server did not return coordinates",
-  "invalidServerCoordinates": "Invalid server coordinates",
+  "serverDidNotReturnCoordinates": "Coordinates not found. Please try again.",
+  "invalidServerCoordinates": "Invalid coordinates. Please try again.",
   "qrMatchesServerLocation": "QR matches.distence ({meters} m). Check-in/out enabled",
   "@qrMatchesServerLocation": {
     "placeholders": {
@@ -300,8 +300,17 @@
   "closed": "Closed",
   "loginFailed": "Failed to login. Please try again.",
   "ssoFailed": "SSO Login failed. Please try again.",
-  "locationAccuracyTitle": "You are too far..",
-  "locationAccuracyMessage": "Go closer to the QR scanning point and try again.",
+  "locationAccuracyTitle": "Location Accuracy",
+  "locationAccuracyMessage": "Your phone's location accuracy is {accuracy}m. Select Continue to scan.",
+  "@locationAccuracyMessage": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  },
+  "calibratingDevice": "Calibrating device...",
+  "calculatingDistance": "Calculating distance...",
   "findingSatellite": "Finding satellite...",
   "currentAccuracyLabel": "Accuracy: {accuracy}m",
   "@currentAccuracyLabel": {
@@ -480,7 +489,7 @@
   "reqHoursHeader": "REQ HOURS",
   "remoteLabel": "REMOTE",
   "qrLabel": "QR",
-  "failedToConnectToServer": "Failed to connect to the server. Please check your internet connection.",
+  "failedToConnectToServer": "Unable to connect. Please check your internet connection and try again..",
   "myAttendance": "My Attendance",
   "inLocationHeader": "IN LOCATION",
   "outLocationHeader": "OUT LOCATION",

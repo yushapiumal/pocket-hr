@@ -30,7 +30,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
   static const double _g20 = 20;
   static const double _g24 = 24;
 
-  static const Color _pageBg = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
   // Theme colors matching premium mockup
@@ -1256,8 +1256,15 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
     Widget card = Container(
       margin: const EdgeInsets.symmetric(horizontal: _g16, vertical: _g8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
@@ -1829,8 +1836,15 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F5),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -2518,7 +2532,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                 onPressed: () => _changeMonth(-1),
                 icon: const Icon(Icons.chevron_left, size: 20),
                 style: IconButton.styleFrom(
-                  backgroundColor: _surface,
+                  backgroundColor: Colors.white,
                   padding: const EdgeInsets.all(8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -2537,7 +2551,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                 onPressed: () => _changeMonth(1),
                 icon: const Icon(Icons.chevron_right, size: 20),
                 style: IconButton.styleFrom(
-                  backgroundColor: _surface,
+                  backgroundColor: Colors.white,
                   padding: const EdgeInsets.all(8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

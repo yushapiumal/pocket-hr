@@ -33,7 +33,7 @@ class _TabletSalarySlipState extends State<TabletSalarySlip>
       false; // guard to show API message only once per page load
 
   // Theme aligned with Attendance / Leave screens
-  static const Color _pageBg = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
   static const double _g8 = 8;
   static const double _g12 = 12;
@@ -397,7 +397,7 @@ class _TabletSalarySlipState extends State<TabletSalarySlip>
             padding: const EdgeInsets.only(bottom: 10),
             child: Container(
               decoration: BoxDecoration(
-                color: _surface,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.black.withOpacity(0.05)),
                 boxShadow: [

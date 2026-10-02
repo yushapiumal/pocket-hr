@@ -496,7 +496,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qrNoCoordinates => 'QR does not contain coordinates';
 
   @override
-  String get invalidQrServerError => 'Invalid QR or server error';
+  String get invalidQrServerError =>
+      'QR code is not valid or the server is unavailable. Please try again.';
 
   @override
   String qrCoordinatesNotMatch(Object meters) {
@@ -505,10 +506,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get serverDidNotReturnCoordinates =>
-      'Server did not return coordinates';
+      'Coordinates not found. Please try again.';
 
   @override
-  String get invalidServerCoordinates => 'Invalid server coordinates';
+  String get invalidServerCoordinates =>
+      'Invalid coordinates. Please try again.';
 
   @override
   String qrMatchesServerLocation(Object meters) {
@@ -780,11 +782,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ssoFailed => 'SSO Login failed. Please try again.';
 
   @override
-  String get locationAccuracyTitle => 'You are too far..';
+  String get locationAccuracyTitle => 'Location Accuracy';
 
   @override
-  String get locationAccuracyMessage =>
-      'Go closer to the QR scanning point and try again.';
+  String locationAccuracyMessage(String accuracy) {
+    return 'Your phone\'s location accuracy is ${accuracy}m. Select Continue to scan.';
+  }
+
+  @override
+  String get calibratingDevice => 'Calibrating device...';
+
+  @override
+  String get calculatingDistance => 'Calculating distance...';
 
   @override
   String get findingSatellite => 'Finding satellite...';
@@ -1109,7 +1118,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedToConnectToServer =>
-      'Failed to connect to the server. Please check your internet connection.';
+      'Unable to connect. Please check your internet connection and try again..';
 
   @override
   String get myAttendance => 'My Attendance';

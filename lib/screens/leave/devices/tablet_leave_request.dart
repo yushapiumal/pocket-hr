@@ -53,6 +53,8 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   bool halfDayToggle = false;
   String description = "";
   APIService apiService = APIService();
+  bool loader = false;
+  bool buttonEnable = true;
 
   Future<void> selectFDate(BuildContext context) async {
     final now = DateTime.now();
@@ -101,26 +103,42 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   }
 
   submit() async {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
-    final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+    if (!buttonEnable) return;
+    setState(() {
+      loader = true;
+      buttonEnable = false;
+    });
 
-    if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
-      apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
-      return;
+    try {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
+      final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+
+      if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
+        apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
+        return;
+      }
+
+      var data = {
+        'leave_title': reasonListValue,
+        'from_date': DateFormat('d/MM/y').format(fDate).toString(),
+        'to_date': DateFormat('d/MM/y').format(tDate).toString(),
+        'leave_type': leave_typeValue,
+        'session': firstsecondValue,
+        'type': typeValue,
+        'description': description
+      };
+      await apiService.leave(data);
+    } catch (_) {
+    } finally {
+      if (mounted) {
+        setState(() {
+          loader = false;
+          buttonEnable = true;
+        });
+      }
     }
-
-    var data = {
-      'leave_title': reasonListValue,
-      'from_date': DateFormat('d/MM/y').format(fDate).toString(),
-      'to_date': DateFormat('d/MM/y').format(tDate).toString(),
-      'leave_type': leave_typeValue,
-      'session': firstsecondValue,
-      'type': typeValue,
-      'description': description
-    };
-    await apiService.leave(data);
   }
 
   @override
@@ -243,11 +261,13 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                 showFDate(),
                 showTDate(),
                 showDetail(),
-                SizedBox(width: 10.0),
+                if (loader)
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                        Color.fromARGB(255, 243, 145, 33)),
+                  ),
                 GestureDetector(
-                  onTap: () {
-                    submit();
-                  },
+                  onTap: buttonEnable ? submit : null,
                   child: Align(
                     alignment: Alignment.topRight,
                     child: Container(

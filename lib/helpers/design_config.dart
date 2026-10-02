@@ -15,7 +15,7 @@ import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/logout.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:cn_pocket_hr/screens/organization/organization_screen.dart';
+import 'package:cn_pocket_hr/screens/team/team.dart';
 
 class DesignConfig {
   static const double defaultBorderRadius = 8.0;
@@ -178,9 +178,8 @@ class DesignConfig {
       final provider = Provider.of<LocaleProvider>(context);
 
       return Container(
-        margin: const EdgeInsets.only(top: 80.0, left: 8.0, right: 30.0),
+        margin: const EdgeInsets.only(bottom: 12.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             _buildLangButton(provider, storage, 'EN', 'en'),
             _buildLangButton(provider, storage, 'සිං', 'si'),
@@ -190,148 +189,95 @@ class DesignConfig {
       );
     }
 
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+
+    Widget buildTile({
+      required IconData icon,
+      required String title,
+      required bool isSelected,
+      required VoidCallback onTap,
+    }) {
+      const selectedBg = Color(0xFF1B172E);
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+        decoration: BoxDecoration(
+          color: isSelected ? selectedBg : Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 22,
+                  color: isSelected ? Colors.white : Colors.black,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: AutoSizeText(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? Colors.white : Colors.black,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     Widget? buildMenuItem(String key) {
       final l10n = AppLocalizations.of(context)!;
       switch (key) {
         case 'my_team':
-          return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+          final isSelected = currentRoute == '/team' || currentRoute == HRTeam.routeName;
+          return buildTile(
+            icon: Icons.people_alt_outlined,
+            title: l10n.myTeam,
+            isSelected: isSelected,
             onTap: () => Navigator.pushNamed(context, '/team'),
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: Icon(Icons.people_alt,
-                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-              ),
-            ),
-            title: AutoSizeText(
-              l10n.myTeam,
-              style: const TextStyle(fontSize: 17, color: HRColors.black),
-            ),
-          );
-        case 'organization':
-        case 'organization_structure':
-          return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
-            onTap: () => Navigator.pushNamed(context, HROrganization.routeName),
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: Icon(Icons.account_tree_outlined,
-                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-              ),
-            ),
-            title: const AutoSizeText(
-              'Organization',
-              style: TextStyle(fontSize: 17, color: HRColors.black),
-            ),
           );
         case 'salary_slips':
-          return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+          final isSelected = currentRoute == HRSalarySlips.routeName;
+          return buildTile(
+            icon: Icons.receipt_long_outlined,
+            title: l10n.salarySlips,
+            isSelected: isSelected,
             onTap: () => Navigator.pushNamed(context, HRSalarySlips.routeName),
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: Icon(Icons.receipt_long,
-                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-              ),
-            ),
-            title: AutoSizeText(
-              l10n.salarySlips,
-              style: const TextStyle(fontSize: 17, color: HRColors.black),
-            ),
           );
         case 'allowance_deductions':
-          return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+          final isSelected = currentRoute == HRAllowancesDeductions.routeName;
+          return buildTile(
+            icon: Icons.account_balance_wallet_outlined,
+            title: l10n.allowanceDeductions,
+            isSelected: isSelected,
             onTap: () => Navigator.pushNamed(
                 context, HRAllowancesDeductions.routeName),
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: Icon(Icons.account_balance_wallet_outlined,
-                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-              ),
-            ),
-            title: AutoSizeText(
-              l10n.allowanceDeductions,
-              style: const TextStyle(fontSize: 17, color: HRColors.black),
-            ),
           );
         case 'debts_loans':
-          return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+          final isSelected = currentRoute == HRDebtsAndLoans.routeName;
+          return buildTile(
+            icon: Icons.payments_outlined,
+            title: l10n.debtLoans,
+            isSelected: isSelected,
             onTap: () => Navigator.pushNamed(context, HRDebtsAndLoans.routeName),
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: Icon(Icons.payments_outlined,
-                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-              ),
-            ),
-            title: AutoSizeText(
-              l10n.debtLoans,
-              style: const TextStyle(fontSize: 17, color: HRColors.black),
-            ),
           );
         case 'todo_list':
-          return ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+          final isSelected = currentRoute == HRTodo.routeName;
+          return buildTile(
+            icon: Icons.checklist_outlined,
+            title: l10n.todos,
+            isSelected: isSelected,
             onTap: () => Navigator.pushNamed(context, HRTodo.routeName),
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: Icon(Icons.checklist,
-                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
-              ),
-            ),
-            title: AutoSizeText(
-              l10n.todos,
-              style: const TextStyle(fontSize: 17, color: HRColors.black),
-            ),
           );
         default:
           return null;
@@ -437,16 +383,13 @@ class DesignConfig {
                           .whereType<Widget>()
                           .toList(),
                       const _RefreshListTile(),
-                      const SizedBox(height: 20),
-                      langPicker(),
-                      const SizedBox(height: 30),
                     ],
                   );
                 },
               ),
             ),
 
-            // Bottom Section: Logout + Version
+            // Bottom Section: Language + Logout + Version
             Container(
               padding: EdgeInsets.fromLTRB(
                 16,
@@ -460,6 +403,8 @@ class DesignConfig {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  langPicker(),
+                  const SizedBox(height: 4),
                   // Logout button styled like check-in/check-out
                   GestureDetector(
                     onTap: () => LogoutHelper.logout(context),
@@ -520,18 +465,45 @@ class DesignConfig {
 
   static Widget _buildLangButton(LocaleProvider provider, LocalStorage storage,
       String text, String langCode) {
-    return GestureDetector(
-      child: ElevatedButton(
-        onPressed: () {
-          provider.setLocale(Locale(langCode));
-          storage.setItem('lang', langCode);
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    final currentLang = provider.locale?.languageCode ?? 'en';
+    final isSelected = currentLang == langCode;
+    const selectedBg = Color(0xFF1B172E);
+
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3.0),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              provider.setLocale(Locale(langCode));
+              storage.setItem('lang', langCode);
+            },
+            borderRadius: BorderRadius.circular(14),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 38,
+              decoration: BoxDecoration(
+                color: isSelected ? selectedBg : Colors.black.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isSelected ? selectedBg : Colors.black.withOpacity(0.08),
+                  width: 1,
+                ),
+              ),
+              alignment: Alignment.center,
+              child: AutoSizeText(
+                text,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.black87,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontSize: 13.5,
+                ),
+                maxLines: 1,
+              ),
+            ),
+          ),
         ),
-        child: AutoSizeText(text, style: const TextStyle(color: Colors.black)),
       ),
     );
   }
@@ -689,33 +661,45 @@ class __RefreshListTileState extends State<_RefreshListTile>
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
-      onTap: _isRefreshing ? null : _onTap,
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.black.withOpacity(0.06)),
-        ),
-        child: Center(
-          child: RotationTransition(
-            turns: _spinController,
-            child: Icon(Icons.refresh,
-              color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black,
-              size: 24),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: _isRefreshing ? null : _onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              RotationTransition(
+                turns: _spinController,
+                child: const Icon(
+                  Icons.refresh,
+                  size: 22,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: AutoSizeText(
+                  _isRefreshing
+                      ? AppLocalizations.of(context)!.refreshing
+                      : AppLocalizations.of(context)!.refresh,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-      title: AutoSizeText(
-        _isRefreshing
-            ? AppLocalizations.of(context)!.refreshing
-            : AppLocalizations.of(context)!.refresh,
-        style: const TextStyle(
-            fontSize: 17, color: HRColors.black, fontWeight: FontWeight.normal),
       ),
     );
   }

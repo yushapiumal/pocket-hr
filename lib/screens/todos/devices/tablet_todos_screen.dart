@@ -33,8 +33,8 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
   static const double _g20 = 20;
   static const double _g24 = 24;
 
-  static const Color _pageBg = Colors.white;
-  static const Color _surface = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
+  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
   static const Color _burgundy = Color(0xFF701A27); // Burgundy
   static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
   static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
@@ -1523,14 +1523,22 @@ class TodoCardWidget extends StatelessWidget {
     required this.onTap,
   });
 
-  String _formatDateTime(int? timestamp) {
-    if (timestamp == null || timestamp <= 0) return '-';
-    int milliseconds = timestamp;
-    if (timestamp <= 9999999999) {
-      milliseconds = timestamp * 1000;
+  DateTime? _getTimestamp(int? cts, Map<String, dynamic>? payload) {
+    final raw = payload?['checked_at'];
+    if (raw != null) {
+      if (raw is int) {
+        int ms = raw <= 9999999999 ? raw * 1000 : raw;
+        return DateTime.fromMillisecondsSinceEpoch(ms);
+      } else if (raw is String) {
+        final parsed = DateTime.tryParse(raw);
+        if (parsed != null) return parsed.toLocal();
+      }
     }
-    final dt = DateTime.fromMillisecondsSinceEpoch(milliseconds);
-    return DateFormat('yyyy-MM-dd hh:mm a').format(dt);
+    if (cts != null && cts > 0) {
+      int ms = cts <= 9999999999 ? cts * 1000 : cts;
+      return DateTime.fromMillisecondsSinceEpoch(ms);
+    }
+    return null;
   }
 
   @override
@@ -1565,19 +1573,20 @@ class TodoCardWidget extends StatelessWidget {
     }
 
     final String userName = item.user?.name ?? 'Unknown User';
+    final isRemoteAttendance = item.type == 'remote_attendance';
 
     String punchDetails = '';
-    if (item.type == 'remote_attendance' && item.payload != null) {
+    if (isRemoteAttendance && item.payload != null) {
       final punchType = item.payload!['type']?.toString().toUpperCase() ?? '';
       if (punchType.isNotEmpty) {
-        punchDetails = punchType == 'CHECK_IN' || punchType == 'CHECKIN' || punchType == 'IN'
+        punchDetails = (punchType == 'CHECK_IN' || punchType == 'CHECKIN' || punchType == 'IN')
             ? 'Check In'
             : 'Check Out';
       }
     }
 
     String todoTypeLabel = '';
-    if (item.type == 'remote_attendance') {
+    if (isRemoteAttendance) {
       todoTypeLabel = '';
     } else if (item.type == 'profile_unlock') {
       todoTypeLabel = 'Profile Unlock';
@@ -1587,13 +1596,19 @@ class TodoCardWidget extends StatelessWidget {
       todoTypeLabel = item.type.replaceAll('_', ' ').split(' ').map((str) => str.isEmpty ? '' : '${str[0].toUpperCase()}${str.substring(1)}').join(' ');
     }
 
+    final dt = _getTimestamp(item.cts, item.payload);
+    final dateStr = dt != null ? DateFormat('yyyy-MM-dd').format(dt) : '-';
+    final timeStr = dt != null ? DateFormat('hh:mm a').format(dt) : '-';
+    final fullDateTimeStr = dt != null ? DateFormat('yyyy-MM-dd hh:mm a').format(dt) : '-';
+
     final cardWidget = Card(
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: Colors.black.withOpacity(0.04)),
       ),
-      color: const Color(0xFFFAF2EB),
+      color: Colors.white,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -1617,11 +1632,13 @@ class TodoCardWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            runSpacing: 4,
                             children: [
                               AutoSizeText(
                                 userName,
@@ -1632,8 +1649,7 @@ class TodoCardWidget extends StatelessWidget {
                                   color: Color(0xFF4A1521),
                                 ),
                               ),
-                              if (item.user?.epfPretty != null) ...[
-                                const SizedBox(width: 6),
+                              if (item.user?.epfPretty != null)
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                                   decoration: BoxDecoration(
@@ -1649,58 +1665,17 @@ class TodoCardWidget extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              ],
                             ],
                           ),
                         ),
                         const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: badgeColor,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(statusIcon, size: 14, color: textColor),
-                              const SizedBox(width: 4),
-                              AutoSizeText(
-                                displayStatus,
-                                maxLines: 1,
-                                minFontSize: 9,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: textColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        if (todoTypeLabel.isNotEmpty) ...[
-                          AutoSizeText(
-                            todoTypeLabel,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF701A27),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (punchDetails.isNotEmpty) ...[
+                        if (isRemoteAttendance && punchDetails.isNotEmpty) ...[
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: punchDetails.toUpperCase().contains('OUT')
-                                  ? const Color(0xFFFFF3E0) // soft orange
-                                  : const Color(0xFFE8F5E9), // soft green
+                                  ? const Color(0xFFFFF3E0)
+                                  : const Color(0xFFE8F5E9),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -1709,24 +1684,115 @@ class TodoCardWidget extends StatelessWidget {
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
                                 color: punchDetails.toUpperCase().contains('OUT')
-                                    ? const Color(0xFFE65100) // dark orange
-                                    : const Color(0xFF2E7D32), // dark green
+                                    ? const Color(0xFFE65100)
+                                    : const Color(0xFF2E7D32),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        AutoSizeText(
-                          _formatDateTime(item.cts),
-                          maxLines: 1,
-                          minFontSize: 10,
-                          style: const TextStyle(
-                            color: Colors.black38,
-                            fontSize: 12,
+                          if (item.completed || item.waitingForPreviousStage) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: badgeColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(statusIcon, size: 13, color: textColor),
+                                  const SizedBox(width: 4),
+                                  AutoSizeText(
+                                    displayStatus,
+                                    maxLines: 1,
+                                    minFontSize: 9,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: textColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ] else ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: badgeColor,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(statusIcon, size: 14, color: textColor),
+                                const SizedBox(width: 4),
+                                AutoSizeText(
+                                  displayStatus,
+                                  maxLines: 1,
+                                  minFontSize: 9,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: textColor,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ),
+                    const SizedBox(height: 8),
+                    if (isRemoteAttendance) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          AutoSizeText(
+                            dateStr,
+                            style: const TextStyle(
+                              color: Colors.black54,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          AutoSizeText(
+                            timeStr,
+                            style: const TextStyle(
+                              color: Colors.black45,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Row(
+                        children: [
+                          if (todoTypeLabel.isNotEmpty) ...[
+                            AutoSizeText(
+                              todoTypeLabel,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF701A27),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          AutoSizeText(
+                            fullDateTimeStr,
+                            maxLines: 1,
+                            minFontSize: 10,
+                            style: const TextStyle(
+                              color: Colors.black38,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

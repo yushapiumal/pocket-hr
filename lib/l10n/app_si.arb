@@ -28,7 +28,7 @@
   "categoryText": "ප්‍රවර්ගය",
   "punchText": "පැමිණීම",
   "searchText": "සෙවීම",
-  "profileText": "ප්‍රොෆයිලය",
+  "profileText": "පැතිකඩ",
   "readMoreText": "තව කියවන්න...",
   "readLessText": "අඩු කරන්න",
   "searchForText": "මෙන්න සෙවන්න...",
@@ -294,8 +294,17 @@
   "eveningLabel": "සවස",
   "loginFailed": "පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.",
   "ssoFailed": "SSO පිවිසීම අසාර්ථකයි. කරුණාකර නැවත උත්සාහ කරන්න.",
-  "locationAccuracyTitle": "ඔබ බොහෝ දුරින් සිටී..",
-  "locationAccuracyMessage": "ස්කෑන් කිරීමේ ස්ථානයට ළං වී නැවත උත්සාහ කරන්න.",
+  "locationAccuracyTitle": "ස්ථානීය නිරවද්‍යතාව",
+  "locationAccuracyMessage": "ඔබගේ දුරකතනයේ ස්ථානීය නිරවද්‍යතාව {accuracy}m වේ. ස්කෑන් කිරීමට Continue තෝරන්න.",
+  "@locationAccuracyMessage": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  },
+  "calibratingDevice": "උපාංගය ක්‍රමාංකනය කරමින්...",
+  "calculatingDistance": "දුර ගණනය කරමින්...",
   "findingSatellite": "චන්ද්‍රිකාව සොයමින්...",
   "currentAccuracyLabel": "නිරවද්‍යතාවය: මීටර් {accuracy}",
   "@currentAccuracyLabel": {

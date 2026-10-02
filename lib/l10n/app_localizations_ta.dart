@@ -796,11 +796,18 @@ class AppLocalizationsTa extends AppLocalizations {
       'SSO உள்நுழைவு தோல்வியடைந்தது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.';
 
   @override
-  String get locationAccuracyTitle => 'நீங்கள் மிகவும் தொலைவில் உள்ளீர்கள்..';
+  String get locationAccuracyTitle => 'இருப்பிடத் துல்லியம்';
 
   @override
-  String get locationAccuracyMessage =>
-      'QR ஸ்கேன் செய்யும் இடத்திற்கு அருகில் சென்று மீண்டும் முயற்சிக்கவும்.';
+  String locationAccuracyMessage(String accuracy) {
+    return 'உங்கள் தொலைபேசியின் இருப்பிடத் துல்லியம் ${accuracy}m ஆகும். ஸ்கேன் செய்ய Continue என்பதைத் தேர்ந்தெடுக்கவும்.';
+  }
+
+  @override
+  String get calibratingDevice => 'சாதனத்தை அளவீடு செய்கிறது...';
+
+  @override
+  String get calculatingDistance => 'தூரத்தைக் கணக்கிடுகிறது...';
 
   @override
   String get findingSatellite => 'செயற்கைக்கோளைத் தேடுகிறது...';

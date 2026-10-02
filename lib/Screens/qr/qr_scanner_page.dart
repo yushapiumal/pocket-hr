@@ -48,6 +48,8 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
   bool _accuracyAchieved = false;
   double? _currentAccuracy;
   late AnimationController _satelliteAnimationController;
+  Timer? _stepTimer;
+  int _locationStepIndex = 0;
 
   @override
   void initState() {
@@ -63,6 +65,16 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
   }
 
   void _startLocationListening() async {
+    _locationStepIndex = 0;
+    _stepTimer?.cancel();
+    _stepTimer = Timer.periodic(const Duration(milliseconds: 1500), (timer) {
+      if (mounted) {
+        setState(() {
+          _locationStepIndex++;
+        });
+      }
+    });
+
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -73,6 +85,7 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
         permission = await Geolocator.requestPermission();
       }
       if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        _stepTimer?.cancel();
         setState(() {
           _accuracyAchieved = true;
         });
@@ -92,6 +105,7 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
         }
       });
     } catch (_) {
+      _stepTimer?.cancel();
       setState(() {
         _accuracyAchieved = true;
       });
@@ -107,6 +121,7 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
     });
 
     if (position.accuracy <= 5.0) {
+      _stepTimer?.cancel();
       setState(() {
         _accuracyAchieved = true;
       });
@@ -114,6 +129,7 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
     } else {
       _locationAttempts++;
       if (_locationAttempts >= 2) {
+        _stepTimer?.cancel();
         _positionStream?.cancel();
         _showAccuracyDialog();
       }
@@ -126,39 +142,20 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
       barrierDismissible: false,
       builder: (BuildContext context) {
         final local = AppLocalizations.of(context)!;
+        final accuracyStr = _currentAccuracy != null ? _currentAccuracy!.toStringAsFixed(1) : "0.0";
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: Text(
-            local.locationAccuracyTitle,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          contentPadding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
           content: Text(
-            local.locationAccuracyMessage,
-            style: const TextStyle(fontSize: 14),
+            local.locationAccuracyMessage(accuracyStr),
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87),
+            textAlign: TextAlign.center,
           ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                if (mounted) {
-                  setState(() {
-                    _locationAttempts = 0;
-                    _accuracyAchieved = false;
-                  });
-                  _startLocationListening();
-                }
-              },
-              child: Text(
-                local.retryLabel,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.redAccent,
-                ),
-              ),
-            ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 if (mounted) {
@@ -167,11 +164,20 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
                   });
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: HRColors.darkOrangeColor,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                elevation: 0,
+              ),
               child: Text(
                 local.continueText,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  color: Colors.white,
+                  fontSize: 15,
                 ),
               ),
             ),
@@ -210,8 +216,22 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
     });
   }
 
+  String _getLocationStepText(BuildContext context) {
+    final local = AppLocalizations.of(context)!;
+    final step = _locationStepIndex % 3;
+
+    if (step == 0) {
+      return local.findingSatellite;
+    } else if (step == 1) {
+      return local.calibratingDevice;
+    } else {
+      return local.calculatingDistance;
+    }
+  }
+
   @override
   void dispose() {
+    _stepTimer?.cancel();
     _positionStream?.cancel();
     _satelliteAnimationController.dispose();
     _controller.dispose();
@@ -445,11 +465,12 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    AppLocalizations.of(context)!.findingSatellite,
+                                    _getLocationStepText(context),
+                                    textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   if (_currentAccuracy != null) ...[
@@ -483,11 +504,12 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    AppLocalizations.of(context)!.findingSatellite,
+                                    _getLocationStepText(context),
+                                    textAlign: TextAlign.center,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],

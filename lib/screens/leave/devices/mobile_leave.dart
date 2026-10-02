@@ -53,7 +53,7 @@ class MobileLeaveState extends State<MobileLeave>
   // Bottom-sheet wizard
   // int _applyStep = 0; // 0=type, 1=mode+dates, 2=desc+confirm
 
-  static const Color _pageBg = Colors.white;
+  static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
 
   // Colors matching the mockup theme
   static const Color _maroon = Color(0xFF791B27);
@@ -587,7 +587,6 @@ class MobileLeaveState extends State<MobileLeave>
                   decoration: BoxDecoration(
                     color: const Color(0xFFF5EFE6).withOpacity(0.5),
                     borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
-                    border: Border.all(color: _borderColor, width: 1.2),
                   ),
                   child: Row(
                     children: [
@@ -657,7 +656,6 @@ class MobileLeaveState extends State<MobileLeave>
                     decoration: BoxDecoration(
                       color: const Color(0xFFF5EFE6).withOpacity(0.5),
                       borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
-                      border: Border.all(color: _borderColor, width: 1.2),
                     ),
                     child: TabBar(
                       controller: _tab,
@@ -977,7 +975,7 @@ class _LeaveHistoryCardWidgetState extends State<_LeaveHistoryCardWidget> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: Color(0xFFF5F5F5),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
       child: ClipRRect(
