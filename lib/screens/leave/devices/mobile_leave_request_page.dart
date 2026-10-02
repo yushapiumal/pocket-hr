@@ -9,16 +9,19 @@ import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/models/hr/leave_eligibility_model.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
-import 'package:cn_pocket_hr/config/flavor_config.dart';
 
 class MobileLeaveRequestPage extends StatefulWidget {
   final bool isEdit;
   final MyLeavesModel? initial;
+  final bool isEmbed;
+  final VoidCallback? onSuccess;
 
   const MobileLeaveRequestPage({
     super.key,
     required this.isEdit,
     required this.initial,
+    this.isEmbed = false,
+    this.onSuccess,
   });
 
   @override
@@ -124,12 +127,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     }
   }
 
-  DateTime _startOfWeek(DateTime d) {
-    final int weekday = d.weekday;
-    return DateTime(d.year, d.month, d.day)
-        .subtract(Duration(days: weekday - 1));
-  }
-
   @override
   void dispose() {
     description.dispose();
@@ -144,7 +141,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     if (!mounted) return;
 
     final overlay = Overlay.of(context);
-    final topPadding = MediaQuery.of(context).padding.top + 10.0;
+    final topPadding = MediaQuery.of(context).padding.top + 45.0;
     final bg = error ? Colors.red.shade600 : Colors.green.shade600;
 
     late final OverlayEntry entry;
@@ -482,42 +479,39 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
                     }
                   });
                 },
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: isSelected
-                  ? HRColors.tabColor
-                  : const Color(0xFFF9FAFB),
-              border: Border.all(
-                color: isSelected ? Colors.transparent : Colors.grey.shade300,
-              ),
+              borderRadius: BorderRadius.circular(12),
+              color: isSelected ? HRColors.tabColor : Colors.transparent,
               boxShadow: isSelected
                   ? [
                       BoxShadow(
-                        color: HRColors.tabColor.withOpacity(0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                        color: HRColors.tabColor.withOpacity(0.20),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
                       ),
                     ]
                   : [],
             ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   icon,
-                  size: 16,
+                  size: 14,
                   color: isSelected ? HRColors.tabLabelColor : _accent,
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 3),
                 AutoSizeText(
                   label,
                   textAlign: TextAlign.center,
+                  maxLines: 1,
                   style: TextStyle(
                     color: isSelected ? HRColors.tabLabelColor : _textDark,
                     fontWeight: FontWeight.w700,
-                    fontSize: 10.5,
+                    fontSize: 10,
                   ),
                 ),
               ],
@@ -581,141 +575,29 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
     );
   }
 
-  Widget _buildHeader(bool readOnly) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFFFB15E), Color(0xFFFF8A1F)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: _accent.withOpacity(0.22),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
-          )
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 28,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.event_note_rounded,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AutoSizeText(
-                  readOnly
-                      ? "View your leave information"
-                      : "Fill in the details and submit your leave request",
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: Colors.white.withOpacity(0.92),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEligibilityBanner() {
-    if (_eligibility == null) return const SizedBox.shrink();
-
-    final isPayrollLocked = _eligibility!.restrictedByPayrollLock;
-    final minStr = _eligibility!.minDate;
-    final maxStr = _eligibility!.maxDate;
-    final lockedEnd = _eligibility!.lockedPayrollEnd;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: isPayrollLocked
-            ? const Color(0xFFFFF7ED)
-            : const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isPayrollLocked
-              ? const Color(0xFFFDBA74)
-              : const Color(0xFFBFDBFE),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            isPayrollLocked
-                ? Icons.lock_clock_rounded
-                : Icons.info_outline_rounded,
-            size: 16,
-            color: isPayrollLocked
-                ? const Color(0xFFC2410C)
-                : const Color(0xFF1D4ED8),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (isPayrollLocked && lockedEnd != null) ...[
-                  Text(
-                    AppLocalizations.of(context)!
-                        .payrollLockedUntilHeader(lockedEnd),
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF9A3412),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                ],
-                Text(
-                  AppLocalizations.of(context)!
-                      .allowedLeaveRange(minStr, maxStr),
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    color: isPayrollLocked
-                        ? const Color(0xFFC2410C)
-                        : const Color(0xFF1E40AF),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return const SizedBox.shrink();
   }
 
   bool _validatePickedDate(DateTime picked) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final pickedOnly = DateTime(picked.year, picked.month, picked.day);
+
+    if (pickedOnly.isBefore(today)) {
+      _showTopMessage(
+        AppLocalizations.of(context)!.cannotSelectPastDate,
+        error: true,
+      );
+      return false;
+    }
+
     if (_eligibility?.minDateTime != null) {
       final minDtOnly = DateTime(
         _eligibility!.minDateTime!.year,
         _eligibility!.minDateTime!.month,
         _eligibility!.minDateTime!.day,
       );
-      final pickedOnly = DateTime(picked.year, picked.month, picked.day);
       if (pickedOnly.isBefore(minDtOnly)) {
         final minStr = DateFormat('dd/MM/yyyy').format(minDtOnly);
         if (_eligibility?.restrictedByPayrollLock == true &&
@@ -899,6 +781,16 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
 
     final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
     final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
+      await _showTopMessage(
+        AppLocalizations.of(context)!.cannotSelectPastDate,
+        error: true,
+      );
+      return;
+    }
 
     final minDt = _eligibility?.minDateTime;
     final maxDt = _eligibility?.maxDateTime;
@@ -920,17 +812,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
             error: true,
           );
         }
-        return;
-      }
-    } else {
-      // Fallback if eligibility data is not loaded yet
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
-        await _showTopMessage(
-          AppLocalizations.of(context)!.cannotSelectPastDate,
-          error: true,
-        );
         return;
       }
     }
@@ -1000,7 +881,13 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
         await _showTopMessage(
             AppLocalizations.of(context)!.leaveAppliedSuccessfully,
             error: false);
-        if (mounted) Navigator.pop(context, true);
+        if (mounted) {
+          if (widget.isEmbed) {
+            if (widget.onSuccess != null) widget.onSuccess!();
+          } else {
+            Navigator.pop(context, true);
+          }
+        }
         return;
       }
 
@@ -1262,6 +1149,16 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
 
     final fDateOnlyConfirm = DateTime(fDate.year, fDate.month, fDate.day);
     final tDateOnlyConfirm = DateTime(tDate.year, tDate.month, tDate.day);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    if (fDateOnlyConfirm.isBefore(today) || tDateOnlyConfirm.isBefore(today)) {
+      await _showTopMessage(
+        AppLocalizations.of(context)!.cannotSelectPastDate,
+        error: true,
+      );
+      return;
+    }
 
     final minDt = _eligibility?.minDateTime;
     final maxDt = _eligibility?.maxDateTime;
@@ -1283,17 +1180,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
             error: true,
           );
         }
-        return;
-      }
-    } else {
-      // Fallback if eligibility data is not loaded yet
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      if (fDateOnlyConfirm.isBefore(today) || tDateOnlyConfirm.isBefore(today)) {
-        await _showTopMessage(
-          AppLocalizations.of(context)!.cannotSelectPastDate,
-          error: true,
-        );
         return;
       }
     }
@@ -1357,33 +1243,6 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
       default:
         return v[0].toUpperCase() + v.substring(1);
     }
-  }
-
-  Widget _sectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: _accent.withOpacity(0.10),
-            borderRadius: BorderRadius.circular(9),
-          ),
-          child: Icon(icon, color: _accent, size: 15),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: AutoSizeText(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              color: _textDark,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 
   Widget _buildRequestedLeavesCard() {
@@ -1547,6 +1406,339 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
   Widget build(BuildContext context) {
     final readOnly = widget.isEdit;
 
+    final Widget bodyContent = SingleChildScrollView(
+      physics: widget.isEmbed
+          ? const NeverScrollableScrollPhysics()
+          : const AlwaysScrollableScrollPhysics(),
+      padding: widget.isEmbed
+          ? const EdgeInsets.fromLTRB(4, 8, 4, 20)
+          : const EdgeInsets.fromLTRB(12, 8, 12, 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (!readOnly && !widget.isEmbed) _buildRequestedLeavesCard(),
+          // _buildHeader(readOnly),
+          // const SizedBox(height: 40),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _surface,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+              border: Border.all(color: Colors.black.withOpacity(0.04)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  height: 52,
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade300, width: 1.0),
+                  ),
+                  child: Row(
+                    children: [
+                      _modeButton('Half Day', 'half', Icons.timelapse_rounded),
+                      _modeButton(
+                          'Full Day', 'full_day', Icons.wb_sunny_outlined),
+                      _modeButton('Short Leave', 'short_leave',
+                          Icons.access_time_rounded),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Show Leave Type dropdown for all modes except Short Leave
+                if (leaveTypeValue != 'short_leave') ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: _accent.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(Icons.category_rounded, color: _accent, size: 16),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: DropdownButton<String>(
+                            underline: const SizedBox.shrink(),
+                            dropdownColor: HRColors.white,
+                            borderRadius: BorderRadius.circular(14),
+                            value: typeValue,
+                            iconEnabledColor: _textDark,
+                            isExpanded: true,
+                            onChanged: (readOnly || leaveTypeValue == 'short_leave')
+                                ? null
+                                : (v) => setState(() => typeValue = v),
+                            items: leaveTypeList.map((v) {
+                              return DropdownMenuItem<String>(
+                                value: v,
+                                child: AutoSizeText(
+                                  _getLeaveTypeLabel(v),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: _textDark,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+
+                _buildEligibilityBanner(),
+
+                if (leaveTypeValue == 'full_day')
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildDateField(
+                          text: fromText,
+                          onTap: readOnly
+                              ? null
+                              : () async {
+                                  final picked =
+                                      await _pickWheelDate(initial: fDate);
+                                  if (picked == null) return;
+                                  if (!_validatePickedDate(picked)) return;
+
+                                  setState(() {
+                                    fDate = picked;
+                                    fromText = DateFormat('dd/MM/yyyy')
+                                        .format(picked);
+                                  });
+                                },
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: _buildDateField(
+                          text: toText,
+                          onTap: readOnly
+                              ? null
+                              : () async {
+                                  final picked =
+                                      await _pickWheelDate(initial: tDate);
+                                  if (picked == null) return;
+                                  if (!_validatePickedDate(picked)) return;
+
+                                  setState(() {
+                                    tDate = picked;
+                                    toText = DateFormat('dd/MM/yyyy')
+                                        .format(picked);
+                                  });
+                                },
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  _buildDateField(
+                    text: fromText,
+                    onTap: readOnly
+                        ? null
+                        : () async {
+                            final picked =
+                                await _pickWheelDate(initial: fDate);
+                            if (picked == null) return;
+                            if (!_validatePickedDate(picked)) return;
+
+                            setState(() {
+                              fDate = picked;
+                              tDate = picked; // Sync To date for single day
+                              fromText =
+                                  DateFormat('dd/MM/yyyy').format(picked);
+                              toText =
+                                  DateFormat('dd/MM/yyyy').format(picked);
+                            });
+                          },
+                  ),
+                // Half Day Session Selection (Tab style)
+                if (leaveTypeValue == 'half') ...[
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _tabButton(
+                            label: AppLocalizations.of(context)!.morningLabel,
+                            isSelected: halfDaySession == 'morning',
+                            onTap: () =>
+                                setState(() => halfDaySession = 'morning'),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: _tabButton(
+                            label: AppLocalizations.of(context)!.eveningLabel,
+                            isSelected: halfDaySession == 'evening',
+                            onTap: () =>
+                                setState(() => halfDaySession = 'evening'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                // Short Leave Session Selection
+                if (leaveTypeValue == 'short_leave') ...[
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: readOnly
+                                ? null
+                                : () => setState(
+                                    () => shortLeaveSession = 'morning'),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: shortLeaveSession == 'morning'
+                                    ? HRColors.tabColor
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: AutoSizeText(
+                                  AppLocalizations.of(context)!.morning,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 11,
+                                    color: shortLeaveSession == 'morning'
+                                        ? HRColors.tabLabelColor
+                                        : _textDark,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: InkWell(
+                            onTap: readOnly
+                                ? null
+                                : () => setState(
+                                    () => shortLeaveSession = 'evening'),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: shortLeaveSession == 'evening'
+                                    ? HRColors.tabColor
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: AutoSizeText(
+                                  AppLocalizations.of(context)!.evening,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 11,
+                                    color: shortLeaveSession == 'evening'
+                                        ? HRColors.tabLabelColor
+                                        : _textDark,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+                const SizedBox(height: 20),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: TextField(
+                    controller: description,
+                    enabled: !readOnly,
+                    minLines: 2,
+                    maxLines: 4,
+                    style: const TextStyle(
+                      color: _textDark,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText:
+                          '${AppLocalizations.of(context)!.noteLabel} (${AppLocalizations.of(context)!.optional})',
+                      hintStyle: const TextStyle(
+                        color: _textMuted,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+                if (!readOnly) ...[
+                  const SizedBox(height: 28),
+                  _buildSubmitButton(),
+                  const SizedBox(height: 28),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (widget.isEmbed) {
+      return bodyContent;
+    }
+
     return Scaffold(
       backgroundColor: _pageBg,
       resizeToAvoidBottomInset: false,
@@ -1567,329 +1759,7 @@ class _MobileLeaveRequestPageState extends State<MobileLeaveRequestPage>
         ),
         iconTheme: const IconThemeData(color: _textDark),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (!readOnly) _buildRequestedLeavesCard(),
-            // _buildHeader(readOnly),
-            // const SizedBox(height: 40),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: _surface,
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-                border: Border.all(color: Colors.black.withOpacity(0.04)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  // Move Leave Mode selection to the top
-                  Row(
-                    children: [
-                      _modeButton('Half Day', 'half', Icons.timelapse_rounded),
-                      const SizedBox(width: 8),
-                      _modeButton(
-                          'Full Day', 'full_day', Icons.wb_sunny_outlined),
-                      const SizedBox(width: 8),
-                      _modeButton('Short Leave', 'short_leave',
-                          Icons.access_time_rounded),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Show Leave Type dropdown for all modes except Short Leave
-                  if (leaveTypeValue != 'short_leave') ...[
-                    _sectionHeader(
-                      AppLocalizations.of(context)!.leaveTypeLabel,
-                      Icons.category_rounded,
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: DropdownButton<String>(
-                        underline: const SizedBox.shrink(),
-                        dropdownColor: HRColors.white,
-                        borderRadius: BorderRadius.circular(14),
-                        value: typeValue,
-                        iconEnabledColor: _textDark,
-                        isExpanded: true,
-                        onChanged: (readOnly || leaveTypeValue == 'short_leave')
-                            ? null
-                            : (v) => setState(() => typeValue = v),
-                        items: leaveTypeList.map((v) {
-                          return DropdownMenuItem<String>(
-                            value: v,
-                            child: AutoSizeText(
-                              _getLeaveTypeLabel(v),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: _textDark,
-                                fontSize: 12,
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-
-                  _buildEligibilityBanner(),
-
-                  _sectionHeader(
-                    leaveTypeValue == 'full_day'
-                        ? AppLocalizations.of(context)!.fromToLabel
-                        : AppLocalizations.of(context)!.date,
-                    Icons.date_range_rounded,
-                  ),
-                  const SizedBox(height: 8),
-                  if (leaveTypeValue == 'full_day')
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDateField(
-                            text: fromText,
-                            onTap: readOnly
-                                ? null
-                                : () async {
-                                    final picked =
-                                        await _pickWheelDate(initial: fDate);
-                                    if (picked == null) return;
-                                    if (!_validatePickedDate(picked)) return;
-
-                                    setState(() {
-                                      fDate = picked;
-                                      fromText = DateFormat('dd/MM/yyyy')
-                                          .format(picked);
-                                    });
-                                  },
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: _buildDateField(
-                            text: toText,
-                            onTap: readOnly
-                                ? null
-                                : () async {
-                                    final picked =
-                                        await _pickWheelDate(initial: tDate);
-                                    if (picked == null) return;
-                                    if (!_validatePickedDate(picked)) return;
-
-                                    setState(() {
-                                      tDate = picked;
-                                      toText = DateFormat('dd/MM/yyyy')
-                                          .format(picked);
-                                    });
-                                  },
-                          ),
-                        ),
-                      ],
-                    )
-                  else
-                    _buildDateField(
-                      text: fromText,
-                      onTap: readOnly
-                          ? null
-                          : () async {
-                              final picked =
-                                  await _pickWheelDate(initial: fDate);
-                              if (picked == null) return;
-                              if (!_validatePickedDate(picked)) return;
-
-                              setState(() {
-                                fDate = picked;
-                                tDate = picked; // Sync To date for single day
-                                fromText =
-                                    DateFormat('dd/MM/yyyy').format(picked);
-                                toText =
-                                    DateFormat('dd/MM/yyyy').format(picked);
-                              });
-                            },
-                    ),
-                                   // Half Day Session Selection (Tab style)
-                  if (leaveTypeValue == 'half') ...[
-                    const SizedBox(height: 20),
-                    _sectionHeader(
-                      AppLocalizations.of(context)!.session,
-                      Icons.access_time_filled_rounded,
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _tabButton(
-                              label: AppLocalizations.of(context)!.morningLabel,
-                              isSelected: halfDaySession == 'morning',
-                              onTap: () =>
-                                  setState(() => halfDaySession = 'morning'),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: _tabButton(
-                              label: AppLocalizations.of(context)!.eveningLabel,
-                              isSelected: halfDaySession == 'evening',
-                              onTap: () =>
-                                  setState(() => halfDaySession = 'evening'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  // Short Leave Session Selection
-                  if (leaveTypeValue == 'short_leave') ...[
-                    const SizedBox(height: 20),
-                    _sectionHeader(
-                      AppLocalizations.of(context)!.session,
-                      Icons.timer_outlined,
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: readOnly
-                                  ? null
-                                  : () => setState(
-                                      () => shortLeaveSession = 'morning'),
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: shortLeaveSession == 'morning'
-                                      ? HRColors.tabColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: AutoSizeText(
-                                    AppLocalizations.of(context)!.morning,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 11,
-                                      color: shortLeaveSession == 'morning'
-                                          ? HRColors.tabLabelColor
-                                          : _textDark,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: InkWell(
-                              onTap: readOnly
-                                  ? null
-                                  : () => setState(
-                                      () => shortLeaveSession = 'evening'),
-                              borderRadius: BorderRadius.circular(10),
-                              child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: shortLeaveSession == 'evening'
-                                      ? HRColors.tabColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: AutoSizeText(
-                                    AppLocalizations.of(context)!.evening,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 11,
-                                      color: shortLeaveSession == 'evening'
-                                          ? HRColors.tabLabelColor
-                                          : _textDark,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 16),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: TextField(
-                      controller: description,
-                      enabled: !readOnly,
-                      minLines: 2,
-                      maxLines: 4,
-                      style: const TextStyle(
-                        color: _textDark,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText:
-                            '${AppLocalizations.of(context)!.noteLabel} (${AppLocalizations.of(context)!.optional})',
-                        hintStyle: const TextStyle(
-                          color: _textMuted,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (!readOnly) ...[
-                    const SizedBox(height: 28),
-                    _buildSubmitButton(),
-                    const SizedBox(height: 28),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: bodyContent,
     );
   }
 

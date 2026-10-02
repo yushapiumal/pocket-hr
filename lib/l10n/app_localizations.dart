@@ -262,11 +262,11 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get categoryText;
 
-  /// No description provided for @homeText.
+  /// No description provided for @punchText.
   ///
   /// In en, this message translates to:
-  /// **'Home'**
-  String get homeText;
+  /// **'Clocking'**
+  String get punchText;
 
   /// No description provided for @searchText.
   ///
@@ -433,13 +433,13 @@ abstract class AppLocalizations {
   /// No description provided for @checkIn.
   ///
   /// In en, this message translates to:
-  /// **'Check In'**
+  /// **'Check-In'**
   String get checkIn;
 
   /// No description provided for @checkOut.
   ///
   /// In en, this message translates to:
-  /// **'Check Out'**
+  /// **'Check-Out'**
   String get checkOut;
 
   /// No description provided for @leaveText.
@@ -451,7 +451,7 @@ abstract class AppLocalizations {
   /// No description provided for @attendanceText.
   ///
   /// In en, this message translates to:
-  /// **'My Attendance'**
+  /// **'Attend'**
   String get attendanceText;
 
   /// No description provided for @continueText.
@@ -805,7 +805,7 @@ abstract class AppLocalizations {
   /// No description provided for @dayOffLabel.
   ///
   /// In en, this message translates to:
-  /// **'DayOff'**
+  /// **'Day Off'**
   String get dayOffLabel;
 
   /// No description provided for @shiftLabel.
@@ -1147,7 +1147,7 @@ abstract class AppLocalizations {
   /// No description provided for @remoteChecking.
   ///
   /// In en, this message translates to:
-  /// **'Remote Checking'**
+  /// **'Remote Clocking'**
   String get remoteChecking;
 
   /// No description provided for @scanCheckInOut.
@@ -2157,6 +2157,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account deletion request submitted successfully.'**
   String get deleteAccountRequestedSuccess;
+
+  /// No description provided for @incorrectDateTimeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Your device date and time are incorrect. Please correct them in settings and log in again.'**
+  String get incorrectDateTimeError;
+
+  /// No description provided for @timeHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'TIME'**
+  String get timeHeader;
+
+  /// No description provided for @locationsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCATIONS'**
+  String get locationsHeader;
+
+  /// No description provided for @entryTypeHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'ENTRY TYPE'**
+  String get entryTypeHeader;
+
+  /// No description provided for @overtimeHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'OVERTIME'**
+  String get overtimeHeader;
+
+  /// No description provided for @reqHoursHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'REQ HOURS'**
+  String get reqHoursHeader;
+
+  /// No description provided for @remoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'REMOTE'**
+  String get remoteLabel;
+
+  /// No description provided for @qrLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QR'**
+  String get qrLabel;
+
+  /// No description provided for @failedToConnectToServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to connect to the server. Please check your internet connection.'**
+  String get failedToConnectToServer;
+
+  /// No description provided for @myAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'My Attendance'**
+  String get myAttendance;
+
+  /// No description provided for @inLocationHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'IN LOCATION'**
+  String get inLocationHeader;
+
+  /// No description provided for @outLocationHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'OUT LOCATION'**
+  String get outLocationHeader;
+
+  /// No description provided for @distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distance;
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get statusLabel;
+
+  /// No description provided for @descriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get descriptionLabel;
+
+  /// No description provided for @others.
+  ///
+  /// In en, this message translates to:
+  /// **'Others'**
+  String get others;
+
+  /// No description provided for @selectLeaveType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Leave Type'**
+  String get selectLeaveType;
+
+  /// No description provided for @selectLeaveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Leave Reason'**
+  String get selectLeaveReason;
+
+  /// No description provided for @dutyLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'Duty Leave'**
+  String get dutyLeave;
+
+  /// No description provided for @annualVacation.
+  ///
+  /// In en, this message translates to:
+  /// **'Annual Vacation'**
+  String get annualVacation;
+
+  /// No description provided for @examination.
+  ///
+  /// In en, this message translates to:
+  /// **'Examination'**
+  String get examination;
+
+  /// No description provided for @familyFunction.
+  ///
+  /// In en, this message translates to:
+  /// **'Family Function'**
+  String get familyFunction;
+
+  /// No description provided for @pleaseSelectLeaveType.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select leave type'**
+  String get pleaseSelectLeaveType;
+
+  /// No description provided for @pleaseSelectFromDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select from date'**
+  String get pleaseSelectFromDate;
+
+  /// No description provided for @pleaseSelectToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select to date'**
+  String get pleaseSelectToDate;
+
+  /// No description provided for @pleaseSelectLeaveReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select leave reason'**
+  String get pleaseSelectLeaveReason;
+
+  /// No description provided for @halfDayMorning.
+  ///
+  /// In en, this message translates to:
+  /// **' (0.5 Day - Morning)'**
+  String get halfDayMorning;
+
+  /// No description provided for @halfDayEvening.
+  ///
+  /// In en, this message translates to:
+  /// **' (0.5 Day - Evening)'**
+  String get halfDayEvening;
+
+  /// No description provided for @halfDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **' (0.5 Day)'**
+  String get halfDayLabel;
+
+  /// No description provided for @totalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get totalLabel;
+
+  /// No description provided for @failedToRetrieveCoordinatesCheckInOutEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to retrieve site coordinates. Check-in/out locally is enabled.'**
+  String get failedToRetrieveCoordinatesCheckInOutEnabled;
+
+  /// No description provided for @savedLocallyWillSyncWhenOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved locally, will sync when online'**
+  String get savedLocallyWillSyncWhenOnline;
+
+  /// No description provided for @serverErrorSavedLocallyWillSyncLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error. Saved locally, will sync later.'**
+  String get serverErrorSavedLocallyWillSyncLater;
+
+  /// No description provided for @syncedCountFailedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced: {success}, Failed: {failed}'**
+  String syncedCountFailedCount(Object success, Object failed);
+
+  /// No description provided for @todoDirectManagerApprovalRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'You must be the direct manager of this employee to approve this request.'**
+  String get todoDirectManagerApprovalRequired;
 }
 
 class _AppLocalizationsDelegate

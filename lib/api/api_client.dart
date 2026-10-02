@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'package:cn_pocket_hr/api/custom_http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';

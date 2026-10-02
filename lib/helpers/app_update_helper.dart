@@ -70,9 +70,22 @@ class AppUpdateHelper {
 
   static void showUpdateBottomSheet() {
     if (_isShowing) return;
-    final context = FCMService.navigatorKey.currentContext;
-    if (context == null) return;
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = FCMService.navigatorKey.currentContext;
+      if (context == null) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          showUpdateBottomSheet();
+        });
+        return;
+      }
+
+      _showActualBottomSheet(context);
+    });
+  }
+
+  static void _showActualBottomSheet(BuildContext context) {
+    if (_isShowing) return;
     _isShowing = true;
 
     Color primaryColor;

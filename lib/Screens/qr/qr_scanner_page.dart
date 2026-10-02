@@ -16,6 +16,7 @@ class QrScannerPage extends StatefulWidget {
   final bool showRemoteButton;
   final VoidCallback? onRemotePressed;
   final Function(Position position)? onLocationUpdated;
+  final bool tenantCoordinatesFailed;
 
   const QrScannerPage({
     Key? key,
@@ -25,6 +26,7 @@ class QrScannerPage extends StatefulWidget {
     this.showRemoteButton = false,
     this.onRemotePressed,
     this.onLocationUpdated,
+    this.tenantCoordinatesFailed = false,
   }) : super(key: key);
 
   @override
@@ -55,6 +57,9 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
     _startLocationListening();
+    if (widget.tenantCoordinatesFailed) {
+      _isError = true;
+    }
   }
 
   void _startLocationListening() async {
@@ -213,8 +218,20 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
     super.dispose();
   }
 
+  bool get _isServerErrorActive {
+    if (_message == null) return false;
+    try {
+      final serverErrMsg = AppLocalizations.of(context)!.failedToRetrieveCoordinatesCheckInOutEnabled;
+      if (_message == serverErrMsg) return true;
+    } catch (_) {}
+    return _message == "Failed to retrieve site coordinates. Check-in/out locally is enabled.";
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_message == null && widget.tenantCoordinatesFailed) {
+      _message = AppLocalizations.of(context)!.failedToRetrieveCoordinatesCheckInOutEnabled;
+    }
     final media = MediaQuery.of(context);
     final safeH = media.size.height - media.padding.top - media.padding.bottom;
     final double scanSize = math.min(320.0, math.max(220.0, safeH * 0.42));
@@ -542,7 +559,9 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                      color: _isError ? Colors.redAccent : Colors.green,
+                      color: _isServerErrorActive
+                          ? Colors.orange
+                          : (_isError ? Colors.redAccent : Colors.green),
                       width: 1,
                     ),
                     boxShadow: const [
@@ -556,7 +575,9 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
                   child: Text(
                     _message!,
                     style: TextStyle(
-                      color: _isError ? Colors.redAccent : Colors.green,
+                      color: _isServerErrorActive
+                          ? Colors.orange
+                          : (_isError ? Colors.redAccent : Colors.green),
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -632,6 +653,10 @@ class _QrScannerPageState extends State<QrScannerPage> with SingleTickerProvider
       ),
     );
   }
+
+
+
+
 }
 
 class _Corner extends StatelessWidget {

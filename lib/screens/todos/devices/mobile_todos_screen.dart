@@ -34,7 +34,11 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
   static const double _g24 = 24;
 
   static const Color _pageBg = Colors.white;
-  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+  static const Color _surface = Colors.white;
+  static const Color _burgundy = Color(0xFF701A27); // Burgundy
+  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
+  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
+  static const Color _textGrey = Color(0xFF7D6C6F); // Soft grey text
 
   @override
   void initState() {
@@ -65,7 +69,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
       debugPrint('[TODOS][ERROR] $e');
       debugPrint('$st');
       setState(() {
-        _error = e.toString();
+        _error = DesignConfig.getFriendlyErrorMessage(context, e);
         _loading = false;
       });
     }
@@ -97,7 +101,10 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
       } else {
         DesignConfig.showTopToast(
           context,
-          response['message']?.toString() ?? AppLocalizations.of(context)!.todoApproveFailed,
+          DesignConfig.getFriendlyErrorMessage(
+            context,
+            response['message']?.toString() ?? AppLocalizations.of(context)!.todoApproveFailed,
+          ),
           background: Colors.red,
         );
       }
@@ -108,7 +115,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
       
       DesignConfig.showTopToast(
         context,
-        AppLocalizations.of(context)!.errorPrefix(e.toString()),
+        DesignConfig.getFriendlyErrorMessage(context, e),
         background: Colors.red,
       );
     }
@@ -140,7 +147,10 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
       } else {
         DesignConfig.showTopToast(
           context,
-          response['message']?.toString() ?? AppLocalizations.of(context)!.todoRejectFailed,
+          DesignConfig.getFriendlyErrorMessage(
+            context,
+            response['message']?.toString() ?? AppLocalizations.of(context)!.todoRejectFailed,
+          ),
           background: Colors.red,
         );
       }
@@ -151,7 +161,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
       
       DesignConfig.showTopToast(
         context,
-        AppLocalizations.of(context)!.errorPrefix(e.toString()),
+        DesignConfig.getFriendlyErrorMessage(context, e),
         background: Colors.red,
       );
     }
@@ -483,10 +493,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
           height: sheetHeight,
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Column(
             children: [
@@ -559,9 +566,8 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _surface,
+                          color: _burgundyLight,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.black.withOpacity(0.04)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -657,15 +663,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: _surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.black.withOpacity(0.04)),
-                          ),
-                          child: _buildActionButtons(item, ctx),
-                        ),
+                        _buildActionButtons(item, ctx),
                       ],
                     ],
                   ),
@@ -728,10 +726,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
           height: sheetHeight,
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
           ),
           child: Column(
             children: [
@@ -793,9 +788,8 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: _surface,
+                          color: _burgundyLight,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.black.withOpacity(0.04)),
                         ),
                         child: Row(
                           children: [
@@ -850,9 +844,8 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _surface,
+                          color: _burgundyLight,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.black.withOpacity(0.04)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -894,9 +887,8 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.05),
+                          color: _burgundyLight,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.orange.withOpacity(0.2)),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -928,15 +920,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: _surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.black.withOpacity(0.04)),
-                          ),
-                          child: _buildActionButtons(item, ctx),
-                        ),
+                        _buildActionButtons(item, ctx),
                       ],
                     ],
                   ),
@@ -972,9 +956,9 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
         final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
         return Container(
           height: sheetHeight,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: HRColors.backgroundColor,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
@@ -1049,11 +1033,10 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                       const SizedBox(height: 8),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _surface,
+                          color: HRColors.lightOrangeColor,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.black.withOpacity(0.04)),
                         ),
                         child: Column(
                           children: [
@@ -1106,15 +1089,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: _surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.black.withOpacity(0.04)),
-                          ),
-                          child: _buildActionButtons(item, ctx),
-                        ),
+                        _buildActionButtons(item, ctx),
                       ],
                     ],
                   ),
@@ -1326,11 +1301,11 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
               l10n.rejectedLable,
             ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: isEnabled ? Colors.red : Colors.grey,
-              side: BorderSide(color: isEnabled ? Colors.red : Colors.grey),
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              foregroundColor: isEnabled ? Colors.red.shade700 : Colors.grey,
+              side: BorderSide(color: isEnabled ? Colors.red.shade400 : Colors.grey),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
@@ -1349,13 +1324,13 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
             icon: Icon(Icons.check, size: 18, color: isEnabled ? Colors.white : Colors.grey),
             label: AutoSizeText(
               l10n.approvedLable,
-              style: TextStyle(color: isEnabled ? Colors.white : Colors.grey),
+              style: TextStyle(color: isEnabled ? Colors.white : Colors.grey, fontWeight: FontWeight.bold),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isEnabled ? Colors.green : Colors.grey.shade300,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              backgroundColor: isEnabled ? _burgundy : Colors.grey.shade300,
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
@@ -1407,48 +1382,10 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
     if (_loading) {
       content = const Center(child: CircularProgressIndicator());
     } else if (_error != null) {
-      content = Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, color: Colors.red, size: 48),
-              const SizedBox(height: 16),
-              AutoSizeText(
-                AppLocalizations.of(context)!.failedToLoadTodos,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                minFontSize: 12,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-              ),
-              const SizedBox(height: 8),
-              AutoSizeText(
-                _error!,
-                textAlign: TextAlign.center,
-                maxLines: 4,
-                minFontSize: 10,
-                style: const TextStyle(color: Colors.black54, fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _load,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: HRColors.orangeColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: AutoSizeText(
-                  AppLocalizations.of(context)!.retryLabel,
-                  maxLines: 1,
-                  minFontSize: 10,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
+      content = DesignConfig.buildErrorState(
+        context,
+        message: _error!,
+        onRetry: _load,
       );
     } else {
       content = TabBarView(
@@ -1497,9 +1434,9 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                       minFontSize: 16,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
+                        color: _textBurgundy,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -1510,23 +1447,30 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: _g12),
               child: Container(
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: _surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black.withOpacity(0.05)),
+                  color: _burgundyLight,
+                  borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                 ),
                 child: TabBar(
                   controller: _tab,
                   dividerColor: Colors.transparent,
                   indicatorColor: Colors.transparent,
                   indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorPadding: const EdgeInsets.all(6),
+                  indicatorPadding: EdgeInsets.zero,
                   indicator: BoxDecoration(
-                    color: HRColors.orangeColor,
-                    borderRadius: BorderRadius.circular(14),
+                    color: _burgundy,
+                    borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _burgundy.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
                   ),
                   labelColor: Colors.white,
-                  unselectedLabelColor: Colors.black54,
+                  unselectedLabelColor: _textGrey,
                   tabs: [
                     Tab(
                       child: AutoSizeText(
@@ -1581,15 +1525,18 @@ class TodoCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color badgeColor = Colors.orange.shade100;
-    Color textColor = Colors.orange.shade800;
+    Color badgeColor = const Color(0xFFFFF3E0);
+    Color textColor = const Color(0xFFE65100);
+    IconData statusIcon = Icons.hourglass_bottom;
     
     if (item.completed) {
-      badgeColor = Colors.green.shade100;
-      textColor = Colors.green.shade800;
+      badgeColor = const Color(0xFFE8F5E9);
+      textColor = const Color(0xFF2E7D32);
+      statusIcon = Icons.check_circle;
     } else if (item.waitingForPreviousStage) {
-      badgeColor = Colors.red.shade100;
-      textColor = Colors.red.shade800;
+      badgeColor = const Color(0xFFFFEBEE);
+      textColor = const Color(0xFFC62828);
+      statusIcon = Icons.hourglass_bottom;
     }
 
     final String displayStatus = item.completed
@@ -1608,14 +1555,26 @@ class TodoCardWidget extends StatelessWidget {
     }
 
     final String userName = item.user?.name ?? 'Unknown User';
-    final String epfString = item.user?.epfPretty != null ? 'EPF: ${item.user!.epfPretty}' : '';
 
     String punchDetails = '';
     if (item.type == 'remote_attendance' && item.payload != null) {
       final punchType = item.payload!['type']?.toString().toUpperCase() ?? '';
       if (punchType.isNotEmpty) {
-        punchDetails = 'Punch: $punchType';
+        punchDetails = punchType == 'CHECK_IN' || punchType == 'CHECKIN' || punchType == 'IN'
+            ? 'Check In'
+            : 'Check Out';
       }
+    }
+
+    String todoTypeLabel = '';
+    if (item.type == 'remote_attendance') {
+      todoTypeLabel = '';
+    } else if (item.type == 'profile_unlock') {
+      todoTypeLabel = 'Profile Unlock';
+    } else if (item.type == 'attendance') {
+      todoTypeLabel = 'Attendance';
+    } else {
+      todoTypeLabel = item.type.replaceAll('_', ' ').split(' ').map((str) => str.isEmpty ? '' : '${str[0].toUpperCase()}${str.substring(1)}').join(' ');
     }
 
     final cardWidget = Card(
@@ -1623,9 +1582,8 @@ class TodoCardWidget extends StatelessWidget {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: Colors.black.withOpacity(0.05)),
       ),
-      color: const Color.fromARGB(255, 248, 250, 252),
+      color: const Color(0xFFFAF2EB),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
@@ -1638,10 +1596,10 @@ class TodoCardWidget extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: HRColors.orangeColor.withOpacity(0.10),
+                  color: const Color(0xFF701A27).withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(typeIcon, color: HRColors.orangeColor, size: 20),
+                child: Icon(typeIcon, color: const Color(0xFF701A27), size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1652,89 +1610,121 @@ class TodoCardWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: AutoSizeText(
-                            userName,
-                            minFontSize: 11,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AutoSizeText(
+                                userName,
+                                minFontSize: 11,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF4A1521),
+                                ),
+                              ),
+                              if (item.user?.epfPretty != null) ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF701A27).withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: AutoSizeText(
+                                    item.user!.epfPretty!,
+                                    style: const TextStyle(
+                                      color: Color(0xFF701A27),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: badgeColor,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: AutoSizeText(
-                            displayStatus,
-                            maxLines: 1,
-                            minFontSize: 8,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          if (epfString.isNotEmpty)
-                            AutoSizeText(
-                              epfString,
-                              maxLines: 1,
-                              minFontSize: 9,
-                              style: const TextStyle(
-                                color: Colors.black38,
-                                fontSize: 11,
-                              ),
-                            ),
-                          if (punchDetails.isNotEmpty)
-                            AutoSizeText(
-                              punchDetails,
-                              maxLines: 1,
-                              minFontSize: 9,
-                              style: TextStyle(
-                                color: HRColors.orangeColor.withOpacity(0.8),
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.calendar_month, size: 14, color: Colors.black38),
+                              Icon(statusIcon, size: 13, color: textColor),
                               const SizedBox(width: 4),
                               AutoSizeText(
-                                _formatDateTime(item.cts),
+                                displayStatus,
                                 maxLines: 1,
-                                minFontSize: 9,
-                                style: const TextStyle(
-                                  color: Colors.black38,
-                                  fontSize: 11,
+                                minFontSize: 8,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: textColor,
                                 ),
                               ),
                             ],
                           ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        if (todoTypeLabel.isNotEmpty) ...[
+                          AutoSizeText(
+                            todoTypeLabel,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF701A27),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
                         ],
-                      ),
-                    ],
-                  ),
+                        AutoSizeText(
+                          _formatDateTime(item.cts),
+                          maxLines: 1,
+                          minFontSize: 10,
+                          style: const TextStyle(
+                            color: Colors.black38,
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (punchDetails.isNotEmpty) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: punchDetails.toUpperCase().contains('OUT')
+                                  ? const Color(0xFFFFF3E0) // soft orange
+                                  : const Color(0xFFE8F5E9), // soft green
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              punchDetails,
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: punchDetails.toUpperCase().contains('OUT')
+                                    ? const Color(0xFFE65100) // dark orange
+                                    : const Color(0xFF2E7D32), // dark green
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

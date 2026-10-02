@@ -14,6 +14,7 @@ import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/liquid_side_menu.dart';
 import 'package:cn_pocket_hr/services/fcm_service.dart';
+import 'package:line_icons/line_icons.dart';
 
 class HRMain extends StatefulWidget {
   static String routeName = "/main";
@@ -84,10 +85,11 @@ class _HRMainState extends State<HRMain> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                 child: Container(
-                  height: 76,
+                  height: 64,
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                     boxShadow: const [
                       BoxShadow(
                           color: Color(0x24000000),
@@ -99,13 +101,13 @@ class _HRMainState extends State<HRMain> {
                     children: [
                       Row(
                         children: [
-                          _navItem(Icons.home_outlined,
-                              AppLocalizations.of(context)!.homeText, 0),
-                          _navItem(Icons.event_busy,
+                          _navItem(LineIcons.qrcode,
+                              AppLocalizations.of(context)!.punchText, 0),
+                          _navItem(LineIcons.umbrellaBeach,
                               AppLocalizations.of(context)!.leaveText, 1),
-                          _navItem(Icons.event_rounded,
+                          _navItem(LineIcons.calendarCheck,
                               AppLocalizations.of(context)!.attendanceText, 2),
-                          _navItem(Icons.person_outline,
+                          _navItem(LineIcons.userCircle,
                               AppLocalizations.of(context)!.profileText, 3),
                         ],
                       ),
@@ -123,58 +125,71 @@ class _HRMainState extends State<HRMain> {
   Widget _navItem(IconData icon, String label, int index) {
     bool isSelected = selectedIndex == index;
 
+    String cleanLabel = label;
+    if (label == AppLocalizations.of(context)!.leaveText) {
+      final locale = Localizations.localeOf(context).languageCode;
+      cleanLabel = locale == 'en' ? 'Leave' : AppLocalizations.of(context)!.teamLeavesText;
+    } else if (label == AppLocalizations.of(context)!.attendanceText) {
+      cleanLabel = AppLocalizations.of(context)!.attendanceText;
+    }
+
     return Expanded(
+      flex: isSelected ? 2 : 1,
       child: GestureDetector(
         onTap: () => updateTabSelection(index),
-        child: SizedBox(
-          height: 76,
-          child: Padding(
-            // give extra vertical space only for the selected tab
-            padding: EdgeInsets.only(top: isSelected ? 10 : 0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedScale(
-                  scale: isSelected ? 1.12 : 1.0,
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOut,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeOut,
-                    transform: Matrix4.translationValues(
-                        0, isSelected ? -4.0 : 0.0, 0),
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? HRColors.bottomNavIconBgColor
-                          : Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
+        child: Container(
+          color: Colors.transparent,
+          height: 64,
+          child: Align(
+            alignment: isSelected
+                ? (index == 0
+                    ? Alignment.centerLeft
+                    : (index == 3 ? Alignment.centerRight : Alignment.center))
+                : Alignment.center,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeInOut,
+              height: 64,
+              padding: isSelected
+                  ? EdgeInsets.only(
+                      left: index == 0 ? 24.0 : 16.0,
+                      right: index == 3 ? 24.0 : 16.0,
+                    )
+                  : const EdgeInsets.symmetric(horizontal: 8),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? HRColors.bottomNavIconBgColor
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+              ),
+              child: Center(
+                widthFactor: 1.0,
+                heightFactor: 1.0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
                       icon,
-                      size: 22,
-                      color:
-                          isSelected ? HRColors.bottomNavIconColor : Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                SizedBox(
-                  height: 14,
-                  child: AutoSizeText(
-                    label,
-                    maxLines: 1,
-                    minFontSize: 9,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      size: 24,
                       color: Colors.white,
                     ),
-                  ),
+                    if (isSelected) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        cleanLabel,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

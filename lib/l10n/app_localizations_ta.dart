@@ -93,7 +93,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get categoryText => 'வகை';
 
   @override
-  String get homeText => 'முகப்பு';
+  String get punchText => 'வருகை';
 
   @override
   String get searchText => 'தேடல்';
@@ -187,7 +187,7 @@ class AppLocalizationsTa extends AppLocalizations {
   String get leaveText => 'என் விடுமுறைகள்';
 
   @override
-  String get attendanceText => 'என் வருகை';
+  String get attendanceText => 'வருகை';
 
   @override
   String get continueText => 'தொடர்க';
@@ -1098,4 +1098,121 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get deleteAccountRequestedSuccess =>
       'கணக்கு நீக்கல் கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது.';
+
+  @override
+  String get incorrectDateTimeError =>
+      'உங்கள் சாதனத்தின் தேதி மற்றும் நேரம் தவறானது. அதைச் சரிசெய்து மீண்டும் உள்நுழையவும்.';
+
+  @override
+  String get timeHeader => 'நேரம்';
+
+  @override
+  String get locationsHeader => 'இடங்கள்';
+
+  @override
+  String get entryTypeHeader => 'பதிவு வகை';
+
+  @override
+  String get overtimeHeader => 'கூடுதல் நேரம்';
+
+  @override
+  String get reqHoursHeader => 'தேவைப்படும் நேரம்';
+
+  @override
+  String get remoteLabel => 'தொலைநிலை';
+
+  @override
+  String get qrLabel => 'QR';
+
+  @override
+  String get failedToConnectToServer =>
+      'சேவையகத்துடன் இணைக்க முடியவில்லை. உங்கள் இணைய இணைப்பைச் சரிபார்க்கவும்.';
+
+  @override
+  String get myAttendance => 'எனது வருகை';
+
+  @override
+  String get inLocationHeader => 'உள் நுழைவு இடம்';
+
+  @override
+  String get outLocationHeader => 'வெளிச் செல்லல் இடம்';
+
+  @override
+  String get distance => 'தூரம்';
+
+  @override
+  String get statusLabel => 'நிலை';
+
+  @override
+  String get descriptionLabel => 'விளக்கம்';
+
+  @override
+  String get others => 'மற்றவை';
+
+  @override
+  String get selectLeaveType => 'விடுப்பு வகையைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get selectLeaveReason => 'விடுப்புக்கான காரணத்தைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get dutyLeave => 'கடமை விடுப்பு';
+
+  @override
+  String get annualVacation => 'வருடாந்திர விடுமுறை';
+
+  @override
+  String get examination => 'தேர்வு';
+
+  @override
+  String get familyFunction => 'குடும்ப விழா';
+
+  @override
+  String get pleaseSelectLeaveType =>
+      'தயவுசெய்து விடுப்பு வகையைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get pleaseSelectFromDate =>
+      'தயவுசெய்து தொடக்க தேதியைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get pleaseSelectToDate =>
+      'தயவுசெய்து முடிவு தேதியைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get pleaseSelectLeaveReason =>
+      'தயவுசெய்து விடுப்புக்கான காரணத்தைத் தேர்ந்தெடுக்கவும்';
+
+  @override
+  String get halfDayMorning => ' (0.5 நாள் - காலை)';
+
+  @override
+  String get halfDayEvening => ' (0.5 நாள் - மாலை)';
+
+  @override
+  String get halfDayLabel => ' (0.5 நாள்)';
+
+  @override
+  String get totalLabel => 'மொத்தம்';
+
+  @override
+  String get failedToRetrieveCoordinatesCheckInOutEnabled =>
+      'தள ஒருங்கிணைப்புகளைப் பெற முடியவில்லை. உள்நாட்டில் செக்-இன்/செக்-அவுட் இயக்கப்பட்டது.';
+
+  @override
+  String get savedLocallyWillSyncWhenOnline =>
+      'உள்நாட்டில் சேமிக்கப்பட்டது, ஆன்லைனில் இருக்கும்போது ஒத்திசைக்கப்படும்';
+
+  @override
+  String get serverErrorSavedLocallyWillSyncLater =>
+      'சேவையக பிழை. உள்நாட்டில் சேமிக்கப்பட்டது, பின்னர் ஒத்திசைக்கப்படும்.';
+
+  @override
+  String syncedCountFailedCount(Object success, Object failed) {
+    return 'ஒத்திசைக்கப்பட்டது: $success, தோல்வியடைந்தது: $failed';
+  }
+
+  @override
+  String get todoDirectManagerApprovalRequired =>
+      'இந்தக் கோரிக்கையை ஒப்புறுதி செய்ய நீங்கள் அந்தப் பணியாளரின் நேரடி மேலாளராக இருக்க வேண்டும்.';
 }

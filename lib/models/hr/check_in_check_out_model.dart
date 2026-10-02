@@ -20,6 +20,7 @@ class AttendancePunchModel {
   final int batteryLevel;
 
   final String tenant;
+  final int isRemote; // 0 = normal, 1 = remote
 
   final int isSynced; // 0 = pending, 1 = synced
   final int retryCount;
@@ -42,6 +43,7 @@ class AttendancePunchModel {
     required this.deviceIp,
     required this.batteryLevel,
     required this.tenant,
+    this.isRemote = 0,
     this.isSynced = 0,
     this.retryCount = 0,
     this.lastSyncAttempt,
@@ -65,6 +67,7 @@ class AttendancePunchModel {
       'device_ip': deviceIp,
       'battery_level': batteryLevel,
       'tenant': tenant,
+      'is_remote': isRemote,
       'is_synced': isSynced,
       'retry_count': retryCount,
       'last_sync_attempt': lastSyncAttempt,
@@ -89,6 +92,7 @@ class AttendancePunchModel {
       deviceIp: map['device_ip'],
       batteryLevel: map['battery_level'],
       tenant: map['tenant'],
+      isRemote: map['is_remote'] ?? 0,
       isSynced: map['is_synced'],
       retryCount: map['retry_count'],
       lastSyncAttempt: map['last_sync_attempt'],
@@ -113,6 +117,7 @@ class AttendancePunchModel {
       "device_ip": deviceIp,
       "battery_level": batteryLevel,
       "tenant": tenant,
+      "remote": isRemote.toString(),
     };
   }
 

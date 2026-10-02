@@ -18,6 +18,7 @@ import 'package:cn_pocket_hr/screens/notifications/notifications.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/models/hr/me_model.dart';
 
@@ -75,7 +76,7 @@ class TabletLeaveState extends State<TabletLeave>
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         border: Border.all(color: HRColors.black.withOpacity(0.06)),
       ),
       child: Row(
@@ -88,7 +89,7 @@ class TabletLeaveState extends State<TabletLeave>
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: HRColors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: AutoSizeText(value,
                 style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
@@ -154,7 +155,7 @@ class TabletLeaveState extends State<TabletLeave>
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         border: Border.all(color: HRColors.black.withOpacity(0.05)),
         boxShadow: [
           BoxShadow(
@@ -259,6 +260,7 @@ class TabletLeaveState extends State<TabletLeave>
   }
 
   getMyLeaves() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
       myLeaves = LeaveService.getMyLeaves();
@@ -325,7 +327,7 @@ class TabletLeaveState extends State<TabletLeave>
                     alignment: Alignment.bottomLeft,
                     // margin: const EdgeInsets.only(bottom: 8, ),
                     child: AutoSizeText(
-                      "Others",
+                      AppLocalizations.of(context)!.others,
                       style: TextStyle(
                         fontSize: 20.0,
                         color: Colors.red[400],
@@ -468,24 +470,59 @@ class TabletLeaveState extends State<TabletLeave>
                       style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(
-                          context, HRNotifications.routeName),
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: HRColors.flavorIconBackgroundColor ??
-                              Colors.white,
-                          borderRadius: BorderRadius.circular(40),
-                          border:
-                              Border.all(color: Colors.black.withOpacity(0.06)),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            "assets/svg/notifications_icon.svg",
-                            colorFilter: ColorFilter.mode(
-                                HRColors.flavorIconColor, BlendMode.srcIn),
-                          ),
+                      onTap: () async {
+                        await Navigator.pushNamed(context, HRNotifications.routeName);
+                        await FCMService.loadUnreadCount();
+                      },
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: FCMService.unreadCount,
+                        builder: (context, count, _) => Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: HRColors.flavorIconBackgroundColor ??
+                                    Colors.white,
+                                borderRadius: BorderRadius.circular(40),
+                                border:
+                                    Border.all(color: Colors.black.withOpacity(0.06)),
+                              ),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  "assets/svg/notifications_icon.svg",
+                                  colorFilter: ColorFilter.mode(
+                                      HRColors.flavorIconColor, BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                            if (count > 0)
+                              Positioned(
+                                top: -4,
+                                right: -4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    count > 99 ? '99+' : '$count',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),
@@ -521,7 +558,7 @@ class TabletLeaveState extends State<TabletLeave>
                 Container(
                   decoration: BoxDecoration(
                     color: _surface,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                     border: Border.all(color: Colors.black.withOpacity(0.05)),
                   ),
                   child: TabBar(
@@ -535,7 +572,7 @@ class TabletLeaveState extends State<TabletLeave>
                     labelPadding: const EdgeInsets.only(left: 23, right: 23),
                     indicator: BoxDecoration(
                       color: HRColors.tabColor,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                     ),
                     labelColor: HRColors.tabLabelColor,
                     unselectedLabelColor: Colors.black54,
@@ -561,7 +598,7 @@ class TabletLeaveState extends State<TabletLeave>
                         child: AutoSizeText(
                           "${AppLocalizations.of(context)!.loadedLeaveLable}:$n",
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 9.5,
                             color: Colors.black.withOpacity(0.45),
                             fontWeight: FontWeight.w600,
                           ),
@@ -663,13 +700,13 @@ class TabletLeaveState extends State<TabletLeave>
         }
 
         if (snapshot.hasError) {
+          final friendlyMsg = DesignConfig.getFriendlyErrorMessage(context, snapshot.error);
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 40),
-            child: Center(
-              child: AutoSizeText(
-                'Failed to load leaves',
-                style: TextStyle(color: Colors.red.shade700),
-              ),
+            child: DesignConfig.buildErrorState(
+              context,
+              message: friendlyMsg,
+              onRetry: getMyLeaves,
             ),
           );
         }
@@ -853,8 +890,7 @@ class TabletLeaveState extends State<TabletLeave>
     }
     if (s.contains('short')) return AppLocalizations.of(context)!.shortLeave;
     if (s.contains('nopay') || s.contains('unpaid')) {
-      // If localization key doesn't exist in this app, keep an English fallback.
-      return 'No Pay';
+      return AppLocalizations.of(context)!.nopayLabel;
     }
 
     return raw;
@@ -872,8 +908,8 @@ class TabletLeaveState extends State<TabletLeave>
         model.type == 'half';
     final sessionLabel = isHalfDay
         ? (model.session == 'morning'
-            ? ' (0.5 Day - Morning)'
-            : (model.session == 'evening' ? ' (0.5 Day - Evening)' : ' (0.5 Day)'))
+            ? AppLocalizations.of(context)!.halfDayMorning
+            : (model.session == 'evening' ? AppLocalizations.of(context)!.halfDayEvening : AppLocalizations.of(context)!.halfDayLabel))
         : '';
     final fullTypeLabel = '$typeLabel$sessionLabel';
 
@@ -902,7 +938,7 @@ class TabletLeaveState extends State<TabletLeave>
           const EdgeInsets.only(left: 4.0, right: 4.0, top: 10.0, bottom: 5.0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
@@ -912,7 +948,7 @@ class TabletLeaveState extends State<TabletLeave>
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15.0),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         child: Slidable(
           key: Key('${model.leaveTitle}-${model.fromDate}-${model.toDate}'),
           direction: direction,
@@ -1016,7 +1052,7 @@ class TabletLeaveState extends State<TabletLeave>
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
                         color: trailingBg,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Icon(trailingIcon, color: trailingFg),
                     ),

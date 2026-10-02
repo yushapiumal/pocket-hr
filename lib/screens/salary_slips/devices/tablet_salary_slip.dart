@@ -14,6 +14,8 @@ import 'package:cn_pocket_hr/constants/slideanimation.dart';
 import 'package:cn_pocket_hr/screens/notifications/notifications.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
+import 'package:cn_pocket_hr/helpers/design_config.dart';
 
 class TabletSalarySlip extends StatefulWidget {
   const TabletSalarySlip({Key? key}) : super(key: key);
@@ -160,22 +162,57 @@ class _TabletSalarySlipState extends State<TabletSalarySlip>
             style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
           ),
           GestureDetector(
-            onTap: () =>
-                Navigator.pushNamed(context, HRNotifications.routeName),
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: HRColors.flavorIconBackgroundColor ?? Colors.white,
-                borderRadius: BorderRadius.circular(40),
-                border: Border.all(color: Colors.black.withOpacity(0.06)),
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  "assets/svg/notifications_icon.svg",
-                  colorFilter: ColorFilter.mode(
-                      HRColors.flavorIconColor, BlendMode.srcIn),
-                ),
+            onTap: () async {
+              await Navigator.pushNamed(context, HRNotifications.routeName);
+              await FCMService.loadUnreadCount();
+            },
+            child: ValueListenableBuilder<int>(
+              valueListenable: FCMService.unreadCount,
+              builder: (context, count, _) => Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: HRColors.flavorIconBackgroundColor ?? Colors.white,
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.black.withOpacity(0.06)),
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        "assets/svg/notifications_icon.svg",
+                        colorFilter: ColorFilter.mode(
+                            HRColors.flavorIconColor, BlendMode.srcIn),
+                      ),
+                    ),
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      top: -4,
+                      right: -4,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          count > 99 ? '99+' : '$count',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -254,26 +291,35 @@ class _TabletSalarySlipState extends State<TabletSalarySlip>
               toastMsg = AppLocalizations.of(context)!.sessionExpired;
               if (apiMsg.isNotEmpty && apiMsg != 'serverError')
                 toastMsg = apiMsg;
-            } else if (statusCode >= 400) {
-              // Convert mapped literal into actual locale context
-              toastMsg = apiMsg == 'serverError'
-                  ? AppLocalizations.of(context)!.serverError
-                  : (apiMsg.isNotEmpty
-                      ? apiMsg
-                      : AppLocalizations.of(context)!.serverError);
             }
 
             if (toastMsg != null && toastMsg.isNotEmpty) {
               showTopToast(
                 toastMsg,
-                background:
-                    statusCode >= 400 ? Colors.red : HRColors.darkOrangeColor,
+                background: HRColors.darkOrangeColor,
                 duration: const Duration(seconds: 4),
               );
             }
             _shownSalaryMessage = true;
           }
         });
+
+        if (statusCode >= 400) {
+          final rawErr = data['error'];
+          final errText = rawErr != null
+              ? DesignConfig.getFriendlyErrorMessage(context, rawErr)
+              : (apiMsg == 'serverError'
+                  ? AppLocalizations.of(context)!.serverError
+                  : (apiMsg.isNotEmpty ? apiMsg : AppLocalizations.of(context)!.serverError));
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 80),
+            child: DesignConfig.buildErrorState(
+              context,
+              message: errText,
+              onRetry: _loadSlips,
+            ),
+          );
+        }
 
         if (items.isEmpty)
           return Padding(
@@ -397,8 +443,11 @@ class _TabletSalarySlipState extends State<TabletSalarySlip>
                       );
                     }
                   } else {
+                    final rawErr = resp['error'];
                     showTopToast(
-                      msg.isEmpty ? "Failed to download" : msg,
+                      rawErr != null
+                          ? DesignConfig.getFriendlyErrorMessage(context, rawErr)
+                          : (msg.isEmpty ? "Failed to download" : msg),
                       background: Colors.red,
                       duration: const Duration(seconds: 3),
                     );

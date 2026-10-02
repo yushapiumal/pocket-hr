@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 
 class MobileLeaveDetailsPage extends StatelessWidget {
   final MyLeavesModel model;
@@ -62,8 +63,8 @@ class MobileLeaveDetailsPage extends StatelessWidget {
         model.type == 'half';
     final sessionLabel = isHalfDay
         ? (model.session == 'morning'
-            ? ' (0.5 Day - Morning)'
-            : (model.session == 'evening' ? ' (0.5 Day - Evening)' : ' (0.5 Day)'))
+            ? AppLocalizations.of(context)!.halfDayMorning
+            : (model.session == 'evening' ? AppLocalizations.of(context)!.halfDayEvening : AppLocalizations.of(context)!.halfDayLabel))
         : '';
     final fullTypeLabel = '$type$sessionLabel';
 
@@ -74,7 +75,7 @@ class MobileLeaveDetailsPage extends StatelessWidget {
         surfaceTintColor: HRColors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: HRColors.black),
-        title: AutoSizeText('Leave Details', style: TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
+        title: AutoSizeText(AppLocalizations.of(context)!.leaveDetailsLabel, style: const TextStyle(fontWeight: FontWeight.w900, color: HRColors.black)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -153,11 +154,11 @@ class MobileLeaveDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            _tile('Leave Type', fullTypeLabel),
-            _tile('Status', status),
-            _tile('From', from),
-            _tile('To', to),
-            _tile('Description', desc),
+            _tile(AppLocalizations.of(context)!.leaveTypeLabel, fullTypeLabel),
+            _tile(AppLocalizations.of(context)!.statusLabel, status),
+            _tile(AppLocalizations.of(context)!.fromLabel, from),
+            _tile(AppLocalizations.of(context)!.toLabel, to),
+            _tile(AppLocalizations.of(context)!.descriptionLabel, desc),
           ],
         ),
       ),

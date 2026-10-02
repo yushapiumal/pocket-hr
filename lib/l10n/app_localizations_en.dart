@@ -90,7 +90,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryText => 'Category';
 
   @override
-  String get homeText => 'Home';
+  String get punchText => 'Clocking';
 
   @override
   String get searchText => 'Search';
@@ -174,16 +174,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewMore => 'View More';
 
   @override
-  String get checkIn => 'Check In';
+  String get checkIn => 'Check-In';
 
   @override
-  String get checkOut => 'Check Out';
+  String get checkOut => 'Check-Out';
 
   @override
   String get leaveText => 'My Leaves';
 
   @override
-  String get attendanceText => 'My Attendance';
+  String get attendanceText => 'Attend';
 
   @override
   String get continueText => 'Continue';
@@ -361,7 +361,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lateInLabel => 'Late in';
 
   @override
-  String get dayOffLabel => 'DayOff';
+  String get dayOffLabel => 'Day Off';
 
   @override
   String get shiftLabel => 'Shift';
@@ -547,7 +547,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check-in/out is not allowed at this location.';
 
   @override
-  String get remoteChecking => 'Remote Checking';
+  String get remoteChecking => 'Remote Clocking';
 
   @override
   String get scanCheckInOut => 'Scan Check-In/Out';
@@ -1081,4 +1081,117 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountRequestedSuccess =>
       'Account deletion request submitted successfully.';
+
+  @override
+  String get incorrectDateTimeError =>
+      'Your device date and time are incorrect. Please correct them in settings and log in again.';
+
+  @override
+  String get timeHeader => 'TIME';
+
+  @override
+  String get locationsHeader => 'LOCATIONS';
+
+  @override
+  String get entryTypeHeader => 'ENTRY TYPE';
+
+  @override
+  String get overtimeHeader => 'OVERTIME';
+
+  @override
+  String get reqHoursHeader => 'REQ HOURS';
+
+  @override
+  String get remoteLabel => 'REMOTE';
+
+  @override
+  String get qrLabel => 'QR';
+
+  @override
+  String get failedToConnectToServer =>
+      'Failed to connect to the server. Please check your internet connection.';
+
+  @override
+  String get myAttendance => 'My Attendance';
+
+  @override
+  String get inLocationHeader => 'IN LOCATION';
+
+  @override
+  String get outLocationHeader => 'OUT LOCATION';
+
+  @override
+  String get distance => 'Distance';
+
+  @override
+  String get statusLabel => 'Status';
+
+  @override
+  String get descriptionLabel => 'Description';
+
+  @override
+  String get others => 'Others';
+
+  @override
+  String get selectLeaveType => 'Select Leave Type';
+
+  @override
+  String get selectLeaveReason => 'Select Leave Reason';
+
+  @override
+  String get dutyLeave => 'Duty Leave';
+
+  @override
+  String get annualVacation => 'Annual Vacation';
+
+  @override
+  String get examination => 'Examination';
+
+  @override
+  String get familyFunction => 'Family Function';
+
+  @override
+  String get pleaseSelectLeaveType => 'Please select leave type';
+
+  @override
+  String get pleaseSelectFromDate => 'Please select from date';
+
+  @override
+  String get pleaseSelectToDate => 'Please select to date';
+
+  @override
+  String get pleaseSelectLeaveReason => 'Please select leave reason';
+
+  @override
+  String get halfDayMorning => ' (0.5 Day - Morning)';
+
+  @override
+  String get halfDayEvening => ' (0.5 Day - Evening)';
+
+  @override
+  String get halfDayLabel => ' (0.5 Day)';
+
+  @override
+  String get totalLabel => 'Total';
+
+  @override
+  String get failedToRetrieveCoordinatesCheckInOutEnabled =>
+      'Failed to retrieve site coordinates. Check-in/out locally is enabled.';
+
+  @override
+  String get savedLocallyWillSyncWhenOnline =>
+      'Saved locally, will sync when online';
+
+  @override
+  String get serverErrorSavedLocallyWillSyncLater =>
+      'Server error. Saved locally, will sync later.';
+
+  @override
+  String syncedCountFailedCount(Object success, Object failed) {
+    return 'Synced: $success, Failed: $failed';
+  }
+
+  @override
+  String get todoDirectManagerApprovalRequired =>
+      'You must be the direct manager of this employee to approve this request.';
 }

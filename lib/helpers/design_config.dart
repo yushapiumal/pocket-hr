@@ -15,8 +15,74 @@ import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/logout.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:cn_pocket_hr/screens/organization/organization_screen.dart';
 
 class DesignConfig {
+  static const double defaultBorderRadius = 8.0;
+
+  static String getFriendlyErrorMessage(BuildContext context, Object? err) {
+    if (err == null) return '';
+    final l = AppLocalizations.of(context)!;
+    String raw = err.toString();
+
+    // Strip leading "Exception:", "Error:", "Exception: Error:", colons and whitespace
+    raw = raw.replaceAll(RegExp(r'^(Exception|Error|\s|:)+', caseSensitive: false), '').trim();
+    final lower = raw.toLowerCase();
+
+    if (lower.contains('socketexception') ||
+        lower.contains('failed host lookup') ||
+        lower.contains('clientexception') ||
+        lower.contains('handshakeexception') ||
+        lower.contains('connectexception') ||
+        lower.contains('connection timed out')) {
+      return l.failedToConnectToServer;
+    }
+
+    if (lower.contains('direct manager') || lower.contains('target employee')) {
+      return l.todoDirectManagerApprovalRequired;
+    }
+
+    return raw;
+  }
+
+  static Widget buildErrorState(
+    BuildContext context, {
+    required String message,
+    required VoidCallback onRetry,
+  }) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AutoSizeText(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: onRetry,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: HRColors.orangeColor,
+              ),
+              child: AutoSizeText(
+                AppLocalizations.of(context)!.retryLabel,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   static ImageProvider getHomeBgProvider(String path) {
     if (path.startsWith('http') || path.startsWith('https')) {
       return CachedNetworkImageProvider(path);
@@ -148,6 +214,30 @@ class DesignConfig {
             title: AutoSizeText(
               l10n.myTeam,
               style: const TextStyle(fontSize: 17, color: HRColors.black),
+            ),
+          );
+        case 'organization':
+        case 'organization_structure':
+          return ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 1, vertical: -2),
+            onTap: () => Navigator.pushNamed(context, HROrganization.routeName),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: HRColors.flavorIconBackgroundColor ?? Colors.grey.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.black.withOpacity(0.06)),
+              ),
+              child: Center(
+                child: Icon(Icons.account_tree_outlined,
+                  color: HRColors.flavorIconBackgroundColor != null ? HRColors.flavorIconColor : HRColors.black),
+              ),
+            ),
+            title: const AutoSizeText(
+              'Organization',
+              style: TextStyle(fontSize: 17, color: HRColors.black),
             ),
           );
         case 'salary_slips':
@@ -316,18 +406,27 @@ class DesignConfig {
 
                   final defaultKeys = [
                     'my_team',
+                    'organization',
                     'salary_slips',
                     'allowance_deductions',
                     'debts_loans',
                     'todo_list'
                   ];
 
-                  List<String> activeKeys = defaultKeys;
+                  List<String> activeKeys = List<String>.from(defaultKeys);
                   if (items != null && items.isNotEmpty) {
                     activeKeys = items
                         .map((e) => e is Map ? (e['key']?.toString() ?? '') : '')
                         .where((k) => k.isNotEmpty)
                         .toList();
+                    if (!activeKeys.contains('organization') && !activeKeys.contains('organization_structure')) {
+                      final myTeamIdx = activeKeys.indexOf('my_team');
+                      if (myTeamIdx != -1) {
+                        activeKeys.insert(myTeamIdx + 1, 'organization');
+                      } else {
+                        activeKeys.insert(0, 'organization');
+                      }
+                    }
                   }
 
                   return ListView(

@@ -1,28 +1,23 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:cn_pocket_hr/services/leave_service.dart';
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:cn_pocket_hr/constants/slideanimation.dart';
 import 'package:cn_pocket_hr/screens/leave/devices/card1.dart';
-import 'package:cn_pocket_hr/screens/leave/devices/slidable.dart';
-import 'package:cn_pocket_hr/screens/leave/devices/slide_action.dart';
 import 'package:cn_pocket_hr/screens/notifications/notifications.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 import 'package:cn_pocket_hr/models/hr/leave_model.dart';
 import 'package:cn_pocket_hr/models/hr/me_model.dart';
 
 import 'package:cn_pocket_hr/screens/leave/devices/mobile_leave_request_page.dart';
-// (Details screen removed)
 
 class MobileLeave extends StatefulWidget {
   MobileLeave({Key? key}) : super(key: key);
@@ -48,6 +43,7 @@ class MobileLeaveState extends State<MobileLeave>
   bool isOthers = false;
   bool leaveManageForm = false;
   bool leaveApprove = true;
+  int _activeMainTab = 0;
 
   Map<String, dynamic>? _leaveBalances;
 
@@ -59,141 +55,180 @@ class MobileLeaveState extends State<MobileLeave>
 
   static const Color _pageBg = Colors.white;
 
-  static const Color _surface = Color.fromARGB(255, 248, 250, 252);
+  // Colors matching the mockup theme
+  static const Color _maroon = Color(0xFF791B27);
+  static const Color _greyBrown = Color(0xFF8D7F77);
+  static const Color _gold = Color(0xFFC59B27);
+  static const Color _borderColor = Color(0xFFF0E5D9);
 
-  // Fonts (match Attendance screen; keep existing sizes)
-  static const FontWeight _wSemi = FontWeight.w600;
-  static const FontWeight _wBold = FontWeight.w700;
-  static const FontWeight _wBlack = FontWeight.w900;
+  Widget _leaveBalanceSummary() {
+    int toInt(dynamic v) {
+      if (v == null) return 0;
+      if (v is num) return v.toInt();
+      return int.tryParse(v.toString()) ?? 0;
+    }
 
-  Widget _leaveBalanceChip(
-      {required String label,
-      required String value,
-      required Color bg,
-      required Color fg}) {
+    double toDouble(dynamic v) {
+      if (v == null) return 0.0;
+      if (v is num) return v.toDouble();
+      return double.tryParse(v.toString()) ?? 0.0;
+    }
+
+    dynamic find(Map? m, String k) {
+      if (m == null) return null;
+      if (m.containsKey(k)) return m[k];
+      final lowerK = k.toLowerCase();
+      for (var entry in m.entries) {
+        final sk = entry.key.toString().toLowerCase();
+        if (sk == lowerK || sk == '${lowerK}_leave' || sk == 'leave_$lowerK') return entry.value;
+      }
+      return null;
+    }
+
+    int getQuota(String type) {
+      if (_leaveBalances == null) {
+        return toInt(storage.getItem('${type}Quota') ?? storage.getItem('${type}_quota'));
+      }
+      final quotaMap = (_leaveBalances!['quota'] ?? _leaveBalances!['leave_quota']) as Map?;
+      var quota = find(quotaMap, type);
+      quota ??= find(_leaveBalances, '${type}_quota') ?? find(_leaveBalances, 'quota_$type');
+      quota ??= storage.getItem('${type}Quota') ?? storage.getItem('${type}_quota');
+      return toInt(quota);
+    }
+
+    int getUsed(String type) {
+      if (_leaveBalances == null) {
+        final storageBal = storage.getItem('leave${type[0].toUpperCase()}${type.substring(1)}') ?? storage.getItem('leave_$type');
+        final quota = getQuota(type);
+        if (storageBal != null) {
+          return quota - toInt(storageBal);
+        }
+        return 0;
+      }
+      final usedMap = (_leaveBalances!['used'] ?? _leaveBalances!['taken'] ?? _leaveBalances!['leave_used'] ?? _leaveBalances!['leave_taken']) as Map?;
+      final balanceMap = (_leaveBalances!['balance'] ?? _leaveBalances!['leave_balance'] ?? _leaveBalances!['remaining']) as Map?;
+
+      var used = find(usedMap, type);
+      used ??= find(_leaveBalances, '${type}_used') ?? find(_leaveBalances, 'used_$type') ?? find(_leaveBalances, '${type}_taken');
+
+      if (used == null && balanceMap != null) {
+        final bal = find(balanceMap, type);
+        if (bal != null) {
+          final quota = getQuota(type);
+          used = quota - toInt(bal);
+        }
+      }
+      return toInt(used);
+    }
+
+    double getAvailable(String type) {
+      if (_leaveBalances == null) {
+        final storageBal = storage.getItem('leave${type[0].toUpperCase()}${type.substring(1)}') ?? storage.getItem('leave_$type');
+        if (storageBal != null) return toDouble(storageBal);
+        return toDouble(getQuota(type) - getUsed(type));
+      }
+      final availableMap = (_leaveBalances!['available'] ?? _leaveBalances!['balance'] ?? _leaveBalances!['leave_balance'] ?? _leaveBalances!['remaining']) as Map?;
+      var av = find(availableMap, type);
+      av ??= find(_leaveBalances, '${type}_available') ?? find(_leaveBalances, '${type}_balance') ?? find(_leaveBalances, 'available_$type') ?? find(_leaveBalances, 'balance_$type');
+      av ??= storage.getItem('leave${type[0].toUpperCase()}${type.substring(1)}') ?? storage.getItem('leave_$type');
+      return toDouble(av ?? (getQuota(type) - getUsed(type)));
+    }
+
+    String formatVal(double v) {
+      if (v == v.toInt()) {
+        return v.toInt().toString();
+      }
+      return v.toString();
+    }
+
+    final annualQuota = getQuota('annual');
+    final annualAvailable = getAvailable('annual');
+
+    final casualQuota = getQuota('casual');
+    final casualAvailable = getAvailable('casual');
+
+    final medicalQuota = getQuota('medical');
+    final medicalAvailable = getAvailable('medical');
+
+    final totalQuota = _leaveBalances != null && _leaveBalances!.containsKey('totalEntitled')
+        ? toInt(_leaveBalances!['totalEntitled'])
+        : (annualQuota + casualQuota + medicalQuota);
+
+    final totalAvailable = _leaveBalances != null && _leaveBalances!.containsKey('totalAvailable')
+        ? toDouble(_leaveBalances!['totalAvailable'])
+        : (annualAvailable + casualAvailable + medicalAvailable);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      margin: const EdgeInsets.only(top: 14),
+      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: HRColors.black.withOpacity(0.06)),
+        color: const Color(0xFFFAF2EB),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          AutoSizeText(label,
-              style: TextStyle(fontSize: 12, fontWeight: _wBold, color: fg)),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: HRColors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: AutoSizeText(value,
-                style: TextStyle(fontSize: 12, fontWeight: _wBlack, color: fg)),
+          _balanceColumn(
+            label: AppLocalizations.of(context)!.annualLabel.toUpperCase(),
+            value: '${formatVal(annualAvailable)}/${formatVal(annualQuota.toDouble())}',
+            valueColor: const Color(0xFF2E7D32),
+          ),
+          _balanceDivider(),
+          _balanceColumn(
+            label: AppLocalizations.of(context)!.casualLabel.toUpperCase(),
+            value: '${formatVal(casualAvailable)}/${formatVal(casualQuota.toDouble())}',
+            valueColor: _greyBrown,
+          ),
+          _balanceDivider(),
+          _balanceColumn(
+            label: AppLocalizations.of(context)!.medicalLabel.toUpperCase(),
+            value: '${formatVal(medicalAvailable)}/${formatVal(medicalQuota.toDouble())}',
+            valueColor: _greyBrown,
+          ),
+          _balanceDivider(),
+          _balanceColumn(
+            label: AppLocalizations.of(context)!.totalLabel.toUpperCase(),
+            value: '${formatVal(totalAvailable)}/${formatVal(totalQuota.toDouble())}',
+            valueColor: _gold,
           ),
         ],
       ),
     );
   }
 
-  Widget _leaveBalanceSummary() {
-    if (_leaveBalances == null) return const SizedBox();
-
-    String buildVal(String type) {
-      final quotaMap = (_leaveBalances!['quota'] ?? _leaveBalances!['leave_quota']) as Map?;
-      final usedMap = (_leaveBalances!['used'] ?? _leaveBalances!['taken'] ?? _leaveBalances!['leave_used'] ?? _leaveBalances!['leave_taken']) as Map?;
-      final balanceMap = (_leaveBalances!['balance'] ?? _leaveBalances!['leave_balance'] ?? _leaveBalances!['remaining']) as Map?;
-
-      num toNum(dynamic v) {
-        if (v == null) return 0;
-        if (v is num) return v;
-        return num.tryParse(v.toString()) ?? 0;
-      }
-
-      dynamic find(Map? m, String k) {
-        if (m == null) return null;
-        if (m.containsKey(k)) return m[k];
-        final lowerK = k.toLowerCase();
-        for (var entry in m.entries) {
-          final sk = entry.key.toString().toLowerCase();
-          if (sk == lowerK || sk == '${lowerK}_leave' || sk == 'leave_$lowerK') return entry.value;
-        }
-        return null;
-      }
-
-      var quota = find(quotaMap, type);
-      var used = find(usedMap, type);
-
-      // Fallback: If not in maps, maybe they are top-level keys like "annual_quota"
-      quota ??= find(_leaveBalances, '${type}_quota') ?? find(_leaveBalances, 'quota_$type');
-      used ??= find(_leaveBalances, '${type}_used') ?? find(_leaveBalances, 'used_$type') ?? find(_leaveBalances, '${type}_taken');
-
-      if (used == null && balanceMap != null) {
-        final bal = find(balanceMap, type);
-        if (bal != null && quota != null) {
-          used = toNum(quota) - toNum(bal);
-        }
-      }
-
-      // Final fallbacks from LocalStorage
-      quota ??= storage.getItem('${type}Quota') ?? storage.getItem('${type}_quota');
-      if (used == null) {
-        final storageBal = storage.getItem('leave${type[0].toUpperCase()}${type.substring(1)}') ?? storage.getItem('leave_$type');
-        if (storageBal != null && quota != null) {
-          used = toNum(quota) - toNum(storageBal);
-        }
-      }
-
-      return '${toNum(used)}/${toNum(quota)}';
-    }
-
+  Widget _balanceDivider() {
     return Container(
-      margin: const EdgeInsets.only(top: 14),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: HRColors.secondaryColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: HRColors.black.withOpacity(0.05)),
-        boxShadow: [
-          BoxShadow(
-              color: HRColors.secondaryColor.withOpacity(0.28),
-              blurRadius: 10,
-              offset: const Offset(0, 6)),
-        ],
-      ),
+      width: 1,
+      height: 35,
+      color: _borderColor,
+    );
+  }
+
+  Widget _balanceColumn({
+    required String label,
+    required String value,
+    required Color valueColor,
+  }) {
+    return Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          AutoSizeText(AppLocalizations.of(context)!.leaveBalanceTitle,
-              style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: _wBlack,
-                  color: HRColors.white)),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _leaveBalanceChip(
-                    label: AppLocalizations.of(context)!.annualLabel,
-                    value: buildVal('annual'),
-                    bg: const Color(0xFFFFF7E6),
-                    fg: HRColors.darkOrangeColor),
-                const SizedBox(width: 10),
-                _leaveBalanceChip(
-                    label: AppLocalizations.of(context)!.casualLabel,
-                    value: buildVal('casual'),
-                    bg: const Color(0xFFEFF6FF),
-                    fg: HRColors.blueColor),
-                const SizedBox(width: 10),
-                _leaveBalanceChip(
-                    label: AppLocalizations.of(context)!.medicalLabel,
-                    value: buildVal('medical'),
-                    bg: const Color(0xFFEAF7EE),
-                    fg: HRColors.green),
-              ],
+          AutoSizeText(
+            label,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: _maroon,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          AutoSizeText(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: valueColor,
             ),
           ),
         ],
@@ -260,6 +295,7 @@ class MobileLeaveState extends State<MobileLeave>
   }
 
   getMyLeaves() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
       myLeaves = LeaveService.getMyLeaves();
@@ -326,7 +362,7 @@ class MobileLeaveState extends State<MobileLeave>
                     alignment: Alignment.bottomLeft,
                     // margin: const EdgeInsets.only(bottom: 8, ),
                     child: AutoSizeText(
-                      "Others",
+                      AppLocalizations.of(context)!.others,
                       style: TextStyle(
                         fontSize: 20.0,
                         color: Colors.red[400],
@@ -420,6 +456,16 @@ class MobileLeaveState extends State<MobileLeave>
         });
   }
 
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
+
+  String _getTabLabel(String raw) {
+    if (raw.toLowerCase() == 'rejected') return 'Reject';
+    return _capitalize(raw);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -466,27 +512,62 @@ class MobileLeaveState extends State<MobileLeave>
                     ),
                     AutoSizeText(
                       AppLocalizations.of(context)!.leaveText,
-                      style: const TextStyle(fontSize: 24, fontWeight: _wBlack),
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pushNamed(
-                          context, HRNotifications.routeName),
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        decoration: BoxDecoration(
-                          color: HRColors.flavorIconBackgroundColor ??
-                              Colors.white,
-                          borderRadius: BorderRadius.circular(40),
-                          border:
-                              Border.all(color: Colors.black.withOpacity(0.06)),
-                        ),
-                        child: Center(
-                          child: SvgPicture.asset(
-                            "assets/svg/notifications_icon.svg",
-                            colorFilter: ColorFilter.mode(
-                                HRColors.flavorIconColor, BlendMode.srcIn),
-                          ),
+                      onTap: () async {
+                        await Navigator.pushNamed(context, HRNotifications.routeName);
+                        await FCMService.loadUnreadCount();
+                      },
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: FCMService.unreadCount,
+                        builder: (context, count, _) => Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: HRColors.flavorIconBackgroundColor ??
+                                    Colors.white,
+                                borderRadius: BorderRadius.circular(40),
+                                border:
+                                    Border.all(color: Colors.black.withOpacity(0.06)),
+                              ),
+                              child: Center(
+                                child: SvgPicture.asset(
+                                  "assets/svg/notifications_icon.svg",
+                                  colorFilter: ColorFilter.mode(
+                                      HRColors.flavorIconColor, BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                            if (count > 0)
+                              Positioned(
+                                top: -4,
+                                right: -4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    count > 99 ? '99+' : '$count',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),
@@ -498,119 +579,136 @@ class MobileLeaveState extends State<MobileLeave>
 
                 const SizedBox(height: 18),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AutoSizeText(AppLocalizations.of(context)!.leaveHistory,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w800)),
-                    TextButton(
-                      onPressed: () {
-                        _loadBalance();
-                        getMyLeaves();
-                      },
-                      child: AutoSizeText(AppLocalizations.of(context)!.refresh,
-                          style: const TextStyle(
-                              color: Colors.black87, fontWeight: _wBold)),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                // tabs
+                 // Main navigation tabs under balance card
                 Container(
+                  height: 48,
+                  padding: const EdgeInsets.all(4),
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: _surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.black.withOpacity(0.05)),
+                    color: const Color(0xFFF5EFE6).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+                    border: Border.all(color: _borderColor, width: 1.2),
                   ),
-                  child: TabBar(
-                    controller: _tab,
-                    isScrollable: true,
-                    dividerColor: Colors.transparent,
-                    indicatorColor: Colors.transparent,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    tabAlignment: TabAlignment.start,
-                    indicatorPadding: const EdgeInsets.all(6),
-                    labelPadding: const EdgeInsets.only(left: 23, right: 23),
-                    indicator: BoxDecoration(
-                      color: HRColors.tabColor,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    labelColor: HRColors.tabLabelColor,
-                    unselectedLabelColor: Colors.black54,
-                    tabs: [
-                      Tab(text: AppLocalizations.of(context)!.allLabel),
-                      Tab(text: AppLocalizations.of(context)!.approvedLable),
-                      Tab(text: AppLocalizations.of(context)!.pendindingLable),
-                      Tab(text: AppLocalizations.of(context)!.rejectedLable),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _activeMainTab = 0;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _activeMainTab == 0 ? _maroon : Colors.transparent,
+                              borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                            ),
+                            child: AutoSizeText(
+                              AppLocalizations.of(context)!.leaveRequest,
+                              style: TextStyle(
+                                color: _activeMainTab == 0 ? Colors.white : _maroon,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _activeMainTab = 1;
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _activeMainTab == 1 ? _maroon : Colors.transparent,
+                              borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                            ),
+                            child: AutoSizeText(
+                              AppLocalizations.of(context)!.leaveHistory,
+                              style: TextStyle(
+                                color: _activeMainTab == 1 ? Colors.white : _maroon,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
 
-                // Debug: show loaded leave count (remove later)
-                if (myLeaves != null)
-                  FutureBuilder<List<MyLeavesModel>>(
-                    future: myLeaves,
-                    builder: (context, s) {
-                      final n = (s.data ?? const <MyLeavesModel>[]).length;
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 4, bottom: 6),
-                        child: AutoSizeText(
-                          "${AppLocalizations.of(context)!.loadedLeaveLable}:$n",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.black.withOpacity(0.45),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      );
-                    },
+                if (_activeMainTab == 1) ...[
+                  // tabs
+                  Container(
+                    height: 48,
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5EFE6).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+                      border: Border.all(color: _borderColor, width: 1.2),
+                    ),
+                    child: TabBar(
+                      controller: _tab,
+                      isScrollable: true,
+                      dividerColor: Colors.transparent,
+                      indicatorColor: Colors.transparent,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      tabAlignment: TabAlignment.start,
+                      indicatorPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 2),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 25),
+                      indicator: BoxDecoration(
+                        color: _maroon,
+                        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+                      ),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: _maroon.withOpacity(0.65),
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      tabs: [
+                        Tab(text: _getTabLabel(AppLocalizations.of(context)!.allLabel)),
+                        Tab(text: _getTabLabel(AppLocalizations.of(context)!.approvedLable)),
+                        Tab(text: _getTabLabel(AppLocalizations.of(context)!.pendindingLable)),
+                        Tab(text: _getTabLabel(AppLocalizations.of(context)!.rejectedLable)),
+                      ],
+                    ),
                   ),
 
-                // Leave history header
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     AutoSizeText('Leave History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                //     TextButton(onPressed: () => getMyLeaves(), child: AutoSizeText('Refresh')),
-                //   ],
-                // ),
+                  const SizedBox(height: 12),
 
-                // History list
-                showLeave(),
+                  // History list
+                  showLeave(),
+                ] else ...[
+                  MobileLeaveRequestPage(
+                    isEdit: false,
+                    initial: null,
+                    isEmbed: true,
+                    onSuccess: () {
+                      _loadBalance();
+                      getMyLeaves();
+                      setState(() {
+                        _activeMainTab = 1; // Switch to Leave History tab on success
+                      });
+                    },
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ),
-      floatingActionButton: !leaveManageForm
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 150.0),
-              child: _GradientPillButton(
-                label: '',
-                // icon: Icons.menu,
-                onTap: () async {
-                  setState(() => leaveManageForm = true);
-
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const MobileLeaveRequestPage(
-                          isEdit: false, initial: null),
-                    ),
-                  );
-
-                  if (mounted) {
-                    setState(() => leaveManageForm = false);
-                    getMyLeaves();
-                  }
-                },
-              ),
-            )
-          : SizedBox(),
+      floatingActionButton: null,
     );
   }
 
@@ -664,13 +762,13 @@ class MobileLeaveState extends State<MobileLeave>
         }
 
         if (snapshot.hasError) {
+          final friendlyMsg = DesignConfig.getFriendlyErrorMessage(context, snapshot.error);
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 40),
-            child: Center(
-              child: AutoSizeText(
-                'Failed to load leaves',
-                style: TextStyle(color: Colors.red.shade700),
-              ),
+            child: DesignConfig.buildErrorState(
+              context,
+              message: friendlyMsg,
+              onRetry: getMyLeaves,
             ),
           );
         }
@@ -729,10 +827,8 @@ class MobileLeaveState extends State<MobileLeave>
 
   Widget _GradientPillButton({
     required String label,
-    // required IconData icon,
     required VoidCallback onTap,
   }) {
-    // Matches the provided UI: circular icon bubble + pill gradient
     final iconOnly = label.trim().isEmpty;
     return GestureDetector(
       onTap: onTap,
@@ -744,7 +840,7 @@ class MobileLeaveState extends State<MobileLeave>
             : const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
-          color: HRColors.buttonColor,
+          color: const Color(0xFF791B27),
           border: Border.all(color: Colors.black.withOpacity(0.06)),
           boxShadow: [
             BoxShadow(
@@ -756,9 +852,9 @@ class MobileLeaveState extends State<MobileLeave>
         ),
         child: Center(
           child: iconOnly
-              ? Icon(
+              ? const Icon(
                   Icons.add_rounded,
-                  color: HRColors.tabLabelColor,
+                  color: Colors.white,
                   size: 28,
                 )
               : Padding(
@@ -768,16 +864,16 @@ class MobileLeaveState extends State<MobileLeave>
                     children: [
                       AutoSizeText(
                         label,
-                        style: TextStyle(
-                          color: HRColors.tabLabelColor,
+                        style: const TextStyle(
+                          color: Colors.white,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.0,
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Icon(
+                      const Icon(
                         Icons.chevron_right,
-                        color: HRColors.tabLabelColor,
+                        color: Colors.white,
                       ),
                     ],
                   ),
@@ -787,94 +883,43 @@ class MobileLeaveState extends State<MobileLeave>
     );
   }
 
-  Widget _historyStepsRow(String? status) {
-    final s = (status ?? '').toLowerCase();
-    int step = 0;
-    if (s == 'pending') step = 1;
-    if (s == 'approved' || s == 'rejected') step = 2;
+  Widget _leaveHistoryCard(MyLeavesModel model, Axis direction) {
+    return _LeaveHistoryCardWidget(model: model);
+  }
+}
 
-    // Create/Review always use the same grey as the date text.
-    // After approve/reject they fade out so only the final label stands out.
-    const dateColor = Colors.grey;
-    final approvedColor = HRColors.green;
-    final rejectedColor = HRColors.red;
-    final endColor = s == 'rejected' ? rejectedColor : approvedColor;
-    final isFinal = step >= 2;
+class _LeaveHistoryCardWidget extends StatefulWidget {
+  final MyLeavesModel model;
+  const _LeaveHistoryCardWidget({Key? key, required this.model}) : super(key: key);
 
-    // Localize end status label
-    final endLabel = s == 'rejected'
-        ? AppLocalizations.of(context)!.rejectedLable
-        : AppLocalizations.of(context)!.approvedLable;
+  @override
+  State<_LeaveHistoryCardWidget> createState() => _LeaveHistoryCardWidgetState();
+}
 
-    Widget dot(Color color, double opacity) {
-      return Opacity(
-        opacity: opacity,
-        child: Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-      );
-    }
+class _LeaveHistoryCardWidgetState extends State<_LeaveHistoryCardWidget> {
+  bool _isExpanded = false;
 
-    Widget stepItem(String label, Color color,
-        {bool bold = false, double opacity = 1.0}) {
-      return Opacity(
-        opacity: opacity,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            dot(color, 1.0),
-            const SizedBox(width: 6),
-            AutoSizeText(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: bold ? _wBold : FontWeight.w500,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        // Create: always grey; faded when final
-        stepItem(
-          AppLocalizations.of(context)!.create,
-          dateColor,
-          bold: false,
-          opacity: isFinal ? 0.35 : 0.75,
-        ),
-        const SizedBox(width: 14),
-        // Review: grey; active at step>=1; faded when final
-        stepItem(
-          AppLocalizations.of(context)!.review,
-          dateColor,
-          bold: step >= 1 && !isFinal,
-          opacity: isFinal ? 0.35 : (step >= 1 ? 0.9 : 0.5),
-        ),
-        const SizedBox(width: 14),
-        // Final label: full bold color only when finalised
-        stepItem(
-          endLabel,
-          step >= 2 ? endColor : dateColor,
-          bold: step >= 2,
-          opacity: step >= 2 ? 1.0 : 0.45,
-        ),
-      ],
-    );
+  int _calculateDays(String fromDate, String toDate) {
+    try {
+      final fromParts = fromDate.split('/');
+      final toParts = toDate.split('/');
+      if (fromParts.length == 3 && toParts.length == 3) {
+        final from = DateTime(int.parse(fromParts[2]), int.parse(fromParts[1]), int.parse(fromParts[0]));
+        final to = DateTime(int.parse(toParts[2]), int.parse(toParts[1]), int.parse(toParts[0]));
+        final diff = to.difference(from).inDays + 1;
+        return diff > 0 ? diff : 1;
+      }
+    } catch (_) {}
+    return 1;
   }
 
-  String _localizedLeaveTypeLabel(String raw) {
-    final s = raw.toLowerCase().trim();
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
+  }
 
+  String _localizedLeaveTypeLabel(BuildContext context, String raw) {
+    final s = raw.toLowerCase().trim();
     if (s.contains('annual')) return AppLocalizations.of(context)!.annualLabel;
     if (s.contains('casual')) return AppLocalizations.of(context)!.casualLabel;
     if (s.contains('medical') || s.contains('sick')) {
@@ -882,15 +927,15 @@ class MobileLeaveState extends State<MobileLeave>
     }
     if (s.contains('short')) return AppLocalizations.of(context)!.shortLeave;
     if (s.contains('nopay') || s.contains('unpaid')) {
-      // If localization key doesn't exist in this app, keep an English fallback.
-      return 'No Pay';
+      return AppLocalizations.of(context)!.nopayLabel;
     }
-
     return raw;
   }
 
-  Widget _leaveHistoryCard(MyLeavesModel model, Axis direction) {
-    final typeLabel = _localizedLeaveTypeLabel(model.leaveType.toString());
+  @override
+  Widget build(BuildContext context) {
+    final model = widget.model;
+    final typeLabel = _localizedLeaveTypeLabel(context, model.leaveType.toString());
     final from = model.fromDate.toString();
     final to = model.toDate.toString();
 
@@ -899,119 +944,161 @@ class MobileLeaveState extends State<MobileLeave>
         model.session == 'half' ||
         model.leaveType == 'half' ||
         model.type == 'half';
-    final sessionLabel = isHalfDay
-        ? (model.session == 'morning'
-            ? ' (0.5 Day - Morning)'
-            : (model.session == 'evening' ? ' (0.5 Day - Evening)' : ' (0.5 Day)'))
-        : '';
-    final fullTypeLabel = '$typeLabel$sessionLabel';
+
+    final days = _calculateDays(from, to);
+    final durationLabel = days == 1
+        ? '1 ${AppLocalizations.of(context)!.day}'
+        : '$days ${AppLocalizations.of(context)!.days}';
+
+    final String tagLabel = days > 1
+        ? durationLabel
+        : (isHalfDay ? AppLocalizations.of(context)!.halfDay : AppLocalizations.of(context)!.fullDay);
+    final Color tagBg = isHalfDay ? const Color(0xFFFFF3E0) : const Color(0xFFE8F5E9);
+    final Color tagFg = isHalfDay ? const Color(0xFFE65100) : const Color(0xFF2E7D32);
 
     final status = model.status.toString().toLowerCase();
-    IconData trailingIcon;
-    Color trailingBg;
-    Color trailingFg;
+    String statusLabel = AppLocalizations.of(context)!.pendingLabel;
+    Color statusBg = const Color(0xFFFFF3E0);
+    Color statusFg = const Color(0xFFE65100);
+    IconData statusIcon = Icons.hourglass_empty_rounded;
+
     if (status == 'approved') {
-      trailingIcon = Icons.check_rounded;
-      trailingBg = HRColors.green.withOpacity(0.12);
-      trailingFg = HRColors.green;
+      statusLabel = AppLocalizations.of(context)!.approvedLable;
+      statusBg = const Color(0xFFEAF7EE);
+      statusFg = const Color(0xFF2E7D32);
+      statusIcon = Icons.check_circle;
     } else if (status == 'rejected') {
-      trailingIcon = Icons.close_rounded;
-      trailingBg = HRColors.red.withOpacity(0.12);
-      trailingFg = HRColors.red;
-    } else {
-      trailingIcon = Icons.hourglass_bottom_rounded;
-      trailingBg = HRColors.lightOrangeColor;
-      trailingFg = HRColors.darkOrangeColor;
+      statusLabel = AppLocalizations.of(context)!.rejectedLable;
+      statusBg = const Color(0xFFFFEBEE);
+      statusFg = const Color(0xFFC91032);
+      statusIcon = Icons.cancel;
     }
 
     return Container(
-      margin:
-          const EdgeInsets.only(left: 4.0, right: 4.0, top: 10.0, bottom: 5.0),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.all(Radius.circular(15.0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            blurRadius: 5.0,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15.0),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 14.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Row 1: Type, Session Badge, Status Badge
+                Row(
                   children: [
                     AutoSizeText(
-                      AppLocalizations.of(context)!.leaveSummary,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      _capitalize(typeLabel),
                       style: const TextStyle(
-                        color: HRColors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF791B27),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.date_range,
-                          size: 14,
-                          color: Colors.grey,
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: tagBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        tagLabel,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: tagFg,
                         ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: AutoSizeText(
-                            (from.isNotEmpty && to.isNotEmpty)
-                                ? '$from  -  $to'
-                                : (from.isNotEmpty ? from : ''),
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 13,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statusBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(statusIcon, size: 14, color: statusFg),
+                          const SizedBox(width: 4),
+                          Text(
+                            statusLabel,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: statusFg,
                             ),
-                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Row 2: Date, Chevron
+                Row(
+                  children: [
+                    Expanded(
+                      child: AutoSizeText(
+                        (days > 1 && from.isNotEmpty && to.isNotEmpty)
+                            ? '$from - $to'
+                            : (from.isNotEmpty ? from : ''),
+                        style: const TextStyle(
+                          color: Color(0xFF8D7F77),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_isExpanded) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFCF8F5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'REASON',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8D7F77),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          model.description.isNotEmpty ? model.description : 'No reason provided',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF503020),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    AutoSizeText(
-                      fullTypeLabel,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFFF59E0B),
-                          fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 8),
-                    _historyStepsRow(model.status),
-                  ],
-                ),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 34,
-                    height: 34,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    decoration: BoxDecoration(
-                      color: trailingBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(trailingIcon, color: trailingFg),
                   ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

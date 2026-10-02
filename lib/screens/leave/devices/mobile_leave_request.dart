@@ -84,12 +84,14 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   }
 
   Future<void> selectFDate(BuildContext context) async {
-    var date = DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final init = fDate.isBefore(today) ? today : fDate;
     final DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: fDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(date.year, date.month + 2, date.day));
+        initialDate: init,
+        firstDate: today,
+        lastDate: DateTime(now.year, now.month + 2, now.day));
     if (pickedDate != null && pickedDate != fDate) {
       setState(() {
         fDate = pickedDate;
@@ -100,12 +102,14 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   }
 
   Future<void> selectTDate(BuildContext context) async {
-    var date = DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final init = tDate.isBefore(today) ? today : tDate;
     final DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: tDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(date.year, date.month + 2, date.day));
+        initialDate: init,
+        firstDate: today,
+        lastDate: DateTime(now.year, now.month + 2, now.day));
     if (pickedDate != null && pickedDate != tDate) {
       setState(() {
         tDate = pickedDate;
@@ -118,12 +122,12 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   leaveTypeError() {
     if (_leaveTypeValidation) {
       return AutoSizeText(
-        'Please select leave type',
-        style: TextStyle(
+        AppLocalizations.of(context)!.pleaseSelectLeaveType,
+        style: const TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
       );
     }
-    return SizedBox(
+    return const SizedBox(
       height: 1,
     );
   }
@@ -131,12 +135,12 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   fromDateError() {
     if (_fromDateValidation) {
       return AutoSizeText(
-        'Please select from date',
-        style: TextStyle(
+        AppLocalizations.of(context)!.pleaseSelectFromDate,
+        style: const TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
       );
     }
-    return SizedBox(
+    return const SizedBox(
       height: 1,
     );
   }
@@ -144,12 +148,12 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   toDateError() {
     if (_toDateValidation) {
       return AutoSizeText(
-        'Please select to date',
-        style: TextStyle(
+        AppLocalizations.of(context)!.pleaseSelectToDate,
+        style: const TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
       );
     }
-    return SizedBox(
+    return const SizedBox(
       height: 1,
     );
   }
@@ -157,12 +161,12 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
   leaveReasonError() {
     if (_leaveReasonValidation) {
       return AutoSizeText(
-        'Please select leave reason',
-        style: TextStyle(
+        AppLocalizations.of(context)!.pleaseSelectLeaveReason,
+        style: const TextStyle(
             color: HRColors.red, fontWeight: FontWeight.w500, fontSize: 16),
       );
     }
-    return SizedBox(
+    return const SizedBox(
       height: 1,
     );
   }
@@ -190,6 +194,20 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         !_fromDateValidation &&
         !_toDateValidation &&
         !_leaveReasonValidation) {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
+      final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+
+      if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
+        apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
+        setState(() {
+          loader = false;
+          buttonEnable = true;
+        });
+        return;
+      }
+
       var data = {
         'leave_title': reasonListValue,
         'from_date': DateFormat('d/MM/y').format(fDate).toString(),
@@ -521,17 +539,27 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: reasonList.map<DropdownMenuItem<String>>((String value) {
           if (value == "Select Leave Reason") {
             return DropdownMenuItem<String>(
-              child: AutoSizeText(value,
+              child: AutoSizeText(AppLocalizations.of(context)!.selectLeaveReason,
                   style: const TextStyle(color: Colors.grey)),
               value: value,
               onTap: () => null,
               enabled: false, // disable this item
             );
           }
+          String displayValue = value;
+          if (value == 'Duty Leave') {
+            displayValue = AppLocalizations.of(context)!.dutyLeave;
+          } else if (value == 'Annual Vacation') {
+            displayValue = AppLocalizations.of(context)!.annualVacation;
+          } else if (value == 'Examination') {
+            displayValue = AppLocalizations.of(context)!.examination;
+          } else if (value == 'Family Function') {
+            displayValue = AppLocalizations.of(context)!.familyFunction;
+          }
           return DropdownMenuItem<String>(
             value: value,
             child: AutoSizeText(
-              value,
+              displayValue,
               textAlign: TextAlign.right,
             ),
           );
@@ -577,17 +605,25 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         items: leaveTypeList.map<DropdownMenuItem<String>>((String value) {
           if (value == 'Select Leave Type') {
             return DropdownMenuItem<String>(
-              child: AutoSizeText(value,
+              child: AutoSizeText(AppLocalizations.of(context)!.selectLeaveType,
                   style: const TextStyle(color: Colors.grey)),
               value: value,
               onTap: () => null,
               enabled: false, // disable this item
             );
           }
+          String displayValue = value;
+          if (value == 'Annual') {
+            displayValue = AppLocalizations.of(context)!.annualLabel;
+          } else if (value == 'Casual') {
+            displayValue = AppLocalizations.of(context)!.casualLabel;
+          } else if (value == 'Medical') {
+            displayValue = AppLocalizations.of(context)!.medicalLabel;
+          }
           return DropdownMenuItem<String>(
             value: value,
             child: AutoSizeText(
-              capitalize(value),
+              displayValue,
               textAlign: TextAlign.right,
             ),
           );
@@ -610,8 +646,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AutoSizeText(fromText,
-                style: TextStyle(
+            AutoSizeText(fromText == "From" ? AppLocalizations.of(context)!.fromLabel : fromText,
+                style: const TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,
                     fontSize: 18)),
@@ -636,8 +672,8 @@ class _MobileLeaveRequestState extends State<MobileLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AutoSizeText(toText,
-                style: TextStyle(
+            AutoSizeText(toText == "To" ? AppLocalizations.of(context)!.toLabel : toText,
+                style: const TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,
                     fontSize: 18)),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cn_pocket_hr/services/offline_attendance_service.dart';
+import 'package:cn_pocket_hr/config/flavor_config.dart';
 
 class ConnectionProvider extends ChangeNotifier {
   bool _isOnline = true;
@@ -21,6 +22,7 @@ class ConnectionProvider extends ChangeNotifier {
   Timer? _bannerTimer;
 
   late final StreamSubscription<dynamic> _subscription;
+  int _currentCheckId = 0;
 
   ConnectionProvider() {
     _init();
@@ -31,34 +33,56 @@ class ConnectionProvider extends ChangeNotifier {
     try {
       final raw = await connectivity.checkConnectivity();
       _lastResult = _toConnectivityResult(raw);
-      _isOnline = await _checkInternetAccess();
       notifyListeners();
-      // show banner briefly on startup so initial state is visible
-      _showTransientBanner();
+      
+      // Check internet access asynchronously
+      _runInternetCheck(_currentCheckId);
     } catch (_) {
       _isOnline = true;
       notifyListeners();
     }
 
-    _subscription = connectivity.onConnectivityChanged.listen((rawResult) async {
-      final oldOnline = _isOnline;
+    _subscription = connectivity.onConnectivityChanged.listen((rawResult) {
+      _currentCheckId++;
       _lastResult = _toConnectivityResult(rawResult);
-      final nowOnline = await _checkInternetAccess();
-      _isOnline = nowOnline;
-
-      // debug
-      try {
-        print('[ConnectionProvider] raw=$rawResult normalized=$_lastResult online=$_isOnline');
-      } catch (_) {}
-      _showTransientBanner();
-      if (!oldOnline && _isOnline) {
-        try {
-          OfflineAttendanceService.instance.syncPending();
-        } catch (_) {}
+      
+      // If we got disconnected completely, we can set online to false immediately
+      if (_lastResult == ConnectivityResult.none) {
+        _isOnline = false;
+        _showTransientBanner();
+        notifyListeners();
+      } else {
+        // Otherwise, notify immediately about connection type change (e.g. Wi-Fi)
+        notifyListeners();
+        // Check internet access in background with the updated check ID
+        _runInternetCheck(_currentCheckId);
       }
-
-      if (oldOnline != _isOnline) notifyListeners();
     });
+  }
+
+  Future<void> _runInternetCheck(int checkId) async {
+    final oldOnline = _isOnline;
+    final nowOnline = await _checkInternetAccess();
+
+    // Ignore if this is a stale check
+    if (checkId != _currentCheckId) return;
+
+    _isOnline = nowOnline;
+
+    // debug
+    try {
+      debugPrint('[ConnectionProvider] normalized=$_lastResult online=$_isOnline');
+    } catch (_) {}
+
+    _showTransientBanner();
+
+    if (!oldOnline && _isOnline) {
+      try {
+        OfflineAttendanceService.instance.syncPending();
+      } catch (_) {}
+    }
+
+    notifyListeners();
   }
 
   void _showTransientBanner({Duration duration = const Duration(seconds: 10)}) {
@@ -75,27 +99,71 @@ class ConnectionProvider extends ChangeNotifier {
 
   ConnectivityResult _toConnectivityResult(dynamic raw) {
     try {
-      final s = raw?.toString() ?? '';
-      final ls = s.toLowerCase();
-      if (ls.contains('wifi')) return ConnectivityResult.wifi;
-      if (ls.contains('mobile') || ls.contains('cellular')) return ConnectivityResult.mobile;
-      if (ls.contains('ethernet')) return ConnectivityResult.ethernet;
-      if (ls.contains('vpn')) return ConnectivityResult.vpn;
-      if (ls.contains('bluetooth')) return ConnectivityResult.bluetooth;
-      return ConnectivityResult.none;
+      if (raw is List) {
+        if (raw.isEmpty) return ConnectivityResult.none;
+        for (final item in raw) {
+          final res = _parseSingle(item);
+          if (res != ConnectivityResult.none) return res;
+        }
+        return ConnectivityResult.none;
+      }
+      return _parseSingle(raw);
     } catch (_) {
       return ConnectivityResult.none;
     }
   }
 
-  Future<bool> _checkInternetAccess({Duration timeout = const Duration(seconds: 5)}) async {
+  ConnectivityResult _parseSingle(dynamic item) {
+    if (item == null) return ConnectivityResult.none;
+    if (item is ConnectivityResult) return item;
+    final s = item.toString().toLowerCase();
+    if (s.contains('wifi')) return ConnectivityResult.wifi;
+    if (s.contains('mobile') || s.contains('cellular')) return ConnectivityResult.mobile;
+    if (s.contains('ethernet')) return ConnectivityResult.ethernet;
+    if (s.contains('vpn')) return ConnectivityResult.vpn;
+    if (s.contains('bluetooth')) return ConnectivityResult.bluetooth;
+    return ConnectivityResult.none;
+  }
+
+  Future<bool> _checkInternetAccess({Duration timeout = const Duration(seconds: 3)}) async {
+    if (_lastResult == ConnectivityResult.none) return false;
+
+    String? apiHost;
     try {
-      final lookup = await InternetAddress.lookup('example.com').timeout(timeout);
-      if (lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty) return true;
-      return false;
-    } catch (_) {
-      return false;
+      apiHost = Uri.parse(FlavorConfig.instance.apiBaseUrl).host;
+    } catch (_) {}
+
+    final hostsToCheck = [
+      if (apiHost != null && apiHost.isNotEmpty) apiHost,
+      'google.com',
+      'example.com',
+    ];
+
+    const retries = 3;
+    const retryDelays = [
+      Duration(seconds: 1),
+      Duration(seconds: 2),
+    ];
+
+    for (int attempt = 0; attempt < retries; attempt++) {
+      for (final host in hostsToCheck) {
+        try {
+          final lookup = await InternetAddress.lookup(host).timeout(timeout);
+          if (lookup.isNotEmpty && lookup[0].rawAddress.isNotEmpty) {
+            return true;
+          }
+        } catch (_) {
+          // Fallback to next host/attempt
+        }
+      }
+
+      if (attempt < retries - 1) {
+        // Wait before retrying to allow interface DHCP/DNS configuration to stabilize
+        await Future.delayed(retryDelays[attempt]);
+      }
     }
+
+    return false;
   }
 
   @override
@@ -107,3 +175,4 @@ class ConnectionProvider extends ChangeNotifier {
     super.dispose();
   }
 }
+

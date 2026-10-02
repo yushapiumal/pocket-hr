@@ -29,6 +29,8 @@ import 'package:cn_pocket_hr/models/hr/check_in_check_out_model.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
+import 'package:cn_pocket_hr/models/hr/location_model.dart';
 import 'package:cn_pocket_hr/providers/connection_provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 // import 'package:audioplayers/audioplayers.dart';
@@ -251,44 +253,55 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     final addr = (activeAddr != null) ? activeAddr.toString() : null;
     final accStr = (activeAcc != null) ? activeAcc.toString() : null;
 
-    // If offline, save immediately and avoid calling remote API (prevents socket errors)
+    final attendanceId = DateTime.now().millisecondsSinceEpoch.toString();
+    final model = AttendancePunchModel(
+      attendanceId: attendanceId,
+      uid: storage.getItem('uid')?.toString() ?? 'local',
+      type: type,
+      time: date,
+      lat: (activeLat is double)
+          ? activeLat
+          : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
+      lng: (activeLng is double)
+          ? activeLng
+          : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
+      address: activeAddr ?? '',
+      deviceId: '',
+      deviceModel: '',
+      deviceBrand: '',
+      devicePlatform: '',
+      deviceVersion: '',
+      deviceIdentifier: '',
+      deviceIp: '',
+      batteryLevel: 0,
+      tenant: storage.getItem('company') ?? '',
+      isRemote: isRemote ? 1 : 0,
+      isSynced: 0,
+    );
+
+    // 🔹 STEP 1: ALL records are FIRST saved to local Drift SQLite DB
+    try {
+      await OfflineAttendanceService.instance.insertPunch(model);
+      print('[PUNCH STEP 1] 💾 Saved punch locally into Drift SQLite DB FIRST (ID: $attendanceId, isSynced: 0)');
+    } catch (e) {
+      print('[DB ERROR] Failed inserting punch to Drift DB: $e');
+    }
+
+    // Check network connectivity
     final conn = Provider.of<ConnectionProvider>(context, listen: false);
     if (!conn.isOnline) {
-      try {
-        final model = AttendancePunchModel(
-          attendanceId: DateTime.now().millisecondsSinceEpoch.toString(),
-          uid: storage.getItem('uid')?.toString() ?? 'local',
-          type: type,
-          time: date,
-          lat: (activeLat is double)
-              ? activeLat
-              : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
-          lng: (activeLng is double)
-              ? activeLng
-              : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
-          address: activeAddr ?? '',
-          deviceId: '',
-          deviceModel: '',
-          deviceBrand: '',
-          devicePlatform: '',
-          deviceVersion: '',
-          deviceIdentifier: '',
-          deviceIp: '',
-          batteryLevel: 0,
-          tenant: storage.getItem('company') ?? '',
+      print('[PUNCH STEP 2] 📡 Device is Offline. Punch stays queued in Drift DB (isSynced: 0).');
+      if (mounted) {
+        showTopToast(
+          AppLocalizations.of(context)!.savedLocallyWillSyncWhenOnline,
+          background: Colors.orange,
         );
-        await OfflineAttendanceService.instance.insertPunch(model);
-        if (mounted)
-          showTopToast('Saved locally, will sync when online',
-              background: Colors.orange);
-      } catch (e) {
-        if (mounted)
-          showTopToast('Failed to save locally', background: Colors.red);
       }
       return;
     }
 
-    // Remote path: attempt API call
+    // STEP 2: If online and server is reachable, attempt sending punch to backend
+    print('[PUNCH STEP 2] 🌐 Device is Online. Sending punch to backend API...');
     Map? res;
     try {
       res = await apiService.checkInCheckout(
@@ -300,50 +313,27 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
         accuracy: accStr,
         isRemotePunch: isRemote,
       );
-    } catch (_) {
-      // network error: save offline instead of logging error
-      try {
-        final model = AttendancePunchModel(
-          attendanceId: DateTime.now().millisecondsSinceEpoch.toString(),
-          uid: storage.getItem('uid')?.toString() ?? 'local',
-          type: type,
-          time: date,
-          lat: (activeLat is double)
-              ? activeLat
-              : double.tryParse(activeLat?.toString() ?? '') ?? 0.0,
-          lng: (activeLng is double)
-              ? activeLng
-              : double.tryParse(activeLng?.toString() ?? '') ?? 0.0,
-          address: activeAddr ?? '',
-          deviceId: '',
-          deviceModel: '',
-          deviceBrand: '',
-          devicePlatform: '',
-          deviceVersion: '',
-          deviceIdentifier: '',
-          deviceIp: '',
-          batteryLevel: 0,
-          tenant: storage.getItem('company') ?? '',
+    } catch (e) {
+      // Network error: punch remains saved in Drift DB (isSynced = 0) to auto-sync later
+      print('[PUNCH STEP 2 ERROR] Network failure: $e. Punch remains in Drift DB for auto-sync.');
+      if (mounted) {
+        showTopToast(
+          AppLocalizations.of(context)!.savedLocallyWillSyncWhenOnline,
+          background: Colors.orange,
         );
-        await OfflineAttendanceService.instance.insertPunch(model);
-        if (mounted)
-          showTopToast('Saved locally, will sync when online',
-              background: Colors.orange);
-      } catch (e) {
-        if (mounted)
-          showTopToast('Failed to save locally', background: Colors.red);
       }
       return;
     }
 
-    // Remote succeeded: show response message
-    // show API response
-    String msg = '';
-    Color bg = Colors.black;
-
     if (res is Map && res.containsKey('status')) {
       final statusCode = res['status'];
-      if (statusCode == 200) {
+      String msg = '';
+      Color bg = Colors.red;
+      if (statusCode is int && statusCode >= 200 && statusCode < 300) {
+        // STEP 3: Backend success! Update local Drift DB record as synced
+        await OfflineAttendanceService.instance.markSynced(attendanceId);
+        print('[PUNCH STEP 3] ✅ Server returned HTTP $statusCode. Updated local Drift DB record (isSynced: 1)');
+
         msg = type == 'checkout'
             ? AppLocalizations.of(context)!.checkOutSuccess
             : AppLocalizations.of(context)!.checkInSuccess;
@@ -353,22 +343,44 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
           if (mounted) setState(() => _punchCooldown = false);
         });
         if (mounted) setState(() => _punchCooldown = true);
-      } else if (statusCode == 400) {
-        msg = AppLocalizations.of(context)!.cantLocate;
+        if (mounted) showTopToast(msg, background: bg);
+
+        // Background sweep for any prior pending punches
+        OfflineAttendanceService.instance.syncPending();
+      } else if (statusCode == 400 || statusCode == 401 || statusCode == 403) {
+        // Permanent failure (validation/credentials): Mark synced/cleared in DB to prevent infinite retry
+        await OfflineAttendanceService.instance.markSynced(attendanceId);
+        print('[PUNCH STEP 3] ⚠️ Server returned HTTP $statusCode (client error). Cleared from DB queue.');
+
+        if (statusCode == 400) {
+          msg = AppLocalizations.of(context)!.cantLocate;
+        } else {
+          msg = AppLocalizations.of(context)!.sessionExpired;
+        }
         bg = Colors.red;
-      } else if (statusCode == 401 || statusCode == 403) {
-        msg = AppLocalizations.of(context)!.sessionExpired;
-        bg = Colors.red;
+        if (mounted) showTopToast(msg, background: bg);
       } else {
-        msg = AppLocalizations.of(context)!.filedToPerform;
-        bg = Colors.red;
+        // Server side error (5xx): Punch remains in local DB for auto-sync
+        await OfflineAttendanceService.instance.incrementRetry(attendanceId);
+        print('[PUNCH STEP 3] ❌ Server returned HTTP $statusCode (server error). Punch stays in Drift DB for auto-sync.');
+        if (mounted) {
+          showTopToast(
+            AppLocalizations.of(context)!.serverErrorSavedLocallyWillSyncLater,
+            background: Colors.orange,
+          );
+        }
       }
     } else {
-      msg = AppLocalizations.of(context)!.filedToPerform;
-      bg = Colors.red;
+      // res is null: Punch remains in local DB for auto-sync
+      await OfflineAttendanceService.instance.incrementRetry(attendanceId);
+      print('[PUNCH STEP 3] ❌ Server returned null response. Punch stays in Drift DB for auto-sync.');
+      if (mounted) {
+        showTopToast(
+          AppLocalizations.of(context)!.serverErrorSavedLocallyWillSyncLater,
+          background: Colors.orange,
+        );
+      }
     }
-
-    if (mounted) showTopToast(msg, background: bg);
   }
 
   changeBTN() {
@@ -470,6 +482,45 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
     return R * c;
   }
 
+  Future<List<UserLocation>?> _fetchLocationsWithRetry(String userId) async {
+    final conn = Provider.of<ConnectionProvider>(context, listen: false);
+    if (!conn.isOnline) {
+      if (mounted) {
+        showTopToast(
+          'Network connection error. Please check your internet connection.',
+          background: Colors.red,
+        );
+      }
+      return [];
+    }
+
+    int attempts = 0;
+    while (attempts < 3) {
+      try {
+        final List<UserLocation> locations = await apiService.getTenantCoordinateFromQr(userId);
+        return locations;
+      } on SocketException catch (e) {
+        print('[API ERROR] Network SocketException: $e');
+        if (mounted) {
+          showTopToast(
+            'Network connection error. Please check your internet connection.',
+            background: Colors.red,
+          );
+        }
+        return [];
+      } on TimeoutException catch (e) {
+        print('[API ERROR] Server timeout: $e');
+      } catch (e) {
+        print('[API ERROR] Server Side/API Error: $e');
+      }
+      attempts++;
+      if (attempts < 3) {
+        await Future.delayed(const Duration(seconds: 1));
+      }
+    }
+    return null;
+  }
+
   Future<bool> _ensureQrValidatedIfRequired() async {
     if (!apiService.qrEnable) {
       _withinQrRadius = true;
@@ -480,7 +531,9 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
 
     // Fetch location config to decide whether QR is enabled.
     final userId = storage.getItem('uid')?.toString() ?? '';
-    final locations = await apiService.getTenantCoordinateFromQr(userId);
+    final locationsResult = await _fetchLocationsWithRetry(userId);
+    final bool tenantCoordinatesFailed = locationsResult == null;
+    final List<UserLocation> locations = locationsResult ?? [];
 
     setState(() {
       qrLatitude = null;
@@ -495,13 +548,20 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
               storage.getItem('userName') ??
               '')
           .toString();
-      final bool isRemoteAllowed = apiService.remoteEnable;
+      final bool isRemoteAllowed = apiService.remoteEnable &&
+          ((_qrActiveType == 'checkin' &&
+                  (apiService.remoteValue == 1 ||
+                      apiService.remoteValue == 3)) ||
+              (_qrActiveType == 'checkout' &&
+                  (apiService.remoteValue == 2 ||
+                      apiService.remoteValue == 3)));
 
       final qr = await Navigator.of(context).push<String>(
         MaterialPageRoute(
           builder: (_) => QrScannerPage(
             username: usernameForQr,
             showRemoteButton: isRemoteAllowed,
+            tenantCoordinatesFailed: tenantCoordinatesFailed,
             onLocationUpdated: (pos) {
               setState(() {
                 qrLatitude = pos.latitude;
@@ -541,55 +601,58 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
               }
 
               // Exact match check across array of allowed locations
-              dynamic matchedLocation;
-              for (var loc in locations) {
-                // Determine raw values as safely parsed doubles by bypassing nested types
-                dynamic rawLat;
-                dynamic rawLng;
-                try {
-                  rawLat = loc.lat;
-                  rawLng = loc.lng;
-                } catch (_) {}
-
-                double currentLat = 0.0;
-                double currentLng = 0.0;
-                if (rawLat is num) {
-                  currentLat = rawLat.toDouble();
-                } else if (rawLat != null) {
-                  currentLat = double.tryParse(rawLat.toString()) ?? 0.0;
-                }
-
-                if (rawLng is num) {
-                  currentLng = rawLng.toDouble();
-                } else if (rawLng != null) {
-                  currentLng = double.tryParse(rawLng.toString()) ?? 0.0;
-                }
-
-                if (qlat == currentLat && qlng == currentLng) {
-                  matchedLocation = loc;
-                  break;
-                }
-              }
-
-              if (matchedLocation == null) {
-                return AppLocalizations.of(context)!
-                    .qrCoordinatesMismatchMessage;
-              }
-
-              // Get radius specifically for the matched location
               double allowedRadiusMeters = 500.0;
-              try {
-                final dynamic anyLoc = matchedLocation;
-                dynamic r;
-                try {
-                  r = anyLoc.radius ?? anyLoc.radiusMeters ?? anyLoc.range;
-                } catch (_) {}
-                if (r is num) {
-                  allowedRadiusMeters = r.toDouble();
-                } else if (r is String) {
-                  allowedRadiusMeters = double.tryParse(r) ?? 500.0;
+
+              if (!tenantCoordinatesFailed) {
+                dynamic matchedLocation;
+                for (var loc in locations) {
+                  // Determine raw values as safely parsed doubles by bypassing nested types
+                  dynamic rawLat;
+                  dynamic rawLng;
+                  try {
+                    rawLat = loc.lat;
+                    rawLng = loc.lng;
+                  } catch (_) {}
+
+                  double currentLat = 0.0;
+                  double currentLng = 0.0;
+                  if (rawLat is num) {
+                    currentLat = rawLat.toDouble();
+                  } else if (rawLat != null) {
+                    currentLat = double.tryParse(rawLat.toString()) ?? 0.0;
+                  }
+
+                  if (rawLng is num) {
+                    currentLng = rawLng.toDouble();
+                  } else if (rawLng != null) {
+                    currentLng = double.tryParse(rawLng.toString()) ?? 0.0;
+                  }
+
+                  if (qlat == currentLat && qlng == currentLng) {
+                    matchedLocation = loc;
+                    break;
+                  }
                 }
-              } catch (_) {}
+
+                if (matchedLocation == null) {
+                  return AppLocalizations.of(context)!
+                      .qrCoordinatesMismatchMessage;
+                }
+
+                // Get radius specifically for the matched location
+                try {
+                  final dynamic anyLoc = matchedLocation;
+                  dynamic r;
+                  try {
+                    r = anyLoc.radius ?? anyLoc.radiusMeters ?? anyLoc.range;
+                  } catch (_) {}
+                  if (r is num) {
+                    allowedRadiusMeters = r.toDouble();
+                  } else if (r is String) {
+                    allowedRadiusMeters = double.tryParse(r) ?? 500.0;
+                  }
+                } catch (_) {}
+              }
 
               // After scan: validate device location within allowed radius
               final double? dlat = (qrLatitude is num)
@@ -1126,6 +1189,8 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
   }
 
   Widget data() {
+    final connectionProvider = Provider.of<ConnectionProvider>(context);
+    final _ = connectionProvider.isOnline;
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
@@ -1144,35 +1209,78 @@ class _TabletHomeState extends State<TabletHome> with TickerProviderStateMixin {
                 slider(),
               ])),
           actions: <Widget>[
-            // Manual sync button
-            GestureDetector(
-              onTap: () async {
-                try {
-                  final count =
-                      await OfflineAttendanceService.instance.syncPending();
-                  showTopToast('Synced $count records',
-                      background: Colors.green);
-                } catch (e) {
-                  showTopToast('Sync failed', background: Colors.red);
-                }
-              },
-              child: Container(
-                padding: EdgeInsets.all(5.0),
-                alignment: Alignment.center,
-                child: GlassBox(
-                  redius: 40.0,
-                  width: 50,
-                  height: 50,
-                  backgroundColor: HRColors.flavorIconBackgroundColor,
-                  child: Align(
+            // Manual sync button (Only visible when pending sync data exists)
+            FutureBuilder<int>(
+              future: OfflineAttendanceService.instance.getPendingCount(),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                if (count <= 0) return const SizedBox.shrink();
+
+                return GestureDetector(
+                  onTap: () async {
+                    try {
+                      final results =
+                          await OfflineAttendanceService.instance.syncPending(ignoreMaxAttempts: true);
+                      final success = results['success'] ?? 0;
+                      final failed = results['failed'] ?? 0;
+                      showTopToast(
+                        AppLocalizations.of(context)!.syncedCountFailedCount(success, failed),
+                        background: Colors.green,
+                      );
+                    } catch (e) {
+                      showTopToast('Sync failed', background: Colors.red);
+                    } finally {
+                      if (mounted) setState(() {});
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(5.0),
                     alignment: Alignment.center,
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(Icons.sync, color: HRColors.flavorIconColor),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        GlassBox(
+                          redius: 40.0,
+                          width: 50,
+                          height: 50,
+                          backgroundColor: HRColors.flavorIconBackgroundColor,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Icon(Icons.sync, color: HRColors.flavorIconColor),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
 
             GestureDetector(

@@ -6,7 +6,7 @@ import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 import 'package:cn_pocket_hr/models/hr/location_model.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
+import 'package:cn_pocket_hr/api/custom_http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cn_pocket_hr/helpers/api_config.dart';
@@ -32,18 +32,73 @@ class APIService {
     return await ApiClient.getAppVersion();
   }
 
-  // remoteEnable is now fetched entirely dynamically through fetchMeProfileWithBearer and retrieved globally.
+  // remoteEnable and remoteValue are fetched entirely dynamically through fetchMeProfileWithBearer and retrieved globally.
 
-  bool get remoteEnable {
+  int get remoteValue {
+    // 🧪 TESTING OVERRIDE: Uncomment/change the return value below to test remote permissions without backend changes:
+    // 0 = disabled, 1 = Check-In only, 2 = Check-Out only, 3 = Check-In & Check-Out enabled
+    // return 3; 
+
     final cached = storage.getItem('me_profile');
     if (cached != null && cached is Map) {
-      final dataAny = cached['data'] ?? cached['result'] ?? cached['user'];
-      if (dataAny is Map && dataAny.containsKey('remote')) {
-        final isR = dataAny['remote'];
-        return isR == true || isR == 'true';
+      final dataAny = cached['data'] ?? cached['result'] ?? cached['user'] ?? cached;
+      if (dataAny is Map) {
+        final remoteVal = dataAny['remote'];
+        final remoteModeVal = dataAny['remote_mode'];
+
+        // Evaluate boolean/truthiness of 'remote'
+        bool isRemoteActive = false;
+        int? legacyIntRemote;
+
+        if (remoteVal == true || remoteVal == 'true' || remoteVal == 1 || remoteVal == '1') {
+          isRemoteActive = true;
+        } else if (remoteVal is int && remoteVal > 0) {
+          isRemoteActive = true;
+          legacyIntRemote = remoteVal;
+        } else if (remoteVal is String) {
+          final parsed = int.tryParse(remoteVal);
+          if (parsed != null && parsed > 0) {
+            isRemoteActive = true;
+            legacyIntRemote = parsed;
+          }
+        }
+
+        // If 'remote' is false/0, do not show any remote button
+        if (!isRemoteActive) {
+          return 0;
+        }
+
+        // Parse 'remote_mode'
+        int mode = 0;
+        if (remoteModeVal != null) {
+          if (remoteModeVal is int) {
+            mode = remoteModeVal;
+          } else if (remoteModeVal is String) {
+            mode = int.tryParse(remoteModeVal) ?? 0;
+          }
+        } else if (legacyIntRemote != null) {
+          mode = legacyIntRemote;
+        } else {
+          // Default to 3 (both buttons) if remote is true but remote_mode is unspecified
+          mode = 3;
+        }
+
+        // Evaluated modes:
+        // 0 -> don't show any remote button
+        // 1 -> only Check-In button show to user
+        // 2 -> only Check-Out button show to user
+        // 3 -> Check-In and Check-Out both buttons show to user
+        if (mode == 1) return 1;
+        if (mode == 2) return 2;
+        if (mode == 3) return 3;
+        return 0;
       }
     }
-    return false; // Default fallback if no ME profile fetched yet
+    return 0; // Default fallback
+  }
+
+  bool get remoteEnable {
+    return remoteValue > 0;
   }
 
   Future<void> showToast(dynamic text, {bool isError = true}) async {
@@ -335,10 +390,10 @@ class APIService {
     }
   }
 
-  Future<Map<String, dynamic>?> getLeaveBalance() async {
+  Future<Map<String, dynamic>?> getLeaveBalance({String? userId}) async {
     try {
       await storage.ready;
-      String uid = storage.getItem('uid')?.toString() ?? '';
+      String uid = userId ?? storage.getItem('uid')?.toString() ?? '';
       if (uid.isEmpty) {
         uid = await ensureUidFromAccessToken() ?? '';
       }
@@ -585,11 +640,13 @@ class APIService {
       print('[ME] body=${response.body}');
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        return null;
+        throw Exception('Server error: ${response.statusCode}');
       }
 
       final decoded = jsonDecode(response.body);
-      if (decoded is! Map<String, dynamic>) return null;
+      if (decoded is! Map<String, dynamic>) {
+        throw Exception('Invalid profile response format');
+      }
 
       await storage.setItem('me_profile', decoded);
 
@@ -659,7 +716,7 @@ class APIService {
       return decoded;
     } catch (e) {
       print('[ME] ERROR => $e');
-      return null;
+      rethrow;
     }
   }
 
@@ -1530,6 +1587,8 @@ class APIService {
               'id': 'pending_$dayStr',
               'day': dayStr,
               'dow': dowStr,
+              'type': 'remote_attendance',
+              'remote': true,
               'attendance': punches,
               'workedHours': ' - ',
               'workedSeconds': 0,
@@ -1572,10 +1631,7 @@ class APIService {
     } catch (e, st) {
       print('[ATT] getAttendanceForUserMonth ERROR => $e');
       print(st);
-      try {
-        showToast('Failed to load attendance');
-      } catch (_) {}
-      return [];
+      rethrow;
     }
   }
 
@@ -1976,7 +2032,7 @@ class APIService {
     } catch (e, st) {
       print('[SLIPS] ERROR => $e');
       print(st);
-      return {'slips': [], 'statusCode': 500, 'message': 'serverError'};
+      return {'slips': [], 'statusCode': 500, 'message': 'serverError', 'error': e.toString()};
     }
   }
 
@@ -2111,7 +2167,7 @@ class APIService {
       print('[SLIP] EXCEPTION: $e');
       print('[SLIP] STACKTRACE: $st');
 
-      return {'status': false, 'message': 'serverError'};
+      return {'status': false, 'message': 'serverError', 'error': e.toString()};
     }
   }
 
@@ -2141,7 +2197,7 @@ class APIService {
       }
 
       // 🔹 Build URL
-      final endpoint = '${baseUrl}/teams/locations-by-userid/$userId';
+      final endpoint = '$baseUrl/teams/locations-by-userid/$userId';
       final uri = Uri.parse(endpoint);
 
       final accessToken = storage.getItem('access_token')?.toString() ?? '';
@@ -2168,19 +2224,19 @@ class APIService {
       print('[API] Body: ${response.body}');
 
       if (response.statusCode != 200) {
-        return [];
+        throw HttpException('Server returned status code: ${response.statusCode}');
       }
 
       final decoded = jsonDecode(response.body);
 
       if (decoded['success'] != true) {
-        return [];
+        throw HttpException('Server success: false');
       }
 
       final nestedData = decoded['data'];
 
       if (nestedData == null || nestedData['success'] != true) {
-        return [];
+        throw HttpException('Nested success: false');
       }
 
       final List<dynamic> locationList = nestedData['data'] ?? [];
@@ -2189,11 +2245,37 @@ class APIService {
           .map((e) => UserLocation.fromJson(Map<String, dynamic>.from(e)))
           .toList();
       print(locationList);
+      
+      // Save last backend coordinates locally for offline fallback
+      try {
+        await storage.setItem('cached_tenant_coordinates', jsonEncode(locationList));
+      } catch (cacheErr) {
+        print('[QR CACHE SAVE ERROR] $cacheErr');
+      }
+
       return result;
     } catch (e, stack) {
       print('[API ERROR] $e');
       print(stack);
-      return [];
+      
+      // Fallback to cached coordinates if backend request fails
+      try {
+        await storage.ready;
+        final cached = storage.getItem('cached_tenant_coordinates');
+        if (cached != null) {
+          final List<dynamic> cachedList =
+              (cached is String) ? jsonDecode(cached) : cached;
+          final List<UserLocation> cachedResult = cachedList
+              .map((e) => UserLocation.fromJson(Map<String, dynamic>.from(e)))
+              .toList();
+          print('[QR CACHE] Using cached tenant coordinates (${cachedResult.length} locations) due to API failure.');
+          return cachedResult;
+        }
+      } catch (cacheErr) {
+        print('[QR CACHE READ ERROR] Failed reading cached coordinates: $cacheErr');
+      }
+      
+      rethrow;
     }
   }
 

@@ -13,6 +13,7 @@ import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/helpers/custom_blur_hash.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 
 class TabletProfile extends StatefulWidget {
   @override
@@ -24,6 +25,7 @@ class _TabletProfileState extends State<TabletProfile> {
   final LocalStorage storage = LocalStorage('pocketHR');
 
   bool _loadingMe = false;
+  String? _error;
   bool _photoLoading = false;
   bool _savingImage = false;
   File? _selectedImage;
@@ -45,7 +47,7 @@ class _TabletProfileState extends State<TabletProfile> {
   static Color get _primaryColor => HRColors.darkOrangeColor;
   static const Color _secondaryColor  = Color(0xFF6366F1);
   static const Color _backgroundColor = Colors.white;
-  static const Color _cardColor       = Color.fromARGB(255, 248, 250, 252);
+  static const Color _cardColor       = Color(0xFFFAF2EB);
   static const Color _textPrimary     = Color(0xFF1E293B);
   static const Color _textSecondary   = Color(0xFF64748B);
   static const Color _textTertiary    = Color(0xFF94A3B8);
@@ -64,11 +66,19 @@ class _TabletProfileState extends State<TabletProfile> {
 
   Future<void> _loadProfileData() async {
     if (_loadingMe) return;
-    setState(() => _loadingMe = true);
+    setState(() {
+      _loadingMe = true;
+      _error = null;
+    });
 
     try {
       final meProfile = await _apiService.fetchMeProfileWithBearer();
-      if (meProfile == null) return;
+      if (meProfile == null) {
+        setState(() {
+          _error = AppLocalizations.of(context)!.failedToConnectToServer;
+        });
+        return;
+      }
 
       final dataAny = meProfile['data'] ?? meProfile['result'] ?? meProfile['user'];
       if (dataAny is! Map) return;
@@ -110,6 +120,9 @@ class _TabletProfileState extends State<TabletProfile> {
       _fetchProfilePhoto();
     } catch (e) {
       debugPrint('[PROFILE] Error loading profile: $e');
+      setState(() {
+        _error = DesignConfig.getFriendlyErrorMessage(context, e);
+      });
     } finally {
       if (mounted) setState(() => _loadingMe = false);
     }
@@ -217,12 +230,48 @@ class _TabletProfileState extends State<TabletProfile> {
               ),
             ),
             _topCircleButton(
-              onTap: () => Navigator.pushNamed(context, HRNotifications.routeName),
-              child: SvgPicture.asset(
-                'assets/svg/notifications_icon.svg',
-                colorFilter: ColorFilter.mode(
-                  HRColors.flavorIconColor,
-                  BlendMode.srcIn,
+              onTap: () async {
+                await Navigator.pushNamed(context, HRNotifications.routeName);
+                await FCMService.loadUnreadCount();
+              },
+              child: ValueListenableBuilder<int>(
+                valueListenable: FCMService.unreadCount,
+                builder: (context, count, _) => Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/svg/notifications_icon.svg',
+                      colorFilter: ColorFilter.mode(
+                        HRColors.flavorIconColor,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            count > 99 ? '99+' : '$count',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -345,8 +394,7 @@ class _TabletProfileState extends State<TabletProfile> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: _cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -407,7 +455,7 @@ class _TabletProfileState extends State<TabletProfile> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: AutoSizeText(
         label,
@@ -430,8 +478,7 @@ class _TabletProfileState extends State<TabletProfile> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
         color: _cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
       child: Row(
         children: [
@@ -440,7 +487,7 @@ class _TabletProfileState extends State<TabletProfile> {
             height: 40,
             decoration: BoxDecoration(
               color: iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Center(child: Icon(icon, size: 20, color: iconColor)),
           ),
@@ -542,29 +589,41 @@ class _TabletProfileState extends State<TabletProfile> {
         child: DesignConfig.drawerContent(_scaffoldKey, context),
       ),
       backgroundColor: _backgroundColor,
-      body: _loadingMe
-          ? Center(
-              child: CupertinoActivityIndicator(
-                color: HRColors.darkOrangeColor,
-                radius: 16.0,
-              ),
-            )
-          : RefreshIndicator(
-              color: _primaryColor,
-              onRefresh: _loadProfileData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    _topHeader(),
-                    const SizedBox(height: 10),
-                    _buildProfileCard(),
-                    _buildPersonalInfo(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
+      body: Column(
+        children: [
+          _topHeader(),
+          Expanded(
+            child: _loadingMe
+                ? Center(
+                    child: CupertinoActivityIndicator(
+                      color: HRColors.darkOrangeColor,
+                      radius: 16.0,
+                    ),
+                  )
+                : _error != null
+                    ? DesignConfig.buildErrorState(
+                        context,
+                        message: _error!,
+                        onRetry: _loadProfileData,
+                      )
+                    : RefreshIndicator(
+                        color: _primaryColor,
+                        onRefresh: _loadProfileData,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              _buildProfileCard(),
+                              _buildPersonalInfo(),
+                              const SizedBox(height: 40),
+                            ],
+                          ),
+                        ),
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -26,7 +26,7 @@
   "iAgreeToReceiveNewslettersText": "මාත්‍රිකා ලිපි ලැබීමට මම එකඟ වෙමි",
   "subscribeText": "දායක වන්න",
   "categoryText": "ප්‍රවර්ගය",
-  "homeText": "මුල් පිටුව",
+  "punchText": "පැමිණීම",
   "searchText": "සෙවීම",
   "profileText": "ප්‍රොෆයිලය",
   "readMoreText": "තව කියවන්න...",
@@ -448,5 +448,50 @@
   "deleteAccountConfirmationTitle": "ගිණුම ඉවත් කිරීමේ ඉල්ලීම",
   "deleteAccountConfirmationMessage": "ඔබගේ ගිණුම ඉවත් කිරීමට ඉල්ලුම් කිරීමට ඔබට විශ්වාසද? මෙමගින් ඔබගේ සමාගම් පරිපාලක වෙත ගිණුම් ඉවත් කිරීමේ ඉල්ලීමක් යොමු කෙරේ.",
   "confirmDeleteAccount": "මගේ ගිණුම ඉවත් කරන්න",
-  "deleteAccountRequestedSuccess": "ගිණුම ඉවත් කිරීමේ ඉල්ලීම සාර්ථකව යොමු කරන ලදී."
+  "deleteAccountRequestedSuccess": "ගිණුම ඉවත් කිරීමේ ඉල්ලීම සාර්ථකව යොමු කරන ලදී.",
+  "incorrectDateTimeError": "ඔබගේ දුරකථනයේ දිනය සහ වේලාව වැරදිය. කරුණාකර එය නිවැරදි කර නැවත ඇතුල් වන්න.",
+  "timeHeader": "වේලාව",
+  "locationsHeader": "ස්ථාන",
+  "entryTypeHeader": "ඇතුළත් කිරීමේ වර්ගය",
+  "overtimeHeader": "අතිරේක කාලය",
+  "reqHoursHeader": "අවශ්‍ය පැය ගණන",
+  "remoteLabel": "දුරස්ථ",
+  "qrLabel": "QR",
+  "failedToConnectToServer": "සේවාදායකයට සම්බන්ධ වීමට නොහැකි විය. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කරන්න.",
+  "myAttendance": "මගේ පැමිණීම්",
+  "inLocationHeader": "පැමිණි ස්ථානය",
+  "outLocationHeader": "පිටවූ ස්ථානය",
+  "distance": "දුර",
+  "statusLabel": "තත්ත්වය",
+  "descriptionLabel": "විස්තරය",
+  "others": "වෙනත්",
+  "selectLeaveType": "නිවාඩු වර්ගය තෝරන්න",
+  "selectLeaveReason": "නිවාඩු ලබා ගැනීමට හේතුව තෝරන්න",
+  "dutyLeave": "රාජකාරී නිවාඩු",
+  "annualVacation": "වාර්ෂික නිවාඩු",
+  "examination": "විභාග කටයුතු",
+  "familyFunction": "පවුලේ උත්සවයක්",
+  "pleaseSelectLeaveType": "කරුණාකර නිවාඩු වර්ගය තෝරන්න",
+  "pleaseSelectFromDate": "කරුණාකර ආරම්භක දිනය තෝරන්න",
+  "pleaseSelectToDate": "කරුණාකර අවසාන දිනය තෝරන්න",
+  "pleaseSelectLeaveReason": "කරුණාකර නිවාඩු හේතුව තෝරන්න",
+  "halfDayMorning": " (අර්ධ දිනය - උදෑසන)",
+  "halfDayEvening": " (අර්ධ දිනය - සවස)",
+  "halfDayLabel": " (අර්ධ දිනය)",
+  "totalLabel": "එකතුව",
+  "failedToRetrieveCoordinatesCheckInOutEnabled": "ස්ථානීය ඛණ්ඩාංක ලබා ගැනීමට අපොහොසත් විය. දේශීයව ඇතුළුවීම/පිටවීම සක්‍රීය කර ඇත.",
+  "savedLocallyWillSyncWhenOnline": "දේශීයව සුරකින ලදි, අන්තර්ජාලය සම්බන්ධ වූ විට සමමුහුර්ත වනු ඇත",
+  "serverErrorSavedLocallyWillSyncLater": "සේවාදායකයේ දෝෂයකි. දේශීයව සුරකින ලදි, පසුව සමමුහුර්ත වනු ඇත.",
+  "syncedCountFailedCount": "සාර්ථක: {success}, අසාර්ථක: {failed}",
+  "@syncedCountFailedCount": {
+    "placeholders": {
+      "success": {
+        "type": "Object"
+      },
+      "failed": {
+        "type": "Object"
+      }
+    }
+  },
+  "todoDirectManagerApprovalRequired": "මෙම ඉල්ලීම අනුමත කිරීමට ඔබ අදාළ සේවකයාගේ සෘජු කළමනාකරු විය යුතුය."
 }

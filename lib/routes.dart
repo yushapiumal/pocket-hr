@@ -17,6 +17,8 @@ import 'package:cn_pocket_hr/screens/splash_screen/splashscreen.dart';
 import 'package:cn_pocket_hr/screens/debts_and_loans/debts_and_loans_screen.dart';
 import 'package:cn_pocket_hr/screens/todos/todos_screen.dart';
 
+import 'package:cn_pocket_hr/screens/organization/organization_screen.dart';
+
 final Map<String, WidgetBuilder> routes = {
   SplashScreen.routeName: (context) => SplashScreen(),
   HRIntroduction.routeName: (context) => HRIntroduction(),
@@ -34,5 +36,6 @@ final Map<String, WidgetBuilder> routes = {
   HRDebtsAndLoans.routeName: (context) => HRDebtsAndLoans(),
   HRTodo.routeName: (context) => HRTodo(),
   HRTeam.routeName: (context) => HRTeam(),
+  HROrganization.routeName: (context) => const HROrganization(),
   HRContactUs.routeName: (context) => HRContactUs(),
 };

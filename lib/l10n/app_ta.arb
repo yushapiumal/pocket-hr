@@ -26,7 +26,7 @@
   "iAgreeToReceiveNewslettersText": "செய்திமடல்களைப் பெற நான் ஒப்புக்கொள்கிறேன்",
   "subscribeText": "சந்தா",
   "categoryText": "வகை",
-  "homeText": "முகப்பு",
+  "punchText": "வருகை",
   "searchText": "தேடல்",
   "profileText": "சுயவிவரம்",
   "readMoreText": "மேலும் படிக்க...",
@@ -56,7 +56,7 @@
   "checkIn": "வருகை",
   "checkOut": "வெளியேறு",
   "leaveText": "என் விடுமுறைகள்",
-  "attendanceText": "என் வருகை",
+  "attendanceText": "வருகை",
   "continueText": "தொடர்க",
   "leaveRequest": "விடுப்பு கோரிக்கை",
   "submit": "சமர்ப்பி",
@@ -448,5 +448,50 @@
   "deleteAccountConfirmationTitle": "கணக்கு நீக்கல் கோரிக்கை",
   "deleteAccountConfirmationMessage": "உங்கள் கணக்கை நீக்க கோரிக்கை விடுக்க விரும்புகிறீர்களா? இந்த செயல்பாடு உங்கள் நிறுவன நிர்வாகிக்கு கணக்கு நீக்கல் கோரிக்கையை அனுப்பும்.",
   "confirmDeleteAccount": "எனது கணக்கை நீக்கு",
-  "deleteAccountRequestedSuccess": "கணக்கு நீக்கல் கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது."
+  "deleteAccountRequestedSuccess": "கணக்கு நீக்கல் கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது.",
+  "incorrectDateTimeError": "உங்கள் சாதனத்தின் தேதி மற்றும் நேரம் தவறானது. அதைச் சரிசெய்து மீண்டும் உள்நுழையவும்.",
+  "timeHeader": "நேரம்",
+  "locationsHeader": "இடங்கள்",
+  "entryTypeHeader": "பதிவு வகை",
+  "overtimeHeader": "கூடுதல் நேரம்",
+  "reqHoursHeader": "தேவைப்படும் நேரம்",
+  "remoteLabel": "தொலைநிலை",
+  "qrLabel": "QR",
+  "failedToConnectToServer": "சேவையகத்துடன் இணைக்க முடியவில்லை. உங்கள் இணைய இணைப்பைச் சரிபார்க்கவும்.",
+  "myAttendance": "எனது வருகை",
+  "inLocationHeader": "உள் நுழைவு இடம்",
+  "outLocationHeader": "வெளிச் செல்லல் இடம்",
+  "distance": "தூரம்",
+  "statusLabel": "நிலை",
+  "descriptionLabel": "விளக்கம்",
+  "others": "மற்றவை",
+  "selectLeaveType": "விடுப்பு வகையைத் தேர்ந்தெடுக்கவும்",
+  "selectLeaveReason": "விடுப்புக்கான காரணத்தைத் தேர்ந்தெடுக்கவும்",
+  "dutyLeave": "கடமை விடுப்பு",
+  "annualVacation": "வருடாந்திர விடுமுறை",
+  "examination": "தேர்வு",
+  "familyFunction": "குடும்ப விழா",
+  "pleaseSelectLeaveType": "தயவுசெய்து விடுப்பு வகையைத் தேர்ந்தெடுக்கவும்",
+  "pleaseSelectFromDate": "தயவுசெய்து தொடக்க தேதியைத் தேர்ந்தெடுக்கவும்",
+  "pleaseSelectToDate": "தயவுசெய்து முடிவு தேதியைத் தேர்ந்தெடுக்கவும்",
+  "pleaseSelectLeaveReason": "தயவுசெய்து விடுப்புக்கான காரணத்தைத் தேர்ந்தெடுக்கவும்",
+  "halfDayMorning": " (0.5 நாள் - காலை)",
+  "halfDayEvening": " (0.5 நாள் - மாலை)",
+  "halfDayLabel": " (0.5 நாள்)",
+  "totalLabel": "மொத்தம்",
+  "failedToRetrieveCoordinatesCheckInOutEnabled": "தள ஒருங்கிணைப்புகளைப் பெற முடியவில்லை. உள்நாட்டில் செக்-இன்/செக்-அவுட் இயக்கப்பட்டது.",
+  "savedLocallyWillSyncWhenOnline": "உள்நாட்டில் சேமிக்கப்பட்டது, ஆன்லைனில் இருக்கும்போது ஒத்திசைக்கப்படும்",
+  "serverErrorSavedLocallyWillSyncLater": "சேவையக பிழை. உள்நாட்டில் சேமிக்கப்பட்டது, பின்னர் ஒத்திசைக்கப்படும்.",
+  "syncedCountFailedCount": "ஒத்திசைக்கப்பட்டது: {success}, தோல்வியடைந்தது: {failed}",
+  "@syncedCountFailedCount": {
+    "placeholders": {
+      "success": {
+        "type": "Object"
+      },
+      "failed": {
+        "type": "Object"
+      }
+    }
+  },
+  "todoDirectManagerApprovalRequired": "இந்தக் கோரிக்கையை ஒப்புறுதி செய்ய நீங்கள் அந்தப் பணியாளரின் நேரடி மேலாளராக இருக்க வேண்டும்."
 }

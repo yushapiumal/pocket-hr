@@ -74,10 +74,17 @@ class AttendanceModel {
       'in_time_only': inTime,
       'out_time_only': outTime,
       'wrkd_hours_fmtd': worked.isNotEmpty ? worked : (bp['wrkd_hours_fmtd']),
-      'late': bp['late'],
-      'over': bp['over'],
+      'late': bp['late'] ?? json['lateMinutes'] ?? json['late'],
+      'over': bp['over'] ?? json['overMinutes'] ?? json['over'] ?? json['worked_hours'],
       'firstCheckIn': bp['firstCheckIn'] ?? json['firstCheckIn'] ?? inEpoch,
       'isPending': isPending,
+      'remote': json['remote'] ?? bp['remote'],
+      'attendance': json['attendance'] ?? bp['attendance'],
+      'package': json['package'] ?? bp['package'],
+      'required_hrs': json['required_hrs'] ?? bp['required_hrs'],
+      'working_hours': json['working_hours'] ?? bp['working_hours'],
+      'lateMinutes': json['lateMinutes'] ?? bp['lateMinutes'],
+      'overMinutes': json['overMinutes'] ?? bp['overMinutes'],
     };
 
     final bool offdayFromJson = json['isOffday'] == true;

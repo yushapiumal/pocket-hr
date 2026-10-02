@@ -1,3 +1,4 @@
+import 'package:cn_pocket_hr/helpers/design_config.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/api/api_client.dart';
@@ -75,7 +76,7 @@ class _MobileAllowancesDeductionsScreenState
       debugPrint('[VAR][ERROR] $e');
       debugPrint('$st');
       setState(() {
-        _error = e.toString();
+        _error = DesignConfig.getFriendlyErrorMessage(context, e);
         _loading = false;
       });
     }
@@ -214,21 +215,10 @@ class _MobileAllowancesDeductionsScreenState
     if (_loading) {
       tabBody = const Center(child: CircularProgressIndicator());
     } else if (_error != null) {
-      tabBody = Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AutoSizeText(_error!, textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                  onPressed: _load,
-                  child:
-                      AutoSizeText(AppLocalizations.of(context)!.retryLabel)),
-            ],
-          ),
-        ),
+      tabBody = DesignConfig.buildErrorState(
+        context,
+        message: _error!,
+        onRetry: _load,
       );
     } else {
       tabBody = TabBarView(

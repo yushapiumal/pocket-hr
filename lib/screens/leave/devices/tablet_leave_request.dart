@@ -14,6 +14,7 @@ import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/helpers/hr_strings.dart';
 import 'package:intl/intl.dart';
 import 'package:cn_pocket_hr/helpers/custom_blur_hash.dart';
+import 'package:cn_pocket_hr/l10n/app_localizations.dart';
 
 class TabletLeaveRequest extends StatefulWidget {
   const TabletLeaveRequest({Key? key}) : super(key: key);
@@ -54,12 +55,14 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   APIService apiService = APIService();
 
   Future<void> selectFDate(BuildContext context) async {
-    var date = new DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final init = fDate.isBefore(today) ? today : fDate;
     final DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: fDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(date.year, date.month + 2, date.day));
+        initialDate: init,
+        firstDate: today,
+        lastDate: DateTime(now.year, now.month + 2, now.day));
     if (pickedDate != null && pickedDate != fDate)
       setState(() {
         fDate = pickedDate;
@@ -68,12 +71,14 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   }
 
   Future<void> selectTDate(BuildContext context) async {
-    var date = new DateTime.now();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final init = tDate.isBefore(today) ? today : tDate;
     final DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: tDate,
-        firstDate: DateTime.now(),
-        lastDate: DateTime(date.year, date.month + 2, date.day));
+        initialDate: init,
+        firstDate: today,
+        lastDate: DateTime(now.year, now.month + 2, now.day));
     if (pickedDate != null && pickedDate != tDate)
       setState(() {
         tDate = pickedDate;
@@ -96,6 +101,16 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
   }
 
   submit() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final fDateOnly = DateTime(fDate.year, fDate.month, fDate.day);
+    final tDateOnly = DateTime(tDate.year, tDate.month, tDate.day);
+
+    if (fDateOnly.isBefore(today) || tDateOnly.isBefore(today)) {
+      apiService.showToast(AppLocalizations.of(context)!.cannotSelectPastDate);
+      return;
+    }
+
     var data = {
       'leave_title': reasonListValue,
       'from_date': DateFormat('d/MM/y').format(fDate).toString(),
@@ -191,8 +206,8 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 10),
                   child: AutoSizeText(
-                    HRStrings.leaveRequest,
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.leaveRequestLabel,
+                    style: const TextStyle(
                         fontSize: 35,
                         color: HRColors.black,
                         fontWeight: FontWeight.normal),
@@ -216,8 +231,10 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                   },
                 ),
                 AutoSizeText(
-                  dummy,
-                  style: TextStyle(fontSize: 18),
+                  leave_typeValue == "full_day"
+                      ? '${AppLocalizations.of(context)!.fullDay} Selected'
+                      : '${AppLocalizations.of(context)!.halfDay} Selected',
+                  style: const TextStyle(fontSize: 18),
                 ),
                 // showLeaveType(),
                 if (halfDayToggle) showFirstSecond(),
@@ -250,15 +267,15 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             AutoSizeText(
-                              HRStrings.submit,
+                              AppLocalizations.of(context)!.submit,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: HRColors.white,
                                 fontSize: 25,
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
-                            SizedBox(width: 5),
+                            const SizedBox(width: 5),
                           ],
                         )),
                   ),
@@ -394,7 +411,7 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         style: TextStyle(color: HRColors.black),
         cursorColor: HRColors.black,
         decoration: InputDecoration(
-          hintText: "Description (optional)",
+          hintText: "${AppLocalizations.of(context)!.descriptionLabel} (${AppLocalizations.of(context)!.optional})",
           hintStyle: Theme.of(context).textTheme.titleSmall!.merge(TextStyle(
               fontWeight: FontWeight.normal,
               fontSize: 18,
@@ -438,10 +455,20 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
           });
         },
         items: reasonList.map<DropdownMenuItem<String>>((String value) {
+          String displayValue = value;
+          if (value == 'Duty Leave') {
+            displayValue = AppLocalizations.of(context)!.dutyLeave;
+          } else if (value == 'Annual Vacation') {
+            displayValue = AppLocalizations.of(context)!.annualVacation;
+          } else if (value == 'Examination') {
+            displayValue = AppLocalizations.of(context)!.examination;
+          } else if (value == 'Family Function') {
+            displayValue = AppLocalizations.of(context)!.familyFunction;
+          }
           return DropdownMenuItem<String>(
             value: value,
             child: AutoSizeText(
-              value,
+              displayValue,
               textAlign: TextAlign.right,
             ),
           );
@@ -484,10 +511,18 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
           });
         },
         items: leaveTypeList.map<DropdownMenuItem<String>>((String value) {
+          String displayValue = value;
+          if (value == 'annual') {
+            displayValue = AppLocalizations.of(context)!.annualLabel;
+          } else if (value == 'casual') {
+            displayValue = AppLocalizations.of(context)!.casualLabel;
+          } else if (value == 'medical') {
+            displayValue = AppLocalizations.of(context)!.medicalLabel;
+          }
           return DropdownMenuItem<String>(
             value: value,
             child: AutoSizeText(
-              capitalize(value),
+              displayValue,
               textAlign: TextAlign.right,
             ),
           );
@@ -510,8 +545,8 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AutoSizeText(fromText,
-                style: TextStyle(
+            AutoSizeText(fromText == "From" ? AppLocalizations.of(context)!.fromLabel : fromText,
+                style: const TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,
                     fontSize: 18)),
@@ -536,8 +571,8 @@ class _TabletLeaveRequestState extends State<TabletLeaveRequest>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            AutoSizeText(toText,
-                style: TextStyle(
+            AutoSizeText(toText == "To" ? AppLocalizations.of(context)!.toLabel : toText,
+                style: const TextStyle(
                     color: HRColors.grayColor,
                     fontWeight: FontWeight.normal,
                     fontSize: 18)),

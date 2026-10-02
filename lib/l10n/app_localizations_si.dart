@@ -92,7 +92,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get categoryText => 'ප්‍රවර්ගය';
 
   @override
-  String get homeText => 'මුල් පිටුව';
+  String get punchText => 'පැමිණීම';
 
   @override
   String get searchText => 'සෙවීම';
@@ -1085,4 +1085,117 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get deleteAccountRequestedSuccess =>
       'ගිණුම ඉවත් කිරීමේ ඉල්ලීම සාර්ථකව යොමු කරන ලදී.';
+
+  @override
+  String get incorrectDateTimeError =>
+      'ඔබගේ දුරකථනයේ දිනය සහ වේලාව වැරදිය. කරුණාකර එය නිවැරදි කර නැවත ඇතුල් වන්න.';
+
+  @override
+  String get timeHeader => 'වේලාව';
+
+  @override
+  String get locationsHeader => 'ස්ථාන';
+
+  @override
+  String get entryTypeHeader => 'ඇතුළත් කිරීමේ වර්ගය';
+
+  @override
+  String get overtimeHeader => 'අතිරේක කාලය';
+
+  @override
+  String get reqHoursHeader => 'අවශ්‍ය පැය ගණන';
+
+  @override
+  String get remoteLabel => 'දුරස්ථ';
+
+  @override
+  String get qrLabel => 'QR';
+
+  @override
+  String get failedToConnectToServer =>
+      'සේවාදායකයට සම්බන්ධ වීමට නොහැකි විය. කරුණාකර ඔබගේ අන්තර්ජාල සම්බන්ධතාවය පරීක්ෂා කරන්න.';
+
+  @override
+  String get myAttendance => 'මගේ පැමිණීම්';
+
+  @override
+  String get inLocationHeader => 'පැමිණි ස්ථානය';
+
+  @override
+  String get outLocationHeader => 'පිටවූ ස්ථානය';
+
+  @override
+  String get distance => 'දුර';
+
+  @override
+  String get statusLabel => 'තත්ත්වය';
+
+  @override
+  String get descriptionLabel => 'විස්තරය';
+
+  @override
+  String get others => 'වෙනත්';
+
+  @override
+  String get selectLeaveType => 'නිවාඩු වර්ගය තෝරන්න';
+
+  @override
+  String get selectLeaveReason => 'නිවාඩු ලබා ගැනීමට හේතුව තෝරන්න';
+
+  @override
+  String get dutyLeave => 'රාජකාරී නිවාඩු';
+
+  @override
+  String get annualVacation => 'වාර්ෂික නිවාඩු';
+
+  @override
+  String get examination => 'විභාග කටයුතු';
+
+  @override
+  String get familyFunction => 'පවුලේ උත්සවයක්';
+
+  @override
+  String get pleaseSelectLeaveType => 'කරුණාකර නිවාඩු වර්ගය තෝරන්න';
+
+  @override
+  String get pleaseSelectFromDate => 'කරුණාකර ආරම්භක දිනය තෝරන්න';
+
+  @override
+  String get pleaseSelectToDate => 'කරුණාකර අවසාන දිනය තෝරන්න';
+
+  @override
+  String get pleaseSelectLeaveReason => 'කරුණාකර නිවාඩු හේතුව තෝරන්න';
+
+  @override
+  String get halfDayMorning => ' (අර්ධ දිනය - උදෑසන)';
+
+  @override
+  String get halfDayEvening => ' (අර්ධ දිනය - සවස)';
+
+  @override
+  String get halfDayLabel => ' (අර්ධ දිනය)';
+
+  @override
+  String get totalLabel => 'එකතුව';
+
+  @override
+  String get failedToRetrieveCoordinatesCheckInOutEnabled =>
+      'ස්ථානීය ඛණ්ඩාංක ලබා ගැනීමට අපොහොසත් විය. දේශීයව ඇතුළුවීම/පිටවීම සක්‍රීය කර ඇත.';
+
+  @override
+  String get savedLocallyWillSyncWhenOnline =>
+      'දේශීයව සුරකින ලදි, අන්තර්ජාලය සම්බන්ධ වූ විට සමමුහුර්ත වනු ඇත';
+
+  @override
+  String get serverErrorSavedLocallyWillSyncLater =>
+      'සේවාදායකයේ දෝෂයකි. දේශීයව සුරකින ලදි, පසුව සමමුහුර්ත වනු ඇත.';
+
+  @override
+  String syncedCountFailedCount(Object success, Object failed) {
+    return 'සාර්ථක: $success, අසාර්ථක: $failed';
+  }
+
+  @override
+  String get todoDirectManagerApprovalRequired =>
+      'මෙම ඉල්ලීම අනුමත කිරීමට ඔබ අදාළ සේවකයාගේ සෘජු කළමනාකරු විය යුතුය.';
 }

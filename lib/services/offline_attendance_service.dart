@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:drift/drift.dart';
+import 'package:cn_pocket_hr/database/app_database.dart';
 import 'package:cn_pocket_hr/models/hr/check_in_check_out_model.dart';
 import 'package:cn_pocket_hr/api/api_service.dart';
 
@@ -11,97 +11,152 @@ class OfflineAttendanceService {
 
   OfflineAttendanceService._internal();
 
-  Database? _db;
+  final AppDatabase _db = AppDatabase();
   final APIService _api = APIService();
 
-  Future<Database> get database async {
-    if (_db != null) return _db!;
-    final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'attendance_offline.db');
-    _db = await openDatabase(path, version: 1, onCreate: (db, version) async {
-      await db.execute('''
-        CREATE TABLE punches (
-          attendance_id TEXT PRIMARY KEY,
-          uid TEXT,
-          type TEXT,
-          time TEXT,
-          lat REAL,
-          lng REAL,
-          address TEXT,
-          device_id TEXT,
-          device_model TEXT,
-          device_brand TEXT,
-          device_platform TEXT,
-          device_version TEXT,
-          device_identifier TEXT,
-          device_ip TEXT,
-          battery_level INTEGER,
-          tenant TEXT,
-          is_synced INTEGER,
-          retry_count INTEGER,
-          last_sync_attempt TEXT
-        )
-      ''');
-    });
-    return _db!;
-  }
+  AppDatabase get database => _db;
 
   Future<void> insertPunch(AttendancePunchModel punch) async {
-    final db = await database;
-    await db.insert('punches', punch.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await _db.into(_db.punches).insertOnConflictUpdate(
+          PunchesCompanion.insert(
+            attendanceId: punch.attendanceId,
+            uid: punch.uid,
+            type: punch.type,
+            time: punch.time,
+            lat: punch.lat,
+            lng: punch.lng,
+            address: punch.address,
+            deviceId: Value(punch.deviceId),
+            deviceModel: Value(punch.deviceModel),
+            deviceBrand: Value(punch.deviceBrand),
+            devicePlatform: Value(punch.devicePlatform),
+            deviceVersion: Value(punch.deviceVersion),
+            deviceIdentifier: Value(punch.deviceIdentifier),
+            deviceIp: Value(punch.deviceIp),
+            batteryLevel: Value(punch.batteryLevel),
+            tenant: Value(punch.tenant),
+            isRemote: Value(punch.isRemote),
+            isSynced: Value(punch.isSynced),
+            retryCount: Value(punch.retryCount),
+            lastSyncAttempt: Value(punch.lastSyncAttempt),
+          ),
+        );
   }
 
   Future<List<AttendancePunchModel>> getPendingPunches() async {
-    final db = await database;
-    final rows = await db.query('punches', where: 'is_synced = ?', whereArgs: [0]);
-    return rows.map((r) => AttendancePunchModel.fromMap(r)).toList();
+    final query = _db.select(_db.punches)..where((tbl) => tbl.isSynced.equals(0));
+    final rows = await query.get();
+    return rows.map((r) => AttendancePunchModel(
+          attendanceId: r.attendanceId,
+          uid: r.uid,
+          type: r.type,
+          time: r.time,
+          lat: r.lat,
+          lng: r.lng,
+          address: r.address,
+          deviceId: r.deviceId,
+          deviceModel: r.deviceModel,
+          deviceBrand: r.deviceBrand,
+          devicePlatform: r.devicePlatform,
+          deviceVersion: r.deviceVersion,
+          deviceIdentifier: r.deviceIdentifier,
+          deviceIp: r.deviceIp,
+          batteryLevel: r.batteryLevel,
+          tenant: r.tenant,
+          isRemote: r.isRemote,
+          isSynced: r.isSynced,
+          retryCount: r.retryCount,
+          lastSyncAttempt: r.lastSyncAttempt,
+        )).toList();
   }
 
   Future<void> markSynced(String attendanceId) async {
-    final db = await database;
-    await db.update('punches', {'is_synced': 1}, where: 'attendance_id = ?', whereArgs: [attendanceId]);
+    await (_db.update(_db.punches)..where((tbl) => tbl.attendanceId.equals(attendanceId)))
+        .write(const PunchesCompanion(isSynced: Value(1)));
   }
 
   Future<void> incrementRetry(String attendanceId) async {
-    final db = await database;
-    await db.rawUpdate('UPDATE punches SET retry_count = retry_count + 1 WHERE attendance_id = ?', [attendanceId]);
+    final query = _db.select(_db.punches)..where((tbl) => tbl.attendanceId.equals(attendanceId));
+    final row = await query.getSingleOrNull();
+    if (row != null) {
+      await (_db.update(_db.punches)..where((tbl) => tbl.attendanceId.equals(attendanceId)))
+          .write(PunchesCompanion(retryCount: Value(row.retryCount + 1)));
+    }
   }
 
   Future<void> deletePunch(String attendanceId) async {
-    final db = await database;
-    await db.delete('punches', where: 'attendance_id = ?', whereArgs: [attendanceId]);
+    await (_db.delete(_db.punches)..where((tbl) => tbl.attendanceId.equals(attendanceId))).go();
   }
 
-  /// Attempt to sync all pending punches. Returns number of successes.
-  Future<int> syncPending({int maxAttempts = 3}) async {
+  Future<int> getPendingCount() async {
+    try {
+      final query = _db.select(_db.punches)..where((tbl) => tbl.isSynced.equals(0));
+      final rows = await query.get();
+      return rows.length;
+    } catch (_) {}
+    return 0;
+  }
+
+  /// Attempt to sync all pending punches. Returns a Map with 'success' and 'failed' counts.
+  Future<Map<String, int>> syncPending({int maxAttempts = 3, bool ignoreMaxAttempts = false}) async {
     final pending = await getPendingPunches();
     int success = 0;
+    int failed = 0;
     for (final p in pending) {
-      if (p.retryCount >= maxAttempts) continue;
+      if (!ignoreMaxAttempts && p.retryCount >= maxAttempts) {
+        failed++;
+        continue;
+      }
       try {
-        // Call existing APIService method (checkInCheckout) with fields
         final res = await _api.checkInCheckout(
           p.time,
           p.type,
           latitude: p.lat.toString(),
           longitude: p.lng.toString(),
           address: p.address,
+          isRemotePunch: p.isRemote == 1,
         );
-        // consider success if response contains status true or message
-        if (res is Map && (res['status'] == true || res.containsKey('message'))) {
+        
+        bool apiSuccess = false;
+        bool isPermanentFailure = false;
+        
+        if (res is Map) {
+          final statusCode = res['status'];
+          if (statusCode is num) {
+            final code = statusCode.toInt();
+            if (code >= 200 && code < 300) {
+              apiSuccess = true;
+            } else if (code >= 400 && code < 500) {
+              isPermanentFailure = true;
+            }
+          } else if (res['success'] == true) {
+            apiSuccess = true;
+          }
+        }
+        
+        if (apiSuccess) {
           await markSynced(p.attendanceId);
           success++;
-        } else if (res == null) {
-          await incrementRetry(p.attendanceId);
+        } else if (isPermanentFailure) {
+          await markSynced(p.attendanceId);
+          failed++;
         } else {
-          // treat as success if not null
-          await markSynced(p.attendanceId);
-          success++;
+          await incrementRetry(p.attendanceId);
+          failed++;
         }
       } catch (_) {
         await incrementRetry(p.attendanceId);
+        failed++;
       }
     }
-    return success;
+    return {'success': success, 'failed': failed};
+  }
+
+  Future<void> clearAllPunches() async {
+    await _db.delete(_db.punches).go();
+  }
+
+  Future<void> clearSyncedPunches() async {
+    await (_db.delete(_db.punches)..where((tbl) => tbl.isSynced.equals(1))).go();
   }
 }

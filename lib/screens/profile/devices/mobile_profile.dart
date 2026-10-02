@@ -13,6 +13,7 @@ import 'package:cn_pocket_hr/helpers/hr_colors.dart';
 import 'package:cn_pocket_hr/helpers/custom_blur_hash.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:cn_pocket_hr/services/fcm_service.dart';
 
 class MobileProfile extends StatefulWidget {
   @override
@@ -24,6 +25,7 @@ class _MobileProfileState extends State<MobileProfile> {
   final LocalStorage storage = LocalStorage('pocketHR');
 
   bool _loadingMe = false;
+  String? _error;
   bool _photoLoading = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -43,7 +45,7 @@ class _MobileProfileState extends State<MobileProfile> {
   static Color get _primaryColor => HRColors.darkOrangeColor;
   static const Color _secondaryColor = Color(0xFF6366F1);
   static const Color _backgroundColor = Colors.white;
-  static const Color _cardColor = Color.fromARGB(255, 248, 250, 252);
+  static const Color _cardColor = Color(0xFFFAF2EB);
   static const Color _textPrimary = Color(0xFF1E293B);
   static const Color _textSecondary = Color(0xFF64748B);
   static const Color _textTertiary = Color(0xFF94A3B8);
@@ -62,11 +64,19 @@ class _MobileProfileState extends State<MobileProfile> {
 
   Future<void> _loadProfileData() async {
     if (_loadingMe) return;
-    setState(() => _loadingMe = true);
+    setState(() {
+      _loadingMe = true;
+      _error = null;
+    });
 
     try {
       final meProfile = await _apiService.fetchMeProfileWithBearer();
-      if (meProfile == null) return;
+      if (meProfile == null) {
+        setState(() {
+          _error = AppLocalizations.of(context)!.failedToConnectToServer;
+        });
+        return;
+      }
 
       final dataAny =
           meProfile['data'] ?? meProfile['result'] ?? meProfile['user'];
@@ -127,6 +137,9 @@ class _MobileProfileState extends State<MobileProfile> {
       await _buildProfilePhotoUrl(uid: uid, fileName: profileFileName);
     } catch (e) {
       debugPrint('[PROFILE] Error loading profile: $e');
+      setState(() {
+        _error = DesignConfig.getFriendlyErrorMessage(context, e);
+      });
     } finally {
       if (mounted) setState(() => _loadingMe = false);
     }
@@ -224,17 +237,63 @@ class _MobileProfileState extends State<MobileProfile> {
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
-                color: Colors.black87,
+                color: Color(0xFF791B27),
               ),
             ),
-            _topCircleButton(
-              onTap: () =>
-                  Navigator.pushNamed(context, HRNotifications.routeName),
-              child: SvgPicture.asset(
-                'assets/svg/notifications_icon.svg',
-                colorFilter: ColorFilter.mode(
-                  HRColors.flavorIconColor,
-                  BlendMode.srcIn,
+            GestureDetector(
+              onTap: () async {
+                await Navigator.pushNamed(context, HRNotifications.routeName);
+                await FCMService.loadUnreadCount();
+              },
+              child: ValueListenableBuilder<int>(
+                valueListenable: FCMService.unreadCount,
+                builder: (context, count, _) => Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: HRColors.flavorIconBackgroundColor ?? Colors.white,
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                      ),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/svg/notifications_icon.svg',
+                          colorFilter: ColorFilter.mode(
+                            HRColors.flavorIconColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        top: -4,
+                        right: -4,
+                        child: Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            count > 99 ? '99+' : '$count',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -246,22 +305,21 @@ class _MobileProfileState extends State<MobileProfile> {
 
   /// Avatar widget - displays profile photo from backend
   Widget _buildAvatar() {
-    const double size = 120;
+    const double size = 80;
 
     // Show loading indicator
     if (_photoLoading) {
       return Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: _dividerColor, width: 4),
         ),
-        child: ClipOval(
+        child: const ClipOval(
           child: Center(
             child: CupertinoActivityIndicator(
-              color: HRColors.darkOrangeColor,
-              radius: 14,
+              color: Color(0xFF791B27),
+              radius: 12,
             ),
           ),
         ),
@@ -273,16 +331,8 @@ class _MobileProfileState extends State<MobileProfile> {
       return Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: _dividerColor, width: 4),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: ClipOval(
           child: OctoImage(
@@ -295,7 +345,6 @@ class _MobileProfileState extends State<MobileProfile> {
             ),
             errorBuilder: (context, error, stacktrace) {
               debugPrint('[PROFILE] ❌ Failed to load image: $error');
-              debugPrint('[PROFILE] URL attempted: $_profilePhotoUrl');
               return _avatarFallback();
             },
             width: size,
@@ -310,105 +359,108 @@ class _MobileProfileState extends State<MobileProfile> {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: _dividerColor, width: 4),
       ),
       child: ClipOval(child: _avatarFallback()),
     );
   }
 
   Widget _avatarFallback() {
+    final firstLetter = _headerFullName.isNotEmpty ? _headerFullName[0].toUpperCase() : 'H';
     return Container(
-      color: _cardColor,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.person, size: 60, color: _textTertiary),
-          const SizedBox(height: 4),
-          Text(
-            'No Photo',
-            style: TextStyle(
-              fontSize: 12,
-              color: _textTertiary,
-              fontWeight: FontWeight.w500,
-            ),
+      color: const Color(0xFF791B27),
+      child: Center(
+        child: Text(
+          firstLetter,
+          style: const TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFF59E0B),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildProfileCard() {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: _cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _buildAvatar(),
-          const SizedBox(height: 16),
-          if (_headerFullName.isNotEmpty)
-            AutoSizeText(
-              _headerFullName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: _textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          const SizedBox(height: 4),
-          AutoSizeText(
-            '${AppLocalizations.of(context)!.epfLabel}${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
-            style: const TextStyle(fontSize: 14, color: _textSecondary),
-            textAlign: TextAlign.center,
-          ),
-          if (_designation.isNotEmpty || _department.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (_designation.isNotEmpty)
-                  _buildBadge(_designation, _primaryColor),
-                if (_department.isNotEmpty)
-                  _buildBadge(_department, _secondaryColor),
+                if (_headerFullName.isNotEmpty)
+                  AutoSizeText(
+                    _headerFullName,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF791B27),
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                AutoSizeText(
+                  '${AppLocalizations.of(context)!.epfLabel}${_headerEpf.isNotEmpty ? _headerEpf : "N/A"}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF8D7F77),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    if (_designation.isNotEmpty) ...[
+                      _buildBadge(_designation, null),
+                      const SizedBox(width: 8),
+                    ],
+                    if (_department.isNotEmpty)
+                      _buildBadge(_department, const Icon(Icons.check_rounded, size: 12, color: Color(0xFFF59E0B))),
+                  ],
+                ),
               ],
             ),
-          ],
-          const SizedBox(height: 20),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBadge(String label, Color color) {
+  Widget _buildBadge(String label, Widget? prefixIcon) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        color: const Color(0xFFF2EBE1),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: AutoSizeText(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: color,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (prefixIcon != null) ...[
+            prefixIcon,
+            const SizedBox(width: 4),
+          ],
+          AutoSizeText(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF503020),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -418,46 +470,40 @@ class _MobileProfileState extends State<MobileProfile> {
     required String title,
     required String value,
     Color iconColor = _textPrimary,
+    int maxLines = 1,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-      decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black.withOpacity(0.05)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
+        crossAxisAlignment: maxLines > 1 ? CrossAxisAlignment.start : CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(child: Icon(icon, size: 20, color: iconColor)),
+          Padding(
+            padding: EdgeInsets.only(top: maxLines > 1 ? 2.0 : 0.0),
+            child: Icon(icon, size: 18, color: iconColor),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 10),
+          AutoSizeText(
+            title,
+            style: const TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF8D7F77),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AutoSizeText(
-                  title,
-                  style: const TextStyle(fontSize: 13, color: _textTertiary),
-                ),
-                const SizedBox(height: 4),
-                AutoSizeText(
-                  value.isNotEmpty
-                      ? value
-                      : AppLocalizations.of(context)!.notAdded,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: _textPrimary,
-                  ),
-                ),
-              ],
+            child: AutoSizeText(
+              value.isNotEmpty
+                  ? value
+                  : AppLocalizations.of(context)!.notAdded,
+              maxLines: maxLines,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF503020),
+              ),
             ),
           ),
         ],
@@ -467,54 +513,88 @@ class _MobileProfileState extends State<MobileProfile> {
 
   Widget _buildPersonalInfo() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 12),
-            child: AutoSizeText(
-              AppLocalizations.of(context)!.personalInformation,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: Colors.black87,
+          Row(
+            children: [
+              Icon(Icons.person, size: 18, color: const Color(0xFFF59E0B)),
+              const SizedBox(width: 8),
+              AutoSizeText(
+                AppLocalizations.of(context)!.personalInformation,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF791B27),
+                ),
               ),
-            ),
+            ],
           ),
+          const SizedBox(height: 12),
           _buildInfoItem(
             icon: Icons.email_rounded,
             title: AppLocalizations.of(context)!.emailAddressText,
             value: _email,
             iconColor: _primaryColor,
           ),
-          const SizedBox(height: 12),
           _buildInfoItem(
             icon: Icons.phone_rounded,
             title: AppLocalizations.of(context)!.phoneLabel,
             value: _phone,
             iconColor: Colors.green,
           ),
-          const SizedBox(height: 12),
           _buildInfoItem(
             icon: Icons.location_on_rounded,
             title: AppLocalizations.of(context)!.addressLabel,
             value: _address,
             iconColor: Colors.blue,
+            maxLines: 2,
           ),
-          const SizedBox(height: 12),
           _buildInfoItem(
             icon: Icons.badge_rounded,
             title: AppLocalizations.of(context)!.nicLabel,
             value: _nic,
             iconColor: Colors.purple,
           ),
-          const SizedBox(height: 12),
-          _buildInfoItem(
-            icon: Icons.cake_rounded,
-            title: AppLocalizations.of(context)!.dateOfBirth,
-            value: _dob,
-            iconColor: Colors.orange,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateOfBirthCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.cake_rounded, size: 18, color: const Color(0xFFF59E0B)),
+          const SizedBox(width: 8),
+          AutoSizeText(
+            AppLocalizations.of(context)!.dateOfBirth,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF791B27),
+            ),
+          ),
+          const Spacer(),
+          AutoSizeText(
+            _dob.isNotEmpty ? _dob : AppLocalizations.of(context)!.notAdded,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF503020),
+            ),
           ),
         ],
       ),
@@ -535,29 +615,42 @@ class _MobileProfileState extends State<MobileProfile> {
         child: DesignConfig.drawerContent(_scaffoldKey, context),
       ),
       backgroundColor: _backgroundColor,
-      body: _loadingMe
-          ? Center(
-              child: CupertinoActivityIndicator(
-                color: HRColors.darkOrangeColor,
-                radius: 16.0,
-              ),
-            )
-          : RefreshIndicator(
-              color: _primaryColor,
-              onRefresh: _loadProfileData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Column(
-                  children: [
-                    _topHeader(),
-                    const SizedBox(height: 10),
-                    _buildProfileCard(),
-                    _buildPersonalInfo(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
+      body: Column(
+        children: [
+          _topHeader(),
+          Expanded(
+            child: _loadingMe
+                ? Center(
+                    child: CupertinoActivityIndicator(
+                      color: HRColors.darkOrangeColor,
+                      radius: 16.0,
+                    ),
+                  )
+                : _error != null
+                    ? DesignConfig.buildErrorState(
+                        context,
+                        message: _error!,
+                        onRetry: _loadProfileData,
+                      )
+                    : RefreshIndicator(
+                        color: _primaryColor,
+                        onRefresh: _loadProfileData,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
+                              _buildProfileCard(),
+                              _buildPersonalInfo(),
+                              _buildDateOfBirthCard(),
+                              const SizedBox(height: 40),
+                            ],
+                          ),
+                        ),
+                      ),
+          ),
+        ],
+      ),
     );
   }
 }

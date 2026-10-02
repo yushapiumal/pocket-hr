@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cn_pocket_hr/helpers/hr_colors.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cn_pocket_hr/helpers/format_utils.dart';
 import 'package:cn_pocket_hr/l10n/app_localizations.dart';
+import 'package:cn_pocket_hr/helpers/design_config.dart';
 
 class TabletTeam extends StatefulWidget {
 //  final String ownerId;
@@ -29,6 +31,12 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
   static const Color _pageBg = Colors.white;
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
+  // Theme colors matching premium mockup
+  static const Color _burgundy = Color(0xFF701A27); // Burgundy
+  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
+  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
+  static const Color _textGrey = Color(0xFF7D6C6F); // Greyish brown text
+
   late TabController _tabController;
 
   String? _selectedUserId; // null = All
@@ -42,6 +50,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
   List<dynamic> _leaveData = [];
   bool _loadingLeaves = false;
   String? _leaveError;
+  final Map<String, Future<Map<String, dynamic>?>> _leaveBalanceFutures = {};
 
   // Attendance data
   List<Map<String, dynamic>> _attendanceData = [];
@@ -64,6 +73,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
+      setState(() {});
       if (_tabController.indexIsChanging) {
         _loadTabData();
         _resetAnimations();
@@ -128,6 +138,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     }
   }
 
+  String _getFriendlyErrorMessage(Object? err) {
+    return DesignConfig.getFriendlyErrorMessage(context, err);
+  }
+
   Future<void> _loadTeamData() async {
     setState(() {
       _loadingTeam = true;
@@ -157,7 +171,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       debugPrint('[TEAM][ERROR] $e');
       debugPrint('$st');
       setState(() {
-        _teamError = e.toString();
+        _teamError = _getFriendlyErrorMessage(e);
         _loadingTeam = false;
       });
     }
@@ -252,7 +266,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     return null;
   }
 
-  Widget _buildMemberNameAndEpf(String nickname, String epf, String fullName, {Color? textColor}) {
+  Widget _buildMemberNameAndEpf(String nickname, String epf, String fullName, {Color? textColor, double? nameSize}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -265,7 +279,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: nameSize ?? 14,
                 fontWeight: FontWeight.bold,
                 color: textColor ?? Colors.black87,
               ),
@@ -275,13 +289,13 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                 decoration: BoxDecoration(
-                  color: HRColors.orangeColor.withOpacity(0.12),
+                  color: _burgundy.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: AutoSizeText(
                   epf,
-                  style: TextStyle(
-                    color: HRColors.orangeColor,
+                  style: const TextStyle(
+                    color: _burgundy,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,
                   ),
@@ -316,6 +330,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
   }
 
   Future<void> _loadMemberLeaves() async {
+    _leaveBalanceFutures.clear();
     setState(() {
       _loadingLeaves = true;
       _leaveError = null;
@@ -369,7 +384,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       debugPrint('[LEAVES][ERROR] $e');
       debugPrint('$st');
       setState(() {
-        _leaveError = e.toString();
+        _leaveError = _getFriendlyErrorMessage(e);
         _loadingLeaves = false;
       });
     }
@@ -745,7 +760,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
       debugPrint('[ATTENDANCE][ERROR] $e');
       debugPrint('$st');
       setState(() {
-        _attendanceError = e.toString();
+        _attendanceError = _getFriendlyErrorMessage(e);
         _loadingAttendance = false;
       });
     }
@@ -1144,18 +1159,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     );
   }
 
-  Color _getLeaveStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return Colors.green;
-      case 'rejected':
-        return Colors.red;
-      case 'pending':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
+
 
   String _getLeaveTypeLabel(BuildContext context, String type) {
     final l10n = AppLocalizations.of(context)!;
@@ -1207,8 +1211,6 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     final isPending = status == 'pending';
     final animation = _leaveAnimationControllers[index];
 
-    Color statusColor = _getLeaveStatusColor(status);
-
     final session = leave['session']?.toString() ??
         ((leave['leave_type'] == 'half' || leave['type'] == 'half')
             ? (leave['half_period'] ?? 'half').toString()
@@ -1221,36 +1223,16 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
             ? '0.5 Day - Morning'
             : (session == 'evening' ? '0.5 Day - Evening' : '0.5 Day'))
         : '${dates.length} ${dates.length > 1 ? l10n.daysLabel : 'day'}';
-
     final bool isExpanded = _expandedLeaveId == leaveId;
 
     Widget card = Container(
-      margin: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g6),
+      margin: const EdgeInsets.symmetric(horizontal: _g16, vertical: _g8),
       decoration: BoxDecoration(
-        color: isExpanded ? Colors.white : _surface,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: isExpanded ? statusColor.withOpacity(0.3) : Colors.transparent,
-          width: 1.5,
-        ),
-        boxShadow: [
-          if (isExpanded)
-            BoxShadow(
-              color: statusColor.withOpacity(0.08),
-              blurRadius: 16,
-              spreadRadius: 2,
-              offset: const Offset(0, 6),
-            )
-          else
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-        ],
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
         child: Slidable(
           key: ValueKey(leaveId),
           enabled: isPending,
@@ -1313,10 +1295,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.all(_g12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1327,30 +1306,48 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AutoSizeText(
-                                      _getLeaveTypeLabel(context, type),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.black87,
+                               if (nickname.isNotEmpty) ...[
+                                 _buildMemberNameAndEpf(
+                                   nickname,
+                                   finalEpf,
+                                   '',
+                                   nameSize: 15,
+                                   textColor: Colors.black87,
+                                 ),
+                               ],
+                               const SizedBox(height: 8),
+                               Row(
+                                 children: [
+                                   AutoSizeText(
+                                     _getLeaveTypeLabel(context, type),
+                                     style: const TextStyle(
+                                       fontSize: 13,
+                                       fontWeight: FontWeight.bold,
+                                       color: _burgundy,
+                                     ),
+                                   ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: isHalfDay
+                                          ? const Color(0xFFFFF3E0) // soft orange
+                                          : const Color(0xFFE8F5E9), // soft green
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      dateText,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: isHalfDay
+                                            ? const Color(0xFFE65100) // dark orange
+                                            : const Color(0xFF2E7D32), // dark green
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 8),
-                              if (nickname.isNotEmpty) ...[
-                                _buildMemberNameAndEpf(
-                                  nickname,
-                                  finalEpf,
-                                  fullName,
-                                ),
-                              ],
                             ],
                           ),
                         ),
@@ -1364,40 +1361,48 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                 vertical: 5,
                               ),
                               decoration: BoxDecoration(
-                                color: statusColor.withOpacity(0.12),
+                                color: status == 'approved'
+                                    ? const Color(0xFFE8F5E9)
+                                    : (status == 'rejected'
+                                        ? const Color(0xFFFFEBEE)
+                                        : const Color(0xFFFFF3E0)),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: AutoSizeText(
-                                status == 'approved'
-                                    ? l10n.approvedLable.toUpperCase()
-                                    : status == 'rejected'
-                                        ? l10n.rejectedLable.toUpperCase()
-                                        : l10n.pendindingLable.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: statusColor,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today_outlined,
-                                  size: 13,
-                                  color: Colors.grey,
-                                ),
-                                const SizedBox(width: 5),
-                                AutoSizeText(
-                                  dateText,
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    color: Colors.grey,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    status == 'approved'
+                                        ? Icons.check_circle
+                                        : (status == 'rejected'
+                                            ? Icons.cancel
+                                            : Icons.hourglass_bottom),
+                                    size: 13,
+                                    color: status == 'approved'
+                                        ? const Color(0xFF2E7D32)
+                                        : (status == 'rejected'
+                                            ? const Color(0xFFC62828)
+                                            : const Color(0xFFE65100)),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 4),
+                                  AutoSizeText(
+                                    status == 'approved'
+                                        ? 'approved'
+                                        : (status == 'rejected'
+                                            ? 'rejected'
+                                            : 'Pending'),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: status == 'approved'
+                                          ? const Color(0xFF2E7D32)
+                                          : (status == 'rejected'
+                                              ? const Color(0xFFC62828)
+                                              : const Color(0xFFE65100)),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             if (isPending && !isExpanded) ...[
                               const SizedBox(height: 10),
@@ -1413,132 +1418,255 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                     ),
                     if (isExpanded) ...[
                       const SizedBox(height: _g12),
-                      const Divider(height: 1, color: Colors.black12),
-                      const SizedBox(height: _g12),
-                      if (dates.isNotEmpty) ...[
-                        AutoSizeText(
-                          l10n.leaveDates,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: _burgundyLight,
+                          borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                         ),
-                        const SizedBox(height: 6),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(_g12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.black.withOpacity(0.05)),
-                          ),
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 6,
-                            children: dates.map<Widget>((date) {
-                              final label = FormatUtils.dateFromUnixSeconds(date);
-                              return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: _surface,
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: Colors.black.withOpacity(0.06)),
-                                ),
-                                child: AutoSizeText(
-                                  label,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ],
-                      if (reason.isNotEmpty) ...[
-                        const SizedBox(height: _g12),
-                        AutoSizeText(
-                          l10n.reason,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(_g12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.black.withOpacity(0.05)),
-                          ),
-                          child: AutoSizeText(
-                            reason,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.black87,
-                              height: 1.3,
-                            ),
-                          ),
-                        ),
-                      ],
-                      if (isPending) ...[
-                        const SizedBox(height: _g16),
-                        Row(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  _showRejectConfirmation(
-                                      context, leaveId, employeeName);
-                                },
-                                icon: const Icon(Icons.close, size: 16),
-                                label: AutoSizeText(
-                                  l10n.rejectedLable,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  side: const BorderSide(color: Colors.red),
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                            if (fullName.isNotEmpty) ...[
+                              AutoSizeText(
+                                fullName,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.black87,
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: _g12),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
-                                  _showApproveConfirmation(
-                                      context, leaveId, employeeName);
-                                },
-                                icon: const Icon(
-                                  Icons.check,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                                label: AutoSizeText(
-                                  l10n.approvedLable,
-                                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                              const SizedBox(height: 12),
+                            ],
+                            if (dates.isNotEmpty) ...[
+                              AutoSizeText(
+                                l10n.leaveDates.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 6,
+                                children: dates.map<Widget>((date) {
+                                  final label = FormatUtils.dateFromUnixSeconds(date);
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: AutoSizeText(
+                                      label,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                            if (reason.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              AutoSizeText(
+                                l10n.reason.toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              AutoSizeText(
+                                reason,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ],
+                            if (userId != null && userId.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              FutureBuilder<Map<String, dynamic>?>(
+                                future: _leaveBalanceFutures.putIfAbsent(
+                                  userId,
+                                  () => _apiService.getLeaveBalance(userId: userId),
+                                ),
+                                builder: (context, balanceSnapshot) {
+                                  if (balanceSnapshot.connectionState == ConnectionState.waiting) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Center(
+                                        child: CupertinoActivityIndicator(radius: 8),
+                                      ),
+                                    );
+                                  }
+                                  final balances = balanceSnapshot.data;
+                                  if (balances == null) {
+                                    return const SizedBox.shrink();
+                                  }
+
+                                  double getAvailable(Map<String, dynamic> b, String type) {
+                                    final availableMap = (b['available'] ?? b['balance'] ?? b['leave_balance'] ?? b['remaining']) as Map?;
+                                    dynamic findKey(Map? m, String k) {
+                                      if (m == null) return null;
+                                      if (m.containsKey(k)) return m[k];
+                                      final lowerK = k.toLowerCase();
+                                      for (var entry in m.entries) {
+                                        final sk = entry.key.toString().toLowerCase();
+                                        if (sk == lowerK || sk == '${lowerK}_leave' || sk == 'leave_$lowerK') return entry.value;
+                                      }
+                                      return null;
+                                    }
+                                    var av = findKey(availableMap, type);
+                                    av ??= findKey(b, '${type}_available') ?? findKey(b, '${type}_balance') ?? findKey(b, 'available_$type') ?? findKey(b, 'balance_$type');
+                                    if (av == null) return 0.0;
+                                    if (av is num) return av.toDouble();
+                                    return double.tryParse(av.toString()) ?? 0.0;
+                                  }
+
+                                  final annualRemaining = getAvailable(balances, 'annual');
+                                  final casualRemaining = getAvailable(balances, 'casual');
+                                  final medicalRemaining = getAvailable(balances, 'medical');
+
+                                  String formatVal(double v) {
+                                    if (v == v.toInt()) {
+                                      return v.toInt().toString();
+                                    }
+                                    return v.toString();
+                                  }
+
+                                  Widget buildBalanceBadge(String label, String value, Color color) {
+                                    return Expanded(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                        decoration: BoxDecoration(
+                                          color: color.withOpacity(0.08),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Column(
+                                          children: [
+                                            AutoSizeText(
+                                              label.toUpperCase(),
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.w700,
+                                                color: color.withOpacity(0.8),
+                                                letterSpacing: 0.3,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            AutoSizeText(
+                                              value,
+                                              maxLines: 1,
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: color,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  return Container(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        AutoSizeText(
+                                          "REMAINING LEAVE BALANCE",
+                                          maxLines: 1,
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black54,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            buildBalanceBadge(l10n.annualLabel, formatVal(annualRemaining), Colors.green),
+                                            buildBalanceBadge(l10n.casualLabel, formatVal(casualRemaining), Colors.orange),
+                                            buildBalanceBadge(l10n.medicalLabel, formatVal(medicalRemaining), Colors.blue),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                            if (isPending) ...[
+                              const SizedBox(height: _g16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        _showRejectConfirmation(
+                                            context, leaveId, employeeName);
+                                      },
+                                      icon: const Icon(Icons.close, size: 16),
+                                      label: AutoSizeText(
+                                        l10n.rejectedLable,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                        side: const BorderSide(color: Colors.red),
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: _g12),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        _showApproveConfirmation(
+                                            context, leaveId, employeeName);
+                                      },
+                                      icon: const Icon(
+                                        Icons.check,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                      label: AutoSizeText(
+                                        l10n.approvedLable,
+                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        padding: const EdgeInsets.symmetric(vertical: 10),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
-                      ],
+                      ),
                     ],
                   ],
                 ),
@@ -1570,11 +1698,56 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     return card;
   }
 
+  String _getWeekdayString(int weekday) {
+    switch (weekday) {
+      case 1: return 'mon';
+      case 2: return 'tue';
+      case 3: return 'wed';
+      case 4: return 'thu';
+      case 5: return 'fri';
+      case 6: return 'sat';
+      case 7: return 'sun';
+      default: return '';
+    }
+  }
+
+  String _getLocalizedDow(BuildContext context, String dow) {
+    final clean = dow.trim().toLowerCase();
+    final locale = Localizations.localeOf(context).languageCode;
+    if (locale == 'en') {
+      if (clean.contains('mon')) return 'Mon';
+      if (clean.contains('tue')) return 'Tue';
+      if (clean.contains('wed')) return 'Wed';
+      if (clean.contains('thu')) return 'Thu';
+      if (clean.contains('fri')) return 'Fri';
+      if (clean.contains('sat')) return 'Sat';
+      if (clean.contains('sun')) return 'Sun';
+    } else {
+      final l10n = AppLocalizations.of(context)!;
+      if (clean.contains('mon')) return l10n.monday;
+      if (clean.contains('tue')) return l10n.tuesday;
+      if (clean.contains('wed')) return l10n.wednesday;
+      if (clean.contains('thu')) return l10n.thursday;
+      if (clean.contains('fri')) return l10n.friday;
+      if (clean.contains('sat')) return l10n.saturday;
+      if (clean.contains('sun')) return l10n.sunday;
+    }
+    return dow;
+  }
+
+  Widget _verticalDivider() {
+    return Container(
+      width: 1,
+      height: 36,
+      color: const Color(0xFFF0E5D9),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+    );
+  }
+
   Widget _buildAttendanceCard(Map<String, dynamic> attendance, int index) {
     final date = attendance['date'] ?? 0;
     final checkIn = attendance['checkIn'] ?? '';
     final checkOut = attendance['checkOut'] ?? '';
-    final status = attendance['status'] ?? 'pending';
     final workHoursDisplay = attendance['workHoursDisplay'] ?? '';
     final memberName = attendance['memberName'] ?? '';
 
@@ -1582,184 +1755,165 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     final String? epf = attendance['epf']?.toString();
     final member = _findMember(userId, epf);
 
-    final formattedDate = FormatUtils.dateFromUnixSeconds(date);
+    final dt = DateTime.fromMillisecondsSinceEpoch(date * 1000);
+    final String dayNumber = dt.day.toString();
+    final String dow = _getWeekdayString(dt.weekday);
 
-    // Determine if it's truly pending or partially marked
+    String inTime = checkIn.isNotEmpty ? checkIn : ' - ';
+    String outTime = checkOut.isNotEmpty ? checkOut : ' - ';
+    String workedHrs = workHoursDisplay.isNotEmpty ? workHoursDisplay : ' - ';
+
+    // Determine status
     final bool hasCheckIn = checkIn.isNotEmpty;
     final bool hasCheckOut = checkOut.isNotEmpty;
     final bool isFullyPresent = hasCheckIn && hasCheckOut;
+    final bool needsMarking = !isFullyPresent;
 
-    bool needsMarking = !isFullyPresent;
-
-    String statusText = 'PENDING';
-    Color statusColor = Colors.orange;
-    IconData statusIcon = Icons.edit_calendar;
-
-    if (isFullyPresent) {
-      statusText = 'PRESENT';
-      statusColor = Colors.green;
-      statusIcon = Icons.check_circle_outline;
-      needsMarking = false;
-    } else if (hasCheckIn && !hasCheckOut) {
-      statusText = 'IN ONLY';
-      statusColor = Colors.orange.shade700;
-      statusIcon = Icons.login;
-    } else if (!hasCheckIn && hasCheckOut) {
-      statusText = 'OUT ONLY';
-      statusColor = Colors.orange.shade700;
-      statusIcon = Icons.logout;
-    }
-
-    // Card Content
     Widget cardContent = GestureDetector(
       onTap: needsMarking ? () => _showMarkAttendanceDialog(attendance) : null,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: _g12, vertical: _g6),
-        decoration: BoxDecoration(
-          color: _surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: needsMarking
-                ? Colors.orange.withOpacity(0.4)
-                : Colors.black.withOpacity(0.05),
-            width: needsMarking ? 1.5 : 1,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            )
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(_g12),
-          child: Row(
-            children: [
-              // Status Icon
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(statusIcon, color: statusColor, size: 20),
-              ),
-              const SizedBox(width: _g12),
-              // Main Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    // Date + Member Name (when All selected)
-                    AutoSizeText(
-                      formattedDate,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                    Container(
+                      width: 54,
+                      height: 66,
+                      decoration: BoxDecoration(
+                        color: _burgundy,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            dayNumber,
+                            style: const TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              height: 1.1,
+                            ),
+                          ),
+                          Text(
+                            _getLocalizedDow(context, dow),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    if (_selectedUserId == null && memberName.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      _buildMemberNameAndEpf(
-                        member != null ? _getMemberNickname(member) : memberName,
-                        member != null ? _getMemberEPF(member) : (epf ?? ''),
-                        member != null ? _getMemberName(member) : memberName,
-                      ),
-                    ],
-                    const SizedBox(height: _g4),
-
-                    // Show IN / OUT if available (This is the main change you wanted)
-                    if (hasCheckIn || hasCheckOut)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 4,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Row(
                         children: [
-                          if (hasCheckIn)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: AutoSizeText(
-                                '${AppLocalizations.of(context)!.checkIn} $checkIn',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.green,
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AutoSizeText(
+                                  inTime,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
-                            ),
-                          if (hasCheckOut)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.red.withOpacity(0.08),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: AutoSizeText(
-                                '${AppLocalizations.of(context)!.checkOut} $checkOut',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.red,
+                                const SizedBox(height: 4),
+                                AutoSizeText(
+                                  AppLocalizations.of(context)!.checkIn,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: _textGrey,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          if (workHoursDisplay.isNotEmpty && isFullyPresent)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: AutoSizeText(
-                                workHoursDisplay,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.black54,
+                          ),
+                          _verticalDivider(),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AutoSizeText(
+                                  outTime,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(height: 4),
+                                AutoSizeText(
+                                  AppLocalizations.of(context)!.checkOut,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: _textGrey,
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                          _verticalDivider(),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AutoSizeText(
+                                  workedHrs,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: Color(0xFFB57C1E),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                AutoSizeText(
+                                  AppLocalizations.of(context)!.workingHrs,
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: _textGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
-                      )
-                    else
-                      AutoSizeText(
-                        'Tap to mark attendance',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.orange,
-                          fontWeight: FontWeight.w500,
-                        ),
                       ),
+                    ),
                   ],
                 ),
-              ),
-
-              // Status Badge
-              // Container(
-              //   padding:
-              //       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              //   decoration: BoxDecoration(
-              //     color: statusColor.withOpacity(0.12),
-              //     borderRadius: BorderRadius.circular(20),
-              //   ),
-              //   child: AutoSizeText(
-              //     statusText,
-              //     style: TextStyle(
-              //       fontSize: 11,
-              //       fontWeight: FontWeight.w700,
-              //       color: statusColor,
-              //     ),
-              //   ),
-              // ),
-            ],
+                if (_selectedUserId == null && memberName.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  _buildMemberNameAndEpf(
+                    member != null ? _getMemberNickname(member) : memberName,
+                    member != null ? _getMemberEPF(member) : (epf ?? ''),
+                    member != null ? _getMemberName(member) : memberName,
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1793,24 +1947,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
           child: CupertinoActivityIndicator(
               radius: 16.0, color: HRColors.darkOrangeColor));
     } else if (_teamError != null) {
-      body = Center(
-        child: Padding(
-          padding: const EdgeInsets.all(_g16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AutoSizeText(_teamError!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: _g12),
-              ElevatedButton(
-                  onPressed: _loadTeamData,
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: HRColors.orangeColor),
-                  child: AutoSizeText('Retry')),
-            ],
-          ),
-        ),
+      body = DesignConfig.buildErrorState(
+        context,
+        message: _teamError!,
+        onRetry: _loadTeamData,
       );
     } else {
       body = TabBarView(
@@ -1855,7 +1995,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                   Expanded(
                     child: AutoSizeText(AppLocalizations.of(context)!.myTeam,
                         style: const TextStyle(
-                            color: Colors.black87,
+                            color: _textBurgundy,
                             fontSize: 24,
                             fontWeight: FontWeight.w900)),
                   ),
@@ -1868,9 +2008,8 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
               child: Container(
                 padding: const EdgeInsets.all(_g12),
                 decoration: BoxDecoration(
-                  color: _surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.black.withOpacity(0.06)),
+                  color: _burgundyLight,
+                  borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.04),
@@ -1889,7 +2028,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          color: _textBurgundy,
                         ),
                       ),
                     ),
@@ -1898,8 +2037,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
+                        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String?>(
@@ -1912,7 +2050,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   : null),
                           isExpanded: true,
                           dropdownColor: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                           menuMaxHeight: 320,
                           icon: Container(
                             padding: const EdgeInsets.all(4),
@@ -1933,11 +2071,11 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   CircleAvatar(
                                     radius: 16,
                                     backgroundColor:
-                                        HRColors.darkOrangeColor.withOpacity(0.12),
-                                    child: Icon(
+                                        _burgundy.withOpacity(0.12),
+                                    child: const Icon(
                                       Icons.group,
                                       size: 18,
-                                      color: HRColors.darkOrangeColor,
+                                      color: _burgundy,
                                     ),
                                   ),
                                   const SizedBox(width: 10),
@@ -1994,11 +2132,11 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   children: [
                                     CircleAvatar(
                                       radius: 16,
-                                      backgroundColor: Colors.blueGrey.shade50,
+                                      backgroundColor: _burgundyLight,
                                       child: AutoSizeText(
                                         initials(),
                                         style: const TextStyle(
-                                          color: Colors.black87,
+                                          color: _textBurgundy,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 12,
                                         ),
@@ -2042,10 +2180,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   CircleAvatar(
                                     radius: 18,
                                     backgroundColor:
-                                        HRColors.darkOrangeColor.withOpacity(0.12),
-                                    child: Icon(
+                                        _burgundy.withOpacity(0.12),
+                                    child: const Icon(
                                       Icons.group,
-                                      color: HRColors.darkOrangeColor,
+                                      color: _burgundy,
                                     ),
                                   ),
                                   const SizedBox(width: 12),
@@ -2107,11 +2245,11 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                   children: [
                                     CircleAvatar(
                                       radius: 18,
-                                      backgroundColor: Colors.blueGrey.shade50,
+                                      backgroundColor: _burgundyLight,
                                       child: AutoSizeText(
                                         initials(),
                                         style: const TextStyle(
-                                          color: Colors.black87,
+                                          color: _textBurgundy,
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -2135,31 +2273,118 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    const SizedBox(height: _g12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.black.withOpacity(0.06)),
-                      ),
-                      child: TabBar(
-                        controller: _tabController,
-                        dividerColor: Colors.transparent,
-                        indicatorColor: Colors.transparent,
-                        // Make the indicator span the full tab and give it some horizontal padding
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        indicatorPadding:
-                            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                        indicator: BoxDecoration(
-                          color: HRColors.tabColor,
-                          borderRadius: BorderRadius.circular(10),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: _g12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: _g12),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: _burgundyLight,
+                  borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Tab 1: Leaves
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          if (_tabController.index != 0) {
+                            _tabController.animateTo(0);
+                            _loadTabData();
+                            _resetAnimations();
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _tabController.index == 0
+                                ? _burgundy
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                            boxShadow: _tabController.index == 0
+                                ? [
+                                    BoxShadow(
+                                      color: _burgundy.withOpacity(0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          child: Center(
+                            child: AutoSizeText(
+                              AppLocalizations.of(context)!.teamLeavesText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: _tabController.index == 0
+                                    ? Colors.white
+                                    : _burgundy.withOpacity(0.6),
+                              ),
+                            ),
+                          ),
                         ),
-                        labelColor: HRColors.tabLabelColor,
-                        unselectedLabelColor: Colors.black54,
-                        tabs: [
-                          Tab(text: AppLocalizations.of(context)!.teamLeavesText),
-                          Tab(text: AppLocalizations.of(context)!.teamAttendanceText),
-                        ],
+                      ),
+                    ),
+                    // Tab 2: Attendance
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          if (_tabController.index != 1) {
+                            _tabController.animateTo(1);
+                            _loadTabData();
+                            _resetAnimations();
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: _tabController.index == 1
+                                ? _burgundy
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius - 3),
+                            boxShadow: _tabController.index == 1
+                                ? [
+                                    BoxShadow(
+                                      color: _burgundy.withOpacity(0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          child: Center(
+                            child: AutoSizeText(
+                              AppLocalizations.of(context)!.teamAttendanceText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: _tabController.index == 1
+                                    ? Colors.white
+                                    : _burgundy.withOpacity(0.6),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -2181,20 +2406,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
               radius: 16.0, color: HRColors.darkOrangeColor));
     }
     if (_leaveError != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AutoSizeText(_leaveError!,
-                style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: _g12),
-            ElevatedButton(
-                onPressed: _loadMemberLeaves,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: HRColors.orangeColor),
-                child: AutoSizeText('Retry')),
-          ],
-        ),
+      return DesignConfig.buildErrorState(
+        context,
+        message: _leaveError!,
+        onRetry: _loadMemberLeaves,
       );
     }
     if (_leaveData.isEmpty) {
@@ -2225,22 +2440,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
               radius: 16.0, color: HRColors.darkOrangeColor));
     }
     if (_attendanceError != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AutoSizeText(_attendanceError!,
-                style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: _g12),
-            ElevatedButton(
-              onPressed: _loadMemberAttendance,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: HRColors.orangeColor,
-              ),
-              child: AutoSizeText('Retry'),
-            ),
-          ],
-        ),
+      return DesignConfig.buildErrorState(
+        context,
+        message: _attendanceError!,
+        onRetry: _loadMemberAttendance,
       );
     }
 

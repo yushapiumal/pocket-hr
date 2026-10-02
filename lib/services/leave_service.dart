@@ -14,16 +14,20 @@ class LeaveService {
       final res = await ApiClient.get(url,
           queryParams: {'userIds': uid, 'mobile': 'true'});
 
-      if (res.statusCode < 200 || res.statusCode >= 300) return [];
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw Exception('Server error: ${res.statusCode}');
+      }
 
       final decoded = jsonDecode(res.body);
-      if (decoded is! Map) return [];
+      if (decoded is! Map) throw Exception('Invalid response format');
 
       final map = Map<String, dynamic>.from(decoded);
-      if (map['success'] != true) return [];
+      if (map['success'] != true) {
+        throw Exception(map['message'] ?? 'Failed to load leaves');
+      }
 
       final dataAny = map['data'];
-      if (dataAny is! List) return [];
+      if (dataAny is! List) throw Exception('Invalid data format');
 
       final out = <MyLeavesModel>[];
       for (final item in dataAny) {
@@ -124,7 +128,7 @@ class LeaveService {
     } catch (e, st) {
       debugPrint('[LEAVE SERVICE] err: $e');
       debugPrint(st.toString());
-      return [];
+      rethrow;
     }
   }
 }
