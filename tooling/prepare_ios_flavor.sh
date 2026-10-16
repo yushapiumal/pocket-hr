@@ -92,6 +92,10 @@ case "$FLAVOR" in
     DISPLAY_NAME="Mahajana Hr"
     BUNDLE_ID="io.digitable.go.mahajana.human"
     ;;
+  malkey)
+    DISPLAY_NAME="Malkey HR"
+    BUNDLE_ID="io.digitable.go.malkey.human"
+    ;;
   digitable|*)
     DISPLAY_NAME="Pocket HR"
     BUNDLE_ID="asia.ceynet.human.pocket"

@@ -4,6 +4,7 @@ import 'package:cn_pocket_hr/api/api_client.dart';
 import 'package:cn_pocket_hr/config/firebase_options_digitable.dart';
 import 'package:cn_pocket_hr/config/firebase_options_domex.dart';
 import 'package:cn_pocket_hr/config/firebase_options_mahajana.dart';
+import 'package:cn_pocket_hr/config/firebase_options_malkey.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -74,6 +75,8 @@ Future<void> _firebaseBackgroundMessageHandler(RemoteMessage message) async {
         options = DomexFirebaseOptions.currentPlatform;
       } else if (packageName == 'io.digitable.go.mahajana.human') {
         options = MahajanaFirebaseOptions.currentPlatform;
+      } else if (packageName == 'io.digitable.go.malkey.human') {
+        options = MalkeyFirebaseOptions.currentPlatform;
       } else {
         options = DigitableFirebaseOptions.currentPlatform;
       }

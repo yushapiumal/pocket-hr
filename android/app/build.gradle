@@ -91,6 +91,11 @@ android {
             applicationId "io.digitable.go.mahajana.human"
             resValue "string", "app_name", "Mahajana Hr"
         }
+        malkey {
+            dimension "tenant"
+            applicationId "io.digitable.go.malkey.human"
+            resValue "string", "app_name", "Malkey HR"
+        }
     }
 
     buildTypes {

@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cn_pocket_hr/config/firebase_options_digitable.dart';
 import 'package:cn_pocket_hr/config/firebase_options_domex.dart';
 import 'package:cn_pocket_hr/config/firebase_options_mahajana.dart';
+import 'package:cn_pocket_hr/config/firebase_options_malkey.dart';
 import 'package:cn_pocket_hr/config/flavor_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:cn_pocket_hr/helpers/http_override.dart';
@@ -33,6 +34,8 @@ Future<void> main() async {
     options = DomexFirebaseOptions.currentPlatform;
   } else if (packageName == 'io.digitable.go.mahajana.human') {
     options = MahajanaFirebaseOptions.currentPlatform;
+  } else if (packageName == 'io.digitable.go.malkey.human') {
+    options = MalkeyFirebaseOptions.currentPlatform;
   } else {
     options = DigitableFirebaseOptions.currentPlatform;
   }
@@ -137,6 +140,61 @@ Future<void> main() async {
           ),
           textSelectionTheme:
               const TextSelectionThemeData(cursorColor: Colors.white),
+          fontFamily: 'Poppins',
+        ),
+      );
+    } else if (packageName == 'io.digitable.go.malkey.human') {
+      const Color primary = Color(0xFF6A1311); // Dark crimson red
+      const Color secondary = Color(0xffffcc09); // Gold
+      const Color iconFg = secondary;
+      const Color iconBg = Color(0xFF6A1311);
+      FlavorConfig.init(
+        flavor: Flavor.malkey,
+        appName: 'Malkey HR',
+        apiBaseUrl: 'https://api.human.go.digitable.io/human/v2/api',
+        packageName: packageName,
+        splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',
+        primaryColor: primary,
+        secondaryColor: secondary,
+        morningBg: 'assets/images/domex_home-banner3.jpg',
+        afternoonBg: 'assets/images/domex_home-banner3.jpg',
+        eveningBg: 'assets/images/domex_home-banner3.jpg',
+        nightBg: 'assets/images/domex_home-banner3.jpg',
+        iconColor: iconFg,
+        iconBackgroundColor: iconBg,
+        tenant: 'malkey',
+        tabColor: const Color(0xFF791b27),
+        tabLabelColor: secondary,
+        bottomNavIconColor: secondary,
+        bottomNavIconBgColor: const Color(0xFF791b27),
+        buttonColor: primary,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: primary,
+            primary: primary,
+            secondary: secondary,
+          ),
+          primaryColor: primary,
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primary,
+              foregroundColor: Colors.white,
+            ),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(foregroundColor: primary),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: primary,
+              side: const BorderSide(color: primary),
+            ),
+          ),
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+            backgroundColor: primary,
+            foregroundColor: Colors.white,
+          ),
+          textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.white),
           fontFamily: 'Poppins',
         ),
       );

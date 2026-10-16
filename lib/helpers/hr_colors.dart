@@ -8,7 +8,7 @@ class HRColors {
 
   static const Color red = Color(0xFFD32F2F);
   static const Color iconColor = Color(0xFF88959d);
-  static Color get bottomColor => FlavorConfig.isDomex
+  static Color get bottomColor => (FlavorConfig.isDomex || FlavorConfig.isMalkey)
       ? const Color(0xFFFED130)
       : FlavorConfig.instance.primaryColor;
   static const Color lableColor = Color(0xFF29D2C8);
@@ -80,10 +80,10 @@ class HRColors {
   static Color get backgroundColor => FlavorConfig.instance.backgroundColor;
   static const Color grayColor = Color(0xff939495);
   // orangeColor is defined as a getter above; this duplicate is removed.
-  static Color get continueShoppingGradient1Color => FlavorConfig.isDomex
+  static Color get continueShoppingGradient1Color => (FlavorConfig.isDomex || FlavorConfig.isMalkey)
       ? const Color(0xfffec230)
       : FlavorConfig.instance.primaryColor;
-  static Color get continueShoppingGradient2Color => FlavorConfig.isDomex
+  static Color get continueShoppingGradient2Color => (FlavorConfig.isDomex || FlavorConfig.isMalkey)
       ? const Color(0xfff9a825)
       : FlavorConfig.instance.primaryColor.withOpacity(0.8);
   static const Color backButtonBoxColor = Color(0x80000000);

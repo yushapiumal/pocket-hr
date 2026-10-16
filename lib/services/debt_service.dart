@@ -14,6 +14,7 @@ class DebtService {
       final res = await ApiClient.get(url);
 
       if (res.statusCode < 200 || res.statusCode >= 300) {
+        debugPrint('[DEBT SERVICE] Failed status: ${res.statusCode}, body: ${res.body}');
         throw Exception('Failed to load debts (${res.statusCode})');
       }
 

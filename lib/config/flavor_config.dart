@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum Flavor { digitable, domex, mahajana }
+enum Flavor { digitable, domex, mahajana, malkey }
 
 class FlavorConfig {
   final Flavor flavor;
@@ -154,4 +154,5 @@ class FlavorConfig {
   static bool get isDigitable => instance.flavor == Flavor.digitable;
   static bool get isDomex => instance.flavor == Flavor.domex;
   static bool get isMahajana => instance.flavor == Flavor.mahajana;
+  static bool get isMalkey => instance.flavor == Flavor.malkey;
 }

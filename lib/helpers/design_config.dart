@@ -38,6 +38,14 @@ class DesignConfig {
       return l.failedToConnectToServer;
     }
 
+    if (lower.contains('500') ||
+        lower.contains('internal server error') ||
+        lower.contains('502') ||
+        lower.contains('503') ||
+        lower.contains('504')) {
+      return l.serverError;
+    }
+
     if (lower.contains('direct manager') || lower.contains('target employee')) {
       return l.todoDirectManagerApprovalRequired;
     }

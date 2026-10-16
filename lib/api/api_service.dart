@@ -301,9 +301,25 @@ class APIService {
       // Safe extraction of fields
       final uidStr = storage.getItem('uid')?.toString() ?? '';
 
-      final leaveTitle = details is Map && details['leave_title'] != null
-          ? details['leave_title'].toString()
+      final rawLeaveTitle = details is Map && details['leave_title'] != null
+          ? details['leave_title'].toString().trim()
           : '';
+      final description = details is Map && details['description'] != null
+          ? details['description'].toString()
+          : '';
+      final cleanDesc = description.trim();
+
+      String leaveTitle = rawLeaveTitle;
+      if (cleanDesc.isNotEmpty) {
+        if (leaveTitle.isEmpty || leaveTitle == 'Leave Request') {
+          leaveTitle = cleanDesc;
+        } else if (!leaveTitle.contains(cleanDesc)) {
+          leaveTitle = '$leaveTitle - $cleanDesc';
+        }
+      } else if (leaveTitle.isEmpty) {
+        leaveTitle = 'Leave Request';
+      }
+
       final fromDate = details is Map && details['from_date'] != null
           ? details['from_date'].toString()
           : '';
@@ -318,9 +334,6 @@ class APIService {
           : '';
       final session = details is Map && details['session'] != null
           ? details['session'].toString()
-          : '';
-      final description = details is Map && details['description'] != null
-          ? details['description'].toString()
           : '';
       final shortLeavePeriod = details is Map && details['short_leave_period'] != null
           ? details['short_leave_period'].toString()
@@ -368,10 +381,16 @@ class APIService {
       debugPrint('[LEAVE] POST $url');
       debugPrint('[LEAVE] headers => $headers');
       debugPrint('[LEAVE] body => $data');
+      print('=================== LEAVE REQUEST FULL BODY ===================');
+      print(jsonEncode(data));
+      print('==============================================================');
 
       final response = await http.post(Uri.parse(url),
           headers: headers, body: data, encoding: Encoding.getByName("utf-8"));
 
+      print('=================== LEAVE RESPONSE FULL BODY ===================');
+      print(response.body);
+      print('================================================================');
       debugPrint('[LEAVE] response => ${response.body}');
       final values = json.decode(response.body);
 
