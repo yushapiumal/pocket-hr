@@ -36,6 +36,7 @@ class FlavorConfig {
   final Color containerShadowColor;
   final Color lightWhiteColor;
   final Color splashBackgroundColor;
+  final Color cardColor;
 
   /// Tab indicator/background color for selected tabs
   final Color tabColor;
@@ -80,6 +81,7 @@ class FlavorConfig {
     this.containerShadowColor = const Color(0xffffe8b7),
     this.lightWhiteColor = const Color(0xfffee8c6),
     this.splashBackgroundColor = const Color(0xff7a1b28),
+    this.cardColor = Colors.white,
     Color? tabColor,
     Color? tabLabelColor,
     Color? bottomNavIconColor,
@@ -111,6 +113,7 @@ class FlavorConfig {
     Color containerShadowColor = const Color(0xffffe8b7),
     Color lightWhiteColor = const Color(0xfffee8c6),
     Color splashBackgroundColor = const Color(0xff7a1b28),
+    Color cardColor = Colors.white,
     Color? tabColor,
     Color? tabLabelColor,
     Color? bottomNavIconColor,
@@ -133,6 +136,7 @@ class FlavorConfig {
       containerShadowColor: containerShadowColor,
       lightWhiteColor: lightWhiteColor,
       splashBackgroundColor: splashBackgroundColor,
+      cardColor: cardColor,
       tabColor: tabColor,
       tabLabelColor: tabLabelColor,
       bottomNavIconColor: bottomNavIconColor,

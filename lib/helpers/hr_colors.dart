@@ -8,7 +8,7 @@ class HRColors {
 
   static const Color red = Color(0xFFD32F2F);
   static const Color iconColor = Color(0xFF88959d);
-  static Color get bottomColor => (FlavorConfig.isDomex || FlavorConfig.isMalkey)
+  static Color get bottomColor => FlavorConfig.isDomex
       ? const Color(0xFFFED130)
       : FlavorConfig.instance.primaryColor;
   static const Color lableColor = Color(0xFF29D2C8);
@@ -57,6 +57,9 @@ class HRColors {
   /// Active flavor's button background color
   static Color get buttonColor => FlavorConfig.instance.buttonColor;
 
+  /// Active flavor's card background color
+  static Color get cardColor => FlavorConfig.instance.cardColor;
+
   static const Color intro1Sed1Color = Color(0xfffedd8c);
   static const Color intro1Sed2Color = Color(0xfff7c361);
   static const Color intro1Sed3Color = Color(0xfff7b53e);
@@ -80,10 +83,10 @@ class HRColors {
   static Color get backgroundColor => FlavorConfig.instance.backgroundColor;
   static const Color grayColor = Color(0xff939495);
   // orangeColor is defined as a getter above; this duplicate is removed.
-  static Color get continueShoppingGradient1Color => (FlavorConfig.isDomex || FlavorConfig.isMalkey)
+  static Color get continueShoppingGradient1Color => FlavorConfig.isDomex
       ? const Color(0xfffec230)
       : FlavorConfig.instance.primaryColor;
-  static Color get continueShoppingGradient2Color => (FlavorConfig.isDomex || FlavorConfig.isMalkey)
+  static Color get continueShoppingGradient2Color => FlavorConfig.isDomex
       ? const Color(0xfff9a825)
       : FlavorConfig.instance.primaryColor.withOpacity(0.8);
   static const Color backButtonBoxColor = Color(0x80000000);

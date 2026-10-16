@@ -144,37 +144,45 @@ Future<void> main() async {
         ),
       );
     } else if (packageName == 'io.digitable.go.malkey.human') {
-      const Color primary = Color(0xFF6A1311); // Dark crimson red
-      const Color secondary = Color(0xffffcc09); // Gold
-      const Color iconFg = secondary;
-      const Color iconBg = Color(0xFF6A1311);
+      const Color primary = Color(0xFF1D64E2); // Malkey vibrant royal blue
+      const Color secondary = Color(0xFF399BF6); // Malkey sky blue accent
+      const Color cardColor = Colors.white;
+      const Color backgroundColor = Color(0xFFF4F6F9);
       FlavorConfig.init(
         flavor: Flavor.malkey,
         appName: 'Malkey HR',
         apiBaseUrl: 'https://api.human.go.digitable.io/human/v2/api',
         packageName: packageName,
-        splashLogoAsset: 'assets/images/bg_remove_domex_app_logo.png',
+        splashLogoAsset: 'assets/images/malkey_app_logo.png',
         primaryColor: primary,
         secondaryColor: secondary,
         morningBg: 'assets/images/domex_home-banner3.jpg',
         afternoonBg: 'assets/images/domex_home-banner3.jpg',
         eveningBg: 'assets/images/domex_home-banner3.jpg',
         nightBg: 'assets/images/domex_home-banner3.jpg',
-        iconColor: iconFg,
-        iconBackgroundColor: iconBg,
+        backgroundColor: backgroundColor,
+        containerShadowColor: const Color(0xFFE2E8F0),
+        lightWhiteColor: const Color(0xFFEBF2FC),
+        splashBackgroundColor: primary,
+        cardColor: cardColor,
+        iconColor: Colors.white,
+        iconBackgroundColor: primary,
         tenant: 'malkey',
-        tabColor: const Color(0xFF791b27),
-        tabLabelColor: secondary,
-        bottomNavIconColor: secondary,
-        bottomNavIconBgColor: const Color(0xFF791b27),
+        tabColor: primary,
+        tabLabelColor: Colors.white,
+        bottomNavIconColor: primary,
+        bottomNavIconBgColor: const Color(0xFFEBF2FC),
         buttonColor: primary,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: primary,
             primary: primary,
             secondary: secondary,
+            surface: cardColor,
           ),
           primaryColor: primary,
+          cardColor: cardColor,
+          scaffoldBackgroundColor: backgroundColor,
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               backgroundColor: primary,
@@ -194,7 +202,11 @@ Future<void> main() async {
             backgroundColor: primary,
             foregroundColor: Colors.white,
           ),
-          textSelectionTheme: const TextSelectionThemeData(cursorColor: Colors.white),
+          cardTheme: const CardTheme(
+            color: cardColor,
+            elevation: 1,
+          ),
+          textSelectionTheme: const TextSelectionThemeData(cursorColor: primary),
           fontFamily: 'Poppins',
         ),
       );

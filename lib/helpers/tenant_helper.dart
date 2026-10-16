@@ -23,6 +23,11 @@ class TenantHelper {
       logoFillColor: Color(0xFF8B1818), // dark crimson red background
     ),
     'mahajana': _TenantConfig(logoPath: 'assets/images/mahajana plash_logo.png'),
+    'malkey': _TenantConfig(
+      logoPath: 'assets/images/malkey_app_logo.png',
+      logoBorderColor: Color(0xFF1D64E2),
+      logoFillColor: Color(0xFF1D64E2),
+    ),
   };
 
   /// Fallback logo when no tenant match is found.
