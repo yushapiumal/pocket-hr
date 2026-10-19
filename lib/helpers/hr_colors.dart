@@ -54,6 +54,9 @@ class HRColors {
   /// Active flavor's background circle color for selected bottom navigation icon
   static Color get bottomNavIconBgColor => FlavorConfig.instance.bottomNavIconBgColor;
 
+  /// Active flavor's bottom navigation bar container background color
+  static Color get bottomNavBarBgColor => FlavorConfig.instance.bottomNavBarBgColor;
+
   /// Active flavor's button background color
   static Color get buttonColor => FlavorConfig.instance.buttonColor;
 

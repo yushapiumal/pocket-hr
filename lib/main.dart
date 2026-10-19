@@ -170,8 +170,8 @@ Future<void> main() async {
         tenant: 'malkey',
         tabColor: primary,
         tabLabelColor: Colors.white,
-        bottomNavIconColor: primary,
-        bottomNavIconBgColor: const Color(0xFFEBF2FC),
+        bottomNavIconColor: Colors.white,
+        bottomNavIconBgColor: primary,
         buttonColor: primary,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(

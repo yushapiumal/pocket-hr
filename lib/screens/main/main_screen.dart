@@ -88,7 +88,7 @@ class _HRMainState extends State<HRMain> {
                   height: 64,
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.6),
+                    color: HRColors.bottomNavBarBgColor,
                     borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                     boxShadow: const [
                       BoxShadow(
@@ -172,7 +172,7 @@ class _HRMainState extends State<HRMain> {
                     Icon(
                       icon,
                       size: 24,
-                      color: Colors.white,
+                      color: isSelected ? HRColors.bottomNavIconColor : Colors.white,
                     ),
                     if (isSelected) ...[
                       const SizedBox(width: 6),
@@ -180,10 +180,10 @@ class _HRMainState extends State<HRMain> {
                         cleanLabel,
                         maxLines: 1,
                         softWrap: false,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: HRColors.bottomNavIconColor,
                         ),
                       ),
                     ],

@@ -50,6 +50,9 @@ class FlavorConfig {
   /// Background circle color for selected bottom navigation icon
   final Color bottomNavIconBgColor;
 
+  /// Background color for bottom navigation bar container
+  final Color bottomNavBarBgColor;
+
   /// Button background color
   final Color buttonColor;
 
@@ -98,6 +101,7 @@ class FlavorConfig {
     Color? tabLabelColor,
     Color? bottomNavIconColor,
     Color? bottomNavIconBgColor,
+    Color? bottomNavBarBgColor,
     Color? buttonColor,
     Color? brandPrimary,
     Color? brandLight,
@@ -105,8 +109,9 @@ class FlavorConfig {
     Color? brandGreyText,
   }) : this.tabColor = tabColor ?? primaryColor,
        this.tabLabelColor = tabLabelColor ?? secondaryColor,
-       this.bottomNavIconColor = bottomNavIconColor ?? secondaryColor,
-       this.bottomNavIconBgColor = bottomNavIconBgColor ?? (flavor == Flavor.domex ? const Color(0xFF791b27) : primaryColor.withOpacity(0.12)),
+       this.bottomNavIconColor = bottomNavIconColor ?? (flavor == Flavor.domex ? secondaryColor : Colors.white),
+       this.bottomNavIconBgColor = bottomNavIconBgColor ?? (flavor == Flavor.domex ? const Color(0xFF791b27) : primaryColor),
+       this.bottomNavBarBgColor = bottomNavBarBgColor ?? Colors.grey.withOpacity(0.6),
        this.buttonColor = buttonColor ?? primaryColor,
        this.brandPrimary = brandPrimary ?? (flavor == Flavor.domex ? const Color(0xFF701A27) : primaryColor),
        this.brandLight = brandLight ?? (flavor == Flavor.domex ? const Color(0xFFFAF2EB) : (flavor == Flavor.malkey ? const Color(0xFFEBF2FC) : lightWhiteColor)),
@@ -138,6 +143,7 @@ class FlavorConfig {
     Color? tabLabelColor,
     Color? bottomNavIconColor,
     Color? bottomNavIconBgColor,
+    Color? bottomNavBarBgColor,
     Color? buttonColor,
     Color? brandPrimary,
     Color? brandLight,
@@ -165,6 +171,7 @@ class FlavorConfig {
       tabLabelColor: tabLabelColor,
       bottomNavIconColor: bottomNavIconColor,
       bottomNavIconBgColor: bottomNavIconBgColor,
+      bottomNavBarBgColor: bottomNavBarBgColor,
       buttonColor: buttonColor,
       brandPrimary: brandPrimary,
       brandLight: brandLight,
