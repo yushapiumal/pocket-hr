@@ -37,7 +37,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
   static Color get _burgundy => HRColors.brandPrimary;
   static Color get _burgundyLight => HRColors.brandLight;
   static Color get _textBurgundy => HRColors.brandDarkText;
-  static Color get _textGrey => HRColors.brandGreyText;
+  static const Color _textGrey = Color(0xFF7D6C6F); // Greyish brown text
 
   late TabController _tabController;
 

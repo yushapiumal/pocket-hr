@@ -38,7 +38,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
   static Color get _burgundy => HRColors.brandPrimary;
   static Color get _burgundyLight => HRColors.brandLight;
   static Color get _textBurgundy => HRColors.brandDarkText;
-  static Color get _textGrey => HRColors.brandGreyText;
+  static const Color _textGrey = Color(0xFF7D6C6F); // Soft grey text
 
   @override
   void initState() {
@@ -1611,10 +1611,10 @@ class TodoCardWidget extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: _burgundy.withOpacity(0.12),
+                  color: HRColors.brandPrimary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(typeIcon, color: _burgundy, size: 20),
+                child: Icon(typeIcon, color: HRColors.brandPrimary, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1636,20 +1636,20 @@ class TodoCardWidget extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: _textBurgundy,
+                                  color: HRColors.brandDarkText,
                                 ),
                               ),
                               if (item.user?.epfPretty != null)
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                                   decoration: BoxDecoration(
-                                    color: _burgundy.withOpacity(0.12),
+                                    color: HRColors.brandPrimary.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: AutoSizeText(
                                     item.user!.epfPretty!,
                                     style: TextStyle(
-                                      color: _burgundy,
+                                      color: HRColors.brandPrimary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 10,
                                     ),
@@ -1766,7 +1766,7 @@ class TodoCardWidget extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: _burgundy,
+                                color: HRColors.brandPrimary,
                               ),
                             ),
                             const SizedBox(width: 8),

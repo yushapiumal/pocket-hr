@@ -999,7 +999,7 @@ class _LeaveHistoryCardWidgetState extends State<_LeaveHistoryCardWidget> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: _maroon,
+                        color: HRColors.brandPrimary,
                       ),
                     ),
                     const SizedBox(width: 8),

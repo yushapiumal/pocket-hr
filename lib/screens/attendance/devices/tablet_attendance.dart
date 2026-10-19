@@ -45,7 +45,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
   static Color get _burgundy => HRColors.brandPrimary;
   static Color get _burgundyLight => HRColors.brandLight;
   static Color get _textBurgundy => HRColors.brandDarkText;
-  static Color get _textGrey => HRColors.brandGreyText;
+  static const Color _textGrey = Color(0xFF7D6C6F); // Greyish brown text
 
   // Track expanded dates
   final Set<String> _expandedDates = {};
@@ -231,7 +231,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
                 Container(
                   width: 34,
                   height: 34,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                       color: _burgundy, shape: BoxShape.circle),
                   child: IconButton(
                     padding: EdgeInsets.zero,
@@ -936,7 +936,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: _burgundy,
