@@ -87,7 +87,7 @@ Future<void> main() async {
         backgroundColor: primary,
         foregroundColor: Colors.white,
       ),
-      cardTheme: const CardTheme(
+      cardTheme: const CardThemeData(
         color: cardColor,
         elevation: 1,
       ),
