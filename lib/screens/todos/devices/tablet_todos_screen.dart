@@ -35,10 +35,10 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
 
   static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
-  static const Color _burgundy = Color(0xFF701A27); // Burgundy
-  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
-  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
-  static const Color _textGrey = Color(0xFF7D6C6F); // Soft grey text
+  static Color get _burgundy => HRColors.brandPrimary;
+  static Color get _burgundyLight => HRColors.brandLight;
+  static Color get _textBurgundy => HRColors.brandDarkText;
+  static Color get _textGrey => HRColors.brandGreyText;
 
   @override
   void initState() {
@@ -491,9 +491,9 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
         return Container(
           height: sheetHeight,
-          decoration: const BoxDecoration(
-            color: Color(0xFFFAF2EB),
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: _burgundyLight,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
@@ -727,9 +727,9 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
         return Container(
           height: sheetHeight,
-          decoration: const BoxDecoration(
-            color: Color(0xFFFAF2EB),
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: _burgundyLight,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
@@ -962,9 +962,9 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
         final sheetHeight = MediaQuery.of(ctx).size.height * 0.82;
         return Container(
           height: sheetHeight,
-          decoration: const BoxDecoration(
-            color: Color(0xFFFAF2EB),
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: _burgundyLight,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(24),
               topRight: Radius.circular(24),
             ),
@@ -1443,7 +1443,7 @@ class _TabletTodosScreenState extends State<TabletTodosScreen>
                       maxLines: 1,
                       minFontSize: 20,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _textBurgundy,
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
@@ -1621,10 +1621,10 @@ class TodoCardWidget extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF701A27).withOpacity(0.12),
+                  color: _burgundy.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(typeIcon, color: const Color(0xFF701A27), size: 24),
+                child: Icon(typeIcon, color: _burgundy, size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -1643,23 +1643,23 @@ class TodoCardWidget extends StatelessWidget {
                               AutoSizeText(
                                 userName,
                                 minFontSize: 13,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4A1521),
+                                  color: _textBurgundy,
                                 ),
                               ),
                               if (item.user?.epfPretty != null)
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF701A27).withOpacity(0.12),
+                                    color: _burgundy.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: AutoSizeText(
                                     item.user!.epfPretty!,
-                                    style: const TextStyle(
-                                      color: Color(0xFF701A27),
+                                    style: TextStyle(
+                                      color: _burgundy,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 10,
                                     ),
@@ -1773,10 +1773,10 @@ class TodoCardWidget extends StatelessWidget {
                           if (todoTypeLabel.isNotEmpty) ...[
                             AutoSizeText(
                               todoTypeLabel,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF701A27),
+                                color: _burgundy,
                               ),
                             ),
                             const SizedBox(width: 8),

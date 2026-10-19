@@ -39,13 +39,13 @@ class _MobileAttendanceState extends State<MobileAttendance>
   String? _resolvedLocation;
   String? _resolvedUser;
 
-  // Theme colors matching premium mockup
+  // Theme colors dynamically resolved from HRColors
   static const Color _pageBg = Color.fromARGB(255, 248, 250, 252); // Warm cream base
   static const Color _surface = Colors.white;
-  static const Color _burgundy = Color(0xFF701A27); // Burgundy
-  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
-  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
-  static const Color _textGrey = Color(0xFF7D6C6F); // Greyish brown text
+  static Color get _burgundy => HRColors.brandPrimary;
+  static Color get _burgundyLight => HRColors.brandLight;
+  static Color get _textBurgundy => HRColors.brandDarkText;
+  static Color get _textGrey => HRColors.brandGreyText;
 
   // Track expanded dates
   final Set<String> _expandedDates = {};
@@ -231,7 +231,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
                 Container(
                   width: 34,
                   height: 34,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                       color: _burgundy, shape: BoxShape.circle),
                   child: IconButton(
                     padding: EdgeInsets.zero,
@@ -455,7 +455,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
           // Header Title
           AutoSizeText(
             AppLocalizations.of(context)!.myAttendance,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
               color: _textBurgundy,
@@ -763,8 +763,8 @@ class _MobileAttendanceState extends State<MobileAttendance>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.connectionState == ConnectionState.active) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 60),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 60),
             child: Center(
               child: CupertinoActivityIndicator(
                 color: _burgundy,
@@ -787,8 +787,8 @@ class _MobileAttendanceState extends State<MobileAttendance>
         }
 
         if (!snapshot.hasData) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 60),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 60),
             child: Center(
               child: CupertinoActivityIndicator(
                 color: _burgundy,

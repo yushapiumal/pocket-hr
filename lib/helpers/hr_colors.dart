@@ -60,6 +60,25 @@ class HRColors {
   /// Active flavor's card background color
   static Color get cardColor => FlavorConfig.instance.cardColor;
 
+  /// Tenant brand primary accent color (Burgundy #701A27 for Domex, Royal Blue #1D64E2 for Malkey)
+  static Color get brandPrimary => FlavorConfig.instance.brandPrimary;
+
+  /// Soft light tint for card headers, balance summaries, tabs (Soft beige #FAF2EB for Domex, Ice blue #EBF2FC for Malkey)
+  static Color get brandLight => FlavorConfig.instance.brandLight;
+
+  /// Dark text color matching the tenant brand (Dark burgundy #4A1521 for Domex, Deep navy #0F2C6B for Malkey)
+  static Color get brandDarkText => FlavorConfig.instance.brandDarkText;
+
+  /// Subtle grey text color
+  static Color get brandGreyText => FlavorConfig.instance.brandGreyText;
+
+  /// Backward-compatible aliases for legacy Domex color names:
+  static Color get burgundy => brandPrimary;
+  static Color get burgundyLight => brandLight;
+  static Color get textBurgundy => brandDarkText;
+  static Color get textGrey => brandGreyText;
+  static Color get maroon => brandPrimary;
+
   static const Color intro1Sed1Color = Color(0xfffedd8c);
   static const Color intro1Sed2Color = Color(0xfff7c361);
   static const Color intro1Sed3Color = Color(0xfff7b53e);

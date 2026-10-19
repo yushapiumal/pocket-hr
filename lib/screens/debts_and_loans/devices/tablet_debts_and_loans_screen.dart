@@ -328,7 +328,7 @@ class _TabletDebtsAndLoansScreenState extends State<TabletDebtsAndLoansScreen>
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFAF2EB),
+                  color: HRColors.brandLight,
                   borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                 ),
                 child: TabBar(

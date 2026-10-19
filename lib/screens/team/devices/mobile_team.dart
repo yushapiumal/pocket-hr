@@ -34,10 +34,10 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
 
   // Theme colors matching premium mockup
-  static const Color _burgundy = Color(0xFF701A27); // Burgundy
-  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
-  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
-  static const Color _textGrey = Color(0xFF7D6C6F); // Greyish brown text
+  static Color get _burgundy => HRColors.brandPrimary;
+  static Color get _burgundyLight => HRColors.brandLight;
+  static Color get _textBurgundy => HRColors.brandDarkText;
+  static Color get _textGrey => HRColors.brandGreyText;
 
   late TabController _tabController;
 
@@ -401,7 +401,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                 ),
                 child: AutoSizeText(
                   epf,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: _burgundy,
                     fontWeight: FontWeight.bold,
                     fontSize: 10,
@@ -1381,7 +1381,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                                  children: [
                                    AutoSizeText(
                                      _getLeaveTypeLabel(context, type),
-                                     style: const TextStyle(
+                                     style: TextStyle(
                                        fontSize: 13,
                                        fontWeight: FontWeight.bold,
                                        color: _burgundy,
@@ -2061,7 +2061,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                   const SizedBox(width: _g12),
                   Expanded(
                     child: AutoSizeText(AppLocalizations.of(context)!.myTeam,
-                        style: const TextStyle(
+                        style: TextStyle(
                             color: _textBurgundy,
                             fontSize: 24,
                             fontWeight: FontWeight.w900)),
@@ -2092,7 +2092,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       child: AutoSizeText(
                         AppLocalizations.of(context)!.selectTeamMember,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: _textBurgundy,
@@ -2139,7 +2139,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                                     radius: 16,
                                     backgroundColor:
                                         _burgundy.withOpacity(0.12),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.group,
                                       size: 18,
                                       color: _burgundy,
@@ -2205,7 +2205,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                                       backgroundColor: _burgundyLight,
                                       child: AutoSizeText(
                                         initials(),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: _textBurgundy,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 12,
@@ -2251,7 +2251,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                                     radius: 18,
                                     backgroundColor:
                                         _burgundy.withOpacity(0.12),
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.group,
                                       color: _burgundy,
                                     ),
@@ -2322,7 +2322,7 @@ class _MobileTeamState extends State<MobileTeam> with TickerProviderStateMixin {
                                       backgroundColor: _burgundyLight,
                                       child: AutoSizeText(
                                         initials(),
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: _textBurgundy,
                                           fontWeight: FontWeight.w700,
                                         ),

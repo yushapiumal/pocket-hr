@@ -35,10 +35,10 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
 
   static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
   static const Color _surface = Color.fromARGB(255, 248, 250, 252);
-  static const Color _burgundy = Color(0xFF701A27); // Burgundy
-  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
-  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
-  static const Color _textGrey = Color(0xFF7D6C6F); // Soft grey text
+  static Color get _burgundy => HRColors.brandPrimary;
+  static Color get _burgundyLight => HRColors.brandLight;
+  static Color get _textBurgundy => HRColors.brandDarkText;
+  static Color get _textGrey => HRColors.brandGreyText;
 
   @override
   void initState() {
@@ -1433,7 +1433,7 @@ class _MobileTodosScreenState extends State<MobileTodosScreen>
                       maxLines: 1,
                       minFontSize: 16,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: _textBurgundy,
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
@@ -1611,10 +1611,10 @@ class TodoCardWidget extends StatelessWidget {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF701A27).withOpacity(0.12),
+                  color: _burgundy.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(typeIcon, color: const Color(0xFF701A27), size: 20),
+                child: Icon(typeIcon, color: _burgundy, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1633,23 +1633,23 @@ class TodoCardWidget extends StatelessWidget {
                               AutoSizeText(
                                 userName,
                                 minFontSize: 11,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4A1521),
+                                  color: _textBurgundy,
                                 ),
                               ),
                               if (item.user?.epfPretty != null)
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF701A27).withOpacity(0.12),
+                                    color: _burgundy.withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: AutoSizeText(
                                     item.user!.epfPretty!,
-                                    style: const TextStyle(
-                                      color: Color(0xFF701A27),
+                                    style: TextStyle(
+                                      color: _burgundy,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 10,
                                     ),
@@ -1763,10 +1763,10 @@ class TodoCardWidget extends StatelessWidget {
                           if (todoTypeLabel.isNotEmpty) ...[
                             AutoSizeText(
                               todoTypeLabel,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF701A27),
+                                color: _burgundy,
                               ),
                             ),
                             const SizedBox(width: 8),

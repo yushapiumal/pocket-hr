@@ -56,7 +56,7 @@ class MobileLeaveState extends State<MobileLeave>
   static const Color _pageBg = Color.fromARGB(255, 248, 250, 252);
 
   // Colors matching the mockup theme
-  static const Color _maroon = Color(0xFF791B27);
+  static Color get _maroon => HRColors.brandPrimary;
   static const Color _greyBrown = Color(0xFF8D7F77);
   static const Color _gold = Color(0xFFC59B27);
   static const Color _borderColor = Color(0xFFF0E5D9);
@@ -162,7 +162,7 @@ class MobileLeaveState extends State<MobileLeave>
       margin: const EdgeInsets.only(top: 14),
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFAF2EB),
+        color: HRColors.brandLight,
         borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
       ),
       child: Row(
@@ -215,7 +215,7 @@ class MobileLeaveState extends State<MobileLeave>
         children: [
           AutoSizeText(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
               color: _maroon,
@@ -838,7 +838,7 @@ class MobileLeaveState extends State<MobileLeave>
             : const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(iconOnly ? 56 : 30),
-          color: const Color(0xFF791B27),
+          color: _maroon,
           border: Border.all(color: Colors.black.withOpacity(0.06)),
           boxShadow: [
             BoxShadow(
@@ -996,10 +996,10 @@ class _LeaveHistoryCardWidgetState extends State<_LeaveHistoryCardWidget> {
                   children: [
                     AutoSizeText(
                       _capitalize(typeLabel),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF791B27),
+                        color: _maroon,
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -39,13 +39,13 @@ class _TabletAttendanceState extends State<TabletAttendance>
   String? _resolvedLocation;
   String? _resolvedUser;
 
-  // Theme colors matching premium mockup
+  // Theme colors dynamically resolved from HRColors
   static const Color _pageBg = Color.fromARGB(255, 248, 250, 252); // Warm cream base
   static const Color _surface = Colors.white;
-  static const Color _burgundy = Color(0xFF701A27); // Burgundy
-  static const Color _burgundyLight = Color(0xFFFAF2EB); // Soft beige
-  static const Color _textBurgundy = Color(0xFF4A1521); // Dark burgundy text
-  static const Color _textGrey = Color(0xFF7D6C6F); // Greyish brown text
+  static Color get _burgundy => HRColors.brandPrimary;
+  static Color get _burgundyLight => HRColors.brandLight;
+  static Color get _textBurgundy => HRColors.brandDarkText;
+  static Color get _textGrey => HRColors.brandGreyText;
 
   // Track expanded dates
   final Set<String> _expandedDates = {};
@@ -475,7 +475,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
           // Header Title
           AutoSizeText(
             AppLocalizations.of(context)!.myAttendance,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w800,
               color: _textBurgundy,
@@ -783,8 +783,8 @@ class _TabletAttendanceState extends State<TabletAttendance>
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.connectionState == ConnectionState.active) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 60),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 60),
             child: Center(
               child: CupertinoActivityIndicator(
                 color: _burgundy,
@@ -807,8 +807,8 @@ class _TabletAttendanceState extends State<TabletAttendance>
         }
 
         if (!snapshot.hasData) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 60),
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 60),
             child: Center(
               child: CupertinoActivityIndicator(
                 color: _burgundy,
@@ -955,7 +955,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
           border: Border.all(color: const Color(0xFFF3ECE4), width: 1),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF701A27).withOpacity(0.04),
+              color: _burgundy.withOpacity(0.04),
               blurRadius: 10,
               offset: const Offset(0, 6),
             )
@@ -983,7 +983,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
                   children: [
                     Text(
                       "${_getLocalizedDow(context, dow)} $day",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: _textBurgundy,
@@ -1014,29 +1014,29 @@ class _TabletAttendanceState extends State<TabletAttendance>
   Widget _collapsedContent(String inTime, String outTime) {
     return Row(
       children: [
-        const Icon(Icons.login, size: 18, color: _burgundy),
+        Icon(Icons.login, size: 18, color: _burgundy),
         const SizedBox(width: 6),
         Text(
           inTime,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: _textBurgundy,
           ),
         ),
         const SizedBox(width: 24),
-        const Icon(Icons.logout, size: 18, color: _burgundy),
+        Icon(Icons.logout, size: 18, color: _burgundy),
         const SizedBox(width: 6),
         Text(
           outTime,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: _textBurgundy,
           ),
         ),
         const Spacer(),
-        const Icon(Icons.keyboard_arrow_down, color: _burgundy, size: 22),
+        Icon(Icons.keyboard_arrow_down, color: _burgundy, size: 22),
       ],
     );
   }
@@ -1246,7 +1246,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w800,
               color: _textBurgundy,
@@ -1283,22 +1283,22 @@ class _TabletAttendanceState extends State<TabletAttendance>
               const SizedBox(height: 6),
               Row(
                 children: [
-                  const Icon(Icons.login, size: 18, color: _burgundy),
+                  Icon(Icons.login, size: 18, color: _burgundy),
                   const SizedBox(width: 6),
                   Text(
                     inTime,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: _textBurgundy,
                     ),
                   ),
                   const Spacer(),
-                  const Icon(Icons.logout, size: 18, color: _burgundy),
+                  Icon(Icons.logout, size: 18, color: _burgundy),
                   const SizedBox(width: 6),
                   Text(
                     outTime,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: _textBurgundy,
@@ -1333,7 +1333,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
                                 maxLines: 1,
                                 minFontSize: 8,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: _textBurgundy,
@@ -1362,7 +1362,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
                                 maxLines: 1,
                                 minFontSize: 8,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: _textBurgundy,
@@ -1392,7 +1392,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
                 children: [
                   Text(
                     isRemoteAttendance ? l10n.remoteLabel : l10n.qrLabel,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       color: _textBurgundy,
@@ -1401,7 +1401,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
                   const Spacer(),
                   Text(
                     hasOut ? (isRemoteAttendance ? l10n.remoteLabel : l10n.qrLabel) : ' - ',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       color: _textBurgundy,

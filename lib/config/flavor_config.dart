@@ -53,6 +53,18 @@ class FlavorConfig {
   /// Button background color
   final Color buttonColor;
 
+  /// Accent / primary brand color for screens (e.g., Domex burgundy, Malkey royal blue)
+  final Color brandPrimary;
+
+  /// Soft light tint for card headers, balance summaries, tabs
+  final Color brandLight;
+
+  /// Dark text color matching the tenant
+  final Color brandDarkText;
+
+  /// Subtle grey text color
+  final Color brandGreyText;
+
   /// Home page background images
   final String morningBg;
   final String afternoonBg;
@@ -87,11 +99,19 @@ class FlavorConfig {
     Color? bottomNavIconColor,
     Color? bottomNavIconBgColor,
     Color? buttonColor,
+    Color? brandPrimary,
+    Color? brandLight,
+    Color? brandDarkText,
+    Color? brandGreyText,
   }) : this.tabColor = tabColor ?? primaryColor,
        this.tabLabelColor = tabLabelColor ?? secondaryColor,
        this.bottomNavIconColor = bottomNavIconColor ?? secondaryColor,
-       this.bottomNavIconBgColor = bottomNavIconBgColor ?? const Color(0xFF791b27),
-       this.buttonColor = buttonColor ?? primaryColor;
+       this.bottomNavIconBgColor = bottomNavIconBgColor ?? (flavor == Flavor.domex ? const Color(0xFF791b27) : primaryColor.withOpacity(0.12)),
+       this.buttonColor = buttonColor ?? primaryColor,
+       this.brandPrimary = brandPrimary ?? (flavor == Flavor.domex ? const Color(0xFF701A27) : primaryColor),
+       this.brandLight = brandLight ?? (flavor == Flavor.domex ? const Color(0xFFFAF2EB) : (flavor == Flavor.malkey ? const Color(0xFFEBF2FC) : lightWhiteColor)),
+       this.brandDarkText = brandDarkText ?? (flavor == Flavor.domex ? const Color(0xFF4A1521) : (flavor == Flavor.malkey ? const Color(0xFF0F2C6B) : const Color(0xFF1F2A36))),
+       this.brandGreyText = brandGreyText ?? (flavor == Flavor.domex ? const Color(0xFF7D6C6F) : const Color(0xFF6B7280));
 
   static void init({
     required Flavor flavor,
@@ -119,6 +139,10 @@ class FlavorConfig {
     Color? bottomNavIconColor,
     Color? bottomNavIconBgColor,
     Color? buttonColor,
+    Color? brandPrimary,
+    Color? brandLight,
+    Color? brandDarkText,
+    Color? brandGreyText,
   }) {
     _instance = FlavorConfig._(
       flavor: flavor,
@@ -142,6 +166,10 @@ class FlavorConfig {
       bottomNavIconColor: bottomNavIconColor,
       bottomNavIconBgColor: bottomNavIconBgColor,
       buttonColor: buttonColor,
+      brandPrimary: brandPrimary,
+      brandLight: brandLight,
+      brandDarkText: brandDarkText,
+      brandGreyText: brandGreyText,
       morningBg: morningBg,
       afternoonBg: afternoonBg,
       eveningBg: eveningBg,
