@@ -564,7 +564,12 @@ class _MobileLoginState extends State<MobileLogin>
                             child: ElevatedButton(
                               onPressed: buttonDisable ? null : _ssoLogin,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: primary,
+                                backgroundColor: primary == HRColors.splashbackgroundColor
+                                    ? const Color(0xFF486A85)
+                                    : primary,
+                                side: primary == HRColors.splashbackgroundColor
+                                    ? BorderSide(color: Colors.white.withOpacity(0.25), width: 1.2)
+                                    : null,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),

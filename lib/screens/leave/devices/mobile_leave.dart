@@ -57,9 +57,9 @@ class MobileLeaveState extends State<MobileLeave>
 
   // Colors matching the mockup theme
   static Color get _maroon => HRColors.brandPrimary;
-  static const Color _greyBrown = Color(0xFF8D7F77);
-  static const Color _gold = Color(0xFFC59B27);
-  static const Color _borderColor = Color(0xFFF0E5D9);
+  static Color get _greyBrown => HRColors.brandGreyText;
+  static Color get _gold => HRColors.brandAccent;
+  static Color get _borderColor => HRColors.brandBorder;
 
   Widget _leaveBalanceSummary() {
     int toInt(dynamic v) {
@@ -585,7 +585,7 @@ class MobileLeaveState extends State<MobileLeave>
                   padding: const EdgeInsets.all(4),
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5EFE6).withOpacity(0.5),
+                    color: HRColors.brandLight,
                     borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                   ),
                   child: Row(
@@ -654,7 +654,7 @@ class MobileLeaveState extends State<MobileLeave>
                     height: 48,
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5EFE6).withOpacity(0.5),
+                      color: HRColors.brandLight,
                       borderRadius: BorderRadius.circular(DesignConfig.defaultBorderRadius),
                     ),
                     child: TabBar(
@@ -1052,8 +1052,8 @@ class _LeaveHistoryCardWidgetState extends State<_LeaveHistoryCardWidget> {
                         (days > 1 && from.isNotEmpty && to.isNotEmpty)
                             ? '$from - $to'
                             : (from.isNotEmpty ? from : ''),
-                        style: const TextStyle(
-                          color: Color(0xFF8D7F77),
+                        style: TextStyle(
+                          color: HRColors.brandGreyText,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1068,27 +1068,27 @@ class _LeaveHistoryCardWidgetState extends State<_LeaveHistoryCardWidget> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFCF8F5),
+                      color: HRColors.brandLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'REASON',
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF8D7F77),
+                            color: HRColors.brandGreyText,
                             letterSpacing: 0.5,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           model.description.isNotEmpty ? model.description : 'No reason provided',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Color(0xFF503020),
+                            color: HRColors.brandDarkText,
                           ),
                         ),
                       ],

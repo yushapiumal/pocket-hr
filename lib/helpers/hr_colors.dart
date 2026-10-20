@@ -75,12 +75,21 @@ class HRColors {
   /// Subtle grey text color
   static Color get brandGreyText => FlavorConfig.instance.brandGreyText;
 
+  /// Border color for cards, tabs, and dividers
+  static Color get brandBorder => FlavorConfig.instance.brandBorder;
+
+  /// Accent / highlight color (Domex gold #C59B27, Malkey sky blue #0284C7)
+  static Color get brandAccent => FlavorConfig.instance.brandAccent;
+
   /// Backward-compatible aliases for legacy Domex color names:
   static Color get burgundy => brandPrimary;
   static Color get burgundyLight => brandLight;
   static Color get textBurgundy => brandDarkText;
   static Color get textGrey => brandGreyText;
   static Color get maroon => brandPrimary;
+  static Color get gold => brandAccent;
+  static Color get greyBrown => brandGreyText;
+  static Color get borderColor => brandBorder;
 
   static const Color intro1Sed1Color = Color(0xfffedd8c);
   static const Color intro1Sed2Color = Color(0xfff7c361);

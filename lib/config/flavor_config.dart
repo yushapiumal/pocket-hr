@@ -68,6 +68,12 @@ class FlavorConfig {
   /// Subtle grey text color
   final Color brandGreyText;
 
+  /// Border color for cards, tabs, and dividers
+  final Color brandBorder;
+
+  /// Accent / highlight color (Domex gold #C59B27, Malkey sky blue #0284C7)
+  final Color brandAccent;
+
   /// Home page background images
   final String morningBg;
   final String afternoonBg;
@@ -107,6 +113,8 @@ class FlavorConfig {
     Color? brandLight,
     Color? brandDarkText,
     Color? brandGreyText,
+    Color? brandBorder,
+    Color? brandAccent,
   }) : this.tabColor = tabColor ?? primaryColor,
        this.tabLabelColor = tabLabelColor ?? secondaryColor,
        this.bottomNavIconColor = bottomNavIconColor ?? (flavor == Flavor.domex ? secondaryColor : Colors.white),
@@ -114,9 +122,11 @@ class FlavorConfig {
        this.bottomNavBarBgColor = bottomNavBarBgColor ?? Colors.grey.withOpacity(0.6),
        this.buttonColor = buttonColor ?? primaryColor,
        this.brandPrimary = brandPrimary ?? (flavor == Flavor.domex ? const Color(0xFF701A27) : primaryColor),
-       this.brandLight = brandLight ?? (flavor == Flavor.domex ? const Color(0xFFFAF2EB) : (flavor == Flavor.malkey ? const Color(0xFFEBF2FC) : lightWhiteColor)),
-       this.brandDarkText = brandDarkText ?? (flavor == Flavor.domex ? const Color(0xFF4A1521) : (flavor == Flavor.malkey ? const Color(0xFF0F2C6B) : const Color(0xFF1F2A36))),
-       this.brandGreyText = brandGreyText ?? (flavor == Flavor.domex ? const Color(0xFF7D6C6F) : const Color(0xFF6B7280));
+       this.brandLight = brandLight ?? (flavor == Flavor.domex ? const Color(0xFFFAF2EB) : (flavor == Flavor.malkey ? const Color(0xFFEAEEF1) : lightWhiteColor)),
+       this.brandDarkText = brandDarkText ?? (flavor == Flavor.domex ? const Color(0xFF4A1521) : (flavor == Flavor.malkey ? const Color(0xFF334C5F) : const Color(0xFF1F2A36))),
+       this.brandGreyText = brandGreyText ?? (flavor == Flavor.domex ? const Color(0xFF7D6C6F) : const Color(0xFF6B7280)),
+       this.brandBorder = brandBorder ?? (flavor == Flavor.domex ? const Color(0xFFF0E5D9) : const Color(0xFFD5DFE6)),
+       this.brandAccent = brandAccent ?? (flavor == Flavor.domex ? const Color(0xFFC59B27) : (flavor == Flavor.malkey ? const Color(0xFF4F708B) : secondaryColor));
 
   static void init({
     required Flavor flavor,
@@ -149,6 +159,8 @@ class FlavorConfig {
     Color? brandLight,
     Color? brandDarkText,
     Color? brandGreyText,
+    Color? brandBorder,
+    Color? brandAccent,
   }) {
     _instance = FlavorConfig._(
       flavor: flavor,
@@ -177,6 +189,8 @@ class FlavorConfig {
       brandLight: brandLight,
       brandDarkText: brandDarkText,
       brandGreyText: brandGreyText,
+      brandBorder: brandBorder,
+      brandAccent: brandAccent,
       morningBg: morningBg,
       afternoonBg: afternoonBg,
       eveningBg: eveningBg,

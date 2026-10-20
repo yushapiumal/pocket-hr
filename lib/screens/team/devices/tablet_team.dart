@@ -1746,7 +1746,7 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
     return Container(
       width: 1,
       height: 36,
-      color: const Color(0xFFF0E5D9),
+      color: HRColors.brandBorder,
       margin: const EdgeInsets.symmetric(horizontal: 4),
     );
   }
@@ -1894,10 +1894,10 @@ class _TabletTeamState extends State<TabletTeam> with TickerProviderStateMixin {
                                 AutoSizeText(
                                   workedHrs,
                                   maxLines: 1,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w900,
-                                    color: Color(0xFFB57C1E),
+                                    color: HRColors.brandAccent,
                                   ),
                                 ),
                                 const SizedBox(height: 4),

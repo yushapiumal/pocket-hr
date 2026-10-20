@@ -718,7 +718,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
           statTile(l10n.presentLabel.toUpperCase(), presentCount.toString(), const Color(0xFF2E7D32)),
           statTile(l10n.absentsLabel.toUpperCase(), "00", _textGrey),
           statTile(l10n.lateInLabel.toUpperCase(), lateInCount.toString().padLeft(2, '0'), _textGrey),
-          statTile(l10n.workingHrs.toUpperCase(), totalWorkedText, const Color(0xFFB57C1E)),
+          statTile(l10n.workingHrs.toUpperCase(), totalWorkedText, HRColors.brandAccent),
         ],
       ),
     );
@@ -1066,10 +1066,10 @@ class _MobileAttendanceState extends State<MobileAttendance>
                                 AutoSizeText(
                                   workedHrs,
                                   maxLines: 1,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w900,
-                                    color: Color(0xFFB57C1E),
+                                    color: HRColors.brandAccent,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -1128,7 +1128,7 @@ class _MobileAttendanceState extends State<MobileAttendance>
     return Container(
       width: 1,
       height: 36,
-      color: const Color(0xFFF0E5D9),
+      color: HRColors.brandBorder,
       margin: const EdgeInsets.symmetric(horizontal: 4),
     );
   }
@@ -1363,9 +1363,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
           const SizedBox(height: 4),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF503020),
+              color: HRColors.brandDarkText,
             ),
           ),
         ],
@@ -1423,9 +1423,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
                             final val = snapshot.data ?? (isRemoteAttendance ? l10n.loading.toUpperCase() : siteNameIn.toUpperCase());
                             return Text(
                               val,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: Color(0xFF503020),
+                                color: HRColors.brandDarkText,
                               ),
                             );
                           },
@@ -1464,9 +1464,9 @@ class _MobileAttendanceState extends State<MobileAttendance>
                             final val = snapshot.data ?? (isRemoteAttendance ? l10n.loading.toUpperCase() : siteNameOut.toUpperCase());
                             return Text(
                               val,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: Color(0xFF503020),
+                                color: HRColors.brandDarkText,
                               ),
                             );
                           },

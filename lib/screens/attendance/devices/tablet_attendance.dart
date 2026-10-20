@@ -738,7 +738,7 @@ class _TabletAttendanceState extends State<TabletAttendance>
           statTile(l10n.presentLabel.toUpperCase(), presentCount.toString(), const Color(0xFF2E7D32)),
           statTile(l10n.absentsLabel.toUpperCase(), "00", _textGrey),
           statTile(l10n.lateInLabel.toUpperCase(), lateInCount.toString().padLeft(2, '0'), _textGrey),
-          statTile(l10n.workingHrs.toUpperCase(), totalWorkedText, const Color(0xFFB57C1E)),
+          statTile(l10n.workingHrs.toUpperCase(), totalWorkedText, HRColors.brandAccent),
         ],
       ),
     );
@@ -929,9 +929,9 @@ class _TabletAttendanceState extends State<TabletAttendance>
             decoration: BoxDecoration(
               color: _burgundyLight,
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFECDAC7), width: 1),
+              border: Border.all(color: HRColors.brandBorder, width: 1),
             ),
-            child: Icon(badgeIcon, size: 13, color: const Color(0xFFB57C1E)),
+            child: Icon(badgeIcon, size: 13, color: HRColors.brandAccent),
           ),
           const SizedBox(width: 8),
           Text(
