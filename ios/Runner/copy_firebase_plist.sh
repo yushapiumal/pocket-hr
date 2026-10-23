@@ -38,6 +38,7 @@ if [ -n "$DART_DEFINES" ]; then
   if echo "$DECODED" | grep -qi "domex";     then FLAVOR="domex"; fi
   if echo "$DECODED" | grep -qi "digitable"; then FLAVOR="digitable"; fi
   if echo "$DECODED" | grep -qi "mahajana";  then FLAVOR="mahajana"; fi
+  if echo "$DECODED" | grep -qi "malkey";    then FLAVOR="malkey"; fi
 fi
 
 # Fallback: match on bundle identifier
@@ -45,6 +46,7 @@ if [ -z "$FLAVOR" ]; then
   case "$PRODUCT_BUNDLE_IDENTIFIER" in
     *domex*)    FLAVOR="domex"    ;;
     *mahajana*) FLAVOR="mahajana" ;;
+    *malkey*)   FLAVOR="malkey"   ;;
     *)          FLAVOR="digitable" ;;
   esac
 fi

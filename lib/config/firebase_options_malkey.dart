@@ -18,19 +18,19 @@ class MalkeyFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBdiBH_uJYTaDBEV5zP4JTOZF0oef1wrgM',
-    appId: '1:1049172536794:android:bb1f279c3dc9225e2a24e3',
-    messagingSenderId: '1049172536794',
-    projectId: 'domex-go',
-    storageBucket: 'domex-go.firebasestorage.app',
+    apiKey: 'AIzaSyCc1Tv5JfvS4b2DU2YL1DY27_9uyBpwRBc',
+    appId: '1:759243690029:android:9cf12031827149734628a4',
+    messagingSenderId: '759243690029',
+    projectId: 'malkeyfront-8c8c3',
+    storageBucket: 'malkeyfront-8c8c3.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBx3O2aV7osrjAsjFaj2aJ9079VgKXJCz0',
-    appId: '1:1049172536794:ios:bc4e0e0a5cf0015c2a24e3',
-    messagingSenderId: '1049172536794',
-    projectId: 'domex-go',
-    storageBucket: 'domex-go.firebasestorage.app',
+    apiKey: 'AIzaSyCc1Tv5JfvS4b2DU2YL1DY27_9uyBpwRBc',
+    appId: '1:759243690029:ios:bc4e0e0a5cf0015c2a24e3',
+    messagingSenderId: '759243690029',
+    projectId: 'malkeyfront-8c8c3',
+    storageBucket: 'malkeyfront-8c8c3.firebasestorage.app',
     iosBundleId: 'io.digitable.go.malkey.human',
   );
 }

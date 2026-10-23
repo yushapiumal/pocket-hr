@@ -44,7 +44,13 @@ class OfflineAttendanceService {
   }
 
   Future<List<AttendancePunchModel>> getPendingPunches() async {
-    final query = _db.select(_db.punches)..where((tbl) => tbl.isSynced.equals(0));
+    // Order ascending by time and attendanceId to guarantee strict FIFO (First-In, First-Out)
+    final query = _db.select(_db.punches)
+      ..where((tbl) => tbl.isSynced.equals(0))
+      ..orderBy([
+        (tbl) => OrderingTerm.asc(tbl.time),
+        (tbl) => OrderingTerm.asc(tbl.attendanceId),
+      ]);
     final rows = await query.get();
     return rows.map((r) => AttendancePunchModel(
           attendanceId: r.attendanceId,

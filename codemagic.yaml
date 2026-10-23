@@ -71,3 +71,75 @@ workflows:
         notify:
           success: true
           failure: true
+
+  malkey-ios-release:
+    name: Malkey iOS Release Build & App Store
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    environment:
+      groups:
+        # Define in Codemagic UI for app store credentials / automatic signing
+        # - app_store_credentials
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - target: malkey
+          source: '*'
+        - target: human-v2
+          source: '*'
+
+    scripts:
+      - name: Set up code signing settings
+        script: |
+          keychain initialize
+
+      - name: Fetch Apple Certificates and Profiles
+        script: |
+          if [ -n "$APP_STORE_CONNECT_PRIVATE_KEY" ]; then
+            app-store-connect fetch-signing-files "io.digitable.go.malkey.human" --project-type ios-app --create --type IOS_APP_STORE
+          fi
+
+      - name: Prepare Malkey iOS Assets and Config
+        script: |
+          chmod +x tooling/prepare_ios_flavor.sh
+          ./tooling/prepare_ios_flavor.sh malkey
+
+      - name: Install Flutter Dependencies
+        script: |
+          flutter packages pub get
+
+      - name: Install Pods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+
+      - name: Build iOS Archive (.ipa)
+        script: |
+          # Build release version for Malkey tenant and generate signed IPA.
+          flutter build ipa --release \
+            -t lib/main_malkey.dart \
+            --dart-define=tenant=malkey \
+            --bundle-id="io.digitable.go.malkey.human" \
+            --build-number=$BUILD_NUMBER
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      # Optional: set up automatic App Store Connect / TestFlight publishing in Codemagic UI or below:
+      # app_store_connect:
+      #   auth: integration
+      #   submit_to_testflight: true
+      email:
+        recipients:
+          - piumal0713@gmail.com
+        notify:
+          success: true
+          failure: true
+
